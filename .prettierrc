@@ -1,4 +1,26 @@
 {
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
+  "semi": true,
+  "printWidth": 120,
+  "tabWidth": 4,
   "singleQuote": true,
-  "trailingComma": "all"
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "useTabs": false,
+  "arrowParens": "avoid",
+  "trailingComma": "all",
+  "endOfLine": "auto",
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrder": [
+    "joi",
+    "@nestjs/(.*)$",
+    "@apollo/(.*)$",
+    "graphql(.*)$",
+    "@sentry/(.*)$",
+    "@mikro-orm/(.*)$",
+    "lodash",
+    "<THIRD_PARTY_MODULES>"
+  ],
+  "importOrderSortSpecifiers": true,
+  "importOrderMergeDuplicateImports": true
 }
