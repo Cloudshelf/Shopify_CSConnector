@@ -17,8 +17,9 @@
     "db:migrate:up": "ENV_FILE_PATH=environment-variables/.local MIKRO_ORM_CLI_CONFIG=src/modules/database/mikro-orm.config.ts yarn mikro-orm migration:up",
     "--- prod options ---": "",
     "prebuild": "rimraf dist",
-    "build": "nest build",
-    "start:prod": "node dist/main"
+    "build": "nest build && yarn sentry:sourcemaps",
+    "start:prod": "node dist/main",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org cloudshelf --project connector-shopify ./dist && sentry-cli --url https://apm.cloudshelf.ai sourcemaps upload --org cloudshelf --project connector-shopify ./dist"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
@@ -35,6 +36,7 @@
     "@nestjs/graphql": "^12.0.11",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/terminus": "^10.2.0",
+    "@sentry/cli": "^2.25.3",
     "@sentry/node": "^7.94.1",
     "@sentry/profiling-node": "^1.3.5",
     "@sentry/tracing": "^7.94.1",
