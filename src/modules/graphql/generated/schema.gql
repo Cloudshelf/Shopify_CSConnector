@@ -4,7 +4,7 @@
 
 type Query {
   """Returns a test entity"""
-  testEntity: TestEntity!
+  testEntity(id: String!): TestEntity
 }
 
 type TestEntity {
