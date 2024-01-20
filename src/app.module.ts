@@ -1,4 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
+import { GraphQLModule } from './modules/graphql/graphql.module';
 import { MikroORM } from '@mikro-orm/core';
 import { ApiHealthModule } from './modules/api-health/api-health.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
@@ -15,13 +16,16 @@ import { ulid } from 'ulid';
                 mount: true,
                 generateId: true,
                 idGenerator: (req: Request) => {
-                    return req.headers.get('X-Request-Id') ?? `gid://cloudshelfShopifyConnector/request/${ulid()}`;
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    return req.headers['X-Request-Id'] ?? ulid();
                 },
             },
         }),
         ConfigurationModule,
         ApiHealthModule,
         DatabaseModule.register(),
+        GraphQLModule.register(),
         TestModule,
     ],
     controllers: [],

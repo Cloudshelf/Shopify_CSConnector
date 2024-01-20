@@ -1,0 +1,12 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Query {
+  """Returns a test entity"""
+  testEntity: TestEntity!
+}
+
+type TestEntity {
+  text: String!
+}

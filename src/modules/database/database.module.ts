@@ -1,7 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoadStrategy } from '@mikro-orm/core';
-import { Migrator } from '@mikro-orm/migrations';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { databaseSchema } from '../configuration/schemas/database.schema';
 import { buildDatabaseConfig } from './mikro-orm.config';
@@ -27,8 +26,7 @@ export class DatabaseModule {
                         configService.get<number>('DATABASE_IDLE_TIMEOUT'),
                     ),
                     autoLoadEntities: true,
-                    // extensions: [Migrator],
-                    loadStrategy: LoadStrategy.SELECT_IN, //Joined was causing lots of slowness
+                    loadStrategy: LoadStrategy.SELECT_IN,
                 };
             },
         });
