@@ -1,3 +1,4 @@
+import { RawBodyRequest } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SentryGqlInterceptor } from './modules/apm/sentry.graphql.interceptor';
 import * as Sentry from '@sentry/node';
@@ -5,9 +6,12 @@ import { EventHint, Event as SentryEvent } from '@sentry/node';
 import { ProfilingIntegration } from '@sentry/profiling-node';
 import { AppModule } from './app.module';
 import { SentryFilter } from './modules/apm/sentry.exception.filter';
+import { ExtendedLogger } from './utils/ExtendedLogger';
 import * as bodyParser from 'body-parser';
+import { NextFunction, Request, Response, json } from 'express';
 
 async function bootstrap() {
+    const logger = new ExtendedLogger('Main');
     Error.stackTraceLimit = 100;
 
     //Setup Sentry
@@ -37,14 +41,31 @@ async function bootstrap() {
     app.enableCors();
     app.enableShutdownHooks();
 
+    app.use((request: Request, res: Response, next: NextFunction) => {
+        if (request.path.indexOf('/shopify/webhooks') === 0) {
+            json({
+                verify: (req: RawBodyRequest<Request>, _, buf) => {
+                    req.rawBody = buf;
+                },
+            })(request, res, next);
+        } else {
+            json()(request, res, next);
+        }
+    });
+
     app.use(bodyParser.json({ limit: '5mb' }));
     app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
-    //Setup Sentry Error Filters
     const { httpAdapter } = app.get(HttpAdapterHost);
     app.useGlobalFilters(new SentryFilter(httpAdapter));
     app.useGlobalInterceptors(new SentryGqlInterceptor());
 
-    await app.listen(process.env.PORT || 3100);
+    const port = process.env.PORT || 3100;
+    const host = process.env.HOST || `http://localhost:${port}`;
+    await app.listen(port);
+
+    logger.log(`🚀 Application is running on: ${host}}`);
+
+    logger.verbose(`Start installation via shopify admin panel or by using: ${host}/offline/auth?shop=[domain]`);
 }
 bootstrap();

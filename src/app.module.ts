@@ -4,9 +4,14 @@ import { MikroORM } from '@mikro-orm/core';
 import { ApiHealthModule } from './modules/api-health/api-health.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { RetailerModule } from './modules/retailer/retailer.module';
+import { ShopifyModule } from './modules/shopify/shopify.module';
 import { TestModule } from './modules/test/test.module';
+import { ExtendedLogger } from './utils/ExtendedLogger';
+import { Request } from 'express';
 import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
+import '@shopify/shopify-api/adapters/node';
 
 @Module({
     imports: [
@@ -16,9 +21,11 @@ import { ulid } from 'ulid';
                 mount: true,
                 generateId: true,
                 idGenerator: (req: Request) => {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    return req.headers['X-Request-Id'] ?? ulid();
+                    const existingId = req.headers['X-Request-Id'];
+                    if (Array.isArray(existingId) || !existingId) {
+                        return ulid();
+                    }
+                    return existingId;
                 },
             },
         }),
@@ -26,16 +33,20 @@ import { ulid } from 'ulid';
         ApiHealthModule,
         DatabaseModule.register(),
         GraphQLModule.register(),
+        RetailerModule,
+        ShopifyModule.register(),
+
         TestModule,
     ],
     controllers: [],
     providers: [],
 })
 export class AppModule implements OnModuleInit {
+    private readonly logger = new ExtendedLogger('AppModule');
     constructor(private readonly orm: MikroORM) {}
 
     async onModuleInit(): Promise<void> {
         await this.orm.getMigrator().up();
-        console.log('Random ULID: ', ulid());
+        this.logger.log(`Startup ULID: ${ulid()}`);
     }
 }
