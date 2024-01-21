@@ -8,8 +8,13 @@ import { AfterAuthHandlerService } from './auth/after.auth.service';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseSessionStorage } from './sessions/database.session.storage';
 import { SessionModule } from './sessions/session.module';
-import { ProductsCreateWebhookHandler } from './webhooks/product.create.webhook.handler';
+import { BulkOperationFinishedWebhookHandler } from './webhooks/bulk.operation.finish.webhook.handler';
+import { CollectionDeleteWebhookHandler } from './webhooks/collection.delete.webhook.handler';
+import { CollectionUpdateWebhookHandler } from './webhooks/collection.update.webhook.handler';
+import { ProductsDeleteWebhookHandler } from './webhooks/product.delete.webhook.handler';
+import { ProductsUpdateWebhookHandler } from './webhooks/product.update.webhook.handler';
 import { RequiredWebhooksController } from './webhooks/required.webhooks.controller';
+import { SubscriptionUpdateWebhookHandler } from './webhooks/subscription.update.webhook.handler';
 import { UninstalledWebhookHandler } from './webhooks/uninstall.webhook.handler';
 import { ShopifyAuthModule } from '@nestjs-shopify/auth';
 import { ShopifyCoreModule } from '@nestjs-shopify/core';
@@ -94,7 +99,15 @@ export class ShopifyModule {
         return {
             module: ShopifyModule,
             imports: [nestjsShopifyCore, offlineAuth, webhooks],
-            providers: [ProductsCreateWebhookHandler, UninstalledWebhookHandler],
+            providers: [
+                BulkOperationFinishedWebhookHandler,
+                UninstalledWebhookHandler,
+                ProductsUpdateWebhookHandler,
+                ProductsDeleteWebhookHandler,
+                CollectionUpdateWebhookHandler,
+                CollectionDeleteWebhookHandler,
+                SubscriptionUpdateWebhookHandler,
+            ],
             exports: [nestjsShopifyCore, offlineAuth, webhooks],
             controllers: [RequiredWebhooksController],
         };
