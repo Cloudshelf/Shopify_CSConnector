@@ -2,28 +2,39 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { shopifySchema } from '../configuration/schemas/shopify.schema';
+import { RetailerModule } from '../retailer/retailer.module';
+import { RetailerService } from '../retailer/retailer.service';
 import { AfterAuthHandlerService } from './auth/after.auth.service';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseSessionStorage } from './sessions/database.session.storage';
 import { SessionModule } from './sessions/session.module';
 import { ProductsCreateWebhookHandler } from './webhooks/product.create.webhook.handler';
+import { RequiredWebhooksController } from './webhooks/required.webhooks.controller';
+import { UninstalledWebhookHandler } from './webhooks/uninstall.webhook.handler';
 import { ShopifyAuthModule } from '@nestjs-shopify/auth';
 import { ShopifyCoreModule } from '@nestjs-shopify/core';
 import { ShopifyWebhooksModule } from '@nestjs-shopify/webhooks';
-import { ApiVersion, LogSeverity } from '@shopify/shopify-api';
+import { ApiVersion } from '@shopify/shopify-api';
 
 @Module({})
 export class ShopifyModule {
     static register(): DynamicModule {
         const nestjsShopifyCore = ShopifyCoreModule.forRootAsync({
-            imports: [ConfigModule, SessionModule],
-            inject: [ConfigService<typeof shopifySchema>, ConfigService<typeof runtimeSchema>, DatabaseSessionStorage],
+            imports: [ConfigModule, SessionModule, RetailerModule],
+            inject: [
+                ConfigService<typeof shopifySchema>,
+                ConfigService<typeof runtimeSchema>,
+                DatabaseSessionStorage,
+                RetailerService,
+            ],
             useFactory: async (
                 shopifyConfigService: ConfigService<typeof shopifySchema>,
                 runtimeConfigService: ConfigService<typeof runtimeSchema>,
                 sessionStorage: DatabaseSessionStorage,
+                retailerService: RetailerService,
             ) => {
                 return {
+                    getSharedSecret: retailerService.getSharedSecret,
                     sessionStorage: sessionStorage,
                     apiKey: shopifyConfigService.get<string>('SHOPIFY_API_KEY')!,
                     apiSecretKey: shopifyConfigService.get<string>('SHOPIFY_API_SECRET_KEY')!,
@@ -83,8 +94,9 @@ export class ShopifyModule {
         return {
             module: ShopifyModule,
             imports: [nestjsShopifyCore, offlineAuth, webhooks],
-            providers: [ProductsCreateWebhookHandler],
+            providers: [ProductsCreateWebhookHandler, UninstalledWebhookHandler],
             exports: [nestjsShopifyCore, offlineAuth, webhooks],
+            controllers: [RequiredWebhooksController],
         };
     }
 }

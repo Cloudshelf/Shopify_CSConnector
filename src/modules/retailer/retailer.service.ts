@@ -37,4 +37,15 @@ export class RetailerService {
     async existsByDomain(domain: string): Promise<boolean> {
         return !!(await this.entityManager.findOne(RetailerEntity, { domain }));
     }
+
+    @SentryInstrument('RetailerService')
+    async getSharedSecret(domain: string): Promise<string | undefined> {
+        const shop = await this.entityManager.findOne(RetailerEntity, { domain });
+
+        if (!shop) {
+            return undefined;
+        }
+
+        return shop.sharedSecret ?? undefined;
+    }
 }

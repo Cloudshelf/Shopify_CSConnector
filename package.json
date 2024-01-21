@@ -19,7 +19,9 @@
     "prebuild": "rimraf dist",
     "build": "nest build && yarn sentry:sourcemaps",
     "start:prod": "node dist/main",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org cloudshelf --project connector-shopify ./dist && sentry-cli --url https://apm.cloudshelf.ai sourcemaps upload --org cloudshelf --project connector-shopify ./dist"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org cloudshelf --project connector-shopify ./dist && sentry-cli --url https://apm.cloudshelf.ai sourcemaps upload --org cloudshelf --project connector-shopify ./dist",
+    "--- other ---": "",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
@@ -54,10 +56,13 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
+    "patch-package": "^8.0.0",
     "@ianvs/prettier-plugin-sort-imports": "3.7.2",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
+    "@shopify/cli": "^3.53.1",
+    "@shopify/app": "^3.53.1",
     "@types/express": "^4.17.13",
     "@types/jest": "29.5.0",
     "@types/node": "18.15.11",

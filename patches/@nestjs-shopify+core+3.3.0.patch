@@ -1,0 +1,239 @@
+diff --git a/node_modules/@nestjs-shopify/core/src/core.constants.d.ts b/node_modules/@nestjs-shopify/core/src/core.constants.d.ts
+index 42956bc..9ee46b0 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.constants.d.ts
++++ b/node_modules/@nestjs-shopify/core/src/core.constants.d.ts
+@@ -1,2 +1,3 @@
+ export declare const SHOPIFY_API_CONTEXT = "SHOPIFY_API_CONTEXT";
+ export declare const SHOPIFY_API_SESSION_STORAGE = "SHOPIFY_API_SESSION_STORAGE";
++export declare const SHOPIFY_PRIVATE_APP_SHARED_SECRET = "SHOPIFY_PRIVATE_APP_SHARED_SECRET";
+diff --git a/node_modules/@nestjs-shopify/core/src/core.constants.js b/node_modules/@nestjs-shopify/core/src/core.constants.js
+index 4eaf5eb..5ce03b1 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.constants.js
++++ b/node_modules/@nestjs-shopify/core/src/core.constants.js
+@@ -1,6 +1,7 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.SHOPIFY_API_SESSION_STORAGE = exports.SHOPIFY_API_CONTEXT = void 0;
++exports.SHOPIFY_PRIVATE_APP_SHARED_SECRET = exports.SHOPIFY_API_SESSION_STORAGE = exports.SHOPIFY_API_CONTEXT = void 0;
+ exports.SHOPIFY_API_CONTEXT = 'SHOPIFY_API_CONTEXT';
+ exports.SHOPIFY_API_SESSION_STORAGE = 'SHOPIFY_API_SESSION_STORAGE';
++exports.SHOPIFY_PRIVATE_APP_SHARED_SECRET = 'SHOPIFY_PRIVATE_APP_SHARED_SECRET';
+ //# sourceMappingURL=core.constants.js.map
+\ No newline at end of file
+diff --git a/node_modules/@nestjs-shopify/core/src/core.constants.js.map b/node_modules/@nestjs-shopify/core/src/core.constants.js.map
+index 8462e40..dfdf3d4 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.constants.js.map
++++ b/node_modules/@nestjs-shopify/core/src/core.constants.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"core.constants.js","sourceRoot":"","sources":["../../../../packages/core/src/core.constants.ts"],"names":[],"mappings":";;;AAAa,QAAA,mBAAmB,GAAG,qBAAqB,CAAC;AAE5C,QAAA,2BAA2B,GAAG,6BAA6B,CAAC"}
+\ No newline at end of file
++{"version":3,"file":"core.constants.js","sourceRoot":"","sources":["../../../../packages/core/src/core.constants.ts"],"names":[],"mappings":";;;AAAa,QAAA,mBAAmB,GAAG,qBAAqB,CAAC;AAE5C,QAAA,2BAA2B,GAAG,6BAA6B,CAAC;AAE5D,QAAA,iCAAiC,GAAG,mCAAmC,CAAC"}
+\ No newline at end of file
+diff --git a/node_modules/@nestjs-shopify/core/src/core.decorators.d.ts b/node_modules/@nestjs-shopify/core/src/core.decorators.d.ts
+index 8812f7a..8b35d18 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.decorators.d.ts
++++ b/node_modules/@nestjs-shopify/core/src/core.decorators.d.ts
+@@ -1,2 +1,3 @@
+ export declare const InjectShopify: () => PropertyDecorator & ParameterDecorator;
+ export declare const InjectShopifySessionStorage: () => PropertyDecorator & ParameterDecorator;
++export declare const InjectGetSharedSecret: () => PropertyDecorator & ParameterDecorator;
+diff --git a/node_modules/@nestjs-shopify/core/src/core.decorators.js b/node_modules/@nestjs-shopify/core/src/core.decorators.js
+index 0b93628..b035334 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.decorators.js
++++ b/node_modules/@nestjs-shopify/core/src/core.decorators.js
+@@ -1,10 +1,12 @@
+ "use strict";
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.InjectShopifySessionStorage = exports.InjectShopify = void 0;
++exports.InjectGetSharedSecret = exports.InjectShopifySessionStorage = exports.InjectShopify = void 0;
+ const common_1 = require("@nestjs/common");
+ const core_constants_1 = require("./core.constants");
+ const InjectShopify = () => (0, common_1.Inject)(core_constants_1.SHOPIFY_API_CONTEXT);
+ exports.InjectShopify = InjectShopify;
+ const InjectShopifySessionStorage = () => (0, common_1.Inject)(core_constants_1.SHOPIFY_API_SESSION_STORAGE);
+ exports.InjectShopifySessionStorage = InjectShopifySessionStorage;
++const InjectGetSharedSecret = () => (0, common_1.Inject)(core_constants_1.SHOPIFY_PRIVATE_APP_SHARED_SECRET);
++exports.InjectGetSharedSecret = InjectGetSharedSecret;
+ //# sourceMappingURL=core.decorators.js.map
+\ No newline at end of file
+diff --git a/node_modules/@nestjs-shopify/core/src/core.decorators.js.map b/node_modules/@nestjs-shopify/core/src/core.decorators.js.map
+index 650ed0f..06997b9 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.decorators.js.map
++++ b/node_modules/@nestjs-shopify/core/src/core.decorators.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"core.decorators.js","sourceRoot":"","sources":["../../../../packages/core/src/core.decorators.ts"],"names":[],"mappings":";;;AAAA,2CAAwC;AACxC,qDAG0B;AAEnB,MAAM,aAAa,GAAG,GAAG,EAAE,CAAC,IAAA,eAAM,EAAC,oCAAmB,CAAC,CAAC;AAAlD,QAAA,aAAa,iBAAqC;AACxD,MAAM,2BAA2B,GAAG,GAAG,EAAE,CAC9C,IAAA,eAAM,EAAC,4CAA2B,CAAC,CAAC;AADzB,QAAA,2BAA2B,+BACF"}
+\ No newline at end of file
++{"version":3,"file":"core.decorators.js","sourceRoot":"","sources":["../../../../packages/core/src/core.decorators.ts"],"names":[],"mappings":";;;AAAA,2CAAwC;AACxC,qDAI0B;AAEnB,MAAM,aAAa,GAAG,GAAG,EAAE,CAAC,IAAA,eAAM,EAAC,oCAAmB,CAAC,CAAC;AAAlD,QAAA,aAAa,iBAAqC;AACxD,MAAM,2BAA2B,GAAG,GAAG,EAAE,CAC9C,IAAA,eAAM,EAAC,4CAA2B,CAAC,CAAC;AADzB,QAAA,2BAA2B,+BACF;AAE/B,MAAM,qBAAqB,GAAG,GAAG,EAAE,CACxC,IAAA,eAAM,EAAC,kDAAiC,CAAC,CAAC;AAD/B,QAAA,qBAAqB,yBACU"}
+\ No newline at end of file
+diff --git a/node_modules/@nestjs-shopify/core/src/core.interfaces.d.ts b/node_modules/@nestjs-shopify/core/src/core.interfaces.d.ts
+index 8ac91f4..8fb033b 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.interfaces.d.ts
++++ b/node_modules/@nestjs-shopify/core/src/core.interfaces.d.ts
+@@ -2,7 +2,9 @@ import { ConfigParams, ShopifyRestResources } from '@shopify/shopify-api';
+ import { SessionStorage as ShopifySessionStorage } from '@shopify/shopify-app-session-storage';
+ import { ASYNC_OPTIONS_TYPE } from './core.module-builder';
+ export type SessionStorage = ShopifySessionStorage;
++export type SharedSecretGetter = (domain: string) => Promise<string | undefined>;
+ export interface ShopifyCoreOptions<T extends ShopifyRestResources = any> extends ConfigParams<T> {
+     sessionStorage: SessionStorage;
++    getSharedSecret?: SharedSecretGetter;
+ }
+ export type ShopifyCoreAsyncOptions = typeof ASYNC_OPTIONS_TYPE;
+diff --git a/node_modules/@nestjs-shopify/core/src/core.module.js b/node_modules/@nestjs-shopify/core/src/core.module.js
+index 785cc1b..5227aae 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.module.js
++++ b/node_modules/@nestjs-shopify/core/src/core.module.js
+@@ -22,11 +22,17 @@ exports.ShopifyCoreModule = ShopifyCoreModule = tslib_1.__decorate([
+                 useFactory: (options) => options.sessionStorage,
+                 inject: [core_module_builder_1.SHOPIFY_CORE_OPTIONS],
+             },
++            {
++                provide: core_constants_1.SHOPIFY_PRIVATE_APP_SHARED_SECRET,
++                useFactory: (options) => { var _a; return (_a = options.getSharedSecret) !== null && _a !== void 0 ? _a : ((domain) => undefined); },
++                inject: [core_module_builder_1.SHOPIFY_CORE_OPTIONS],
++            },
+         ],
+         exports: [
+             core_constants_1.SHOPIFY_API_CONTEXT,
+             core_module_builder_1.SHOPIFY_CORE_OPTIONS,
+             core_constants_1.SHOPIFY_API_SESSION_STORAGE,
++            core_constants_1.SHOPIFY_PRIVATE_APP_SHARED_SECRET
+         ],
+     })
+ ], ShopifyCoreModule);
+diff --git a/node_modules/@nestjs-shopify/core/src/core.module.js.map b/node_modules/@nestjs-shopify/core/src/core.module.js.map
+index 25524e7..c340c98 100644
+--- a/node_modules/@nestjs-shopify/core/src/core.module.js.map
++++ b/node_modules/@nestjs-shopify/core/src/core.module.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"core.module.js","sourceRoot":"","sources":["../../../../packages/core/src/core.module.ts"],"names":[],"mappings":";;;;AAAA,2CAAwC;AACxC,sDAAkD;AAClD,qDAG0B;AAE1B,+DAG+B;AAqBxB,IAAM,iBAAiB,GAAvB,MAAM,iBAAkB,SAAQ,6CAAuB;CAAG,CAAA;AAApD,8CAAiB;4BAAjB,iBAAiB;IAnB7B,IAAA,eAAM,EAAC;QACN,SAAS,EAAE;YACT;gBACE,OAAO,EAAE,oCAAmB;gBAC5B,UAAU,EAAE,CAAC,OAA2B,EAAE,EAAE,CAAC,IAAA,wBAAU,EAAC,OAAO,CAAC;gBAChE,MAAM,EAAE,CAAC,0CAAoB,CAAC;aAC/B;YACD;gBACE,OAAO,EAAE,4CAA2B;gBACpC,UAAU,EAAE,CAAC,OAA2B,EAAE,EAAE,CAAC,OAAO,CAAC,cAAc;gBACnE,MAAM,EAAE,CAAC,0CAAoB,CAAC;aAC/B;SACF;QACD,OAAO,EAAE;YACP,oCAAmB;YACnB,0CAAoB;YACpB,4CAA2B;SAC5B;KACF,CAAC;GACW,iBAAiB,CAAmC"}
+\ No newline at end of file
++{"version":3,"file":"core.module.js","sourceRoot":"","sources":["../../../../packages/core/src/core.module.ts"],"names":[],"mappings":";;;;AAAA,2CAAwC;AACxC,sDAAkD;AAClD,qDAI0B;AAE1B,+DAG+B;AA2BxB,IAAM,iBAAiB,GAAvB,MAAM,iBAAkB,SAAQ,6CAAuB;CAAG,CAAA;AAApD,8CAAiB;4BAAjB,iBAAiB;IAzB7B,IAAA,eAAM,EAAC;QACN,SAAS,EAAE;YACT;gBACE,OAAO,EAAE,oCAAmB;gBAC5B,UAAU,EAAE,CAAC,OAA2B,EAAE,EAAE,CAAC,IAAA,wBAAU,EAAC,OAAO,CAAC;gBAChE,MAAM,EAAE,CAAC,0CAAoB,CAAC;aAC/B;YACD;gBACE,OAAO,EAAE,4CAA2B;gBACpC,UAAU,EAAE,CAAC,OAA2B,EAAE,EAAE,CAAC,OAAO,CAAC,cAAc;gBACnE,MAAM,EAAE,CAAC,0CAAoB,CAAC;aAC/B;YACD;gBACE,OAAO,EAAE,kDAAiC;gBAC1C,UAAU,EAAE,CAAC,OAA2B,EAAE,EAAE,WAAC,OAAA,MAAA,OAAO,CAAC,eAAe,mCAAI,CAAC,CAAC,MAAc,EAAE,EAAE,CAAC,SAAS,CAAC,CAAA,EAAA;gBACvG,MAAM,EAAE,CAAC,0CAAoB,CAAC;aAC/B;SACF;QACD,OAAO,EAAE;YACP,oCAAmB;YACnB,0CAAoB;YACpB,4CAA2B;YAC3B,kDAAiC;SAClC;KACF,CAAC;GACW,iBAAiB,CAAmC"}
+\ No newline at end of file
+diff --git a/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.d.ts b/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.d.ts
+index 5d24eea..bdcc3be 100644
+--- a/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.d.ts
++++ b/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.d.ts
+@@ -1,13 +1,16 @@
+ import { CanActivate, ExecutionContext } from '@nestjs/common';
+ import { Reflector } from '@nestjs/core';
+ import { Shopify } from '@shopify/shopify-api';
++import { SharedSecretGetter } from "../core.interfaces";
+ export declare class ShopifyHmacGuard implements CanActivate {
+     private readonly reflector;
+     private readonly shopifyApi;
+-    constructor(reflector: Reflector, shopifyApi: Shopify);
++    private readonly getSharedSecret;
++    constructor(reflector: Reflector, shopifyApi: Shopify, getSharedSecret: SharedSecretGetter);
+     canActivate(context: ExecutionContext): Promise<boolean>;
+     private validateHmacHeader;
+     private validateHmacQuery;
++    private getDomainFromHeaders;
+     private getHmacFromHeaders;
+     private getShopifyHmacTypeFromContext;
+ }
+diff --git a/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js b/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js
+index 532789c..7eacf4f 100644
+--- a/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js
++++ b/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js
+@@ -10,9 +10,10 @@ const core_decorators_1 = require("../core.decorators");
+ const hmac_constants_1 = require("./hmac.constants");
+ const hmac_enums_1 = require("./hmac.enums");
+ let ShopifyHmacGuard = class ShopifyHmacGuard {
+-    constructor(reflector, shopifyApi) {
++    constructor(reflector, shopifyApi, getSharedSecret) {
+         this.reflector = reflector;
+         this.shopifyApi = shopifyApi;
++        this.getSharedSecret = getSharedSecret;
+     }
+     canActivate(context) {
+         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+@@ -32,22 +33,35 @@ let ShopifyHmacGuard = class ShopifyHmacGuard {
+         });
+     }
+     validateHmacHeader(req) {
+-        const expectedHmac = this.getHmacFromHeaders(req);
+-        if (!req.rawBody) {
+-            throw new common_1.InternalServerErrorException(`Missing raw body in request. Ensure that 'rawBody' option is set when initializing Nest application.`);
+-        }
+-        const generatedHash = (0, crypto_1.createHmac)('sha256', this.shopifyApi.config.apiSecretKey)
+-            .update(req.rawBody)
+-            .digest('base64');
+-        const generatedHashBuffer = Buffer.from(generatedHash);
+-        const hmacBuffer = Buffer.from(expectedHmac);
+-        if (generatedHashBuffer.length !== hmacBuffer.length) {
+-            throw new common_1.UnauthorizedException('Webhook HMAC validation failed.');
+-        }
+-        if (!(0, crypto_1.timingSafeEqual)(generatedHashBuffer, hmacBuffer)) {
+-            throw new common_1.UnauthorizedException('Webhook HMAC validation failed.');
+-        }
+-        return true;
++        return tslib_1.__awaiter(this, void 0, void 0, function* () {
++            let authenticated = false;
++            const expectedHmac = this.getHmacFromHeaders(req);
++            if (!req.rawBody) {
++                throw new common_1.InternalServerErrorException(`Missing raw body in request. Ensure that 'rawBody' option is set when initializing Nest application.`);
++            }
++            const hmacBuffer = Buffer.from(expectedHmac);
++            const generatedHash = (0, crypto_1.createHmac)('sha256', this.shopifyApi.config.apiSecretKey)
++                .update(req.rawBody)
++                .digest('base64');
++            const generatedHashBuffer = Buffer.from(generatedHash);
++            if (generatedHashBuffer.length === hmacBuffer.length && (0, crypto_1.timingSafeEqual)(generatedHashBuffer, hmacBuffer)) {
++                authenticated = true;
++            }
++            else {
++                const domainFromHeader = this.getDomainFromHeaders(req);
++                const sharedSecret = yield this.getSharedSecret(domainFromHeader);
++                if (sharedSecret) {
++                    const sharedSecretGeneratedHash = (0, crypto_1.createHmac)('sha256', sharedSecret)
++                        .update(req.rawBody)
++                        .digest('base64');
++                    const sharedSecretGeneratedHashBuffer = Buffer.from(sharedSecretGeneratedHash);
++                    if (sharedSecretGeneratedHashBuffer.length === hmacBuffer.length && (0, crypto_1.timingSafeEqual)(sharedSecretGeneratedHashBuffer, hmacBuffer)) {
++                        authenticated = true;
++                    }
++                }
++            }
++            return authenticated;
++        });
+     }
+     validateHmacQuery(req) {
+         return tslib_1.__awaiter(this, void 0, void 0, function* () {
+@@ -63,6 +77,17 @@ let ShopifyHmacGuard = class ShopifyHmacGuard {
+             }
+         });
+     }
++    getDomainFromHeaders(req) {
++        const domainHeader = req.headers[shopify_api_1.ShopifyHeader.Domain] ||
++            req.headers[shopify_api_1.ShopifyHeader.Domain.toLowerCase()];
++        if (!domainHeader) {
++            throw new common_1.BadRequestException(`Missing required HTTP header: ${shopify_api_1.ShopifyHeader.Domain}`);
++        }
++        if (typeof domainHeader !== 'string') {
++            throw new common_1.BadRequestException(`Malformed '${shopify_api_1.ShopifyHeader.Domain}' provided: ${domainHeader}`);
++        }
++        return domainHeader;
++    }
+     getHmacFromHeaders(req) {
+         const hmacHeader = req.headers[shopify_api_1.ShopifyHeader.Hmac] ||
+             req.headers[shopify_api_1.ShopifyHeader.Hmac.toLowerCase()];
+@@ -82,6 +107,7 @@ exports.ShopifyHmacGuard = ShopifyHmacGuard;
+ exports.ShopifyHmacGuard = ShopifyHmacGuard = tslib_1.__decorate([
+     (0, common_1.Injectable)(),
+     tslib_1.__param(1, (0, core_decorators_1.InjectShopify)()),
+-    tslib_1.__metadata("design:paramtypes", [core_1.Reflector, Object])
++    tslib_1.__param(2, (0, core_decorators_1.InjectGetSharedSecret)()),
++    tslib_1.__metadata("design:paramtypes", [core_1.Reflector, Object, Function])
+ ], ShopifyHmacGuard);
+ //# sourceMappingURL=hmac.guard.js.map
+\ No newline at end of file
+diff --git a/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js.map b/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js.map
+index 8c1b96a..505da6e 100644
+--- a/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js.map
++++ b/node_modules/@nestjs-shopify/core/src/hmac/hmac.guard.js.map
+@@ -1 +1 @@
+-{"version":3,"file":"hmac.guard.js","sourceRoot":"","sources":["../../../../../packages/core/src/hmac/hmac.guard.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file
++{"version":3,"file":"hmac.guard.js","sourceRoot":"","sources":["../../../../../packages/core/src/hmac/hmac.guard.ts"],"names":[],"mappings":"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"}
+\ No newline at end of file

@@ -42,7 +42,10 @@ async function bootstrap() {
     app.enableShutdownHooks();
 
     app.use((request: Request, res: Response, next: NextFunction) => {
-        if (request.path.indexOf('/shopify/webhooks') === 0) {
+        if (
+            request.path.indexOf('/shopify/webhooks') === 0 ||
+            request.path.indexOf('/shopify/required_webhooks') === 0
+        ) {
             json({
                 verify: (req: RawBodyRequest<Request>, _, buf) => {
                     req.rawBody = buf;
