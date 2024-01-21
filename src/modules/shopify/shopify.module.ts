@@ -2,6 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { shopifySchema } from '../configuration/schemas/shopify.schema';
+import { IntegrationsModule } from '../integrations/integrations.module';
 import { RetailerModule } from '../retailer/retailer.module';
 import { RetailerService } from '../retailer/retailer.service';
 import { AfterAuthHandlerService } from './auth/after.auth.service';
@@ -20,7 +21,9 @@ import { ShopifyAuthModule } from '@nestjs-shopify/auth';
 import { ShopifyCoreModule } from '@nestjs-shopify/core';
 import { ShopifyWebhooksModule } from '@nestjs-shopify/webhooks';
 import { ApiVersion } from '@shopify/shopify-api';
+import { restResources } from '@shopify/shopify-api/rest/admin/2024-01';
 
+export type ShopifyRestResources = typeof restResources;
 @Module({})
 export class ShopifyModule {
     static register(): DynamicModule {
@@ -46,6 +49,7 @@ export class ShopifyModule {
                     apiVersion: ApiVersion.January24,
                     hostName: runtimeConfigService.get('HOST')!.replace(/https:\/\//, ''),
                     isEmbeddedApp: true,
+                    restResources,
                     scopes: [
                         'unauthenticated_read_product_listings',
                         'unauthenticated_read_product_tags',
@@ -98,7 +102,7 @@ export class ShopifyModule {
 
         return {
             module: ShopifyModule,
-            imports: [nestjsShopifyCore, offlineAuth, webhooks],
+            imports: [RetailerModule, IntegrationsModule, nestjsShopifyCore, offlineAuth, webhooks],
             providers: [
                 BulkOperationFinishedWebhookHandler,
                 UninstalledWebhookHandler,

@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { DateUtils } from '../../utils/DateUtils';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
+import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
+import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 
 @Injectable()
@@ -11,12 +13,20 @@ export class RetailerService {
     constructor(private readonly entityManager: EntityManager) {}
 
     @SentryInstrument('RetailerService')
-    async findOrCreate(domain: string, accessToken: string, scopesString: string): Promise<RetailerEntity> {
+    async updateOrCreate(
+        domain: string,
+        accessToken: string,
+        scopesString: string,
+    ): Promise<{ entity: RetailerEntity; status: UpdateOrCreateStatusType }> {
         this.logger.log(`findOrCreate: ${domain}`);
+        let status: UpdateOrCreateStatusType = 'noChange';
         let shop = await this.entityManager.findOne(RetailerEntity, { domain });
         const scopesArray = scopesString.split(',') ?? [];
 
         if (shop) {
+            if (shop.accessToken !== accessToken || shop.scopes !== scopesArray) {
+                status = 'updated';
+            }
             shop = this.entityManager.assign(shop, { accessToken, scopes: scopesArray });
         } else {
             const now = new Date();
@@ -27,15 +37,27 @@ export class RetailerService {
                 createdAt: now,
                 updatedAt: now,
             });
+            status = 'created';
         }
 
         await this.entityManager.persistAndFlush(shop);
-        return shop;
+        return { entity: shop, status };
     }
 
     @SentryInstrument('RetailerService')
     async existsByDomain(domain: string): Promise<boolean> {
         return !!(await this.entityManager.findOne(RetailerEntity, { domain }));
+    }
+
+    @SentryInstrument('RetailerService')
+    async deleteByDomain(domain: string): Promise<boolean> {
+        const retailer = await this.entityManager.findOne(RetailerEntity, { domain });
+        if (!!retailer) {
+            await this.entityManager.removeAndFlush(retailer);
+            return true;
+        }
+
+        return false;
     }
 
     @SentryInstrument('RetailerService')

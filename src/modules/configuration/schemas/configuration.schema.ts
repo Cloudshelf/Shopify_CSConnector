@@ -4,6 +4,7 @@ import { databaseSchema } from './database.schema';
 import { runtimeSchema } from './runtime.schema';
 import { sentrySchema } from './sentry.schema';
 import { shopifySchema } from './shopify.schema';
+import { slackSchema } from './slack.schema';
 
 export const configurationSchema = Joi.object({
     ...runtimeSchema,
@@ -11,4 +12,5 @@ export const configurationSchema = Joi.object({
     ...shopifySchema,
     ...graphqlSchema,
     ...sentrySchema,
+    ...slackSchema,
 });

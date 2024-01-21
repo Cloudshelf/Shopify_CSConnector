@@ -12,6 +12,7 @@ import { Request } from 'express';
 import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
+import { IntegrationsModule } from './modules/integrations/integrations.module';
 
 @Module({
     imports: [
@@ -30,6 +31,7 @@ import '@shopify/shopify-api/adapters/node';
             },
         }),
         ConfigurationModule,
+        IntegrationsModule,
         ApiHealthModule,
         DatabaseModule.register(),
         GraphQLModule.register(),
