@@ -11,6 +11,7 @@ import { ExtendedLogger } from './utils/ExtendedLogger';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { ulid } from 'ulid';
 
 async function bootstrap() {
     const logger = new ExtendedLogger('Main');
@@ -77,5 +78,6 @@ async function bootstrap() {
     logger.log(`🚀 Application is running on: ${host}}`);
 
     logger.verbose(`Start installation via shopify admin panel or by using: ${host}/offline/auth?shop=[domain]`);
+    logger.verbose(`Startup ULID: ${ulid()}`);
 }
 bootstrap();

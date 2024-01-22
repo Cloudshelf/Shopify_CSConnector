@@ -49,7 +49,7 @@ export class AppModule implements OnModuleInit {
     constructor(private readonly orm: MikroORM) {}
 
     async onModuleInit(): Promise<void> {
+        this.logger.log(`Running MikroOrm Migrator`);
         await this.orm.getMigrator().up();
-        this.logger.log(`Startup ULID: ${ulid()}`);
     }
 }
