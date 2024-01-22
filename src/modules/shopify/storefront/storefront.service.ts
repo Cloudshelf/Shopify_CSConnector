@@ -43,7 +43,7 @@ export class StorefrontService {
             await storefront_access_token.save({
                 update: true,
             });
-            return storefront_access_token.accessToken;
+            return storefront_access_token.access_token;
         } catch (err) {
             this.logger.warn(`The storefront token for ${session.shop} could not be created: ${JSON.stringify(err)}`);
         }
