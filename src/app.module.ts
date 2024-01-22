@@ -13,6 +13,7 @@ import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
+import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 
 @Module({
     imports: [
@@ -37,7 +38,7 @@ import { IntegrationsModule } from './modules/integrations/integrations.module';
         GraphQLModule.register(),
         RetailerModule,
         ShopifyModule.register(),
-
+        ManagerProxyModule,
         TestModule,
     ],
     controllers: [],

@@ -4,6 +4,8 @@ import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
+import { CustomTokenService } from '../sessions/custom.token.service';
+import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
 import { ShopifyRestResources } from '../shopify.module';
 import { StorefrontService } from '../storefront/storefront.service';
@@ -23,6 +25,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly slackService: SlackService,
         @InjectShopify() private readonly shopifyApiService: Shopify,
         private readonly storefrontService: StorefrontService,
+        private readonly customTokenService: CustomTokenService,
     ) {}
 
     @SentryInstrument('AfterAuthHandlerService')
@@ -30,16 +33,18 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         const { host } = req.query;
 
         if (session.isOnline) {
-            //we don't handle online sessions
-            //     if (!(await this.shopsService.exists(shop))) {
-            //         return res.redirect(`/api/offline/auth?shop=${shop}`);
-            //     }
-            //
-            //     return res.redirect(`/?shop=${shop}&host=${host}`);
+            //here we should check the store exists in our database, and if not, redirect to the offline auth page
+            if (!(await this.retailerService.existsByDomain(session.shop))) {
+                return res.redirect(`/shopify/offline/auth?shop=${session.shop}`);
+            }
 
-            //Send a bad request response (temp)
-            res.status(400).end();
-            return;
+            //todo, generate a cloudshelf auth token for the store
+
+            await this.customTokenService.storeToken(session.shop, 'test token');
+
+            // after we have a cloudshelf auth token, we can redirect to the cloudshelf app,
+            // which is proxied via the connector, so we just need to redirect to the route and include the shop domain
+            return res.redirect(`/?shop=${session.shop}`);
         }
 
         if (!session.accessToken) {
@@ -105,6 +110,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
             );
         }
 
-        res.send('Shop installed: ' + session.shop).end();
+        //at the end of the install, we have to redirect to "online auth", which lets us exchange an online session token for a Cloudshelf Auth Token
+        return res.redirect(`/shopify/online/auth?shop=${session.shop}`);
     }
 }

@@ -4,11 +4,13 @@ import { SentryGqlInterceptor } from './modules/apm/sentry.graphql.interceptor';
 import * as Sentry from '@sentry/node';
 import { EventHint, Event as SentryEvent } from '@sentry/node';
 import { ProfilingIntegration } from '@sentry/profiling-node';
+import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { AppModule } from './app.module';
 import { SentryFilter } from './modules/apm/sentry.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 async function bootstrap() {
     const logger = new ExtendedLogger('Main');
@@ -40,6 +42,11 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule, { bodyParser: false });
     app.enableCors();
     app.enableShutdownHooks();
+
+    const orm = app.get(MikroORM);
+    app.use((req: Request, res: Request, next: NextFunction) => {
+        RequestContext.create(orm.em, next);
+    });
 
     app.use((request: Request, res: Response, next: NextFunction) => {
         if (

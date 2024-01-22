@@ -84,7 +84,20 @@ export class ShopifyModule {
             useFactory: async (afterAuthService: AfterAuthHandlerService) => {
                 return {
                     useGlobalPrefix: false,
-                    basePath: '/offline',
+                    basePath: '/shopify/offline',
+                    afterAuthHandler: afterAuthService,
+                    returnHeaders: true,
+                };
+            },
+        });
+
+        const onlineAuth = ShopifyAuthModule.forRootAsyncOnline({
+            imports: [AuthModule],
+            inject: [AfterAuthHandlerService],
+            useFactory: async (afterAuthService: AfterAuthHandlerService) => {
+                return {
+                    useGlobalPrefix: false,
+                    basePath: '/shopify/online',
                     afterAuthHandler: afterAuthService,
                     returnHeaders: true,
                 };
@@ -103,7 +116,7 @@ export class ShopifyModule {
 
         return {
             module: ShopifyModule,
-            imports: [RetailerModule, IntegrationsModule, nestjsShopifyCore, offlineAuth, webhooks],
+            imports: [RetailerModule, IntegrationsModule, nestjsShopifyCore, offlineAuth, onlineAuth, webhooks],
             providers: [
                 BulkOperationFinishedWebhookHandler,
                 UninstalledWebhookHandler,
@@ -115,7 +128,7 @@ export class ShopifyModule {
                 DatabaseSessionStorage,
                 StorefrontService,
             ],
-            exports: [nestjsShopifyCore, offlineAuth, webhooks, DatabaseSessionStorage, StorefrontService],
+            exports: [nestjsShopifyCore, offlineAuth, onlineAuth, webhooks, DatabaseSessionStorage, StorefrontService],
             controllers: [RequiredWebhooksController],
         };
     }

@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import { graphqlSchema } from './graphql.schema';
+import { cloudshelfSchema } from './cloudshelf.schema';
 import { databaseSchema } from './database.schema';
 import { runtimeSchema } from './runtime.schema';
 import { sentrySchema } from './sentry.schema';
@@ -13,4 +14,5 @@ export const configurationSchema = Joi.object({
     ...graphqlSchema,
     ...sentrySchema,
     ...slackSchema,
+    ...cloudshelfSchema,
 });
