@@ -111,8 +111,9 @@ export class ShopifyModule {
                 CollectionUpdateWebhookHandler,
                 CollectionDeleteWebhookHandler,
                 SubscriptionUpdateWebhookHandler,
+                DatabaseSessionStorage,
             ],
-            exports: [nestjsShopifyCore, offlineAuth, webhooks],
+            exports: [nestjsShopifyCore, offlineAuth, webhooks, DatabaseSessionStorage],
             controllers: [RequiredWebhooksController],
         };
     }

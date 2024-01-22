@@ -64,4 +64,13 @@ export class DatabaseSessionStorage implements SessionStorage {
 
         return sessions;
     }
+
+    @SentryInstrument('DatabaseSessionStorage')
+    async deleteSessionsByDomain(domain: string): Promise<boolean> {
+        const sessions = await this.entityManager.find(ShopifySessionEntity, domain);
+        sessions.forEach(s => this.entityManager.remove(s));
+        await this.entityManager.flush();
+
+        return true;
+    }
 }
