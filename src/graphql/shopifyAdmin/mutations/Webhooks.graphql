@@ -1,0 +1,21 @@
+mutation RegisterWebhook($topic: WebhookSubscriptionTopic!, $subscription: WebhookSubscriptionInput!) {
+    webhookSubscriptionCreate(topic: $topic, webhookSubscription: $subscription) {
+        webhookSubscription {
+            id
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation DeleteWebhook($id: ID!) {
+    webhookSubscriptionDelete(id: $id) {
+        deletedWebhookSubscriptionId
+        userErrors {
+            field
+            message
+        }
+    }
+}

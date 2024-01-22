@@ -1,0 +1,7 @@
+query ExchangeToken($domain: String!) {
+   customToken(domain: $domain)
+}
+
+query isInstallCompleted($domain: String!) {
+    organisationInstallComplete(domain: $domain)
+}

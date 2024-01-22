@@ -1,0 +1,22 @@
+query GetThemeInformation {
+    shop {
+        id
+        brand {
+            logo {
+                image {
+                    url
+                }
+            }
+            colors {
+                primary {
+                    background
+                    foreground
+                }
+                secondary {
+                    background
+                    foreground
+                }
+            }
+        }
+    }
+}

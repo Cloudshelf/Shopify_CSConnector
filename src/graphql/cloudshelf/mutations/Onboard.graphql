@@ -1,0 +1,27 @@
+mutation UpsertStore($input: ShopifyStoreInput!, $hmac: String!, $nonce: String!) {
+   upsertShopifyOrganisation(input: $input, hmac: $hmac, nonce: $nonce) {
+       organisation {
+           id
+       }
+       userErrors {
+           message
+           code
+       }
+   }
+}
+
+mutation MarkUninstalled($input: ShopifyStoreUninstallInput!, $hmac: String!, $nonce: String!) {
+    markShopifyOrganisationUninstallStarted(input: $input, hmac: $hmac, nonce: $nonce)
+}
+
+mutation upsertCloudshelf($input: [CloudshelfInput!]!) {
+    upsertCloudshelves(input: $input) {
+        cloudshelves {
+            id
+        }
+        userErrors {
+            code
+            message
+        }
+    }
+}

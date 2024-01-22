@@ -1,0 +1,19 @@
+query Webhooks($after: String) {
+    webhookSubscriptions(first: 10, after: $after) {
+      pageInfo {
+          hasNextPage
+          endCursor
+      }
+      edges {
+          node {
+              id
+              topic
+              endpoint {
+                  ... on WebhookHttpEndpoint {
+                      callbackUrl
+                  }
+              }
+          }
+      }
+    }
+}

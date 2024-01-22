@@ -1,0 +1,27 @@
+mutation upsertProductGroups($input: [ProductGroupInput!]!) {
+    upsertProductGroups(input: $input) {
+        productGroups {
+            id
+        }
+        userErrors {
+            code
+            message
+        }
+    }
+}
+
+mutation updateProductsInProductGroup($productGroupId: GlobalId!, $productIds: [GlobalId!]!) {
+    updateProductsInProductGroup(productGroupId: $productGroupId, productIds: $productIds)
+}
+
+mutation deleteProductGroups($ids: [GlobalId!]!) {
+    deleteProductGroups(ids: $ids) {
+        productGroups {
+            id
+        }
+        userErrors {
+            code
+            message
+        }
+    }
+}

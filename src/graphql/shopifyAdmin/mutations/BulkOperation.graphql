@@ -1,0 +1,26 @@
+mutation CancelBulkOp($id: ID!) {
+    bulkOperationCancel(id: $id) {
+        bulkOperation {
+            status
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation CreateShopifyBulkOperation($queryString: String!) {
+    bulkOperationRunQuery(
+        query: $queryString
+    ) {
+        bulkOperation {
+            id
+            status
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}

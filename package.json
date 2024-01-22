@@ -15,6 +15,10 @@
     "db:generate:migration": "ENV_FILE_PATH=environment-variables/.local MIKRO_ORM_CLI_CONFIG=src/modules/database/mikro-orm.config.ts yarn mikro-orm migration:create",
     "db:migrate:down": "ENV_FILE_PATH=environment-variables/.local MIKRO_ORM_CLI_CONFIG=src/modules/database/mikro-orm.config.ts yarn mikro-orm migration:down",
     "db:migrate:up": "ENV_FILE_PATH=environment-variables/.local MIKRO_ORM_CLI_CONFIG=src/modules/database/mikro-orm.config.ts yarn mikro-orm migration:up",
+    "--- codegen options ---": "",
+    "codegen:cloudshelf": "graphql-codegen --config src/graphql/cloudshelf/codegen.ts",
+    "codegen:shopifyAdmin": "graphql-codegen --config src/graphql/shopifyAdmin/codegen.ts",
+    "codegen:shopifyStorefront": "graphql-codegen --config src/graphql/shopifyStorefront/codegen.ts",
     "--- prod options ---": "",
     "prebuild": "rimraf dist",
     "build": "nest build && yarn sentry:sourcemaps",
@@ -57,6 +61,12 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/typescript": "4.0.1",
+    "@graphql-codegen/typescript-document-nodes": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "4.0.1",
     "@ianvs/prettier-plugin-sort-imports": "3.7.2",
     "@nestjs/cli": "^9.0.0",
     "@nestjs/schematics": "^9.0.0",

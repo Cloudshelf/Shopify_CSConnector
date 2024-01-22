@@ -1,0 +1,3 @@
+mutation requestShopifySubscriptionCheck($shopifyGid: String!) {
+    requestShopifySubscriptionCheck(shopifyGid: $shopifyGid)
+}

@@ -1,0 +1,22 @@
+query BulkOperationByShopifyId($nodeId: ID!) {
+    node(id: $nodeId) {
+        ... on BulkOperation {
+            id
+            status
+            errorCode
+            createdAt
+            completedAt
+            objectCount
+            fileSize
+            url
+            partialDataUrl
+        }
+    }
+}
+
+query CurrentBulkOperation {
+    currentBulkOperation {
+        id
+        status
+    }
+}

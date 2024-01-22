@@ -1,0 +1,11 @@
+mutation UpsertLocations($input: [LocationInput!]!) {
+    upsertLocations(input: $input) {
+        locations {
+            id
+        }
+        userErrors {
+            code
+            message
+        }
+    }
+}

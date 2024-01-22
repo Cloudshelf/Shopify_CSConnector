@@ -1,0 +1,29 @@
+
+fragment LocationAddressDetails on LocationAddress {
+    formatted
+    phone
+    countryCode
+}
+
+fragment LocationDetails on Location {
+    id
+    name
+    isActive
+    address {
+        ...LocationAddressDetails
+    }
+}
+
+query getLocations($after: String) {
+    locations(first: 10, after: $after, includeLegacy: false, includeInactive: true) {
+        edges {
+            cursor
+            node {
+                ...LocationDetails
+            }
+        }
+        pageInfo {
+            hasNextPage
+        }
+    }
+}

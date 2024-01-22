@@ -1,0 +1,13 @@
+query GetStorefrontAccessTokens {
+    shop {
+        storefrontAccessTokens(first: 10) {
+            edges {
+                node {
+                    id
+                    title
+                    accessToken
+                }
+            }
+        }
+    }
+}

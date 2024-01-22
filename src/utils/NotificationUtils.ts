@@ -38,7 +38,6 @@ ${domain}`,
         ];
 
         return attachments;
-        //
     }
 
     static buildUninstallAttachments(domain: string, type: 'uninstall' | 'redact'): MessageAttachment[] {
