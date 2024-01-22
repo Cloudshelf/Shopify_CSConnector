@@ -2,9 +2,157 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DebugErrorJobData {
+  dataType: String!
+}
+
+type DebugJobData {
+  dataType: String!
+  debugText: DebugJobData!
+}
+
+type Mutation {
+  deleteTask(id: String!): Boolean!
+  promoteTask(id: String!): Boolean!
+  restartLongRunningJobs: Boolean!
+  restartTask(id: String!): Boolean!
+}
+
+union NobleTaskDataUnion = DebugErrorJobData | DebugJobData
+
+"""Represents a background processing job"""
+type NobleTaskEntity {
+  beingProcessedBy: String
+  data: NobleTaskDataUnion
+  errors: [NobleTaskErrorEntity!]!
+  failed: Boolean!
+
+  """The time this job started"""
+  finishTime: DateTime!
+  isComplete: Boolean!
+  jsonData: String
+  logMessages: [NobleTaskLogEntity!]!
+  organisationId: String
+  priority: Float!
+  retries: Float!
+
+  """
+  The date time this job is schedule to run at. Note that this is not a guaranteed time, its simple the earliest it can run.
+  """
+  scheduledStart: DateTime!
+
+  """The time this job started"""
+  startTime: DateTime!
+  status: NobleTaskStatus!
+  taskType: NobleTaskType!
+}
+
+type NobleTaskEntityEdge {
+  """The cursor for provided node to be used in pagination"""
+  cursor: String
+
+  """The NobleTaskEntity entity"""
+  node: NobleTaskEntity
+}
+
+type NobleTaskEntityPageInfo {
+  """The cursor for the last node in the page"""
+  endCursor: String
+
+  """Whether or not there is a another page of data"""
+  hasNextPage: Boolean!
+
+  """Whether or not there is a previous page of data"""
+  hasPreviousPage: Boolean!
+
+  """The cursor for the first node in the page"""
+  startCursor: String
+}
+
+type NobleTaskErrorEntity {
+  message: String!
+  task: NobleTaskEntity!
+}
+
+type NobleTaskLogEntity {
+  message: String!
+  task: NobleTaskEntity!
+}
+
+type NobleTaskResponse {
+  edges: [NobleTaskEntityEdge!]
+  pageInfo: NobleTaskEntityPageInfo
+
+  """The total number of items available"""
+  totalCount: Int!
+}
+
+enum NobleTaskStatus {
+  All
+  Complete
+  Failed
+  InProgress
+  Pending
+}
+
+enum NobleTaskType {
+  Debug
+  DebugError
+}
+
 type Query {
+  nobleQueueByTaskType(taskType: NobleTaskType!): TaskQueue!
+  nobleQueues: [TaskQueue!]!
+  nobleTask(id: String!): NobleTaskEntity
+  nobleTasksByTypes(
+    """Paginate after this cursor"""
+    after: String
+
+    """Pagination before this cursor"""
+    before: String
+
+    """The number of entities to receive using forwards pagination"""
+    first: Int
+
+    """The number of entities to receive using backwards pagination"""
+    last: Int
+    searchTypes: [NobleTaskStatus!]
+    types: [NobleTaskType!]
+  ): NobleTaskResponse!
+  queueDebug: Boolean!
+  queueDebugError: Boolean!
+
   """Returns a test entity"""
   testEntity(id: String!): TestEntity
+}
+
+type TaskQueue {
+  activeWorkers: Int!
+  concurrency: Float!
+  name: String!
+  noTasksDelay: Float!
+  retries: Float!
+  taskDelay: Float!
+  taskType: NobleTaskType!
+  tasks(
+    """Paginate after this cursor"""
+    after: String
+
+    """Pagination before this cursor"""
+    before: String
+
+    """The number of entities to receive using forwards pagination"""
+    first: Int
+
+    """The number of entities to receive using backwards pagination"""
+    last: Int
+    searchTypes: [NobleTaskStatus!]
+  ): NobleTaskResponse!
 }
 
 type TestEntity {

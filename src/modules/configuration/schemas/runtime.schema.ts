@@ -5,4 +5,5 @@ export const runtimeSchema = {
     RELEASE_TYPE: Joi.string().valid('development_local', 'development', 'production').required(),
     PACKAGE_VERSION: Joi.string().required(),
     HOST: Joi.string().hostname().required(),
+    RUN_NOBLE: Joi.boolean().required(),
 };

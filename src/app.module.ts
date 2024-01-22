@@ -15,6 +15,7 @@ import '@shopify/shopify-api/adapters/node';
 import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
+import { NobleModule } from './modules/noble/noble.module';
 
 @Module({
     imports: [
@@ -42,6 +43,7 @@ import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module
         ManagerProxyModule,
         CloudshelfModule,
         TestModule,
+        NobleModule,
     ],
     controllers: [],
     providers: [],
