@@ -9,6 +9,7 @@ import { AfterAuthHandlerService } from './auth/after.auth.service';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseSessionStorage } from './sessions/database.session.storage';
 import { SessionModule } from './sessions/session.module';
+import { StorefrontService } from './storefront/storefront.service';
 import { BulkOperationFinishedWebhookHandler } from './webhooks/bulk.operation.finish.webhook.handler';
 import { CollectionDeleteWebhookHandler } from './webhooks/collection.delete.webhook.handler';
 import { CollectionUpdateWebhookHandler } from './webhooks/collection.update.webhook.handler';
@@ -112,8 +113,9 @@ export class ShopifyModule {
                 CollectionDeleteWebhookHandler,
                 SubscriptionUpdateWebhookHandler,
                 DatabaseSessionStorage,
+                StorefrontService,
             ],
-            exports: [nestjsShopifyCore, offlineAuth, webhooks, DatabaseSessionStorage],
+            exports: [nestjsShopifyCore, offlineAuth, webhooks, DatabaseSessionStorage, StorefrontService],
             controllers: [RequiredWebhooksController],
         };
     }

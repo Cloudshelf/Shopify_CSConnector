@@ -70,4 +70,8 @@ export class RetailerService {
 
         return shop.sharedSecret ?? undefined;
     }
+
+    async save(entity: RetailerEntity) {
+        await this.entityManager.persistAndFlush(entity);
+    }
 }

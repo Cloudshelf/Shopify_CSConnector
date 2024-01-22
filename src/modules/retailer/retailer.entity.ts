@@ -26,4 +26,13 @@ export class RetailerEntity extends BaseEntity {
 
     @Property({ type: types.datetime, nullable: true })
     lastProductGroupSync: Date | null;
+
+    @Property({ type: 'text', nullable: true })
+    email: string | null;
+
+    @Property({ type: 'text', nullable: true })
+    displayName: string | null;
+
+    @Property({ type: 'text', nullable: true })
+    currencyCode: string | null;
 }
