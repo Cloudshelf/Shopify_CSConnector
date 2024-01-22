@@ -13,6 +13,9 @@ import {
     ExchangeTokenDocument,
     ExchangeTokenQuery,
     ExchangeTokenQueryVariables,
+    MarkUninstalledDocument,
+    MarkUninstalledMutation,
+    MarkUninstalledMutationVariables,
     UpsertStoreDocument,
     UpsertStoreMutation,
     UpsertStoreMutationVariables,
@@ -103,6 +106,29 @@ export class CloudshelfApiService {
 
         if (upsertStoreMutation.errors) {
             this.logger.error(`Failed to upsert store ${retailer.domain}`);
+            return;
+        }
+    }
+
+    async reportUninstall(domain: string): Promise<void> {
+        const timestamp = new Date().getTime().toString();
+        const authedClient = await this.getCloudshelfAPIApolloClient(domain);
+        const reportUninstallMutation = await authedClient.mutate<
+            MarkUninstalledMutation,
+            MarkUninstalledMutationVariables
+        >({
+            mutation: MarkUninstalledDocument,
+            variables: {
+                input: {
+                    domain,
+                },
+                hmac: CryptographyUtils.createHmac(domain, timestamp),
+                nonce: timestamp,
+            },
+        });
+
+        if (reportUninstallMutation.errors) {
+            this.logger.error(`Failed to report uninstall ${domain}`);
             return;
         }
     }

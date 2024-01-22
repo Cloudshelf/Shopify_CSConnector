@@ -2,6 +2,7 @@ import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
@@ -15,6 +16,7 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         private readonly slackService: SlackService,
         private readonly retailerService: RetailerService,
         private readonly databaseSessionStorage: DatabaseSessionStorage,
+        private readonly cloudshelfApiService: CloudshelfApiService,
     ) {
         super();
     }
@@ -34,6 +36,6 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
 
         await this.retailerService.deleteByDomain(domain);
         await this.databaseSessionStorage.deleteSessionsByDomain(domain);
-        //todo: mark uninstalled in Cloudshelf API
+        await this.cloudshelfApiService.reportUninstall(domain);
     }
 }

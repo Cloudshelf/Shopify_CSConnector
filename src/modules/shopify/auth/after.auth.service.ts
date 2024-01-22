@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
@@ -9,7 +9,6 @@ import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
-import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
 import { ShopifyRestResources } from '../shopify.module';
 import { StorefrontService } from '../storefront/storefront.service';

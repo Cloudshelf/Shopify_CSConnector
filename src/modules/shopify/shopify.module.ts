@@ -1,5 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { shopifySchema } from '../configuration/schemas/shopify.schema';
 import { IntegrationsModule } from '../integrations/integrations.module';
@@ -119,7 +120,15 @@ export class ShopifyModule {
 
         return {
             module: ShopifyModule,
-            imports: [RetailerModule, IntegrationsModule, nestjsShopifyCore, offlineAuth, onlineAuth, webhooks],
+            imports: [
+                CloudshelfModule,
+                RetailerModule,
+                IntegrationsModule,
+                nestjsShopifyCore,
+                offlineAuth,
+                onlineAuth,
+                webhooks,
+            ],
             providers: [
                 BulkOperationFinishedWebhookHandler,
                 UninstalledWebhookHandler,
