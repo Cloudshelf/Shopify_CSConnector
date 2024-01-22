@@ -6,7 +6,7 @@ import { RequestHandler, createProxyMiddleware } from 'http-proxy-middleware';
 
 @Injectable()
 export class ManagerProxyMiddleware implements NestMiddleware {
-    static readonly logger = new ExtendedLogger('ManagerProxyMiddleware');
+    readonly logger = new ExtendedLogger('ManagerProxyMiddleware');
     private readonly managerProxy: RequestHandler | undefined = undefined;
 
     constructor(private readonly customTokenService: CustomTokenService) {
@@ -47,7 +47,6 @@ export class ManagerProxyMiddleware implements NestMiddleware {
     }
 
     use(req: Request, res: Response, next: NextFunction) {
-        // console.log('manager proxy middleware path:' + req.path);
         if (!this.managerProxy) {
             next();
             return;

@@ -21,7 +21,7 @@ import { UninstalledWebhookHandler } from './webhooks/uninstall.webhook.handler'
 import { ShopifyAuthModule } from '@nestjs-shopify/auth';
 import { ShopifyCoreModule } from '@nestjs-shopify/core';
 import { ShopifyWebhooksModule } from '@nestjs-shopify/webhooks';
-import { ApiVersion } from '@shopify/shopify-api';
+import { ApiVersion, LogSeverity } from '@shopify/shopify-api';
 import { restResources } from '@shopify/shopify-api/rest/admin/2024-01';
 
 export type ShopifyRestResources = typeof restResources;
@@ -43,6 +43,9 @@ export class ShopifyModule {
                 retailerService: RetailerService,
             ) => {
                 return {
+                    logger: {
+                        level: LogSeverity.Debug,
+                    },
                     getSharedSecret: retailerService.getSharedSecret,
                     sessionStorage: sessionStorage,
                     apiKey: shopifyConfigService.get<string>('SHOPIFY_API_KEY')!,

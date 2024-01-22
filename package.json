@@ -28,6 +28,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@apollo/client": "^3.8.1",
     "@apollo/server": "^4.10.0",
     "@mikro-orm/cli": "^6.0.5",
     "@mikro-orm/core": "^6.0.5",

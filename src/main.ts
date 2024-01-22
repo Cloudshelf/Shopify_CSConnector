@@ -10,7 +10,6 @@ import { SentryFilter } from './modules/apm/sentry.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import { ulid } from 'ulid';
 
 async function bootstrap() {

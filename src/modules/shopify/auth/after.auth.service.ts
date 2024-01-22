@@ -1,7 +1,10 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
+import { RequestUtils } from '../../../utils/RequestUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
@@ -26,6 +29,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         @InjectShopify() private readonly shopifyApiService: Shopify,
         private readonly storefrontService: StorefrontService,
         private readonly customTokenService: CustomTokenService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
     ) {}
 
     @SentryInstrument('AfterAuthHandlerService')
@@ -42,9 +46,11 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
 
             await this.customTokenService.storeToken(session.shop, 'test token');
 
-            // after we have a cloudshelf auth token, we can redirect to the cloudshelf app,
-            // which is proxied via the connector, so we just need to redirect to the route and include the shop domain
-            return res.redirect(`/?shop=${session.shop}`);
+            //now redirect to the shopify admin panel with our app selected
+            const shopifyAdminAppUrl = `https://admin.shopify.com/store/${RequestUtils.getShopIdFromRequest(
+                req,
+            )}/apps/${this.configService.get<string>('SHOPIFY_API_KEY')!}?host=${host}&shop=${session.shop}`;
+            return res.redirect(shopifyAdminAppUrl);
         }
 
         if (!session.accessToken) {
