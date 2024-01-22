@@ -1,4 +1,5 @@
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
+import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 
@@ -13,6 +14,11 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
     @SentryInstrument('SubscriptionUpdateWebhookHandler')
     async handle(domain: string, data: unknown, webhookId: string): Promise<void> {
         this.logger.log('Received APP_SUBSCRIPTIONS_UPDATE webhook for domain ' + domain);
-        this.logger.log(data);
+        // this.logger.log(data);
+
+        SentryUtil.InformationalTransaction('Webhook:Received', 'APP_SUBSCRIPTIONS_UPDATE', {
+            id: domain,
+            username: domain,
+        });
     }
 }
