@@ -12,6 +12,7 @@ import { Request } from 'express';
 import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
+import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 
@@ -39,6 +40,7 @@ import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module
         RetailerModule,
         ShopifyModule.register(),
         ManagerProxyModule,
+        CloudshelfModule,
         TestModule,
     ],
     controllers: [],

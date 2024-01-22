@@ -4,6 +4,7 @@ import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
@@ -30,6 +31,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly storefrontService: StorefrontService,
         private readonly customTokenService: CustomTokenService,
         private readonly configService: ConfigService<typeof shopifySchema>,
+        private readonly cloudshelfApiService: CloudshelfApiService,
     ) {}
 
     @SentryInstrument('AfterAuthHandlerService')
@@ -42,9 +44,13 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
                 return res.redirect(`/shopify/offline/auth?shop=${session.shop}`);
             }
 
-            //todo, generate a cloudshelf auth token for the store
+            const token = await this.cloudshelfApiService.getCloudshelfAuthToken(session.shop);
+            if (!token) {
+                //failed to get token, we redirect to the offline auth page
+                return res.redirect(`/shopify/offline/auth?shop=${session.shop}`);
+            }
 
-            await this.customTokenService.storeToken(session.shop, 'test token');
+            await this.customTokenService.storeToken(session.shop, token);
 
             //now redirect to the shopify admin panel with our app selected
             const shopifyAdminAppUrl = `https://admin.shopify.com/store/${RequestUtils.getShopIdFromRequest(
@@ -115,6 +121,9 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
                 NotificationUtils.buildInstallAttachments(storeName, session.shop, email),
             );
         }
+
+        //report store to Cloudshelf API
+        await this.cloudshelfApiService.upsertStore(entity);
 
         //at the end of the install, we have to redirect to "online auth", which lets us exchange an online session token for a Cloudshelf Auth Token
         return res.redirect(`/shopify/online/auth?shop=${session.shop}`);
