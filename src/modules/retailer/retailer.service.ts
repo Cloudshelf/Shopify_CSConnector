@@ -162,4 +162,8 @@ export class RetailerService {
         await this.save(retailer);
         return retailer;
     }
+
+    async getAll(from: number, limit: number) {
+        return this.entityManager.find(RetailerEntity, {}, { limit, offset: from });
+    }
 }

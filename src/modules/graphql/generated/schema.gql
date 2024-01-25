@@ -41,8 +41,10 @@ type LocationJobData {
 }
 
 type Mutation {
+  deleteAllWebhooks(token: String!): String!
   deleteTask(id: String!): Boolean!
   promoteTask(id: String!): Boolean!
+  registerAllWebhooks(token: String!): String!
   restartLongRunningJobs: Boolean!
   restartTask(id: String!): Boolean!
 }
@@ -149,6 +151,7 @@ type ProductTriggerTaskData {
 }
 
 type Query {
+  getWebhooksForRetailer(domain: String!): String!
   nobleQueueByTaskType(taskType: NobleTaskType!): TaskQueue!
   nobleQueues: [TaskQueue!]!
   nobleTask(id: String!): NobleTaskEntity

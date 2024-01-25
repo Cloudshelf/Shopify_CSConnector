@@ -1,4 +1,4 @@
-import { Module, OnModuleInit, forwardRef } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { GraphQLModule } from './modules/graphql/graphql.module';
 import { MikroORM } from '@mikro-orm/core';
 import { ApiHealthModule } from './modules/api-health/api-health.module';
@@ -17,6 +17,7 @@ import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.mod
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { NobleModule } from './modules/noble/noble.module';
+import { ToolsModule } from './modules/tools/tools.module';
 
 @Module({
     imports: [
@@ -46,6 +47,7 @@ import { NobleModule } from './modules/noble/noble.module';
         CloudshelfModule,
         TestModule,
         NobleModule,
+        ToolsModule,
     ],
     controllers: [],
     providers: [],
