@@ -11,6 +11,9 @@ import {
 } from '@apollo/client/core';
 import {
     CloudshelfInput,
+    DeleteProductGroupsDocument,
+    DeleteProductGroupsMutation,
+    DeleteProductGroupsMutationVariables,
     ExchangeTokenDocument,
     ExchangeTokenQuery,
     ExchangeTokenQueryVariables,
@@ -328,6 +331,29 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to upsert locations', mutationTuple.errors);
             await log?.('Failed to upsert locations: ' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async deleteProductGroup(
+        retailer: RetailerEntity,
+        productGroupId: string,
+        log?: (logMessage: string) => Promise<void>,
+    ) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(retailer.domain);
+
+        const mutationTuple = await authedClient.mutate<
+            DeleteProductGroupsMutation,
+            DeleteProductGroupsMutationVariables
+        >({
+            mutation: DeleteProductGroupsDocument,
+            variables: {
+                ids: [productGroupId],
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to delete product group', mutationTuple.errors);
+            await log?.('Failed to delete product group: ' + inspect(mutationTuple.errors));
         }
     }
 }
