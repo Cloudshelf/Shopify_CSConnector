@@ -14,6 +14,9 @@ import {
     DeleteProductGroupsDocument,
     DeleteProductGroupsMutation,
     DeleteProductGroupsMutationVariables,
+    DeleteProductsDocument,
+    DeleteProductsMutation,
+    DeleteProductsMutationVariables,
     ExchangeTokenDocument,
     ExchangeTokenQuery,
     ExchangeTokenQueryVariables,
@@ -354,6 +357,22 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to delete product group', mutationTuple.errors);
             await log?.('Failed to delete product group: ' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async deleteProduct(retailer: RetailerEntity, productId: string, log?: (logMessage: string) => Promise<void>) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(retailer.domain);
+
+        const mutationTuple = await authedClient.mutate<DeleteProductsMutation, DeleteProductsMutationVariables>({
+            mutation: DeleteProductsDocument,
+            variables: {
+                ids: [productId],
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to delete product', mutationTuple.errors);
+            await log?.('Failed to delete product: ' + inspect(mutationTuple.errors));
         }
     }
 }
