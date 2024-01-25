@@ -4,7 +4,6 @@ import {
     ApolloClient,
     ApolloLink,
     InMemoryCache,
-    NormalizedCache,
     NormalizedCacheObject,
     createHttpLink,
     from,
