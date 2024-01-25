@@ -62,8 +62,6 @@ import { RetailerEntity } from '../retailer/retailer.entity';
 import { RetailerService } from '../retailer/retailer.service';
 import { inspect } from 'util';
 
-import retryTimes = jest.retryTimes;
-
 @Injectable()
 export class CloudshelfApiService {
     private readonly logger = new Logger('CloudshelfApiService');
