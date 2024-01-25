@@ -172,12 +172,6 @@ type Query {
   ): NobleTaskResponse!
   queueDebug: Boolean!
   queueDebugError: Boolean!
-
-  """Returns a test entity"""
-  testEntity(id: String!): TestEntity
-
-  """test a product trigger"""
-  testProductTrigger: String
 }
 
 type TaskQueue {
@@ -202,8 +196,4 @@ type TaskQueue {
     last: Int
     searchTypes: [NobleTaskStatus!]
   ): NobleTaskResponse!
-}
-
-type TestEntity {
-  text: String!
 }
