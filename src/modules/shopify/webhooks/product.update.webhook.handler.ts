@@ -1,6 +1,8 @@
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+import { ProductJobService } from '../../data-ingestion/product/product.job.service';
+import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 
 export interface ProductUpdateWebhookPayload {
@@ -11,7 +13,10 @@ export interface ProductUpdateWebhookPayload {
 export class ProductsUpdateWebhookHandler extends ShopifyWebhookHandler<unknown> {
     private readonly logger = new ExtendedLogger('PRODUCTS_UPDATE');
 
-    constructor() {
+    constructor(
+        private readonly retailerService: RetailerService,
+        private readonly productJobService: ProductJobService,
+    ) {
         super();
     }
 
@@ -24,5 +29,14 @@ export class ProductsUpdateWebhookHandler extends ShopifyWebhookHandler<unknown>
             id: domain,
             username: domain,
         });
+
+        const retailer = await this.retailerService.getByDomain(domain);
+
+        if (!retailer) {
+            this.logger.debug('Cannot get retailer for domain ' + domain);
+            return;
+        }
+
+        await this.productJobService.scheduleTriggerJob(retailer, [data.admin_graphql_api_id], false, true);
     }
 }
