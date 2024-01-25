@@ -1,0 +1,491 @@
+name: Build and Deploy Cloudshelf Shopify Connector to Azure
+
+on:
+  push:
+    branches:
+      - production
+
+
+
+jobs:
+  version:
+    environment: ${{ github.head_ref || github.ref_name }}
+    runs-on: self-hosted
+
+    steps:
+      # Checkout branch
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Versioning
+      - name: Perform Versioning
+        uses: cloudshelf/versioning-action@v1.6.0
+        id: versioning
+        with:
+          release_type: ${{ github.head_ref || github.ref_name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_channel: "${{ vars.SLACK_NOTIFY_CHANNEL_ID }}"
+          slack_token: ${{ secrets.SLACK_TOKEN }}
+    outputs:
+      version: ${{ steps.versioning.outputs.version }}
+      versionNumber: ${{ steps.versioning.outputs.versionNumber }}
+      normalisedVersion: ${{ steps.versioning.outputs.normalisedVersion }}
+
+  build-and-deploy:
+    needs: version
+    environment: ${{ github.head_ref || github.ref_name }}
+    runs-on: self-hosted
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Create the first message on slack
+      - name: Update status on slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+          payload: |
+            {
+              "username": "Release - Cloudshelf Notifier",
+              "attachments": [
+                {
+                  "color": "#d9cc14",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\nIn Progress..."
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Step:*\nSetting up Docker"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "plain_text",
+                          "text": "Deployment started by ${{ github.actor }}",
+                          "emoji": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+
+      # Add the version number to the env
+      - name: Add version to .env
+        run: |
+          echo "" >> .env
+          echo "VERSION=${{ needs.version.outputs.version }}" >> .env
+          echo "PACKAGE_VERSION=${{ needs.version.outputs.version }}" >> .env
+
+      # Add the sentry creds to .env
+      - name: Add sentry creds to .env
+        run: |
+          echo "" >> .env
+          echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_CREDS }}" >> .env
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+
+      - uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+          update-ts: ${{ steps.slack.outputs.ts }}
+          payload: |
+            {
+              "username": "Release - Cloudshelf Notifier",
+              "attachments": [
+                {
+                  "color": "#d9cc14",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\nIn Progress..."
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Step:*\nLogging into Azure"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "plain_text",
+                          "text": "Deployment started by ${{ github.actor }}",
+                          "emoji": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
+
+      - uses: pietrobolcato/install-azure-cli-action@main
+
+      # Login to azure
+      - uses: azure/login@v1.5.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: azure/docker-login@v1
+        with:
+          login-server: cloudshelf.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+
+      - uses: slackapi/slack-github-action@v1.24.0
+        with:
+          channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+          update-ts: ${{ steps.slack.outputs.ts }}
+          payload: |
+            {
+              "username": "Release - Cloudshelf Notifier",
+              "attachments": [
+                {
+                  "color": "#d9cc14",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\nIn Progress..."
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Step:*\nBuilding docker image"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "plain_text",
+                          "text": "Deployment started by ${{ github.actor }}",
+                          "emoji": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
+
+
+      # Build docker image, and push to azure registry 
+      - name: Build, tag, and push docker image to Azure Registry
+        env:
+          REGISTRY: cloudshelf.azurecr.io
+          REPOSITORY: ${{ vars.AZURE_CONTAINER_REPO }}
+          IMAGE_TAG: ${{ needs.version.outputs.normalisedVersion }}
+        run: |
+          docker buildx build --platform linux/amd64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --push
+
+      # Ask azure to deploy the image to the connector web app
+      - name: 'Deploy to Shopify Connector Web Apps'
+        id: deploy-to-webapp-connector
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'cloudshelf-production-shopify-connector'
+          publish-profile: ${{ vars.AZURE_PUBLISH_PROFILE }}
+          images: cloudshelf.azurecr.io/${{ vars.AZURE_CONTAINER_REPO }}:${{ needs.version.outputs.normalisedVersion }}
+
+      - uses: slackapi/slack-github-action@v1.24.0
+        if: success()
+        with:
+          channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+          update-ts: ${{ steps.slack.outputs.ts }}
+          payload: |
+            {
+              "username": "Release - Cloudshelf Notifier",
+              "attachments": [
+                {
+                  "color": "#1A9C27",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\nSuccess :tada:"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "plain_text",
+                          "text": "Deployment started by ${{ github.actor }}",
+                          "emoji": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ] 
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
+
+      - uses: slackapi/slack-github-action@v1.24.0
+        if: cancelled()
+        with:
+          channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+          update-ts: ${{ steps.slack.outputs.ts }}
+          payload: |
+            {
+              "username": "Release - Cloudshelf Notifier",
+              "attachments": [
+                {
+                  "color": "#9c9c9c",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\nCancelled"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "plain_text",
+                          "text": "Deployment started by ${{ github.actor }}",
+                          "emoji": true
+                        }
+                      ]
+                    } 
+                  ]
+                }
+              ] 
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
+
+      - uses: slackapi/slack-github-action@v1.24.0
+        if: failure()
+        with:
+          channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+          update-ts: ${{ steps.slack.outputs.ts }}
+          payload: |
+            {
+              "username": "Release - Cloudshelf Notifier",
+              "attachments": [
+                {
+                  "color": "#d91414",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Status:*\nFailure :x:"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "section",
+                      "fields": [
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                        },
+                        {
+                          "type": "mrkdwn",
+                          "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "context",
+                      "elements": [
+                        {
+                          "type": "plain_text",
+                          "text": "Deployment started by ${{ github.actor }}",
+                          "emoji": true
+                        }
+                      ]
+                    } 
+                  ]
+                }
+              ] 
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
