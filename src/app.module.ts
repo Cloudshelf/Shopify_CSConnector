@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module, OnModuleInit, forwardRef } from '@nestjs/common';
 import { GraphQLModule } from './modules/graphql/graphql.module';
 import { MikroORM } from '@mikro-orm/core';
 import { ApiHealthModule } from './modules/api-health/api-health.module';
@@ -13,6 +13,7 @@ import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
 import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
+import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { NobleModule } from './modules/noble/noble.module';
@@ -36,10 +37,11 @@ import { NobleModule } from './modules/noble/noble.module';
         ConfigurationModule,
         IntegrationsModule,
         ApiHealthModule,
+        DataIngestionModule,
         DatabaseModule.register(),
         GraphQLModule.register(),
-        RetailerModule,
         ShopifyModule.register(),
+        RetailerModule,
         ManagerProxyModule,
         CloudshelfModule,
         TestModule,

@@ -3,7 +3,16 @@ import ConnectionType from '../graphql/pagination/pagination.relay.types';
 import { GraphQLBoolean, GraphQLString } from 'graphql/type';
 import { Collection, Embedded, Entity, Enum, OneToMany, Property, types } from '@mikro-orm/core';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
-import { DebugErrorJobData, DebugJobData, JobDataUnion, NobleTaskDataUnion } from './noble.task.data';
+import {
+    CollectionConsumerTaskData,
+    CollectionTriggerTaskData,
+    DebugErrorJobData,
+    DebugJobData,
+    JobDataUnion,
+    NobleTaskDataUnion,
+    ProductConsumerTaskData,
+    ProductTriggerTaskData,
+} from './noble.task.data';
 import { NobleTaskErrorEntity } from './noble.task.error.entity';
 import { NobleTaskLogEntity } from './noble.task.log.entity';
 import { NobleTaskStatus } from './noble.task.status';
@@ -27,13 +36,26 @@ export class NobleTaskEntity extends BaseEntity {
 
     @Field(() => NobleTaskDataUnion, { nullable: true })
     @Embedded({
-        entity: () => [DebugJobData, DebugErrorJobData],
+        entity: () => [
+            DebugJobData,
+            DebugErrorJobData,
+            ProductTriggerTaskData,
+            ProductConsumerTaskData,
+            CollectionTriggerTaskData,
+            CollectionConsumerTaskData,
+        ],
         prefix: 'data',
         array: false,
         object: true,
         nullable: true,
     })
-    data?: DebugJobData | DebugErrorJobData;
+    data?:
+        | DebugJobData
+        | DebugErrorJobData
+        | ProductTriggerTaskData
+        | ProductConsumerTaskData
+        | CollectionTriggerTaskData
+        | CollectionConsumerTaskData;
 
     @Field(() => GraphQLString, { nullable: true })
     jsonData?: string;

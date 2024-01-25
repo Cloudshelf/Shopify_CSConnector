@@ -2,6 +2,20 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type CollectionConsumerTaskData {
+  dataType: String!
+  installSync: Boolean!
+  reason: String
+  remoteBulkOperationId: String!
+}
+
+type CollectionTriggerTaskData {
+  collectionIds: [String!]!
+  dataType: String!
+  installSync: Boolean!
+  reason: String
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -9,11 +23,15 @@ scalar DateTime
 
 type DebugErrorJobData {
   dataType: String!
+  installSync: Boolean!
+  reason: String
 }
 
 type DebugJobData {
   dataType: String!
-  debugText: DebugJobData!
+  debugText: String!
+  installSync: Boolean!
+  reason: String
 }
 
 type Mutation {
@@ -23,7 +41,7 @@ type Mutation {
   restartTask(id: String!): Boolean!
 }
 
-union NobleTaskDataUnion = DebugErrorJobData | DebugJobData
+union NobleTaskDataUnion = CollectionConsumerTaskData | CollectionTriggerTaskData | DebugErrorJobData | DebugJobData | ProductConsumerTaskData | ProductTriggerTaskData
 
 """Represents a background processing job"""
 type NobleTaskEntity {
@@ -103,6 +121,24 @@ enum NobleTaskStatus {
 enum NobleTaskType {
   Debug
   DebugError
+  SyncCollections
+  SyncCollectionsTrigger
+  SyncProducts
+  SyncProductsTrigger
+}
+
+type ProductConsumerTaskData {
+  dataType: String!
+  installSync: Boolean!
+  reason: String
+  remoteBulkOperationId: String!
+}
+
+type ProductTriggerTaskData {
+  dataType: String!
+  installSync: Boolean!
+  productIds: [String!]!
+  reason: String
 }
 
 type Query {
@@ -129,6 +165,9 @@ type Query {
 
   """Returns a test entity"""
   testEntity(id: String!): TestEntity
+
+  """test a product trigger"""
+  testProductTrigger: String
 }
 
 type TaskQueue {

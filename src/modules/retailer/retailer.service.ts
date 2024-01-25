@@ -1,10 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
+import {
+    BulkOperationByShopifyIdDocument,
+    BulkOperationByShopifyIdQuery,
+    BulkOperationByShopifyIdQueryVariables,
+} from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import {
+    GetThemeInformationDocument,
+    GetThemeInformationQuery,
+    GetThemeInformationQueryVariables,
+} from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
+import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager } from '@mikro-orm/core';
-import { DateUtils } from '../../utils/DateUtils';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
+import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
 
 @Injectable()
 export class RetailerService {
@@ -71,7 +82,84 @@ export class RetailerService {
         return shop.sharedSecret ?? undefined;
     }
 
+    @SentryInstrument('RetailerService')
     async save(entity: RetailerEntity) {
         await this.entityManager.persistAndFlush(entity);
+    }
+
+    @SentryInstrument('RetailerService')
+    getById(organisationId: string) {
+        return this.entityManager.findOne(RetailerEntity, { id: organisationId });
+    }
+
+    @SentryInstrument('RetailerService')
+    async getByDomain(domain: string) {
+        return this.entityManager.findOne(RetailerEntity, { domain });
+    }
+
+    async updateLastProductSyncTime(retailer: RetailerEntity) {
+        retailer.lastProductSync = new Date();
+        await this.entityManager.persistAndFlush(retailer);
+    }
+
+    async updateLastProductGroupSyncTime(retailer: RetailerEntity) {
+        retailer.lastProductGroupSync = new Date();
+        await this.entityManager.persistAndFlush(retailer);
+    }
+
+    async updateLastSafetySyncTime(retailer: RetailerEntity) {
+        retailer.lastSafetySync = new Date();
+        await this.entityManager.persistAndFlush(retailer);
+    }
+
+    async updateShopInformationFromShopify(
+        shopifyApiInstance: Shopify,
+        entity: RetailerEntity,
+        session: ShopifySessionEntity,
+    ) {
+        let storeName = 'Unknown';
+        let email = 'Unknown';
+        let currency = 'Unknown';
+
+        try {
+            const shopData = await (shopifyApiInstance.rest as ShopifyRestResources).Shop.all({
+                session: session,
+            });
+
+            if (shopData.data.length >= 1) {
+                storeName = shopData.data[0].name ?? 'Unknown';
+                email = shopData.data[0].email ?? 'Unknown';
+                currency = shopData.data[0].currency ?? 'Unknown';
+            }
+
+            entity.displayName = storeName;
+            entity.email = email;
+            entity.currencyCode = currency;
+        } catch (e) {
+            this.logger.error(e);
+        }
+
+        await this.save(entity);
+        return entity;
+    }
+
+    async updateLogoFromShopify(retailer: RetailerEntity, log?: (message: string) => Promise<void>) {
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyStorefrontApolloClientByRetailer(retailer);
+
+        const query = await graphqlClient.query<GetThemeInformationQuery, GetThemeInformationQueryVariables>({
+            query: GetThemeInformationDocument,
+        });
+
+        if (query.error) {
+            await log?.('Query.Error: ' + JSON.stringify(query.error));
+        }
+
+        if (query.errors) {
+            await log?.('Query.Errors: ' + JSON.stringify(query.errors));
+        }
+
+        retailer.logoUrlFromShopify = query.data.shop.brand?.logo?.image?.url ?? null;
+        await this.save(retailer);
+        return retailer;
     }
 }

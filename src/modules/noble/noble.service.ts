@@ -387,7 +387,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
             return undefined;
         }
 
-        const realTask =  await this.entityManager.findOne(NobleTaskEntity, {id: returned[0].id});
+        const realTask =  await this.entityManager.findOne(NobleTaskEntity, {id: returned[0].id}, {logging: { enabled: false}});
         return realTask ?? undefined;
     }
 
@@ -617,5 +617,15 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
 
         return await query.getResultAndCount();
 
+    }
+
+    getExisingPendingJobForOrganisationIdByType(orgId: string, type: NobleTaskType) {
+        return this.entityManager.findOne(NobleTaskEntity, {
+            organisationId: orgId,
+            beingProcessedBy: {$eq: null},
+            taskType: type,
+            failed: false,
+            isComplete: false
+        });
     }
 }

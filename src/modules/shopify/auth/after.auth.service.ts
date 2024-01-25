@@ -6,16 +6,16 @@ import { RequestUtils } from '../../../utils/RequestUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
+import { ProductJobService } from '../../data-ingestion/product/product.job.service';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
-import { ShopifyRestResources } from '../shopify.module';
 import { StorefrontService } from '../storefront/storefront.service';
 import { ShopifyAuthAfterHandler } from '@nestjs-shopify/auth';
 import { InjectShopify } from '@nestjs-shopify/core';
 import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
-import { Shopify } from '@shopify/shopify-api';
+import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
 import { Request, Response } from 'express';
 
 @Injectable()
@@ -26,11 +26,12 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly retailerService: RetailerService,
         private readonly webhookService: ShopifyWebhooksService,
         private readonly slackService: SlackService,
-        @InjectShopify() private readonly shopifyApiService: Shopify,
         private readonly storefrontService: StorefrontService,
         private readonly customTokenService: CustomTokenService,
         private readonly configService: ConfigService<typeof shopifySchema>,
         private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly productJobService: ProductJobService,
+        @InjectShopify() private readonly shopifyApiService: Shopify,
     ) {}
 
     @SentryInstrument('AfterAuthHandlerService')
@@ -72,7 +73,8 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
             return;
         }
 
-        const { entity, status } = await this.retailerService.updateOrCreate(
+        // eslint-disable-next-line prefer-const
+        let { entity, status } = await this.retailerService.updateOrCreate(
             session.shop,
             session.accessToken,
             session.scope,
@@ -86,43 +88,35 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
 
         //if it's a new store, we need to do some extra work like inform the Cloudshelf API and send a Slack notification
         if (status === 'created') {
-            //Try to get some additional information about the store
-            let storeName = 'Unknown';
-            let email = 'Unknown';
-            let currency = 'Unknown';
-
-            try {
-                const shopData = await (this.shopifyApiService.rest as ShopifyRestResources).Shop.all({
-                    session: session,
-                });
-
-                if (shopData.data.length >= 1) {
-                    storeName = shopData.data[0].name ?? 'Unknown';
-                    email = shopData.data[0].email ?? 'Unknown';
-                    currency = shopData.data[0].currency ?? 'Unknown';
-                }
-
-                entity.displayName = storeName;
-                entity.email = email;
-                entity.currencyCode = currency;
-            } catch (e) {
-                this.logger.error(e);
-            }
-
             //create a storefront token if needed
             const storefrontToken = await this.storefrontService.generateStorefrontTokenIfRequired(session);
             entity.storefrontToken = storefrontToken;
+
+            //Try to get some additional information about the store
+            entity = await this.retailerService.updateShopInformationFromShopify(
+                this.shopifyApiService,
+                entity,
+                session,
+            );
+
+            //get theme info from Shopify
+            entity = await this.retailerService.updateLogoFromShopify(entity);
 
             await this.retailerService.save(entity);
 
             //Send the installation notification to the Cloudshelf Slack
             await this.slackService.sendGeneralNotification(
-                NotificationUtils.buildInstallAttachments(storeName, session.shop, email),
+                NotificationUtils.buildInstallAttachments(entity.displayName!, session.shop, entity.email!),
             );
         }
 
         //report store to Cloudshelf API
         await this.cloudshelfApiService.upsertStore(entity);
+        //create theme on Cloudshelf API
+        await this.cloudshelfApiService.createTheme(entity);
+
+        //queue a sync job
+        await this.productJobService.scheduleTriggerJob(entity, [], true);
 
         //at the end of the install, we have to redirect to "online auth", which lets us exchange an online session token for a Cloudshelf Auth Token
         return res.redirect(`/shopify/online/auth?shop=${session.shop}`);
