@@ -23,7 +23,8 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
 
     @SentryInstrument('UninstalledWebhookHandler')
     async handle(domain: string, data: unknown, webhookId: string): Promise<void> {
-        this.logger.log(`Webhook ${webhookId} called for shop ID ${domain}`);
+        this.logger.debug(`Webhook ${webhookId} called for shop ID ${domain}`);
+        this.logger.debug(data);
 
         SentryUtil.InformationalTransaction('Webhook:Received', 'APP_UNINSTALLED', {
             id: domain,

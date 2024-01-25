@@ -13,8 +13,8 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
 
     @SentryInstrument('SubscriptionUpdateWebhookHandler')
     async handle(domain: string, data: unknown, webhookId: string): Promise<void> {
-        this.logger.log('Received APP_SUBSCRIPTIONS_UPDATE webhook for domain ' + domain);
-        // this.logger.log(data);
+        this.logger.debug('Received APP_SUBSCRIPTIONS_UPDATE webhook for domain ' + domain);
+        this.logger.debug(data);
 
         SentryUtil.InformationalTransaction('Webhook:Received', 'APP_SUBSCRIPTIONS_UPDATE', {
             id: domain,
