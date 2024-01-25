@@ -7,6 +7,7 @@ export enum NobleTaskType {
     SyncProducts = 'SYNC_PRODUCTS',
     SyncCollectionsTrigger = 'SYNC_COLLECTIONS_TRIGGER',
     SyncCollections = 'SYNC_COLLECTIONS',
+    LocationSync = 'LOCATION_SYNC',
 }
 
 registerEnumType(NobleTaskType, {

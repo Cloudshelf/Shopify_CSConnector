@@ -271,7 +271,8 @@
             "SYNC_PRODUCTS_TRIGGER",
             "SYNC_PRODUCTS",
             "SYNC_COLLECTIONS_TRIGGER",
-            "SYNC_COLLECTIONS"
+            "SYNC_COLLECTIONS",
+            "LOCATION_SYNC"
           ],
           "mappedType": "enum"
         },

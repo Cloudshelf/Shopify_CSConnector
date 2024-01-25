@@ -1,5 +1,4 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { GraphQLBoolean } from 'graphql';
 import { GraphQLString } from 'graphql/type';
 import { ProductJobService } from '../data-ingestion/product/product.job.service';
 import { RetailerService } from '../retailer/retailer.service';

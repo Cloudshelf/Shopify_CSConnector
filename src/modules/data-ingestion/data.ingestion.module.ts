@@ -8,6 +8,8 @@ import { BulkOperation } from './bulk.operation.entity';
 import { BulkOperationService } from './bulk.operation.service';
 import { CollectionJobService } from './collection/collection.job.service';
 import { CollectionsProcessor } from './collection/collections.processor';
+import { LocationJobService } from './location/location.job.service';
+import { LocationProcessor } from './location/location.processor';
 import { ProductJobService } from './product/product.job.service';
 import { ProductProcessor } from './product/product.processor';
 
@@ -19,8 +21,24 @@ import { ProductProcessor } from './product/product.processor';
         RetailerModule,
         CloudshelfModule,
     ],
-    providers: [CollectionsProcessor, ProductProcessor, BulkOperationService, ProductJobService, CollectionJobService],
+    providers: [
+        CollectionsProcessor,
+        ProductProcessor,
+        BulkOperationService,
+        ProductJobService,
+        CollectionJobService,
+        LocationJobService,
+        LocationProcessor,
+    ],
     controllers: [],
-    exports: [CollectionsProcessor, ProductProcessor, BulkOperationService, ProductJobService, CollectionJobService],
+    exports: [
+        CollectionsProcessor,
+        ProductProcessor,
+        BulkOperationService,
+        ProductJobService,
+        CollectionJobService,
+        LocationJobService,
+        LocationProcessor,
+    ],
 })
 export class DataIngestionModule {}

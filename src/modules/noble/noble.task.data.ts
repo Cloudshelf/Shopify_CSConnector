@@ -68,13 +68,18 @@ export class ProductConsumerTaskData extends NobleTaskData {
     remoteBulkOperationId: string;
 }
 
+@ObjectType()
+@Embeddable({ discriminatorValue: 'location' })
+export class LocationJobData extends NobleTaskData {}
+
 export type JobDataUnion =
     | DebugJobData
     | DebugErrorJobData
     | ProductTriggerTaskData
     | ProductConsumerTaskData
     | CollectionTriggerTaskData
-    | CollectionConsumerTaskData;
+    | CollectionConsumerTaskData
+    | LocationJobData;
 
 export const NobleTaskDataUnion = createUnionType({
     name: 'NobleTaskDataUnion',
@@ -85,6 +90,7 @@ export const NobleTaskDataUnion = createUnionType({
         ProductConsumerTaskData,
         CollectionTriggerTaskData,
         CollectionConsumerTaskData,
+        LocationJobData,
     ],
     resolveType(value) {
         if (value.dataType === undefined) {
@@ -107,6 +113,9 @@ export const NobleTaskDataUnion = createUnionType({
             }
             if (value.dataType === 'collection-consumer') {
                 return CollectionConsumerTaskData;
+            }
+            if (value.dataType === 'location') {
+                return LocationJobData;
             }
         }
         return null;

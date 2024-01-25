@@ -34,6 +34,12 @@ type DebugJobData {
   reason: String
 }
 
+type LocationJobData {
+  dataType: String!
+  installSync: Boolean!
+  reason: String
+}
+
 type Mutation {
   deleteTask(id: String!): Boolean!
   promoteTask(id: String!): Boolean!
@@ -41,7 +47,7 @@ type Mutation {
   restartTask(id: String!): Boolean!
 }
 
-union NobleTaskDataUnion = CollectionConsumerTaskData | CollectionTriggerTaskData | DebugErrorJobData | DebugJobData | ProductConsumerTaskData | ProductTriggerTaskData
+union NobleTaskDataUnion = CollectionConsumerTaskData | CollectionTriggerTaskData | DebugErrorJobData | DebugJobData | LocationJobData | ProductConsumerTaskData | ProductTriggerTaskData
 
 """Represents a background processing job"""
 type NobleTaskEntity {
@@ -121,6 +127,7 @@ enum NobleTaskStatus {
 enum NobleTaskType {
   Debug
   DebugError
+  LocationSync
   SyncCollections
   SyncCollectionsTrigger
   SyncProducts

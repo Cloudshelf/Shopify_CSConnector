@@ -9,6 +9,7 @@ import {
     DebugErrorJobData,
     DebugJobData,
     JobDataUnion,
+    LocationJobData,
     NobleTaskDataUnion,
     ProductConsumerTaskData,
     ProductTriggerTaskData,
@@ -43,6 +44,7 @@ export class NobleTaskEntity extends BaseEntity {
             ProductConsumerTaskData,
             CollectionTriggerTaskData,
             CollectionConsumerTaskData,
+            LocationJobData,
         ],
         prefix: 'data',
         array: false,
@@ -55,7 +57,8 @@ export class NobleTaskEntity extends BaseEntity {
         | ProductTriggerTaskData
         | ProductConsumerTaskData
         | CollectionTriggerTaskData
-        | CollectionConsumerTaskData;
+        | CollectionConsumerTaskData
+        | LocationJobData;
 
     @Field(() => GraphQLString, { nullable: true })
     jsonData?: string;

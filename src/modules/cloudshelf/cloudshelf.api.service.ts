@@ -14,6 +14,7 @@ import {
     ExchangeTokenDocument,
     ExchangeTokenQuery,
     ExchangeTokenQueryVariables,
+    LocationInput,
     MarkUninstalledDocument,
     MarkUninstalledMutation,
     MarkUninstalledMutationVariables,
@@ -26,6 +27,9 @@ import {
     UpsertCloudshelfDocument,
     UpsertCloudshelfMutation,
     UpsertCloudshelfMutationVariables,
+    UpsertLocationsDocument,
+    UpsertLocationsMutation,
+    UpsertLocationsMutationVariables,
     UpsertProductGroupsDocument,
     UpsertProductGroupsMutation,
     UpsertProductGroupsMutationVariables,
@@ -304,6 +308,26 @@ export class CloudshelfApiService {
 
         if (mutationTuple.errors) {
             await log?.('Failed to upsert theme: ' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async upsertLocations(
+        retailer: RetailerEntity,
+        input: LocationInput[],
+        log?: (logMessage: string) => Promise<void>,
+    ) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(retailer.domain);
+
+        const mutationTuple = await authedClient.mutate<UpsertLocationsMutation, UpsertLocationsMutationVariables>({
+            mutation: UpsertLocationsDocument,
+            variables: {
+                input,
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to upsert locations', mutationTuple.errors);
+            await log?.('Failed to upsert locations: ' + inspect(mutationTuple.errors));
         }
     }
 }
