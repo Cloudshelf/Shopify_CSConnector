@@ -6,7 +6,6 @@ import { ConfigurationModule } from './modules/configuration/configuration.modul
 import { DatabaseModule } from './modules/database/database.module';
 import { RetailerModule } from './modules/retailer/retailer.module';
 import { ShopifyModule } from './modules/shopify/shopify.module';
-import { TestModule } from './modules/test/test.module';
 import { ExtendedLogger } from './utils/ExtendedLogger';
 import { Request } from 'express';
 import { ClsModule } from 'nestjs-cls';
@@ -45,7 +44,6 @@ import { ToolsModule } from './modules/tools/tools.module';
         RetailerModule,
         ManagerProxyModule,
         CloudshelfModule,
-        TestModule,
         NobleModule,
         ToolsModule,
     ],
