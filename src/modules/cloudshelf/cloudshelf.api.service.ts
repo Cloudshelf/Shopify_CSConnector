@@ -26,6 +26,9 @@ import {
     MarkUninstalledMutationVariables,
     ProductGroupInput,
     ProductInput,
+    RequestShopifySubscriptionCheckDocument,
+    RequestShopifySubscriptionCheckMutation,
+    RequestShopifySubscriptionCheckMutationVariables,
     ThemeInput,
     UpdateProductsInProductGroupDocument,
     UpdateProductsInProductGroupMutation,
@@ -373,6 +376,25 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to delete product', mutationTuple.errors);
             await log?.('Failed to delete product: ' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async requestSubscriptionCheck(retailer: RetailerEntity, id: string, log?: (logMessage: string) => Promise<void>) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(retailer.domain);
+
+        const mutationTuple = await authedClient.mutate<
+            RequestShopifySubscriptionCheckMutation,
+            RequestShopifySubscriptionCheckMutationVariables
+        >({
+            mutation: RequestShopifySubscriptionCheckDocument,
+            variables: {
+                shopifyGid: id,
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to request subscription update', mutationTuple.errors);
+            await log?.('Failed to request subscription update' + inspect(mutationTuple.errors));
         }
     }
 }
