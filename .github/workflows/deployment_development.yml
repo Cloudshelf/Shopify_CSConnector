@@ -294,7 +294,7 @@ jobs:
         id: deploy-to-webapp-connector
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'cloudshelf-development-shopify-connector'
+          app-name: 'cloudshelf-development-connector-shopify'
           publish-profile: ${{ vars.AZURE_PUBLISH_PROFILE }}
           images: cloudshelf.azurecr.io/${{ vars.AZURE_CONTAINER_REPO }}:${{ needs.version.outputs.normalisedVersion }}
 
