@@ -8,6 +8,7 @@ export class ApiHealthController {
     @Get()
     @HealthCheck()
     check() {
+        //TODO: Implement health checks
         return this.health.check([]);
     }
 }
