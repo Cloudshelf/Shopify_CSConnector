@@ -295,7 +295,7 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'cloudshelf-production-connector-shopify'
-          publish-profile: ${{ vars.AZURE_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           images: cloudshelf.azurecr.io/${{ vars.AZURE_CONTAINER_REPO }}:${{ needs.version.outputs.normalisedVersion }}
 
       - uses: slackapi/slack-github-action@v1.24.0
