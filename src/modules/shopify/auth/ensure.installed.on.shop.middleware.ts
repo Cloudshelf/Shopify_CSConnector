@@ -1,5 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
+import { HtmlUtils } from '../../../utils/HtmlUtils';
+import { RequestUtils } from '../../../utils/RequestUtils';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { InjectShopify } from '@nestjs-shopify/core';
 import { Shopify } from '@shopify/shopify-api';
@@ -37,17 +39,7 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
             this.logger.log(`Session not found for shop ${shop}, redirecting to auth`);
             // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
 
-            res.status(403);
-            res.append('Access-Control-Expose-Headers', [
-                'X-Shopify-Api-Request-Failure-Reauthorize',
-                'X-Shopify-Api-Request-Failure-Reauthorize-Url',
-            ]);
-            res.header('X-Shopify-API-Request-Failure-Reauthorize', '1');
-            res.header(
-                'X-Shopify-API-Request-Failure-Reauthorize-Url',
-                `https://development.shopifyconnector.cloudshelf.ai/shopify/offline/auth?shop=${shop}`,
-            );
-            res.end();
+            res.end(HtmlUtils.generateExitToInstallPage(shop));
         }
 
         this.logger.debug(`Session found for shop ${shop}, continuing`);
