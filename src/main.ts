@@ -9,6 +9,7 @@ import { AppModule } from './app.module';
 import { SentryFilter } from './modules/apm/sentry.exception.filter';
 import { NoOAuthCookieExceptionFilter } from './modules/shopify/auth/no.oauth.cookie.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
+import { LogLevel } from '@slack/web-api';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
 import { ulid } from 'ulid';
@@ -40,7 +41,10 @@ async function bootstrap() {
         name: 'Application Startup',
     }).finish();
 
-    const app = await NestFactory.create(AppModule, { bodyParser: false });
+    const app = await NestFactory.create(AppModule, {
+        bodyParser: false,
+        logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+    });
     app.enableCors();
     app.enableShutdownHooks();
 
