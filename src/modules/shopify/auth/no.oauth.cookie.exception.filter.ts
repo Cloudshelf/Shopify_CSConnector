@@ -1,13 +1,17 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { HtmlUtils } from '../../../utils/HtmlUtils';
 import { Request, Response } from 'express';
 
-@Catch(HttpException)
+@Catch()
 export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
-    catch(exception: HttpException, host: ArgumentsHost) {
+    readonly logger = new ExtendedLogger('NoOAuthCookieExceptionFilter');
+    catch(exception: unknown, host: ArgumentsHost) {
+        this.logger.debug(`In NoOAuthCookieExceptionFilter`);
         const ctx = host.switchToHttp();
         if ((ctx as any).contextType && (ctx as any).contextType === 'graphql') {
             //do nothing as we want to see the GQL errors in the manager
+            this.logger.debug(`graphql context, skipping`);
             return;
         }
 
@@ -16,6 +20,7 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
         const httpStatus =
             exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
+        this.logger.debug(`Exception: ${JSON.stringify(exception)}`);
         //If the exception contains "Cannot complete OAuth process" then redirect to the auth page
         if (
             (exception as any).message &&
