@@ -39,7 +39,7 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
             this.logger.log(
                 `Session not found for shop ${shop}, redirecting to auth, query params: ${JSON.stringify(req.query)}`,
             );
-            res.end(HtmlUtils.generateExitToInstallPage(shop));
+            return res.redirect(`/shopify/offline/auth?shop=${shop}`);
         }
 
         this.logger.debug(`Session found for shop ${shop}, continuing`);

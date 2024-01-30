@@ -1,9 +1,10 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import { HtmlUtils } from '../../../utils/HtmlUtils';
 import { Request, Response } from 'express';
 
-@Catch()
+@Catch(HttpException)
 export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
-    catch(exception: unknown, host: ArgumentsHost) {
+    catch(exception: HttpException, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         if ((ctx as any).contextType && (ctx as any).contextType === 'graphql') {
             //do nothing as we want to see the GQL errors in the manager
@@ -21,7 +22,9 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
             (exception as any).message.toLowerCase().includes('cannot complete oauth process') &&
             request.query.shop
         ) {
-            response.redirect(`/shopify/offline/auth?shop=${request.query.shop}`);
+            const shop = request.query.shop as string;
+            response.end(HtmlUtils.generateExitToInstallPage(shop));
+            // response.redirect(`/shopify/offline/auth?shop=${request.query.shop}`);
             return;
         }
 
