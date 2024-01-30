@@ -33,14 +33,21 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
 
         const offlineSessionId = this.shopifyApiService.session.getOfflineId(shop);
         const offlineSession = await this.databaseSessionStorage.loadSession(offlineSessionId);
-
         if (!offlineSession) {
             this.logger.log(`Session not found for shop ${shop}, redirecting to auth`);
             // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
 
-            return res.redirect(
-                `https://redirectutil.cloudshelf.ai/?path=https://development.shopifyconnector.cloudshelf.ai/shopify/offline/auth?shop=${shop}`,
+            res.status(403);
+            res.append('Access-Control-Expose-Headers', [
+                'X-Shopify-Api-Request-Failure-Reauthorize',
+                'X-Shopify-Api-Request-Failure-Reauthorize-Url',
+            ]);
+            res.header('X-Shopify-API-Request-Failure-Reauthorize', '1');
+            res.header(
+                'X-Shopify-API-Request-Failure-Reauthorize-Url',
+                `https://development.shopifyconnector.cloudshelf.ai/shopify/offline/auth?shop=${shop}`,
             );
+            res.end();
         }
 
         this.logger.debug(`Session found for shop ${shop}, continuing`);
