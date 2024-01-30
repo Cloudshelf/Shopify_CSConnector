@@ -7,9 +7,7 @@ import { ProfilingIntegration } from '@sentry/profiling-node';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { AppModule } from './app.module';
 import { SentryFilter } from './modules/apm/sentry.exception.filter';
-import { NoOAuthCookieExceptionFilter } from './modules/shopify/auth/no.oauth.cookie.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
-import { LogLevel } from '@slack/web-api';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
 import { ulid } from 'ulid';
@@ -72,7 +70,7 @@ async function bootstrap() {
     app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
     const { httpAdapter } = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new SentryFilter(httpAdapter), new NoOAuthCookieExceptionFilter());
+    app.useGlobalFilters(new SentryFilter(httpAdapter));
     app.useGlobalInterceptors(new SentryGqlInterceptor());
 
     const port = process.env.PORT || 3100;

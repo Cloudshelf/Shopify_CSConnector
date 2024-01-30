@@ -37,7 +37,9 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
         const offlineSession = await this.databaseSessionStorage.loadSession(offlineSessionId);
         if (!offlineSession) {
             this.logger.log(
-                `Session not found for shop ${shop}, redirecting to auth, query params: ${JSON.stringify(req.query)}`,
+                `Session not found for shop ${shop}, redirecting to auth, query params: ${JSON.stringify(
+                    req.query,
+                )}, headers: ${JSON.stringify(req.headers)}`,
             );
             res.end(HtmlUtils.generateExitToInstallPage(shop));
         }
