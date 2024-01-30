@@ -2,6 +2,8 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { HtmlUtils } from '../../../utils/HtmlUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
+import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { CustomTokenService } from '../sessions/custom.token.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { InjectShopify } from '@nestjs-shopify/core';
 import { Shopify } from '@shopify/shopify-api';
@@ -13,6 +15,8 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
     constructor(
         @InjectShopify() private readonly shopifyApiService: Shopify,
         private readonly databaseSessionStorage: DatabaseSessionStorage,
+        private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly customTokenService: CustomTokenService,
     ) {}
 
     async use(req: Request, res: Response, next: NextFunction) {
@@ -40,6 +44,13 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
                 `Session not found for shop ${shop}, redirecting to auth, query params: ${JSON.stringify(req.query)}`,
             );
             return res.redirect(`/shopify/offline/auth?shop=${shop}`);
+        } else {
+            const token = await this.cloudshelfApiService.getCloudshelfAuthToken(shop);
+            if (!token) {
+                //failed to get token, we redirect to the offline auth page
+                return res.redirect(`/shopify/offline/auth?shop=${shop}`);
+            }
+            await this.customTokenService.storeToken(shop, token);
         }
 
         this.logger.debug(`Session found for shop ${shop}, continuing`);

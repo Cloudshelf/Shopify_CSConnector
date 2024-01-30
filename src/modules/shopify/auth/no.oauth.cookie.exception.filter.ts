@@ -29,7 +29,6 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
         ) {
             const shop = request.query.shop as string;
             response.end(HtmlUtils.generateExitToInstallPage(shop));
-            // response.redirect(`/shopify/offline/auth?shop=${request.query.shop}`);
             return;
         }
 

@@ -1,10 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { EnsureInstalledOnShopMiddleware } from '../shopify/auth/ensure.installed.on.shop.middleware';
 import { SessionModule } from '../shopify/sessions/session.module';
 import { ManagerProxyMiddleware } from './manager.proxy.middleware';
 
 @Module({
-    imports: [SessionModule],
+    imports: [SessionModule, CloudshelfModule],
     providers: [],
     controllers: [],
     exports: [],
@@ -16,6 +17,8 @@ export class ManagerProxyModule implements NestModule {
             .exclude(
                 { path: '/shopify/(.*)', method: RequestMethod.ALL },
                 { path: '/graphql', method: RequestMethod.ALL },
+                { path: '/_next/(.*)', method: RequestMethod.ALL },
+                { path: '/static/(.*)', method: RequestMethod.ALL },
             )
             .forRoutes({ path: '/**', method: RequestMethod.ALL });
 
