@@ -65,7 +65,7 @@ export class ToolsResolver {
             throw new Error('Unauthorized access to tools graphql');
         }
 
-        const result = this.toolsService.deleteAllWebhooksForAllStores(0, 1000);
+        const result = await this.toolsService.deleteAllWebhooksForAllStores(0, 1000);
 
         return 'OK: ' + JSON.stringify(result);
     }
