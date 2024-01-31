@@ -76,10 +76,10 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
 
         if (this.isBackgroundMicroserviceEnabled()) {
             this.logger.log('Starting task fetcher...');
-            setInterval(this.handleTaskFetcher.bind(this), 500);
+            // setInterval(this.handleTaskFetcher.bind(this), 500);
 
             this.logger.log('Starting pause checker...');
-            setInterval(this.handlePausedInterval.bind(this), 5000);
+            // setInterval(this.handlePausedInterval.bind(this), 5000);
         }
         this.isInitialized = true;
     }
