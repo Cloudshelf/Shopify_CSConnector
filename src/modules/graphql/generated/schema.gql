@@ -41,10 +41,10 @@ type LocationJobData {
 }
 
 type Mutation {
-  deleteAllWebhooks(from: Int!, to: Int!, token: String!): String!
+  deleteAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   deleteTask(id: String!): Boolean!
   promoteTask(id: String!): Boolean!
-  registerAllWebhooks(from: Int!, to: Int!, token: String!): String!
+  registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   restartLongRunningJobs: Boolean!
   restartTask(id: String!): Boolean!
 }

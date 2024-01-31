@@ -62,14 +62,14 @@ export class ToolsResolver {
         token: string,
         @Args({ name: 'from', type: () => GraphQLInt })
         from: number,
-        @Args({ name: 'to', type: () => GraphQLInt })
-        to: number,
+        @Args({ name: 'limit', type: () => GraphQLInt })
+        limit: number,
     ) {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
         }
 
-        const result = await this.toolsService.deleteAllWebhooksForAllStores(from, to);
+        const result = await this.toolsService.deleteAllWebhooksForAllStores(from, limit);
 
         return 'OK: ' + JSON.stringify(result);
     }
@@ -80,8 +80,8 @@ export class ToolsResolver {
         token: string,
         @Args({ name: 'from', type: () => GraphQLInt })
         from: number,
-        @Args({ name: 'to', type: () => GraphQLInt })
-        to: number,
+        @Args({ name: 'limit', type: () => GraphQLInt })
+        limit: number,
     ) {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
@@ -91,7 +91,7 @@ export class ToolsResolver {
             return 'Error: No host.' + JSON.stringify(process.env.JOST);
         }
 
-        const result = await this.toolsService.registerAllWebhooksForAllRetailers(from, to);
+        const result = await this.toolsService.registerAllWebhooksForAllRetailers(from, limit);
 
         return `OK (${process.env.HOST}): ` + JSON.stringify(result);
     }
