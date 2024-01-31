@@ -60,7 +60,7 @@ export class LocationProcessor implements OnApplicationBootstrap {
             limitOnePerStore: true,
             taskDelay: 1000,
             retries: 5,
-            concurrency: 2,
+            concurrency: 1,
             processor: task => this.syncLocationsProcessor(task),
         });
     }

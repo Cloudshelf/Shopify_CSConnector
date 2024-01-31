@@ -78,7 +78,7 @@ async function bootstrap() {
     const host = process.env.HOST || `http://localhost:${port}`;
     await app.listen(port);
 
-    logger.log(`🚀 Application is running on: ${host}}`);
+    logger.log(`🚀 Application is running on: ${host}`);
 
     logger.verbose(`Start installation via shopify admin panel or by using: ${host}/offline/auth?shop=[domain]`);
     logger.verbose(`Startup ULID: ${ulid()}`);

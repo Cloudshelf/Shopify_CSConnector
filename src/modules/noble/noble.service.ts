@@ -24,7 +24,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
     private readonly logger = new ExtendedLogger(NobleService.name);
     private static readonly queues: { [key: string]: RegisteredTaskQueue } = {};
     private static paused = true;
-    private static allowJobPickups = true;
+    private applicationShutdown = false;
     private isInitialized = false;
     private instanceId = ulid();
 
@@ -75,66 +75,52 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
         }
 
         if (this.isBackgroundMicroserviceEnabled()) {
-            this.logger.log('Starting task fetcher...');
-            // setInterval(this.handleTaskFetcher.bind(this), 500);
-
-            this.logger.log('Starting pause checker...');
-            // setInterval(this.handlePausedInterval.bind(this), 5000);
+            void this.startTaskFetcher();
         }
         this.isInitialized = true;
     }
 
     @CreateRequestContext()
-    async handleTaskFetcher() {
-        if (NobleService.paused) {
-            await MiscellaneousUtils.sleep(2500);
-            return;
-        }
-        if (!NobleService.allowJobPickups) {
-            return;
-        }
-        NobleService.allowJobPickups = false;
-        for await (const key of Object.keys(NobleService.queues)) {
-            await MiscellaneousUtils.sleep(100);
-            const registeredQueue = NobleService.queues[key];
-            if (registeredQueue && !registeredQueue.nextTask && !registeredQueue.paused) {
-                const queue = registeredQueue.taskQueue;
-                try {
-                    const nextJob = await this.getNextTask(
-                      queue.taskType,
-                      queue.retries,
-                      queue.noTasksDelay,
-                      queue.taskDelay,
-                      queue.limitOnePerStore,
-                      this.instanceId,
-                    );
+    async startTaskFetcher() {
+        this.logger.log('Starting task fetcher...');
+        while(!this.applicationShutdown) {
+            //todo: Check if we should pause noble.
+            NobleService.paused = false;
 
-                    if (nextJob) {
-                        nextJob.queueMaxRetries = queue.retries;
-                        registeredQueue.nextTask = nextJob;
-                    }
-                } catch {}
+            if(NobleService.paused) {
+                await MiscellaneousUtils.sleep(2500);
+                continue;
+            }
+
+            for await (const key of Object.keys(NobleService.queues)) {
+                await MiscellaneousUtils.sleep(100);
+                const registeredQueue = NobleService.queues[key];
+                if (registeredQueue && !registeredQueue.nextTask && !registeredQueue.paused) {
+                    const queue = registeredQueue.taskQueue;
+                    try {
+                        const nextJob = await this.getNextTask(
+                          queue.taskType,
+                          queue.retries,
+                          queue.noTasksDelay,
+                          queue.taskDelay,
+                          queue.limitOnePerStore,
+                          this.instanceId,
+                        );
+
+                        if (nextJob) {
+                            nextJob.queueMaxRetries = queue.retries;
+                            registeredQueue.nextTask = nextJob;
+                        }
+                    } catch {}
+                }
             }
         }
-        NobleService.allowJobPickups = true;
     }
-
-    @CreateRequestContext()
-    async handlePausedInterval() {
-        NobleService.paused = false;
-        // NobleService.paused = await this.toolsService.isNoblePaused();
-        //
-        // const shouldBePaused = await this.toolsService.getNoblePausedQueueTypes();
-        // _.map(NobleService.queues, (queue) => {
-        //     queue.paused = _.includes(shouldBePaused, queue.taskQueue.taskType);
-        // });
-    }
-
 
     @CreateRequestContext()
     async beforeApplicationShutdown(signal?: string) {
         this.logger.warn('Shutting down noble service due to signal: ' + signal);
-
+        this.applicationShutdown = true;
         const activeJobs = await this.entityManager.find(NobleTaskEntity, {
             beingProcessedBy: this.instanceId,
         }, {populate: ["logMessages", "errors"]});
