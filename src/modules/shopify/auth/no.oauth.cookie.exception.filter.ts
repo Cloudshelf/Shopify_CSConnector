@@ -10,18 +10,14 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
         this.logger.debug(`In NoOAuthCookieExceptionFilter`);
         const ctx = host.switchToHttp();
         if ((ctx as any).contextType && (ctx as any).contextType === 'graphql') {
-            //do nothing as we want to see the GQL errors in the manager
+            //do nothing as we want to see the GQL errors in the manager, so we rethrow
             this.logger.debug(`graphql context, skipping`);
-            return;
+            throw exception;
         }
 
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
-        const httpStatus =
-            exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
-        this.logger.debug(`Exception: ${JSON.stringify(exception)}`);
-        //If the exception contains "Cannot complete OAuth process" then redirect to the auth page
         if (
             (exception as any).message &&
             (exception as any).message.toLowerCase().includes('cannot complete oauth process') &&
