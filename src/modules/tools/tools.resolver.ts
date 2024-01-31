@@ -83,8 +83,12 @@ export class ToolsResolver {
             throw new Error('Unauthorized access to tools graphql');
         }
 
+        if (process.env.HOST === undefined) {
+            return 'Error: No host.' + JSON.stringify(process.env.JOST);
+        }
+
         const result = await this.toolsService.registerAllWebhooksForAllRetailers(from, to);
 
-        return 'OK: ' + JSON.stringify(result);
+        return `OK (${process.env.HOST}): ` + JSON.stringify(result);
     }
 }

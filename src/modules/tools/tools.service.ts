@@ -68,7 +68,7 @@ export class ToolsService {
             await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.BulkOperationsFinish,
-                `https://${process.env.PUBLIC_HOSTNAME}/shopify/webhooks`,
+                `https://${process.env.HOST}/shopify/webhooks`,
             );
         }
 
