@@ -1,8 +1,9 @@
-import { Entity, Property, types } from '@mikro-orm/core';
+import { Entity, Index, Property, types } from '@mikro-orm/core';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
 
 @Entity()
 export class RetailerEntity extends BaseEntity {
+    @Index()
     @Property({ type: 'text', unique: true })
     domain!: string;
 
