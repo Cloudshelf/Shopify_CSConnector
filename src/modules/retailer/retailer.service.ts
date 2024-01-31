@@ -10,7 +10,8 @@ import {
     GetThemeInformationQueryVariables,
 } from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager, MikroORM } from '@mikro-orm/core';
+import { app } from '../../main';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
@@ -73,7 +74,14 @@ export class RetailerService {
 
     @SentryInstrument('RetailerService')
     async getSharedSecret(domain: string): Promise<string | undefined> {
-        const shop = await this.entityManager.findOne(RetailerEntity, { domain });
+        let em = this.entityManager;
+
+        if (em === undefined) {
+            const orm = app!.get(MikroORM);
+            em = orm.em.fork();
+        }
+
+        const shop = await em.findOne(RetailerEntity, { domain });
 
         if (!shop) {
             return undefined;

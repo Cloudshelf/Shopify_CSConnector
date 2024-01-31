@@ -1,4 +1,4 @@
-import { RawBodyRequest } from '@nestjs/common';
+import { INestApplication, RawBodyRequest } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SentryGqlInterceptor } from './modules/apm/sentry.graphql.interceptor';
 import * as Sentry from '@sentry/node';
@@ -12,6 +12,8 @@ import { ExtendedLogger } from './utils/ExtendedLogger';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
 import { ulid } from 'ulid';
+
+export let app: INestApplication | undefined = undefined;
 
 async function bootstrap() {
     const logger = new ExtendedLogger('Main');
@@ -40,10 +42,11 @@ async function bootstrap() {
         name: 'Application Startup',
     }).finish();
 
-    const app = await NestFactory.create(AppModule, {
+    app = await NestFactory.create(AppModule, {
         bodyParser: false,
         logger: ['log', 'error', 'warn', 'debug', 'verbose'],
     });
+    app = app!;
     app.enableCors();
     app.enableShutdownHooks();
 
