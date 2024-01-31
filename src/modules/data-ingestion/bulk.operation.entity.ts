@@ -1,4 +1,4 @@
-import { Entity, Enum, PrimaryKey, Property, types } from '@mikro-orm/core';
+import { Entity, Enum, Index, PrimaryKey, Property, types } from '@mikro-orm/core';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
 import { BulkOperationType } from './bulk.operation.type';
 
@@ -11,9 +11,11 @@ export class BulkOperation extends BaseEntity {
         this.endedAt = null;
     }
 
+    @Index()
     @Property({ type: 'text' })
     domain!: string;
 
+    @Index()
     @Property({ type: 'text', unique: true })
     shopifyBulkOpId!: string;
 

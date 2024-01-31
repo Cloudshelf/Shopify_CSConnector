@@ -1,7 +1,7 @@
 import { Field, GraphQLISODateTime, ObjectType } from '@nestjs/graphql';
 import ConnectionType from '../graphql/pagination/pagination.relay.types';
 import { GraphQLBoolean, GraphQLString } from 'graphql/type';
-import { Collection, Embedded, Entity, Enum, OneToMany, Property, types } from '@mikro-orm/core';
+import { Collection, Embedded, Entity, Enum, Index, OneToMany, Property, types } from '@mikro-orm/core';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
 import {
     CollectionConsumerTaskData,
@@ -23,6 +23,7 @@ import { NobleTaskType } from './noble.task.type';
 @Entity({
     tableName: 'noble_task',
 })
+@Index({ properties: ['organisationId', 'beingProcessedBy', 'taskType'] })
 export class NobleTaskEntity extends BaseEntity {
     @Property({ type: types.datetime, nullable: true })
     @Field(() => GraphQLISODateTime, {
