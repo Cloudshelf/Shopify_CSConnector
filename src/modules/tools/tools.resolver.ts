@@ -60,12 +60,16 @@ export class ToolsResolver {
     async deleteAllWebhooks(
         @Args({ name: 'token', type: () => GraphQLString })
         token: string,
+        @Args({ name: 'from', type: () => GraphQLInt })
+        from: number,
+        @Args({ name: 'to', type: () => GraphQLInt })
+        to: number,
     ) {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
         }
 
-        const result = await this.toolsService.deleteAllWebhooksForAllStores(0, 1000);
+        const result = await this.toolsService.deleteAllWebhooksForAllStores(from, to);
 
         return 'OK: ' + JSON.stringify(result);
     }
@@ -76,7 +80,7 @@ export class ToolsResolver {
         token: string,
         @Args({ name: 'from', type: () => GraphQLInt })
         from: number,
-        @Args({ name: 'token', type: () => GraphQLInt })
+        @Args({ name: 'to', type: () => GraphQLInt })
         to: number,
     ) {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
