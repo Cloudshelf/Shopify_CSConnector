@@ -36,6 +36,7 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
             statusCode: httpStatus,
             timestamp: new Date().toISOString(),
             path: request.url,
+            exception: exception,
         });
     }
 }
