@@ -4,7 +4,7 @@ export class HtmlUtils {
             script: `
         (async => {
             console.log('test');
-            var url = 'https://redirectutil.cloudshelf.ai/?path=' + encodeURIComponent('https://development.shopifyconnector.cloudshelf.ai/shopify/offline/auth?shop=${shop}');
+            var url = 'https://redirectutil.cloudshelf.ai/?path=' + encodeURIComponent('https://${process.env.HOST}/shopify/offline/auth?shop=${shop}');
             open(url, '_top');
         })()
         `,

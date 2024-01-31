@@ -44,7 +44,7 @@ type Mutation {
   deleteAllWebhooks(token: String!): String!
   deleteTask(id: String!): Boolean!
   promoteTask(id: String!): Boolean!
-  registerAllWebhooks(token: String!): String!
+  registerAllWebhooks(from: Int!, token: Int!): String!
   restartLongRunningJobs: Boolean!
   restartTask(id: String!): Boolean!
 }

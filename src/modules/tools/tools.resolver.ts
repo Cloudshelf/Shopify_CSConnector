@@ -1,4 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
@@ -40,12 +41,16 @@ export class ToolsResolver {
     async registerAllWebhooks(
         @Args({ name: 'token', type: () => GraphQLString })
         token: string,
+        @Args({ name: 'from', type: () => GraphQLInt })
+        from: number,
+        @Args({ name: 'token', type: () => GraphQLInt })
+        to: number,
     ) {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
         }
 
-        const result = await this.toolsService.registerAllWebhooksForAllRetailers(0, 1000);
+        const result = await this.toolsService.registerAllWebhooksForAllRetailers(from, to);
 
         return 'OK: ' + JSON.stringify(result);
     }
