@@ -22,6 +22,9 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
     async use(req: Request, res: Response, next: NextFunction) {
         this.logger.debug(`In EnsureInstalledOnShopMiddleware`);
 
+        //log the path the middleware is being called from
+        this.logger.debug(`Path: ${req.path}`);
+
         if (!this.shopifyApiService.config.isEmbeddedApp) {
             this.logger.warn('EnsureInstalledOnShopMiddleware should only be used for embedded apps');
             return;

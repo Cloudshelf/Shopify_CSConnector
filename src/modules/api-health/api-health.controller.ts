@@ -11,4 +11,9 @@ export class ApiHealthController {
         //TODO: Implement health checks
         return this.health.check([]);
     }
+
+    @Get('/basic')
+    basic() {
+        return 'OK';
+    }
 }
