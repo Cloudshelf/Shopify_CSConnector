@@ -357,11 +357,22 @@ export class ProductProcessor implements OnApplicationBootstrap {
                         }
                     }
 
+                    const currentPrice = parseFloat(variant.price);
+                    let originalPrice = currentPrice;
+
+                    if (variant.compareAtPrice !== undefined) {
+                        const compareAtPrice = parseFloat(variant.compareAtPrice);
+                        originalPrice = compareAtPrice;
+
+                        if (compareAtPrice < currentPrice) {
+                            originalPrice = currentPrice;
+                        }
+
                     const ProductVariantInput: ProductVariantInput = {
                         id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
                         displayName: variant.title,
-                        currentPrice: parseFloat(variant.price),
-                        originalPrice: parseFloat(variant.compareAtPrice ?? variant.price),
+                        currentPrice: currentPrice,
+                        originalPrice: originalPrice,
                         sku: variant.sku ?? '',
                         //We only support in stock / out of stock not stock count in v3
                         isInStock: variant.sellableOnlineQuantity > 0,
