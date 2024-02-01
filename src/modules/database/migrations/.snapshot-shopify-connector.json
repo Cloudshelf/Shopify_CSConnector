@@ -398,6 +398,18 @@
           "unique": false
         },
         {
+          "keyName": "noble_task_task_type_created_at_retries_index",
+          "columnNames": [
+            "task_type",
+            "created_at",
+            "retries"
+          ],
+          "composite": true,
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "noble_task_organisation_id_being_processed_by_task_type_index",
           "columnNames": [
             "organisation_id",

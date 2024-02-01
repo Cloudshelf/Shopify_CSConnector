@@ -24,6 +24,7 @@ import { NobleTaskType } from './noble.task.type';
     tableName: 'noble_task',
 })
 @Index({ properties: ['organisationId', 'beingProcessedBy', 'taskType'] })
+@Index({ properties: ['taskType', 'createdAt', 'retries'] })
 export class NobleTaskEntity extends BaseEntity {
     @Property({ type: types.datetime, nullable: true })
     @Field(() => GraphQLISODateTime, {
