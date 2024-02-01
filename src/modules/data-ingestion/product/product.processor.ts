@@ -360,7 +360,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                     const currentPrice = parseFloat(variant.price);
                     let originalPrice = currentPrice;
 
-                    if (variant.compareAtPrice !== undefined) {
+                    if (variant.compareAtPrice !== undefined && variant.compareAtPrice !== null) {
                         const compareAtPrice = parseFloat(variant.compareAtPrice);
                         originalPrice = compareAtPrice;
 
