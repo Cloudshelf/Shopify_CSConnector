@@ -367,6 +367,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                         if (compareAtPrice < currentPrice) {
                             originalPrice = currentPrice;
                         }
+                    }
 
                     const ProductVariantInput: ProductVariantInput = {
                         id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
