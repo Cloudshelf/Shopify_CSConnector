@@ -30,13 +30,13 @@ export class ProductsUpdateWebhookHandler extends ShopifyWebhookHandler<unknown>
             username: domain,
         });
 
-        const retailer = await this.retailerService.getByDomain(domain);
-
-        if (!retailer) {
-            this.logger.debug('Cannot get retailer for domain ' + domain);
-            return;
-        }
-
-        await this.productJobService.scheduleTriggerJob(retailer, [data.admin_graphql_api_id], false, true);
+        // const retailer = await this.retailerService.getByDomain(domain);
+        //
+        // if (!retailer) {
+        //     this.logger.debug('Cannot get retailer for domain ' + domain);
+        //     return;
+        // }
+        //
+        // await this.productJobService.scheduleTriggerJob(retailer, [data.admin_graphql_api_id], false, true);
     }
 }
