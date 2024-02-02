@@ -371,6 +371,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
                     const ProductVariantInput: ProductVariantInput = {
                         id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
+                        position: variantIndex,
                         displayName: variant.title,
                         currentPrice: currentPrice,
                         originalPrice: originalPrice,

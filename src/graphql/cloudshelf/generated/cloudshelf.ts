@@ -1207,6 +1207,7 @@ export type EngineVariant = {
   id?: Maybe<Scalars['GlobalId']['output']>;
   options: Array<KeyValuePair>;
   originalPrice: Scalars['Float']['output'];
+  position?: Maybe<Scalars['Float']['output']>;
   price: Scalars['Float']['output'];
   sellableOnlineQuantity: Scalars['Float']['output'];
   sku: Scalars['String']['output'];
@@ -2522,6 +2523,8 @@ export type ProductVariant = {
   originalPrice: Scalars['Float']['output'];
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  /** The position of the product variant in the list of variants */
+  position?: Maybe<Scalars['Int']['output']>;
   /** The product which this variant belongs to. */
   product: Product;
   sku?: Maybe<Scalars['String']['output']>;
@@ -2548,6 +2551,8 @@ export type ProductVariantInput = {
   metaimages?: InputMaybe<Array<MetaimageInput>>;
   /** The original price of the product. If the product variant is not discounted, this should equal the original price */
   originalPrice?: InputMaybe<Scalars['Float']['input']>;
+  /** The position of the product variant in the list of variants */
+  position?: InputMaybe<Scalars['Int']['input']>;
   /** The SKU of the product variant */
   sku?: InputMaybe<Scalars['String']['input']>;
 };
