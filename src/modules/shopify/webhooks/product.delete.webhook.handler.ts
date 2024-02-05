@@ -3,6 +3,9 @@ import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { WebhookQueuedDataActionType } from '../../data-ingestion/webhook.queued.data.action.type';
+import { WebhookQueuedDataContentType } from '../../data-ingestion/webhook.queued.data.content.type';
+import { WebhookQueuedService } from '../../data-ingestion/webhook.queued.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 
@@ -17,6 +20,7 @@ export class ProductsDeleteWebhookHandler extends ShopifyWebhookHandler<unknown>
     constructor(
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly webhookQueuedService: WebhookQueuedService,
     ) {
         super();
     }
@@ -26,19 +30,20 @@ export class ProductsDeleteWebhookHandler extends ShopifyWebhookHandler<unknown>
         this.logger.debug('Received PRODUCTS_DELETE webhook for domain ' + domain);
         this.logger.debug(data);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'PRODUCTS_DELETE', {
-            id: domain,
-            username: domain,
-        });
-
-        const retailer = await this.retailerService.getByDomain(domain);
-
-        if (!retailer) {
-            this.logger.debug('Cannot get retailer for domain ' + domain);
-            return;
-        }
-
         const productId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyProduct')!;
-        await this.cloudshelfApiService.deleteProduct(retailer, productId);
+        await this.webhookQueuedService.queue(
+            domain,
+            productId,
+            WebhookQueuedDataContentType.PRODUCT,
+            WebhookQueuedDataActionType.DELETE,
+        );
+        //
+        // const retailer = await this.retailerService.getByDomain(domain);
+        // if (!retailer) {
+        //     this.logger.debug('Cannot get retailer for domain ' + domain);
+        //     return;
+        // }
+        //
+        // await this.cloudshelfApiService.deleteProduct(retailer, productId);
     }
 }

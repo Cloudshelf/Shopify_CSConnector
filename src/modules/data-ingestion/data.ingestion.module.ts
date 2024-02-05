@@ -12,10 +12,12 @@ import { LocationJobService } from './location/location.job.service';
 import { LocationProcessor } from './location/location.processor';
 import { ProductJobService } from './product/product.job.service';
 import { ProductProcessor } from './product/product.processor';
+import { WebhookQueuedData } from './webhook.queued.data.entity';
+import { WebhookQueuedService } from './webhook.queued.service';
 
 @Module({
     imports: [
-        MikroOrmModule.forFeature([BulkOperation]),
+        MikroOrmModule.forFeature([BulkOperation, WebhookQueuedData]),
         forwardRef(() => ShopifyModule),
         NobleModule,
         RetailerModule,
@@ -29,6 +31,7 @@ import { ProductProcessor } from './product/product.processor';
         CollectionJobService,
         LocationJobService,
         LocationProcessor,
+        WebhookQueuedService,
     ],
     controllers: [],
     exports: [
@@ -39,6 +42,7 @@ import { ProductProcessor } from './product/product.processor';
         CollectionJobService,
         LocationJobService,
         LocationProcessor,
+        WebhookQueuedService,
     ],
 })
 export class DataIngestionModule {}

@@ -1,13 +1,17 @@
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { WebhookQueuedDataActionType } from '../../data-ingestion/webhook.queued.data.action.type';
+import { WebhookQueuedDataContentType } from '../../data-ingestion/webhook.queued.data.content.type';
+import { WebhookQueuedService } from '../../data-ingestion/webhook.queued.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 
 export interface AppSubscriptionUpdateWebhookPayload {
-    admin_graphql_api_id: string;
+    app_subscription: {
+        admin_graphql_api_id: string;
+    };
 }
 
 @WebhookHandler('APP_SUBSCRIPTIONS_UPDATE')
@@ -17,6 +21,7 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
     constructor(
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly webhookQueuedService: WebhookQueuedService,
     ) {
         super();
     }
@@ -26,18 +31,11 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
         this.logger.debug('Received APP_SUBSCRIPTIONS_UPDATE webhook for domain ' + domain);
         this.logger.debug(data);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'APP_SUBSCRIPTIONS_UPDATE', {
-            id: domain,
-            username: domain,
-        });
-
-        const retailer = await this.retailerService.getByDomain(domain);
-
-        if (!retailer) {
-            this.logger.debug('Cannot get retailer for domain ' + domain);
-            return;
-        }
-
-        await this.cloudshelfApiService.requestSubscriptionCheck(retailer, data.admin_graphql_api_id);
+        await this.webhookQueuedService.queue(
+            domain,
+            data.app_subscription.admin_graphql_api_id,
+            WebhookQueuedDataContentType.SUBSCRIPTION,
+            WebhookQueuedDataActionType.CHECK,
+        );
     }
 }
