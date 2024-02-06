@@ -13,6 +13,29 @@ export class ToolsResolver {
         private readonly productJobService: ProductJobService,
     ) {}
 
+    // @Query(() => GraphQLBoolean)
+    // async test(): Promise<boolean> {
+    //     await runTest();
+    //     return true;
+    // }
+
+    @Query(() => GraphQLString)
+    async forceSyncAll(
+        @Args({ name: 'token', type: () => GraphQLString })
+        token: string,
+    ): Promise<string> {
+        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
+            throw new Error('Unauthorized access to tools graphql');
+        }
+        const retailers = await this.retailerService.getAll(0, 1000);
+
+        for (const retailer of retailers) {
+            await this.productJobService.scheduleTriggerJob(retailer, true, false);
+        }
+
+        return 'Scheduled a syncs';
+    }
+
     @Query(() => GraphQLString)
     async forceSync(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -29,7 +52,7 @@ export class ToolsResolver {
             return "false, retailer doesn't exist";
         }
 
-        await this.productJobService.scheduleTriggerJob(retailer, [], true, false);
+        await this.productJobService.scheduleTriggerJob(retailer, true, false);
 
         return 'Scheduled a sync';
     }
