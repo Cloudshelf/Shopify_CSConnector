@@ -118,7 +118,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         await this.cloudshelfApiService.createTheme(entity);
 
         //queue a sync job
-        await this.productJobService.scheduleTriggerJob(entity, [], true);
+        await this.productJobService.scheduleTriggerJob(entity, true);
         //queue a location job
         await this.locationJobService.schedule(entity, true);
 

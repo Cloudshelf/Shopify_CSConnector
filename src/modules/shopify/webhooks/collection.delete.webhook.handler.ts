@@ -30,27 +30,27 @@ export class CollectionDeleteWebhookHandler extends ShopifyWebhookHandler<unknow
         this.logger.debug('Received COLLECTIONS_DELETE webhook for domain ' + domain);
         this.logger.debug(data);
 
-        const productGroupId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyCollection')!;
-        await this.webhookQueuedService.queue(
-            domain,
-            productGroupId,
-            WebhookQueuedDataContentType.COLLECTION,
-            WebhookQueuedDataActionType.DELETE,
-        );
+        // const productGroupId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyCollection')!;
+        // await this.webhookQueuedService.queue(
+        //     domain,
+        //     productGroupId,
+        //     WebhookQueuedDataContentType.COLLECTION,
+        //     WebhookQueuedDataActionType.DELETE,
+        // );
 
         // SentryUtil.InformationalTransaction('Webhook:Received', 'COLLECTIONS_DELETE', {
         //     id: domain,
         //     username: domain,
         // });
         //
-        // const retailer = await this.retailerService.getByDomain(domain);
-        //
-        // if (!retailer) {
-        //     this.logger.debug('Cannot get retailer for domain ' + domain);
-        //     return;
-        // }
-        //
-        // const productGroupId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyCollection')!;
-        // await this.cloudshelfApiService.deleteProductGroup(retailer, productGroupId);
+        const retailer = await this.retailerService.getByDomain(domain);
+
+        if (!retailer) {
+            this.logger.debug('Cannot get retailer for domain ' + domain);
+            return;
+        }
+
+        const productGroupId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyCollection')!;
+        await this.cloudshelfApiService.deleteProductGroup(retailer, productGroupId);
     }
 }

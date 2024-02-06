@@ -1,6 +1,7 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ProductGroupInput } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import * as _ from 'lodash';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
@@ -12,6 +13,9 @@ import { RetailerEntity } from '../../retailer/retailer.entity';
 import { RetailerService } from '../../retailer/retailer.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
+import { WebhookQueuedDataActionType } from '../webhook.queued.data.action.type';
+import { WebhookQueuedDataContentType } from '../webhook.queued.data.content.type';
+import { WebhookQueuedService } from '../webhook.queued.service';
 import axios from 'axios';
 import { addSeconds } from 'date-fns';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -27,6 +31,7 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         private readonly nobleService: NobleService,
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly webhookQueuedService: WebhookQueuedService,
     ) {}
 
     async onApplicationBootstrap() {
@@ -133,16 +138,25 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             //in v2 we had a massive check here to cancel a bulk operation... but I don't think the logic makes any sense... so not porting to v3.
         }
 
+        const queuedWebhooks = await this.webhookQueuedService.getAllByDomainAndTypeAndAction(
+            retailer.domain,
+            WebhookQueuedDataContentType.PRODUCT,
+            WebhookQueuedDataActionType.UPDATE,
+        );
+        const collectionIds = _.uniq(queuedWebhooks.map(w => w.content));
+
         //There was no existing bulk operation running on shopify, so we can make one.
-        const queryPayload = await this.buildCollectionTriggerQueryPayload(retailer, taskData.collectionIds);
+        const queryPayload = await this.buildCollectionTriggerQueryPayload(retailer, collectionIds);
         await this.bulkOperationService.requestBulkOperation(
             retailer,
             BulkOperationType.ProductGroupSync,
-            taskData.collectionIds,
+            collectionIds,
             queryPayload,
             taskData.installSync,
             (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
         );
+
+        await this.webhookQueuedService.delete(queuedWebhooks);
     }
 
     async syncCollectionsConsumerProcessor(task: NobleTaskEntity) {

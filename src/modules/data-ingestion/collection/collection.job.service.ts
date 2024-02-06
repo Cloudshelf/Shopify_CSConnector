@@ -9,12 +9,7 @@ import { BulkOperation } from '../bulk.operation.entity';
 export class CollectionJobService {
     constructor(private readonly nobleService: NobleService) {}
 
-    async scheduleTriggerJob(
-        retailer: RetailerEntity,
-        explicitIds: any[],
-        installSync?: boolean,
-        fromWebhook?: boolean,
-    ) {
+    async scheduleTriggerJob(retailer: RetailerEntity, installSync?: boolean, fromWebhook?: boolean) {
         let delay = 1; //1 second
         let prio = 1;
 
@@ -28,19 +23,18 @@ export class CollectionJobService {
 
         const triggerData: CollectionTriggerTaskData = {
             dataType: 'collection-trigger',
-            collectionIds: explicitIds,
             installSync: installSync ?? false,
         };
 
-        const existingJob = await this.nobleService.getExisingPendingJobForOrganisationIdByType(
+        let existingJob = await this.nobleService.getExisingPendingJobForOrganisationIdByType(
             retailer.id,
             NobleTaskType.SyncCollectionsTrigger,
         );
 
-        if (explicitIds.length === 0) {
-            // we want to do a full sync, remove any existing jobs
+        if (!existingJob || (existingJob && existingJob.data?.installSync && !installSync)) {
             if (existingJob) {
                 await this.nobleService.deleteTaskById(existingJob.id);
+                existingJob = null;
             }
 
             await this.nobleService.scheduleTask<CollectionTriggerTaskData>(
@@ -50,24 +44,39 @@ export class CollectionJobService {
                 prio,
                 delay,
             );
-        } else {
-            if (existingJob) {
-                const existingJobData = existingJob.data as CollectionTriggerTaskData;
-                existingJobData.collectionIds = [...existingJobData.collectionIds, ...explicitIds];
-
-                await this.nobleService.updateData<CollectionTriggerTaskData>(existingJob, {
-                    ...existingJobData,
-                });
-            } else {
-                await this.nobleService.scheduleTask<CollectionTriggerTaskData>(
-                    NobleTaskType.SyncCollectionsTrigger,
-                    retailer.id,
-                    triggerData,
-                    prio,
-                    delay,
-                );
-            }
         }
+        //
+        // if (explicitIds.length === 0) {
+        //     // we want to do a full sync, remove any existing jobs
+        //     if (existingJob) {
+        //         await this.nobleService.deleteTaskById(existingJob.id);
+        //     }
+        //
+        //     await this.nobleService.scheduleTask<CollectionTriggerTaskData>(
+        //         NobleTaskType.SyncCollectionsTrigger,
+        //         retailer.id,
+        //         triggerData,
+        //         prio,
+        //         delay,
+        //     );
+        // } else {
+        //     if (existingJob) {
+        //         const existingJobData = existingJob.data as CollectionTriggerTaskData;
+        //         existingJobData.collectionIds = [...existingJobData.collectionIds, ...explicitIds];
+        //
+        //         await this.nobleService.updateData<CollectionTriggerTaskData>(existingJob, {
+        //             ...existingJobData,
+        //         });
+        //     } else {
+        //         await this.nobleService.scheduleTask<CollectionTriggerTaskData>(
+        //             NobleTaskType.SyncCollectionsTrigger,
+        //             retailer.id,
+        //             triggerData,
+        //             prio,
+        //             delay,
+        //         );
+        //     }
+        // }
     }
 
     async scheduleConsumerJob(retailer: RetailerEntity, bulkOp: BulkOperation) {

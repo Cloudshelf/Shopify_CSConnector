@@ -35,5 +35,14 @@ export class ProductsUpdateWebhookHandler extends ShopifyWebhookHandler<unknown>
             WebhookQueuedDataContentType.PRODUCT,
             WebhookQueuedDataActionType.UPDATE,
         );
+
+        const retailer = await this.retailerService.getByDomain(domain);
+
+        if (!retailer) {
+            this.logger.debug('Cannot get retailer for domain ' + domain);
+            return;
+        }
+
+        await this.productJobService.scheduleTriggerJob(retailer, false, true);
     }
 }

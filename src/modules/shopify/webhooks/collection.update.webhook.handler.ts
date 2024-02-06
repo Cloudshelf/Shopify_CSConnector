@@ -38,18 +38,13 @@ export class CollectionUpdateWebhookHandler extends ShopifyWebhookHandler<unknow
             WebhookQueuedDataActionType.UPDATE,
         );
 
-        // SentryUtil.InformationalTransaction('Webhook:Received', 'COLLECTIONS_UPDATE', {
-        //     id: domain,
-        //     username: domain,
-        // });
-        //
-        // const retailer = await this.retailerService.getByDomain(domain);
-        //
-        // if (!retailer) {
-        //     this.logger.debug('Cannot get retailer for domain ' + domain);
-        //     return;
-        // }
-        //
-        // await this.collectionJobService.scheduleTriggerJob(retailer, [data.admin_graphql_api_id], false, true);
+        const retailer = await this.retailerService.getByDomain(domain);
+
+        if (!retailer) {
+            this.logger.debug('Cannot get retailer for domain ' + domain);
+            return;
+        }
+
+        await this.collectionJobService.scheduleTriggerJob(retailer, false, true);
     }
 }

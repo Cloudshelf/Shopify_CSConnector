@@ -30,20 +30,21 @@ export class ProductsDeleteWebhookHandler extends ShopifyWebhookHandler<unknown>
         this.logger.debug('Received PRODUCTS_DELETE webhook for domain ' + domain);
         this.logger.debug(data);
 
+        // const productId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyProduct')!;
+        // await this.webhookQueuedService.queue(
+        //     domain,
+        //     productId,
+        //     WebhookQueuedDataContentType.PRODUCT,
+        //     WebhookQueuedDataActionType.DELETE,
+        // );
+
+        const retailer = await this.retailerService.getByDomain(domain);
+        if (!retailer) {
+            this.logger.debug('Cannot get retailer for domain ' + domain);
+            return;
+        }
         const productId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyProduct')!;
-        await this.webhookQueuedService.queue(
-            domain,
-            productId,
-            WebhookQueuedDataContentType.PRODUCT,
-            WebhookQueuedDataActionType.DELETE,
-        );
-        //
-        // const retailer = await this.retailerService.getByDomain(domain);
-        // if (!retailer) {
-        //     this.logger.debug('Cannot get retailer for domain ' + domain);
-        //     return;
-        // }
-        //
-        // await this.cloudshelfApiService.deleteProduct(retailer, productId);
+
+        await this.cloudshelfApiService.deleteProduct(retailer, productId);
     }
 }

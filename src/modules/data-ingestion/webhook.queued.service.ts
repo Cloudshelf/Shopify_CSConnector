@@ -26,4 +26,20 @@ export class WebhookQueuedService {
 
         await this.entityManager.persistAndFlush(queued);
     }
+
+    async getAllByDomainAndTypeAndAction(
+        domain: string,
+        contentType: WebhookQueuedDataContentType,
+        actionType: WebhookQueuedDataActionType,
+    ) {
+        return this.entityManager.find(WebhookQueuedData, {
+            domain,
+            contentType,
+            actionType,
+        });
+    }
+
+    async delete(queuedWebhooks: WebhookQueuedData[]) {
+        await this.entityManager.removeAndFlush(queuedWebhooks);
+    }
 }

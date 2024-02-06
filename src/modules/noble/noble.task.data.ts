@@ -39,9 +39,9 @@ export class DebugErrorJobData extends NobleTaskData {}
 @ObjectType()
 @Embeddable({ discriminatorValue: 'product-trigger' })
 export class ProductTriggerTaskData extends NobleTaskData {
-    @Property({ type: types.array })
-    @Field(() => [GraphQLString])
-    productIds: string[];
+    // @Property({ type: types.array })
+    // @Field(() => [GraphQLString])
+    // productIds: string[];
 }
 
 @ObjectType()
@@ -55,9 +55,9 @@ export class CollectionConsumerTaskData extends NobleTaskData {
 @ObjectType()
 @Embeddable({ discriminatorValue: 'collection-trigger' })
 export class CollectionTriggerTaskData extends NobleTaskData {
-    @Property({ type: types.array })
-    @Field(() => [GraphQLString])
-    collectionIds: string[];
+    // @Property({ type: types.array })
+    // @Field(() => [GraphQLString])
+    // collectionIds: string[];
 }
 
 @ObjectType()
