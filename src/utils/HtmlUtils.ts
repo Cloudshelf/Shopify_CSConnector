@@ -1,4 +1,12 @@
 export class HtmlUtils {
+    static generateInstallRedirectUrl(shop: string): string {
+        const url =
+            'https://redirectutil.cloudshelf.ai/?path=' +
+            encodeURIComponent(`https://${process.env.HOST}/shopify/offline/auth?shop=${shop}`);
+
+        return url;
+    }
+
     static generateExitToInstallPage(shop: string): string {
         const html = this.generateAppBridgePage({
             script: `

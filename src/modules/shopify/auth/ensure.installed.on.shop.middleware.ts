@@ -38,7 +38,10 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
             return;
         }
 
-        this.logger.debug(`Checking if shop has installed the app: ${shop}`);
+        const shopifySession = req.query['session'];
+        const queryHasSession = shopifySession !== undefined;
+
+        this.logger.debug(`Checking if shop has installed the app: ${shop}, shopifySession: ${shopifySession}`);
 
         const offlineSessionId = this.shopifyApiService.session.getOfflineId(shop);
         const offlineSession = await this.databaseSessionStorage.loadSession(offlineSessionId);
@@ -46,12 +49,26 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
             this.logger.log(
                 `Session not found for shop ${shop}, redirecting to auth, query params: ${JSON.stringify(req.query)}`,
             );
-            return res.redirect(`/shopify/offline/auth?shop=${shop}`);
+
+            if (queryHasSession) {
+                return res.end(HtmlUtils.generateExitToInstallPage(shop));
+            } else {
+                return res.redirect(HtmlUtils.generateInstallRedirectUrl(shop));
+            }
+            // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
         } else {
             const token = await this.cloudshelfApiService.getCloudshelfAuthToken(shop);
             if (!token) {
+                if (queryHasSession) {
+                    return res.end(HtmlUtils.generateExitToInstallPage(shop));
+                } else {
+                    return res.redirect(HtmlUtils.generateInstallRedirectUrl(shop));
+                }
+
                 //failed to get token, we redirect to the offline auth page
-                return res.redirect(`/shopify/offline/auth?shop=${shop}`);
+                // return res.redirect(HtmlUtils.generateInstallRedirectUrl(shop));
+
+                // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
             }
             await this.customTokenService.storeToken(shop, token);
         }
