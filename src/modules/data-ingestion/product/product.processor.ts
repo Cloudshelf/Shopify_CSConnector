@@ -23,6 +23,7 @@ import { BulkOperationType } from '../bulk.operation.type';
 import { CollectionJobService } from '../collection/collection.job.service';
 import { WebhookQueuedDataActionType } from '../webhook.queued.data.action.type';
 import { WebhookQueuedDataContentType } from '../webhook.queued.data.content.type';
+import { WebhookQueuedData } from '../webhook.queued.data.entity';
 import { WebhookQueuedService } from '../webhook.queued.service';
 import axios from 'axios';
 import { addSeconds } from 'date-fns';
@@ -187,12 +188,16 @@ export class ProductProcessor implements OnApplicationBootstrap {
             //in v2 we had a massive check here to cancel a bulk operation... but I don't think the logic makes any sense... so not porting to v3.
         }
 
-        const queuedWebhooks = await this.webhookQueuedService.getAllByDomainAndTypeAndAction(
-            retailer.domain,
-            WebhookQueuedDataContentType.PRODUCT,
-            WebhookQueuedDataActionType.UPDATE,
-        );
-        const productIds = _.uniq(queuedWebhooks.map(w => w.content));
+        let productIds: string[] = [];
+        let queuedWebhooks: WebhookQueuedData[] = [];
+        if (!taskData.installSync) {
+            queuedWebhooks = await this.webhookQueuedService.getAllByDomainAndTypeAndAction(
+                retailer.domain,
+                WebhookQueuedDataContentType.PRODUCT,
+                WebhookQueuedDataActionType.UPDATE,
+            );
+            productIds = _.uniq(queuedWebhooks.map(w => w.content));
+        }
 
         //There was no existing bulk operation running on shopify, so we can make one.
         const queryPayload = await this.buildProductTriggerQueryPayload(retailer, productIds);
@@ -205,7 +210,9 @@ export class ProductProcessor implements OnApplicationBootstrap {
             (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
         );
 
-        await this.webhookQueuedService.delete(queuedWebhooks);
+        if (queuedWebhooks.length > 0) {
+            await this.webhookQueuedService.delete(queuedWebhooks);
+        }
     }
 
     async syncProductsConsumerProcessor(task: NobleTaskEntity) {
