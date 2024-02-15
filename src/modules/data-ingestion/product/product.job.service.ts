@@ -19,10 +19,10 @@ export class ProductJobService {
 
         if (installSync) {
             prio = 1000;
-        }
-
-        if (fromWebhook) {
-            delay = 60 * 15; //15 minutes
+        } else {
+            if (fromWebhook) {
+                delay = 60 * 15; //15 minutes
+            }
         }
 
         const triggerData: ProductTriggerTaskData = {
@@ -35,7 +35,7 @@ export class ProductJobService {
             NobleTaskType.SyncProductsTrigger,
         );
 
-        if (!existingJob || (existingJob && existingJob.data?.installSync && !installSync)) {
+        if (!existingJob || (existingJob && !existingJob.data?.installSync && installSync)) {
             if (existingJob) {
                 await this.nobleService.deleteTaskById(existingJob.id);
                 existingJob = null;

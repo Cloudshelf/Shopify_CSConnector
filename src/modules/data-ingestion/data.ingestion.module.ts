@@ -8,6 +8,7 @@ import { BulkOperation } from './bulk.operation.entity';
 import { BulkOperationService } from './bulk.operation.service';
 import { CollectionJobService } from './collection/collection.job.service';
 import { CollectionsProcessor } from './collection/collections.processor';
+import { DataIngestionService } from './data.ingestion.service';
 import { LocationJobService } from './location/location.job.service';
 import { LocationProcessor } from './location/location.processor';
 import { ProductJobService } from './product/product.job.service';
@@ -32,6 +33,7 @@ import { WebhookQueuedService } from './webhook.queued.service';
         LocationJobService,
         LocationProcessor,
         WebhookQueuedService,
+        DataIngestionService,
     ],
     controllers: [],
     exports: [
@@ -43,6 +45,7 @@ import { WebhookQueuedService } from './webhook.queued.service';
         LocationJobService,
         LocationProcessor,
         WebhookQueuedService,
+        DataIngestionService,
     ],
 })
 export class DataIngestionModule {}

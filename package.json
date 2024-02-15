@@ -45,6 +45,7 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/graphql": "^12.0.11",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/schedule": "^4.0.1",
     "@nestjs/terminus": "^10.2.0",
     "@sentry/cli": "^2.25.3",
     "@sentry/node": "^7.94.1",

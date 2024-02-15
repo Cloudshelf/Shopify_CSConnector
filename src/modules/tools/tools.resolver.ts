@@ -1,6 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
+import { DataIngestionService } from '../data-ingestion/data.ingestion.service';
 import { ProductJobService } from '../data-ingestion/product/product.job.service';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
@@ -11,6 +12,7 @@ export class ToolsResolver {
         private readonly toolsService: ToolsService,
         private readonly retailerService: RetailerService,
         private readonly productJobService: ProductJobService,
+        private readonly dataIngestionService: DataIngestionService,
     ) {}
 
     // @Query(() => GraphQLBoolean)
@@ -20,20 +22,16 @@ export class ToolsResolver {
     // }
 
     @Query(() => GraphQLString)
-    async forceSyncAll(
+    async forceASafetySyncNow(
         @Args({ name: 'token', type: () => GraphQLString })
         token: string,
     ): Promise<string> {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
         }
-        const retailers = await this.retailerService.getAll(0, 1000);
+        await this.dataIngestionService.createSafetySyncs();
 
-        for (const retailer of retailers) {
-            await this.productJobService.scheduleTriggerJob(retailer, true, false);
-        }
-
-        return 'Scheduled a syncs';
+        return 'OK';
     }
 
     @Query(() => GraphQLString)
