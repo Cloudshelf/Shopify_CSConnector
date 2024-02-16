@@ -19,6 +19,9 @@ import {
     ExchangeTokenDocument,
     ExchangeTokenQuery,
     ExchangeTokenQueryVariables,
+    KeepKnownProductsViaFileDocument,
+    KeepKnownProductsViaFileMutation,
+    KeepKnownProductsViaFileMutationVariables,
     LocationInput,
     MarkUninstalledDocument,
     MarkUninstalledMutation,
@@ -392,6 +395,25 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to request subscription update', mutationTuple.errors);
             await log?.('Failed to request subscription update' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async keepKnownProductsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(domain);
+
+        const mutationTuple = await authedClient.mutate<
+            KeepKnownProductsViaFileMutation,
+            KeepKnownProductsViaFileMutationVariables
+        >({
+            mutation: KeepKnownProductsViaFileDocument,
+            variables: {
+                fileUrl: url,
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to handle keepKnownProductsViaFile', mutationTuple.errors);
+            await log?.('Failed to handle keepKnownProductsViaFile' + inspect(mutationTuple.errors));
         }
     }
 }

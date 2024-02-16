@@ -1585,6 +1585,8 @@ export type Mutation = {
   duplicateThemes: ThemeDuplicatePayload;
   editSubscription: SubscriptionRecord;
   endSession: Session;
+  /** Allows the user to provide a file with known products to keep, any other products already in their organisation will be deleted */
+  keepKnownProductsViaFile: ProductDeletionPayload;
   /** Allows the current user leave an Organisation. */
   leaveOrganisation: Scalars['Boolean']['output'];
   markInstallComplete: Scalars['Boolean']['output'];
@@ -1730,6 +1732,11 @@ export type MutationEditSubscriptionArgs = {
 export type MutationEndSessionArgs = {
   id: Scalars['GlobalId']['input'];
   interactions: Scalars['Int']['input'];
+};
+
+
+export type MutationKeepKnownProductsViaFileArgs = {
+  fileUrl: Scalars['String']['input'];
 };
 
 
@@ -2360,6 +2367,14 @@ export type ProductDeletePayload = {
   __typename?: 'ProductDeletePayload';
   /** An array of Products that were deleted */
   products: Array<Product>;
+  /** An array of errors that occurred during the delete operation */
+  userErrors: Array<UserError>;
+};
+
+export type ProductDeletionPayload = {
+  __typename?: 'ProductDeletionPayload';
+  /** The number of products that were removed from the organisation */
+  count: Scalars['Int']['output'];
   /** An array of errors that occurred during the delete operation */
   userErrors: Array<UserError>;
 };
@@ -3475,6 +3490,8 @@ export enum UserErrorCode {
   /** An error occurred while attempting to upload an image */
   ImageUploadError = 'IMAGE_UPLOAD_ERROR',
   InvalidArgument = 'INVALID_ARGUMENT',
+  /** The file provided was invalid, or could not be accessed. */
+  InvalidFile = 'INVALID_FILE',
   InvalidHmac = 'INVALID_HMAC',
   TemporaryRestriction = 'TEMPORARY_RESTRICTION',
   UnknownError = 'UNKNOWN_ERROR'
@@ -3759,6 +3776,17 @@ export const DeleteProductsDocument = gql`
   }
 }
     `;
+export const KeepKnownProductsViaFileDocument = gql`
+    mutation keepKnownProductsViaFile($fileUrl: String!) {
+  keepKnownProductsViaFile(fileUrl: $fileUrl) {
+    count
+    userErrors {
+      code
+      message
+    }
+  }
+}
+    `;
 export const RequestShopifySubscriptionCheckDocument = gql`
     mutation requestShopifySubscriptionCheck($shopifyGid: String!) {
   requestShopifySubscriptionCheck(shopifyGid: $shopifyGid)
@@ -3861,6 +3889,13 @@ export type DeleteProductsMutationVariables = Exact<{
 
 
 export type DeleteProductsMutation = { __typename?: 'Mutation', deleteProducts: { __typename?: 'ProductDeletePayload', products: Array<{ __typename?: 'Product', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type KeepKnownProductsViaFileMutationVariables = Exact<{
+  fileUrl: Scalars['String']['input'];
+}>;
+
+
+export type KeepKnownProductsViaFileMutation = { __typename?: 'Mutation', keepKnownProductsViaFile: { __typename?: 'ProductDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
 
 export type RequestShopifySubscriptionCheckMutationVariables = Exact<{
   shopifyGid: Scalars['String']['input'];
