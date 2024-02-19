@@ -1,4 +1,5 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
     KeyValuePairInput,
     MetadataInput,
@@ -11,7 +12,9 @@ import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/sho
 import * as _ from 'lodash';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
+import { S3Utils } from '../../../utils/S3Utils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { cloudflareSchema } from '../../configuration/schemas/cloudflare.schema';
 import { NobleService } from '../../noble/noble.service';
 import { ProductConsumerTaskData, ProductTriggerTaskData } from '../../noble/noble.task.data';
 import { NobleTaskEntity } from '../../noble/noble.task.entity';
@@ -43,6 +46,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
         private readonly cloudshelfApiService: CloudshelfApiService,
         private readonly collectionJobService: CollectionJobService,
         private readonly webhookQueuedService: WebhookQueuedService,
+        private readonly cloudflareConfigService: ConfigService<typeof cloudflareSchema>,
     ) {}
 
     async onApplicationBootstrap() {
@@ -271,12 +275,14 @@ export class ProductProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Data file downloaded`);
         const productIdToExplicitlyCheck = bulkOperationRecord.explicitIds ?? [];
 
+        let runFullSyncLogic = false;
         if (productIdToExplicitlyCheck.length > 0) {
             await this.nobleService.addTimedLogMessage(
                 task,
                 `Explicit Update the following products: ${JSON.stringify(productIdToExplicitlyCheck)}`,
             );
         } else {
+            runFullSyncLogic = true;
             await this.nobleService.addTimedLogMessage(task, `Full product update`);
         }
         const chunkSize = 1000;
@@ -291,7 +297,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
             await this.nobleService.addTimedLogMessage(task, `--- Chunk Started ---`);
 
             const shopifyIdsForThisChunk = productsInJsonLChunk.map((p: any) => p.id);
-            allProductShopifyIdsFromThisFile.push(...allProductShopifyIdsFromThisFile);
+            allProductShopifyIdsFromThisFile.push(...shopifyIdsForThisChunk);
             await this.nobleService.addTimedLogMessage(task, `Ids in Chunk: ${JSON.stringify(shopifyIdsForThisChunk)}`);
 
             //
@@ -448,19 +454,34 @@ export class ProductProcessor implements OnApplicationBootstrap {
             await this.nobleService.addTimedLogMessage(task, '--- Chunk finished ---');
         }
 
-        //todo: delete products that are not in the file
-        if ((bulkOperationRecord.explicitIds ?? []).length === 0) {
-            //this was a full sync, so we can delete all ids we did not see
-            //deleteAllExcept
-        } else {
-            //this was a partial sync, so we need to delete all ids that we did not see
+        console.log('allProductShopifyIdsFromThisFile', allProductShopifyIdsFromThisFile);
+        if (runFullSyncLogic) {
+            //For a full sync, we know we should have seen all the ids, so we can call the keepKnownProductsViaFile mutation, which will delete any products that were not in the file
+            const contentToSave: { id: string }[] = [];
 
-            const productIdsWeShouldHaveSeen = bulkOperationRecord.explicitIds;
-            const productIdsWeDidNotSee = productIdsWeShouldHaveSeen.filter(
-                p => !allProductShopifyIdsFromThisFile.includes(p),
+            //all the IDS that exist in allProductShopifyIdsFromThisFile and do not exist in productIdsToExplicitlyEnsureDeleted should added to contentToSave
+            for (const id of allProductShopifyIdsFromThisFile) {
+                if (!productIdsToExplicitlyEnsureDeleted.includes(id)) {
+                    contentToSave.push({ id: GlobalIDUtils.gidConverter(id, 'ShopifyProduct')! });
+                }
+            }
+
+            const fileName = `${retailer.domain}_${ulid()}.json`;
+            let url = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
+            if (!url.endsWith('/')) {
+                url += '/';
+            }
+            url += `${fileName}`;
+
+            const didUpload = await S3Utils.UploadJsonFile(
+                JSON.stringify(contentToSave),
+                'product-deletion-payloads',
+                fileName,
             );
 
-            // deleteByIds
+            if (didUpload) {
+                await this.cloudshelfApiService.keepKnownProductsViaFile(retailer.domain, url);
+            }
         }
 
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
