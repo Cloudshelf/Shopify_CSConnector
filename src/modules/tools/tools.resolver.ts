@@ -1,7 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
-import { runTest } from '../../../test-content/test';
 import { BulkOperationService } from '../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../data-ingestion/bulk.operation.type';
 import { CollectionJobService } from '../data-ingestion/collection/collection.job.service';
