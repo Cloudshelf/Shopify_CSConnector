@@ -1,0 +1,3 @@
+mutation UpdateLastSync($fullSync: Boolean!, $completed: Boolean!) {
+    updateLastSync(fullSync: $fullSync, completed: $completed)
+}

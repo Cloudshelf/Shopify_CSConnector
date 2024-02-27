@@ -10,7 +10,6 @@ type CollectionConsumerTaskData {
 }
 
 type CollectionTriggerTaskData {
-  collectionIds: [String!]!
   dataType: String!
   installSync: Boolean!
   reason: String
@@ -146,12 +145,12 @@ type ProductConsumerTaskData {
 type ProductTriggerTaskData {
   dataType: String!
   installSync: Boolean!
-  productIds: [String!]!
   reason: String
 }
 
 type Query {
   forceSync(domain: String!, token: String!): String!
+  forceSyncAll(token: String!): String!
   getWebhooksForRetailer(domain: String!, token: String!): String!
   nobleQueueByTaskType(taskType: NobleTaskType!): TaskQueue!
   nobleQueues: [TaskQueue!]!

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {forwardRef, Inject, Injectable, Logger} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     ApolloClient,
@@ -53,7 +53,7 @@ import {
     UpsertThemeDocument,
     UpsertThemeMutation,
     UpsertThemeMutationVariables,
-    UpsertVariantsInput,
+    UpsertVariantsInput, UpdateLastSyncMutation, UpdateLastSyncDocument, UpdateLastSyncMutationVariables,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
 import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import { CryptographyUtils } from '../../utils/CryptographyUtils';
@@ -68,10 +68,10 @@ export class CloudshelfApiService {
 
     constructor(
         private readonly configService: ConfigService<typeof cloudshelfSchema>,
-        private readonly retailerService: RetailerService,
+        @Inject(forwardRef(() => RetailerService)) private readonly retailerService: RetailerService,
     ) {}
 
-    private async getCloudshelfAPIApolloClient(domain?: string): Promise<ApolloClient<NormalizedCacheObject>> {
+    async getCloudshelfAPIApolloClient(domain?: string): Promise<ApolloClient<NormalizedCacheObject>> {
         const httpLink = createHttpLink({
             uri: this.configService.get<string>('CLOUDSHELF_API_URL'),
         });

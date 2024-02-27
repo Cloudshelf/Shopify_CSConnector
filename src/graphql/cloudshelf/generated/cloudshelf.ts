@@ -1616,6 +1616,7 @@ export type Mutation = {
   /** Unregister a webhook for a given subject. If an array of ids is supplied, only the webhooks corresponding to the supplied ids will be unregistered, if they exists. If no array is supplied, all webhooks for the given subject will be unregistered. */
   unregisterWebhooks: WebhookRegisterPayload;
   unsubscribe: Scalars['Boolean']['output'];
+  updateLastSync: Scalars['Boolean']['output'];
   /** Allows updating basic user information */
   updateMyUser: User;
   /** Sets the products in the product group to the given list of products */
@@ -1842,6 +1843,12 @@ export type MutationSubscribeArgs = {
 
 export type MutationUnregisterWebhooksArgs = {
   inputs: Array<WebhookUnregisterInput>;
+};
+
+
+export type MutationUpdateLastSyncArgs = {
+  completed: Scalars['Boolean']['input'];
+  fullSync: Scalars['Boolean']['input'];
 };
 
 
@@ -2161,6 +2168,8 @@ export type Organisation = {
   installCompleted: Scalars['Boolean']['output'];
   installInformation: InstallInformation;
   installSurveyAnswers?: Maybe<Scalars['String']['output']>;
+  lastFullSync?: Maybe<Scalars['DateTime']['output']>;
+  lastPartialSync?: Maybe<Scalars['DateTime']['output']>;
   /** The locations which belong to this organisation. */
   locations: Array<Location>;
   /** The orders which belong to this organisation. */
@@ -2172,6 +2181,8 @@ export type Organisation = {
   salesAssistantAllocation: Scalars['Boolean']['output'];
   salesAssistantClearRule: ClearSalesAssistantRule;
   salesAssistantNameRule: SalesAssistantNameRule;
+  scheduledFullSync?: Maybe<Scalars['DateTime']['output']>;
+  scheduledPartialSync?: Maybe<Scalars['DateTime']['output']>;
   uninstallStarted: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -3759,6 +3770,11 @@ export const DeleteProductsDocument = gql`
   }
 }
     `;
+export const UpdateLastSyncDocument = gql`
+    mutation UpdateLastSync($fullSync: Boolean!, $completed: Boolean!) {
+  updateLastSync(fullSync: $fullSync, completed: $completed)
+}
+    `;
 export const RequestShopifySubscriptionCheckDocument = gql`
     mutation requestShopifySubscriptionCheck($shopifyGid: String!) {
   requestShopifySubscriptionCheck(shopifyGid: $shopifyGid)
@@ -3861,6 +3877,14 @@ export type DeleteProductsMutationVariables = Exact<{
 
 
 export type DeleteProductsMutation = { __typename?: 'Mutation', deleteProducts: { __typename?: 'ProductDeletePayload', products: Array<{ __typename?: 'Product', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type UpdateLastSyncMutationVariables = Exact<{
+  fullSync: Scalars['Boolean']['input'];
+  completed: Scalars['Boolean']['input'];
+}>;
+
+
+export type UpdateLastSyncMutation = { __typename?: 'Mutation', updateLastSync: boolean };
 
 export type RequestShopifySubscriptionCheckMutationVariables = Exact<{
   shopifyGid: Scalars['String']['input'];

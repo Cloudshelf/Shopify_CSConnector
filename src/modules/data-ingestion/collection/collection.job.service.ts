@@ -4,10 +4,11 @@ import { CollectionConsumerTaskData, CollectionTriggerTaskData } from '../../nob
 import { NobleTaskType } from '../../noble/noble.task.type';
 import { RetailerEntity } from '../../retailer/retailer.entity';
 import { BulkOperation } from '../bulk.operation.entity';
+import {RetailerService} from "../../retailer/retailer.service";
 
 @Injectable()
 export class CollectionJobService {
-    constructor(private readonly nobleService: NobleService) {}
+    constructor(private readonly nobleService: NobleService, private readonly retailerService: RetailerService) {}
 
     async scheduleTriggerJob(retailer: RetailerEntity, installSync?: boolean, fromWebhook?: boolean) {
         let delay = 1; //1 second
@@ -44,6 +45,8 @@ export class CollectionJobService {
                 prio,
                 delay,
             );
+
+            await this.retailerService.updateSyncTime(retailer, 'partial', false);
         }
         //
         // if (explicitIds.length === 0) {

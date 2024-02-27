@@ -1,44 +1,24 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ApolloQueryResult } from '@apollo/client';
 import {
-    KeyValuePairInput,
     LocationInput,
-    MetadataInput,
-    MetaimageInput,
-    ProductInput,
-    ProductVariantInput,
-    UpsertVariantsInput,
 } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import {
-    BulkOperationStatus,
-    CurrentBulkOperationDocument,
-    CurrentBulkOperationQuery,
-    CurrentBulkOperationQueryVariables,
     GetLocationsDocument,
     GetLocationsQuery,
     GetLocationsQueryVariables,
     LocationDetailsFragment,
 } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../../shopify/shopify.graphql.util';
-import * as _ from 'lodash';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
-import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { NobleService } from '../../noble/noble.service';
-import { LocationJobData, ProductConsumerTaskData, ProductTriggerTaskData } from '../../noble/noble.task.data';
 import { NobleTaskEntity } from '../../noble/noble.task.entity';
 import { NobleTaskType } from '../../noble/noble.task.type';
-import { RetailerEntity } from '../../retailer/retailer.entity';
 import { RetailerService } from '../../retailer/retailer.service';
 import { BulkOperationService } from '../bulk.operation.service';
-import { BulkOperationType } from '../bulk.operation.type';
-import { CollectionJobService } from '../collection/collection.job.service';
-import axios from 'axios';
-import { addSeconds } from 'date-fns';
-import { createWriteStream, promises as fsPromises } from 'fs';
 import * as stream from 'stream';
-import { ulid } from 'ulid';
 import { promisify } from 'util';
 
 const finished = promisify(stream.finished);

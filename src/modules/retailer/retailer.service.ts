@@ -1,10 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
-    BulkOperationByShopifyIdDocument,
-    BulkOperationByShopifyIdQuery,
-    BulkOperationByShopifyIdQueryVariables,
-} from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
-import {
     GetThemeInformationDocument,
     GetThemeInformationQuery,
     GetThemeInformationQueryVariables,
@@ -17,12 +12,19 @@ import { UpdateOrCreateStatusType } from '../database/update.or.create.status.ty
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
+import {CloudshelfApiService} from "../cloudshelf/cloudshelf.api.service";
+import {
+    UpdateLastSyncDocument,
+    UpdateLastSyncMutation,
+    UpdateLastSyncMutationVariables
+} from "../../graphql/cloudshelf/generated/cloudshelf";
+import {inspect} from "util";
 
 @Injectable()
 export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
-    constructor(private readonly entityManager: EntityManager) {}
+    constructor(private readonly entityManager: EntityManager, private readonly cloudshelfApiService: CloudshelfApiService) {}
 
     @SentryInstrument('RetailerService')
     async updateOrCreate(
@@ -108,16 +110,19 @@ export class RetailerService {
     async updateLastProductSyncTime(retailer: RetailerEntity) {
         retailer.lastProductSync = new Date();
         await this.entityManager.persistAndFlush(retailer);
+        await this.updateSyncTime(retailer, 'partial', true);
     }
 
     async updateLastProductGroupSyncTime(retailer: RetailerEntity) {
         retailer.lastProductGroupSync = new Date();
         await this.entityManager.persistAndFlush(retailer);
+        await this.updateSyncTime(retailer, 'partial', true);
     }
 
     async updateLastSafetySyncTime(retailer: RetailerEntity) {
         retailer.lastSafetySync = new Date();
         await this.entityManager.persistAndFlush(retailer);
+        await this.updateSyncTime(retailer, 'full', true);
     }
 
     async updateShopInformationFromShopify(
@@ -173,5 +178,27 @@ export class RetailerService {
 
     async getAll(from: number, limit: number) {
         return this.entityManager.find(RetailerEntity, {}, { limit, offset: from });
+    }
+
+    async updateSyncTime(retailer: RetailerEntity, syncType: 'full' | 'partial', completed: boolean, log?: (logMessage: string) => Promise<void>) {
+        const authedClient = await this.cloudshelfApiService.getCloudshelfAPIApolloClient(retailer.domain);
+
+        const mutationTuple = await authedClient.mutate<
+          UpdateLastSyncMutation,
+          UpdateLastSyncMutationVariables
+        >({
+            mutation: UpdateLastSyncDocument,
+            variables: {
+                fullSync: syncType === 'full',
+                completed,
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to update sync time', mutationTuple.errors);
+            await log?.('Failed to update sync time' + inspect(mutationTuple.errors));
+        } else {
+            await log?.('Updated sync time');
+        }
     }
 }

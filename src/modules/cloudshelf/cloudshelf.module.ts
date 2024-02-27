@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import { RetailerModule } from '../retailer/retailer.module';
 import { CloudshelfApiService } from './cloudshelf.api.service';
+import {RetailerService} from "../retailer/retailer.service";
 
 @Module({
-    imports: [RetailerModule],
+    imports: [forwardRef(() => RetailerModule)],
     providers: [CloudshelfApiService],
     controllers: [],
     exports: [CloudshelfApiService],
