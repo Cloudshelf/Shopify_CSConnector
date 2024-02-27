@@ -222,9 +222,12 @@ export class ProductProcessor implements OnApplicationBootstrap {
     async syncProductsConsumerProcessor(task: NobleTaskEntity) {
         const taskData = task.data as ProductConsumerTaskData;
 
-        const handleComplete = async (retailer?: RetailerEntity) => {
+        const handleComplete = async (didError: boolean, isFullsync: boolean, retailer?: RetailerEntity) => {
             if (retailer) {
-                await this.retailerService.updateLastProductSyncTime(retailer);
+                await this.retailerService.updateLastProductSyncTime(retailer, didError);
+                if (isFullsync) {
+                    await this.retailerService.updateLastSafetySyncTime(retailer, didError);
+                }
                 await this.collectionJobService.scheduleTriggerJob(retailer, true);
             }
             await this.nobleService.addTimedLogMessage(task, `Handle Complete`);
@@ -249,12 +252,15 @@ export class ProductProcessor implements OnApplicationBootstrap {
             throw new Error(`Retailer for bulk operation no longer exists. ${JSON.stringify(bulkOperationRecord)}`);
         }
 
+        const productIdToExplicitlyCheck = bulkOperationRecord.explicitIds ?? [];
+        const runFullSyncLogic = productIdToExplicitlyCheck.length === 0;
+
         if (!bulkOperationRecord.dataUrl || bulkOperationRecord.status !== BulkOperationStatus.Completed) {
             await this.nobleService.addTimedLogMessage(
                 task,
                 `Bulk Operation has no data URL, or its status is not "completed. Shopify Job failed."`,
             );
-            await handleComplete(retailer);
+            await handleComplete(true, runFullSyncLogic, retailer);
             //if shopify didn't return any data... there is nothing we can do here
             return;
         }
@@ -273,16 +279,13 @@ export class ProductProcessor implements OnApplicationBootstrap {
         });
 
         await this.nobleService.addTimedLogMessage(task, `Data file downloaded`);
-        const productIdToExplicitlyCheck = bulkOperationRecord.explicitIds ?? [];
 
-        let runFullSyncLogic = false;
         if (productIdToExplicitlyCheck.length > 0) {
             await this.nobleService.addTimedLogMessage(
                 task,
                 `Explicit Update the following products: ${JSON.stringify(productIdToExplicitlyCheck)}`,
             );
         } else {
-            runFullSyncLogic = true;
             await this.nobleService.addTimedLogMessage(task, `Full product update`);
         }
         const chunkSize = 1000;
@@ -487,6 +490,6 @@ export class ProductProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
-        await handleComplete(retailer);
+        await handleComplete(false, runFullSyncLogic, retailer);
     }
 }

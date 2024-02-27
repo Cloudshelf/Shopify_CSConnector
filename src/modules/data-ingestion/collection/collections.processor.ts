@@ -169,9 +169,12 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
     async syncCollectionsConsumerProcessor(task: NobleTaskEntity) {
         const taskData = task.data as CollectionConsumerTaskData;
 
-        const handleComplete = async (retailer?: RetailerEntity) => {
+        const handleComplete = async (didError: boolean, isFullSync: boolean, retailer?: RetailerEntity) => {
             if (retailer) {
-                await this.retailerService.updateLastProductGroupSyncTime(retailer);
+                await this.retailerService.updateLastProductGroupSyncTime(retailer, didError);
+                if (isFullSync) {
+                    await this.retailerService.updateLastSafetySyncTime(retailer, didError);
+                }
                 // await this.collectionJobService.scheduleTriggerJob(retailer, [], true);
             }
             await this.nobleService.addTimedLogMessage(task, `Handle Complete`);
@@ -196,12 +199,14 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             throw new Error(`Retailer for bulk operation no longer exists. ${JSON.stringify(bulkOperationRecord)}`);
         }
 
+        const isFullSync = bulkOperationRecord.explicitIds.length === 0;
+
         if (!bulkOperationRecord.dataUrl || bulkOperationRecord.status !== BulkOperationStatus.Completed) {
             await this.nobleService.addTimedLogMessage(
                 task,
                 `Bulk Operation has no data URL, or its status is not "completed. Shopify Job failed."`,
             );
-            await handleComplete(retailer);
+            await handleComplete(true, isFullSync, retailer);
             //if shopify didn't return any data... there is nothing we can do here
             return;
         }
@@ -337,6 +342,6 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
-        await handleComplete(retailer);
+        await handleComplete(false, isFullSync, retailer);
     }
 }

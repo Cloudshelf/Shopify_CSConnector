@@ -3,8 +3,8 @@ import { NobleService } from '../../noble/noble.service';
 import { CollectionConsumerTaskData, CollectionTriggerTaskData } from '../../noble/noble.task.data';
 import { NobleTaskType } from '../../noble/noble.task.type';
 import { RetailerEntity } from '../../retailer/retailer.entity';
+import { RetailerService } from '../../retailer/retailer.service';
 import { BulkOperation } from '../bulk.operation.entity';
-import {RetailerService} from "../../retailer/retailer.service";
 
 @Injectable()
 export class CollectionJobService {

@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
+    UpdateLastSyncDocument,
+    UpdateLastSyncMutation,
+    UpdateLastSyncMutationVariables,
+} from '../../graphql/cloudshelf/generated/cloudshelf';
+import {
     GetThemeInformationDocument,
     GetThemeInformationQuery,
     GetThemeInformationQueryVariables,
@@ -8,23 +13,21 @@ import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { app } from '../../main';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
+import { CloudshelfApiService } from '../cloudshelf/cloudshelf.api.service';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
-import {CloudshelfApiService} from "../cloudshelf/cloudshelf.api.service";
-import {
-    UpdateLastSyncDocument,
-    UpdateLastSyncMutation,
-    UpdateLastSyncMutationVariables
-} from "../../graphql/cloudshelf/generated/cloudshelf";
-import {inspect} from "util";
+import { inspect } from 'util';
 
 @Injectable()
 export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
-    constructor(private readonly entityManager: EntityManager, private readonly cloudshelfApiService: CloudshelfApiService) {}
+    constructor(
+        private readonly entityManager: EntityManager,
+        private readonly cloudshelfApiService: CloudshelfApiService,
+    ) {}
 
     @SentryInstrument('RetailerService')
     async updateOrCreate(
@@ -107,22 +110,22 @@ export class RetailerService {
         return this.entityManager.findOne(RetailerEntity, { domain });
     }
 
-    async updateLastProductSyncTime(retailer: RetailerEntity) {
+    async updateLastProductSyncTime(retailer: RetailerEntity, didError: boolean) {
         retailer.lastProductSync = new Date();
         await this.entityManager.persistAndFlush(retailer);
-        await this.updateSyncTime(retailer, 'partial', true);
+        await this.updateSyncTime(retailer, 'partial', true, didError);
     }
 
-    async updateLastProductGroupSyncTime(retailer: RetailerEntity) {
+    async updateLastProductGroupSyncTime(retailer: RetailerEntity, didError: boolean) {
         retailer.lastProductGroupSync = new Date();
         await this.entityManager.persistAndFlush(retailer);
-        await this.updateSyncTime(retailer, 'partial', true);
+        await this.updateSyncTime(retailer, 'partial', true, didError);
     }
 
-    async updateLastSafetySyncTime(retailer: RetailerEntity) {
+    async updateLastSafetySyncTime(retailer: RetailerEntity, didError: boolean) {
         retailer.lastSafetySync = new Date();
         await this.entityManager.persistAndFlush(retailer);
-        await this.updateSyncTime(retailer, 'full', true);
+        await this.updateSyncTime(retailer, 'full', true, didError);
     }
 
     async updateShopInformationFromShopify(
@@ -180,17 +183,21 @@ export class RetailerService {
         return this.entityManager.find(RetailerEntity, {}, { limit, offset: from });
     }
 
-    async updateSyncTime(retailer: RetailerEntity, syncType: 'full' | 'partial', completed: boolean, log?: (logMessage: string) => Promise<void>) {
+    async updateSyncTime(
+        retailer: RetailerEntity,
+        syncType: 'full' | 'partial',
+        completed: boolean,
+        didError?: boolean,
+        log?: (logMessage: string) => Promise<void>,
+    ) {
         const authedClient = await this.cloudshelfApiService.getCloudshelfAPIApolloClient(retailer.domain);
 
-        const mutationTuple = await authedClient.mutate<
-          UpdateLastSyncMutation,
-          UpdateLastSyncMutationVariables
-        >({
+        const mutationTuple = await authedClient.mutate<UpdateLastSyncMutation, UpdateLastSyncMutationVariables>({
             mutation: UpdateLastSyncDocument,
             variables: {
                 fullSync: syncType === 'full',
                 completed,
+                didError,
             },
         });
 

@@ -56,7 +56,10 @@ import {
     UpsertThemeDocument,
     UpsertThemeMutation,
     UpsertThemeMutationVariables,
-    UpsertVariantsInput, UpdateLastSyncMutation, UpdateLastSyncDocument, UpdateLastSyncMutationVariables,
+    UpsertVariantsInput,
+    UpdateLastSyncMutation,
+    UpdateLastSyncDocument,
+    UpdateLastSyncMutationVariables,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
 import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import { CryptographyUtils } from '../../utils/CryptographyUtils';

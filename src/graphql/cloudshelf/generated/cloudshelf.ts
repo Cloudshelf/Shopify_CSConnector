@@ -242,6 +242,7 @@ export type CloudshelfContent = {
   powerTileUseIcon?: Maybe<Scalars['Boolean']['output']>;
   productGroup?: Maybe<ProductGroup>;
   productGroupAlternativeImage?: Maybe<Scalars['String']['output']>;
+  productGroupIsUpsellContent?: Maybe<Scalars['Boolean']['output']>;
   productGroupUseAlternativeImage?: Maybe<Scalars['Boolean']['output']>;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -264,6 +265,7 @@ export type CloudshelfContentInput = {
   powerTileUseIcon?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupAlternativeImage?: InputMaybe<Scalars['String']['input']>;
   productGroupId?: InputMaybe<Scalars['GlobalId']['input']>;
+  productGroupIsUpsellContent?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupUseAlternativeImage?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -1855,6 +1857,7 @@ export type MutationUnregisterWebhooksArgs = {
 
 export type MutationUpdateLastSyncArgs = {
   completed: Scalars['Boolean']['input'];
+  didError?: InputMaybe<Scalars['Boolean']['input']>;
   fullSync: Scalars['Boolean']['input'];
 };
 
@@ -2176,7 +2179,9 @@ export type Organisation = {
   installInformation: InstallInformation;
   installSurveyAnswers?: Maybe<Scalars['String']['output']>;
   lastFullSync?: Maybe<Scalars['DateTime']['output']>;
+  lastFullSyncDidError?: Maybe<Scalars['Boolean']['output']>;
   lastPartialSync?: Maybe<Scalars['DateTime']['output']>;
+  lastPartialSyncDidError?: Maybe<Scalars['Boolean']['output']>;
   /** The locations which belong to this organisation. */
   locations: Array<Location>;
   /** The orders which belong to this organisation. */
@@ -3787,11 +3792,6 @@ export const DeleteProductsDocument = gql`
   }
 }
     `;
-<<<<<<< HEAD
-export const UpdateLastSyncDocument = gql`
-    mutation UpdateLastSync($fullSync: Boolean!, $completed: Boolean!) {
-  updateLastSync(fullSync: $fullSync, completed: $completed)
-=======
 export const KeepKnownProductsViaFileDocument = gql`
     mutation keepKnownProductsViaFile($fileUrl: String!) {
   keepKnownProductsViaFile(fileUrl: $fileUrl) {
@@ -3801,7 +3801,11 @@ export const KeepKnownProductsViaFileDocument = gql`
       message
     }
   }
->>>>>>> origin/master
+}
+    `;
+export const UpdateLastSyncDocument = gql`
+    mutation UpdateLastSync($fullSync: Boolean!, $completed: Boolean!, $didError: Boolean) {
+  updateLastSync(fullSync: $fullSync, completed: $completed, didError: $didError)
 }
     `;
 export const RequestShopifySubscriptionCheckDocument = gql`
@@ -3907,22 +3911,21 @@ export type DeleteProductsMutationVariables = Exact<{
 
 export type DeleteProductsMutation = { __typename?: 'Mutation', deleteProducts: { __typename?: 'ProductDeletePayload', products: Array<{ __typename?: 'Product', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
 
-<<<<<<< HEAD
-export type UpdateLastSyncMutationVariables = Exact<{
-  fullSync: Scalars['Boolean']['input'];
-  completed: Scalars['Boolean']['input'];
-}>;
-
-
-export type UpdateLastSyncMutation = { __typename?: 'Mutation', updateLastSync: boolean };
-=======
 export type KeepKnownProductsViaFileMutationVariables = Exact<{
   fileUrl: Scalars['String']['input'];
 }>;
 
 
 export type KeepKnownProductsViaFileMutation = { __typename?: 'Mutation', keepKnownProductsViaFile: { __typename?: 'ProductDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
->>>>>>> origin/master
+
+export type UpdateLastSyncMutationVariables = Exact<{
+  fullSync: Scalars['Boolean']['input'];
+  completed: Scalars['Boolean']['input'];
+  didError?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type UpdateLastSyncMutation = { __typename?: 'Mutation', updateLastSync: boolean };
 
 export type RequestShopifySubscriptionCheckMutationVariables = Exact<{
   shopifyGid: Scalars['String']['input'];
