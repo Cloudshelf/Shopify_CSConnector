@@ -11,6 +11,7 @@ import { Request } from 'express';
 import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
+import { ScheduleModule } from '@nestjs/schedule';
 import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
 import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.module';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
@@ -46,6 +47,7 @@ import { ToolsModule } from './modules/tools/tools.module';
         CloudshelfModule,
         NobleModule,
         ToolsModule,
+        ScheduleModule.forRoot(),
     ],
     controllers: [],
     providers: [],
