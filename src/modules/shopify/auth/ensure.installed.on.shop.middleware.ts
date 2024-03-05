@@ -2,6 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { HtmlUtils } from '../../../utils/HtmlUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
+import { ScopeUtils } from '../../../utils/ScopeUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
@@ -57,6 +58,24 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
             }
             // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
         } else {
+            this.logger.debug(`Session found for shop ${shop}`);
+
+            const listOfScopesArray = ScopeUtils.getList(this.shopifyApiService.config.scopes);
+            const offlineSessionScopes = (offlineSession.scope ?? '').split(',');
+            let hasAllRequiredScores = true;
+
+            listOfScopesArray.forEach(scope => {
+                if (!offlineSessionScopes.includes(scope)) {
+                    console.info(`Missing scope: ${scope} for shop ${shop}`);
+                    hasAllRequiredScores = false;
+                }
+            });
+
+            if (!hasAllRequiredScores) {
+                console.info(`Missing at least required scope for shop ${shop}... redirecting to auth`);
+                return res.end(HtmlUtils.generateExitToInstallPage(shop));
+            }
+
             const token = await this.cloudshelfApiService.getCloudshelfAuthToken(shop);
             if (!token) {
                 if (queryHasSession) {
