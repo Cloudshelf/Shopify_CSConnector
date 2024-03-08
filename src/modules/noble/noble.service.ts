@@ -39,6 +39,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
 
     @Cron('*/5 * * * *', { name: 'restart-stuck-jobs', timeZone: 'Europe/London' })
     async restartStuckJobsCron() {
+        console.log('Restarting stuck jobs cron');
         await this.restartStuckJobs();
     }
 
