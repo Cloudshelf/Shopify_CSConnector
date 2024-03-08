@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
 import { ExtendedLogger } from '../../utils/ExtendedLogger';
+import { NobleTaskEntity } from '../noble/noble.task.entity';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { ProductJobService } from './product/product.job.service';
 
 @Injectable()
 export class DataIngestionService {
     private readonly logger = new ExtendedLogger('DataIngestionService');
+
     constructor(
         //orm is required by CreateRequestContext
         private readonly orm: MikroORM,

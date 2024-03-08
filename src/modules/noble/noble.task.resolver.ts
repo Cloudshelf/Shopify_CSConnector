@@ -94,14 +94,6 @@ export class NobleTaskResolver {
         return true;
     }
 
-    @Mutation(() => GraphQLBoolean)
-    @AuthenticatedGraphqlRequest()
-    async restartLongRunningJobs(): Promise<boolean> {
-        await this.nobleService.restartLongRunningJobs();
-
-        return true;
-    }
-
     @ResolveField(() => NobleTaskStatus)
     @AuthenticatedGraphqlRequest()
     async status(@Parent() parent: NobleTaskEntity): Promise<NobleTaskStatus> {
