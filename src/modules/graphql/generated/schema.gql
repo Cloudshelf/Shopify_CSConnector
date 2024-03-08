@@ -45,7 +45,6 @@ type Mutation {
   promoteTask(id: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   reprocessBulkOperation(opId: String!, token: String!): Boolean!
-  restartLongRunningJobs: Boolean!
   restartTask(id: String!): Boolean!
 }
 
