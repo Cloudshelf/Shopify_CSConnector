@@ -10,7 +10,6 @@ type CollectionConsumerTaskData {
 }
 
 type CollectionTriggerTaskData {
-  collectionIds: [String!]!
   dataType: String!
   installSync: Boolean!
   reason: String
@@ -45,6 +44,7 @@ type Mutation {
   deleteTask(id: String!): Boolean!
   promoteTask(id: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
+  reprocessBulkOperation(opId: String!, token: String!): Boolean!
   restartLongRunningJobs: Boolean!
   restartTask(id: String!): Boolean!
 }
@@ -146,11 +146,11 @@ type ProductConsumerTaskData {
 type ProductTriggerTaskData {
   dataType: String!
   installSync: Boolean!
-  productIds: [String!]!
   reason: String
 }
 
 type Query {
+  forceASafetySyncNow(token: String!): String!
   forceSync(domain: String!, token: String!): String!
   getWebhooksForRetailer(domain: String!, token: String!): String!
   nobleQueueByTaskType(taskType: NobleTaskType!): TaskQueue!

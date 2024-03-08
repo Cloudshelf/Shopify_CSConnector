@@ -134,6 +134,16 @@ export enum CapitalisationStyle {
   Uppercase = 'UPPERCASE'
 }
 
+/** Selects how the cloudshelf handles the checkout experience. */
+export enum CheckoutExperience {
+  /** Cloudshelf will use the basket checkout experience, where items are added to a basket that is visible on the screen. */
+  Basket = 'BASKET',
+  /** Cloudshelf will use the original checkout experience, where items are added to a basket that is not visible on the screen. */
+  Classic = 'CLASSIC',
+  /** Cloudshelf will not use any checkout experience. This enables "Catalog Only" mode. */
+  None = 'NONE'
+}
+
 /** Selects what checkout flow the customers will see. */
 export enum CheckoutFlow {
   /** Users will be taken through the Shopify checkout flow. */
@@ -152,7 +162,9 @@ export enum ClearSalesAssistantRule {
 
 export type Cloudshelf = {
   __typename?: 'Cloudshelf';
+  addScannedProductsToBasket: Scalars['Boolean']['output'];
   banners: Array<Banner>;
+  checkoutExperience: CheckoutExperience;
   checkoutFlow: CheckoutFlow;
   content: Array<CloudshelfContent>;
   /** The date and time this entity was created. */
@@ -242,6 +254,7 @@ export type CloudshelfContent = {
   powerTileUseIcon?: Maybe<Scalars['Boolean']['output']>;
   productGroup?: Maybe<ProductGroup>;
   productGroupAlternativeImage?: Maybe<Scalars['String']['output']>;
+  productGroupIsUpsellContent?: Maybe<Scalars['Boolean']['output']>;
   productGroupUseAlternativeImage?: Maybe<Scalars['Boolean']['output']>;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -264,6 +277,7 @@ export type CloudshelfContentInput = {
   powerTileUseIcon?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupAlternativeImage?: InputMaybe<Scalars['String']['input']>;
   productGroupId?: InputMaybe<Scalars['GlobalId']['input']>;
+  productGroupIsUpsellContent?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupUseAlternativeImage?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -315,7 +329,9 @@ export type CloudshelfIncludableFilterInput = {
 };
 
 export type CloudshelfInput = {
+  addScannedProductsToBasket?: InputMaybe<Scalars['Boolean']['input']>;
   banners?: InputMaybe<Array<BannerInput>>;
+  checkoutExperience?: InputMaybe<CheckoutExperience>;
   checkoutFlow?: InputMaybe<CheckoutFlow>;
   content?: InputMaybe<Array<CloudshelfContentInput>>;
   displayDiscountCodeEntry?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2061,6 +2077,8 @@ export type OrderInput = {
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   /** An array of lines that make up this order */
   lines?: InputMaybe<Array<OrderLineInput>>;
+  /** Use this field to provide a third party id to this order */
+  newThirdPartyId?: InputMaybe<Scalars['String']['input']>;
   /** The GlobalID of the session this order was created in */
   sessionId?: InputMaybe<Scalars['GlobalId']['input']>;
   status?: InputMaybe<OrderStatus>;
@@ -3703,6 +3721,19 @@ export const UpsertCloudshelfDocument = gql`
   }
 }
     `;
+export const UpsertOrdersDocument = gql`
+    mutation upsertOrders($input: [OrderInput!]!) {
+  upsertOrders(input: $input) {
+    userErrors {
+      code
+      message
+    }
+    orders {
+      id
+    }
+  }
+}
+    `;
 export const UpsertProductGroupsDocument = gql`
     mutation upsertProductGroups($input: [ProductGroupInput!]!) {
   upsertProductGroups(input: $input) {
@@ -3846,6 +3877,13 @@ export type UpsertCloudshelfMutationVariables = Exact<{
 
 
 export type UpsertCloudshelfMutation = { __typename?: 'Mutation', upsertCloudshelves: { __typename?: 'CloudshelfUpsertPayload', cloudshelves: Array<{ __typename?: 'Cloudshelf', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type UpsertOrdersMutationVariables = Exact<{
+  input: Array<OrderInput> | OrderInput;
+}>;
+
+
+export type UpsertOrdersMutation = { __typename?: 'Mutation', upsertOrders: { __typename?: 'OrderUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, orders: Array<{ __typename?: 'Order', id: any }> } };
 
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;

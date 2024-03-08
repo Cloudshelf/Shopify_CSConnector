@@ -1,0 +1,11 @@
+mutation upsertOrders($input: [OrderInput!]!) {
+    upsertOrders(input: $input) {
+        userErrors {
+            code
+            message
+        }
+        orders {
+            id
+        }
+    }
+}

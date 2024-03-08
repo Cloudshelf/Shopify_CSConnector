@@ -899,6 +899,35 @@
       },
       {
         "kind": "ENUM",
+        "name": "CheckoutExperience",
+        "description": "Selects how the cloudshelf handles the checkout experience.",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "BASKET",
+            "description": "Cloudshelf will use the basket checkout experience, where items are added to a basket that is visible on the screen.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "CLASSIC",
+            "description": "Cloudshelf will use the original checkout experience, where items are added to a basket that is not visible on the screen.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "NONE",
+            "description": "Cloudshelf will not use any checkout experience. This enables \"Catalog Only\" mode.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
         "name": "CheckoutFlow",
         "description": "Selects what checkout flow the customers will see.",
         "fields": null,
@@ -961,6 +990,22 @@
         "description": null,
         "fields": [
           {
+            "name": "addScannedProductsToBasket",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "banners",
             "description": null,
             "args": [],
@@ -979,6 +1024,22 @@
                     "ofType": null
                   }
                 }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "checkoutExperience",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "ENUM",
+                "name": "CheckoutExperience",
+                "ofType": null
               }
             },
             "isDeprecated": false,
@@ -2181,6 +2242,18 @@
             "deprecationReason": null
           },
           {
+            "name": "productGroupIsUpsellContent",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "productGroupUseAlternativeImage",
             "description": null,
             "args": [],
@@ -2426,6 +2499,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "GlobalId",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "productGroupIsUpsellContent",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
               "ofType": null
             },
             "defaultValue": null,
@@ -2826,6 +2911,18 @@
         "fields": null,
         "inputFields": [
           {
+            "name": "addScannedProductsToBasket",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "banners",
             "description": null,
             "type": {
@@ -2840,6 +2937,18 @@
                   "ofType": null
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "checkoutExperience",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "CheckoutExperience",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -13455,6 +13564,18 @@
                   "ofType": null
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "newThirdPartyId",
+            "description": "Use this field to provide a third party id to this order",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
