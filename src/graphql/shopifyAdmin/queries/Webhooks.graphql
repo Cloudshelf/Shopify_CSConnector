@@ -1,5 +1,5 @@
 query Webhooks($after: String) {
-    webhookSubscriptions(first: 10, after: $after) {
+    webhookSubscriptions(first: 25, after: $after) {
       pageInfo {
           hasNextPage
           endCursor

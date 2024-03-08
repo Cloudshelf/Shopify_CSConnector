@@ -65,67 +65,139 @@ export class ToolsService {
         const allWebhooks = await this.getWebhooks(retailer);
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.OrdersUpdated)) {
-            await this.registerWebhookForRetailer(
+            const r1 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.OrdersUpdated,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r1) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.OrdersUpdated}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.OrdersUpdated}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.BulkOperationsFinish)) {
-            await this.registerWebhookForRetailer(
+            const r2 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.BulkOperationsFinish,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r2) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.BulkOperationsFinish}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.BulkOperationsFinish}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.AppUninstalled)) {
-            await this.registerWebhookForRetailer(
+            const r3 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.AppUninstalled,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r3) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.AppUninstalled}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.AppUninstalled}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.ProductsUpdate)) {
-            await this.registerWebhookForRetailer(
+            const r4 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.ProductsUpdate,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r4) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsUpdate}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsUpdate}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.ProductsDelete)) {
-            await this.registerWebhookForRetailer(
+            const r5 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.ProductsDelete,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r5) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsDelete}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsDelete}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.CollectionsUpdate)) {
-            await this.registerWebhookForRetailer(
+            const r6 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.CollectionsUpdate,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r6) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.CollectionsUpdate}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.CollectionsUpdate}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.CollectionsDelete)) {
-            await this.registerWebhookForRetailer(
+            const r7 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.CollectionsDelete,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r7) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.CollectionsDelete}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.CollectionsDelete}`,
+                );
+            }
         }
 
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.AppSubscriptionsUpdate)) {
-            await this.registerWebhookForRetailer(
+            const r8 = await this.registerWebhookForRetailer(
                 retailer,
                 WebhookSubscriptionTopic.AppSubscriptionsUpdate,
                 `https://${process.env.HOST}/shopify/webhooks`,
             );
+
+            if (!r8) {
+                this.logger.error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.AppSubscriptionsUpdate}`,
+                );
+                throw new Error(
+                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.AppSubscriptionsUpdate}`,
+                );
+            }
         }
     }
 
