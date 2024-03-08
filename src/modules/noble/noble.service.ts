@@ -45,6 +45,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
 
     @CreateRequestContext()
     async restartStuckJobs() {
+        console.log('Restarting stuck jobs cron');
         await this.restartLongRunningJobs();
     }
 
@@ -522,13 +523,14 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
     }
 
     async restartLongRunningJobs() {
+        console.log('restartLongRunningJobs');
         const longRunningTasks = await this.entityManager.find(NobleTaskEntity, {
             beingProcessedBy: {$ne: null},
             isComplete: false,
             failed: false,
             updatedAt: {$lt: subMinutes(new Date(), 60)}
         });
-
+        console.log('longRunningTasks: ', longRunningTasks.length);
 
         for (const task of longRunningTasks) {
             const resetLog = new NobleTaskLogEntity();
