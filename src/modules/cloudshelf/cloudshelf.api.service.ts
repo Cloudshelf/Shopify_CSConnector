@@ -26,6 +26,7 @@ import {
     MarkUninstalledDocument,
     MarkUninstalledMutation,
     MarkUninstalledMutationVariables,
+    OrderStatus,
     ProductGroupInput,
     ProductInput,
     RequestShopifySubscriptionCheckDocument,
@@ -41,6 +42,9 @@ import {
     UpsertLocationsDocument,
     UpsertLocationsMutation,
     UpsertLocationsMutationVariables,
+    UpsertOrdersDocument,
+    UpsertOrdersMutation,
+    UpsertOrdersMutationVariables,
     UpsertProductGroupsDocument,
     UpsertProductGroupsMutation,
     UpsertProductGroupsMutationVariables,
@@ -414,6 +418,34 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to handle keepKnownProductsViaFile', mutationTuple.errors);
             await log?.('Failed to handle keepKnownProductsViaFile' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async reportOrderStatus(
+        domain: string,
+        shopifyCartId: string,
+        status: OrderStatus,
+        shopifyOrderId: string,
+        log?: (logMessage: string) => Promise<void>,
+    ) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(domain);
+
+        const mutationTuple = await authedClient.mutate<UpsertOrdersMutation, UpsertOrdersMutationVariables>({
+            mutation: UpsertOrdersDocument,
+            variables: {
+                input: [
+                    {
+                        newThirdPartyId: shopifyOrderId,
+                        thirdPartyId: shopifyCartId,
+                        status: status,
+                    },
+                ],
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to report order status', mutationTuple.errors);
+            await log?.('Failed to report order status' + inspect(mutationTuple.errors));
         }
     }
 }

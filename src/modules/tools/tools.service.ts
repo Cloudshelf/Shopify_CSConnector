@@ -64,6 +64,14 @@ export class ToolsService {
     async registerAllWebhooksForRetailer(retailer: RetailerEntity) {
         const allWebhooks = await this.getWebhooks(retailer);
 
+        if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.OrdersUpdated)) {
+            await this.registerWebhookForRetailer(
+                retailer,
+                WebhookSubscriptionTopic.OrdersUpdated,
+                `https://${process.env.HOST}/shopify/webhooks`,
+            );
+        }
+
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.BulkOperationsFinish)) {
             await this.registerWebhookForRetailer(
                 retailer,
