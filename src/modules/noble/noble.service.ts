@@ -18,6 +18,7 @@ import { MiscellaneousUtils } from "../../utils/MiscellaneousUtils";
 import { NobleTaskLogEntity } from "./noble.task.log.entity";
 import { NobleTaskErrorEntity } from "./noble.task.error.entity";
 import { JobDataUnion } from "./noble.task.data";
+import { Cron } from "@nestjs/schedule";
 
 @Injectable()
 export class NobleService implements BeforeApplicationShutdown, OnApplicationBootstrap {
@@ -35,6 +36,16 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
         private readonly configService: ConfigService<typeof runtimeSchema>,
         private readonly cls: ClsService,
     ) {}
+
+    @Cron('*/5 * * * *', { name: 'restart-stuck-jobs', timeZone: 'Europe/London' })
+    async restartStuckJobsCron() {
+        await this.restartStuckJobs();
+    }
+
+    @CreateRequestContext()
+    async restartStuckJobs() {
+        await this.restartLongRunningJobs();
+    }
 
     isBackgroundMicroserviceEnabled(): boolean {
         return this.configService.get<boolean>('RUN_NOBLE') === true;
