@@ -528,7 +528,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
             beingProcessedBy: {$ne: null},
             isComplete: false,
             failed: false,
-            updatedAt: {$lt: subMinutes(new Date(), 60)}
+            updatedAt: {$lt: subMinutes(new Date(), 30)}
         });
         console.log('longRunningTasks: ', longRunningTasks.length);
 
