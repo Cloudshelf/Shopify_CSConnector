@@ -1,4 +1,4 @@
-import { OrderStatus } from '../../../graphql/cloudshelf/generated/cloudshelf';
+import { CurrencyCode, OrderLineInput, OrderStatus } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { OrderFinancialStatus } from '../../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
@@ -12,9 +12,16 @@ export interface OrderUpdateWebhookPayload {
     cart_token: string;
     financial_status: OrderFinancialStatus;
     note: string;
+    currency: CurrencyCode;
     note_attributes: {
         name: string;
         value: string;
+    }[];
+    line_items: {
+        quantity: number;
+        product_id: number;
+        variant_id: number;
+        price: string;
     }[];
 }
 
@@ -79,6 +86,19 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
             return;
         }
 
+        const orderLines: OrderLineInput[] = [];
+
+        for (const line of data.line_items) {
+            orderLines.push({
+                quantity: line.quantity,
+                productID: `gid://external/ShopifyProduct/${line.product_id.toString()}`,
+                productVariantID: `gid://external/ShopifyProductVariant/${line.variant_id.toString()}`,
+                price: parseFloat(line.price),
+                currencyCode: data.currency,
+            });
+        }
+
+        this.logger.debug(`Order Lines: ${JSON.stringify(orderLines)}`);
         //Possible todo: move this to a noble task and.
         //Possible todo: have the connector create an order if it doesnt already exist (offline cloudshelves)
         await this.cloudshelfApiService.reportOrderStatus(
@@ -86,6 +106,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
             shopifyCartGid,
             cloudshelfStatus,
             data.admin_graphql_api_id,
+            orderLines.length > 0 ? orderLines : undefined,
         );
     }
 }

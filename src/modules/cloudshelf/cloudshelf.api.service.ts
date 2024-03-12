@@ -26,6 +26,7 @@ import {
     MarkUninstalledDocument,
     MarkUninstalledMutation,
     MarkUninstalledMutationVariables,
+    OrderLineInput,
     OrderStatus,
     ProductGroupInput,
     ProductInput,
@@ -426,6 +427,7 @@ export class CloudshelfApiService {
         shopifyCartId: string,
         status: OrderStatus,
         shopifyOrderId: string,
+        lines?: OrderLineInput[],
         log?: (logMessage: string) => Promise<void>,
     ) {
         const authedClient = await this.getCloudshelfAPIApolloClient(domain);
@@ -438,6 +440,7 @@ export class CloudshelfApiService {
                         newThirdPartyId: shopifyOrderId,
                         thirdPartyId: shopifyCartId,
                         status: status,
+                        lines: lines,
                     },
                 ],
             },
