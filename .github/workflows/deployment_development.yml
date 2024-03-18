@@ -19,7 +19,7 @@ jobs:
 
       # Versioning
       - name: Perform Versioning
-        uses: cloudshelf/versioning-action@v1.7.1
+        uses: cloudshelf/versioning-action@v1.7.2
         id: versioning
         with:
           release_type: ${{ github.head_ref || github.ref_name }}
