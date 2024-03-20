@@ -116,7 +116,7 @@ export class RetailerService {
     }
 
     async updateLastSafetySyncTime(retailer: RetailerEntity) {
-        retailer.lastSafetySync = new Date();
+        retailer.lastSafetySyncRequested = new Date();
         await this.entityManager.persistAndFlush(retailer);
     }
 

@@ -703,8 +703,18 @@
           "default": "'{}'",
           "mappedType": "array"
         },
-        "last_safety_sync": {
-          "name": "last_safety_sync",
+        "last_safety_sync_requested": {
+          "name": "last_safety_sync_requested",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "last_safety_sync_completed": {
+          "name": "last_safety_sync_completed",
           "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,

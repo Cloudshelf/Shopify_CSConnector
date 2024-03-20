@@ -20,7 +20,10 @@ export class RetailerEntity extends BaseEntity {
     scopes!: string[];
 
     @Property({ type: types.datetime, nullable: true })
-    lastSafetySync: Date | null;
+    lastSafetySyncRequested: Date | null;
+
+    @Property({ type: types.datetime, nullable: true })
+    lastSafetySyncCompleted: Date | null;
 
     @Property({ type: types.datetime, nullable: true })
     lastProductSync: Date | null;
