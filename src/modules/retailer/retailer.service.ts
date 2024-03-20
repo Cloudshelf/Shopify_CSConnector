@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import {
     BulkOperationByShopifyIdDocument,
     BulkOperationByShopifyIdQuery,
@@ -10,10 +11,12 @@ import {
     GetThemeInformationQueryVariables,
 } from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
-import { EntityManager, MikroORM } from '@mikro-orm/core';
+import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
 import { app } from '../../main';
+import { NotificationUtils } from '../../utils/NotificationUtils';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
+import { SlackService } from '../integrations/slack.service';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
@@ -22,7 +25,33 @@ import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
 export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
-    constructor(private readonly entityManager: EntityManager) {}
+    constructor(
+        //orm is required by CreateRequestContext
+        private readonly orm: MikroORM,
+        private readonly entityManager: EntityManager,
+        private readonly slackService: SlackService,
+    ) {}
+
+    @Cron('0 6 * * *', { name: 'retailer-sync-check', timeZone: 'Europe/London' })
+    async syncCheckCron() {
+        await this.checkAndReportSyncIssues();
+    }
+
+    @CreateRequestContext()
+    async checkAndReportSyncIssues() {
+        //find any retailers where the lastSafetySyncCompleted was more than 48 hours ago
+        const retailers = await this.entityManager.find(RetailerEntity, {
+            lastSafetySyncCompleted: {
+                $lt: new Date(Date.now() - 48 * 60 * 60 * 1000),
+            },
+        });
+
+        const data = retailers.map(r => {
+            return { displayName: r.displayName ?? r.domain, url: r.domain };
+        });
+
+        await this.slackService.sendHealthNotification(NotificationUtils.buildSyncIssueNotifications(data));
+    }
 
     @SentryInstrument('RetailerService')
     async updateOrCreate(
@@ -115,8 +144,13 @@ export class RetailerService {
         await this.entityManager.persistAndFlush(retailer);
     }
 
-    async updateLastSafetySyncTime(retailer: RetailerEntity) {
-        retailer.lastSafetySync = new Date();
+    async updateLastSafetyRequestedTime(retailer: RetailerEntity) {
+        retailer.lastSafetySyncRequested = new Date();
+        await this.entityManager.persistAndFlush(retailer);
+    }
+
+    async updateLastSafetyCompletedTime(retailer: RetailerEntity) {
+        retailer.lastSafetySyncCompleted = new Date();
         await this.entityManager.persistAndFlush(retailer);
     }
 

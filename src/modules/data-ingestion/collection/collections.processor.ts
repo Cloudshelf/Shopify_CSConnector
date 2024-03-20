@@ -172,6 +172,10 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         const handleComplete = async (retailer?: RetailerEntity) => {
             if (retailer) {
                 await this.retailerService.updateLastProductGroupSyncTime(retailer);
+
+                if (task.data?.installSync) {
+                    await this.retailerService.updateLastSafetyCompletedTime(retailer);
+                }
                 // await this.collectionJobService.scheduleTriggerJob(retailer, [], true);
             }
             await this.nobleService.addTimedLogMessage(task, `Handle Complete`);

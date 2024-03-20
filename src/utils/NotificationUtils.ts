@@ -1,6 +1,40 @@
 import { MessageAttachment } from '@slack/web-api';
 
 export class NotificationUtils {
+    static buildSyncIssueNotifications(retailerData: { displayName: string; url: string }[]): MessageAttachment[] {
+        let markdownContent = '';
+
+        retailerData.forEach(retailer => {
+            markdownContent += `• ${retailer.displayName} - ${retailer.url}\n`;
+        });
+
+        const attachments: MessageAttachment[] = [
+            {
+                color: 'FFB700',
+                blocks: [
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: 'Possible sync issues detected',
+                        },
+                    },
+                    {
+                        type: 'section',
+                        text: {
+                            type: 'mrkdwn',
+                            text: `*Retailers:* 
+${markdownContent}
+`,
+                        },
+                    },
+                ],
+            },
+        ];
+
+        return attachments;
+    }
+
     static buildInstallAttachments(retailerName: string, domain: string, email: string): MessageAttachment[] {
         const attachments: MessageAttachment[] = [
             {

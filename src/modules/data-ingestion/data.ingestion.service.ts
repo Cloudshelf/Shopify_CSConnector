@@ -29,7 +29,7 @@ export class DataIngestionService {
         for (const retailer of retailers) {
             this.logger.debug('Creating safety sync for retailer ' + retailer.domain);
             await this.productJobService.scheduleTriggerJob(retailer, true, false);
-            retailer.lastSafetySync = new Date();
+            retailer.lastSafetySyncRequested = new Date();
         }
 
         await this.entityManager.flush();
