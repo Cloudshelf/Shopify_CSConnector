@@ -1,6 +1,8 @@
+import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { ProductJobService } from '../../data-ingestion/product/product.job.service';
 import { WebhookQueuedDataActionType } from '../../data-ingestion/webhook.queued.data.action.type';
 import { WebhookQueuedDataContentType } from '../../data-ingestion/webhook.queued.data.content.type';
@@ -20,6 +22,7 @@ export class ProductsUpdateWebhookHandler extends ShopifyWebhookHandler<unknown>
         private readonly retailerService: RetailerService,
         private readonly productJobService: ProductJobService,
         private readonly webhookQueuedService: WebhookQueuedService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
     ) {
         super();
     }
@@ -28,6 +31,12 @@ export class ProductsUpdateWebhookHandler extends ShopifyWebhookHandler<unknown>
     async handle(domain: string, data: ProductUpdateWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received PRODUCTS_UPDATE webhook for domain ' + domain);
         this.logger.debug(data);
+
+        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        if (shouldIgnore) {
+            this.logger.debug('Ignoring webhook due to environment configuration');
+            return;
+        }
 
         await this.webhookQueuedService.queue(
             domain,

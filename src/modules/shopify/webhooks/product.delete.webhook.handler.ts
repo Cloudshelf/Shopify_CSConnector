@@ -1,8 +1,10 @@
+import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { WebhookQueuedDataActionType } from '../../data-ingestion/webhook.queued.data.action.type';
 import { WebhookQueuedDataContentType } from '../../data-ingestion/webhook.queued.data.content.type';
 import { WebhookQueuedService } from '../../data-ingestion/webhook.queued.service';
@@ -21,6 +23,7 @@ export class ProductsDeleteWebhookHandler extends ShopifyWebhookHandler<unknown>
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
         private readonly webhookQueuedService: WebhookQueuedService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
     ) {
         super();
     }
@@ -29,6 +32,12 @@ export class ProductsDeleteWebhookHandler extends ShopifyWebhookHandler<unknown>
     async handle(domain: string, data: ProductDeleteWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received PRODUCTS_DELETE webhook for domain ' + domain);
         this.logger.debug(data);
+
+        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        if (shouldIgnore) {
+            this.logger.debug('Ignoring webhook due to environment configuration');
+            return;
+        }
 
         // const productId = GlobalIDUtils.gidBuilder(data.id, 'ShopifyProduct')!;
         // await this.webhookQueuedService.queue(
