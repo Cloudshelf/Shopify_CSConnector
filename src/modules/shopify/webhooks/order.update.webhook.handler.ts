@@ -1,8 +1,10 @@
+import { ConfigService } from '@nestjs/config';
 import { CurrencyCode, OrderLineInput, OrderStatus } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { OrderFinancialStatus } from '../../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 
 export interface OrderUpdateWebhookPayload {
@@ -35,7 +37,10 @@ const CLOUDSHELF_SESSION_ATTRIBUTE = 'CS_Session';
 export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
     private readonly logger = new ExtendedLogger('OrderUpdateWebhookHandler');
 
-    constructor(private readonly cloudshelfApiService: CloudshelfApiService) {
+    constructor(
+        private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
+    ) {
         super();
     }
 
@@ -43,6 +48,12 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
     async handle(domain: string, data: OrderUpdateWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received ORDERS_UPDATED webhook for domain ' + domain);
         this.logger.debug('data: ' + JSON.stringify(data));
+
+        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        if (shouldIgnore) {
+            this.logger.debug('Ignoring webhook due to environment configuration');
+            return;
+        }
 
         const cloudshelfAttribute = data.note_attributes.find(x => x.name === CLOUDSHELF_ORDER_ATTRIBUTE);
         const deviceAttribute = data.note_attributes.find(x => x.name === CLOUDSHELF_DEVICE_ATTRIBUTE);

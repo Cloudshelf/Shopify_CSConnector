@@ -1,7 +1,9 @@
+import { ConfigService } from '@nestjs/config';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../../data-ingestion/bulk.operation.type';
 import { CollectionJobService } from '../../data-ingestion/collection/collection.job.service';
@@ -27,6 +29,7 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         private readonly bulkOperationService: BulkOperationService,
         private readonly productJobService: ProductJobService,
         private readonly collectionJobService: CollectionJobService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
     ) {
         super();
     }
@@ -40,6 +43,12 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
             id: domain,
             username: domain,
         });
+
+        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        if (shouldIgnore) {
+            this.logger.debug('Ignoring webhook due to environment configuration');
+            return;
+        }
 
         let bulkOp = await this.bulkOperationService.getOneByThirdPartyId(data.admin_graphql_api_id);
         if (!bulkOp) {

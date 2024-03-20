@@ -34,6 +34,18 @@ export class ToolsResolver {
     // }
 
     @Query(() => GraphQLString)
+    async viewConfig(
+        @Args({ name: 'token', type: () => GraphQLString })
+        token: string,
+    ): Promise<string> {
+        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
+            throw new Error('Unauthorized access to tools graphql');
+        }
+
+        return JSON.stringify(process.env);
+    }
+
+    @Query(() => GraphQLString)
     async forceASafetySyncNow(
         @Args({ name: 'token', type: () => GraphQLString })
         token: string,

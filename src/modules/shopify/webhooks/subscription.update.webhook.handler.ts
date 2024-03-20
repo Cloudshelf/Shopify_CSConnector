@@ -1,7 +1,9 @@
+import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { WebhookQueuedDataActionType } from '../../data-ingestion/webhook.queued.data.action.type';
 import { WebhookQueuedDataContentType } from '../../data-ingestion/webhook.queued.data.content.type';
 import { WebhookQueuedService } from '../../data-ingestion/webhook.queued.service';
@@ -22,6 +24,7 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
         private readonly webhookQueuedService: WebhookQueuedService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
     ) {
         super();
     }
@@ -31,6 +34,11 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
         this.logger.debug('Received APP_SUBSCRIPTIONS_UPDATE webhook for domain ' + domain);
         this.logger.debug(data);
 
+        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        if (shouldIgnore) {
+            this.logger.debug('Ignoring webhook due to environment configuration');
+            return;
+        }
         // await this.webhookQueuedService.queue(
         //     domain,
         //     data.app_subscription.admin_graphql_api_id,
