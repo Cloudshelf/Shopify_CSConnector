@@ -19,6 +19,7 @@ import { NobleTaskLogEntity } from "./noble.task.log.entity";
 import { NobleTaskErrorEntity } from "./noble.task.error.entity";
 import { JobDataUnion } from "./noble.task.data";
 import { Cron } from "@nestjs/schedule";
+import { BulkOperation } from "../data-ingestion/bulk.operation.entity";
 
 @Injectable()
 export class NobleService implements BeforeApplicationShutdown, OnApplicationBootstrap {
@@ -47,6 +48,13 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
     async restartStuckJobs() {
         console.log('Restarting stuck jobs cron');
         await this.restartLongRunningJobs();
+    }
+
+    @CreateRequestContext()
+    async cleanupOldJobs() {
+        console.log('cleanupOldJobs cron');
+        await this.pruneJobs();
+
     }
 
     isBackgroundMicroserviceEnabled(): boolean {
@@ -513,12 +521,17 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
     async pruneJobs() {
         await this.entityManager.nativeDelete(NobleTaskEntity, {
             isComplete: true,
-            finishTime: { $lt: subHours(new Date(), 4)}
+            finishTime: {$ne: null,  $lt: subHours(new Date(), 24 * 7)}
         })
 
         await this.entityManager.nativeDelete(NobleTaskEntity, {
             failed: true,
-            finishTime: { $lt: subHours(new Date(), 4)}
+            finishTime: {$ne: null,  $lt: subHours(new Date(), 24 * 7)}
+        })
+
+        //clean up Bulk Ops
+        await this.entityManager.nativeDelete(BulkOperation, {
+            endedAt: {$ne: null,  $lt: subHours(new Date(), 24 * 7)}
         })
     }
 
