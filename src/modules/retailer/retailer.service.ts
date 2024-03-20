@@ -115,8 +115,13 @@ export class RetailerService {
         await this.entityManager.persistAndFlush(retailer);
     }
 
-    async updateLastSafetySyncTime(retailer: RetailerEntity) {
+    async updateLastSafetyRequestedTime(retailer: RetailerEntity) {
         retailer.lastSafetySyncRequested = new Date();
+        await this.entityManager.persistAndFlush(retailer);
+    }
+
+    async updateLastSafetyCompletedTime(retailer: RetailerEntity) {
+        retailer.lastSafetySyncCompleted = new Date();
         await this.entityManager.persistAndFlush(retailer);
     }
 
