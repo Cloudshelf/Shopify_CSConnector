@@ -1,11 +1,13 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
+import { NotificationUtils } from '../../utils/NotificationUtils';
 import { BulkOperationService } from '../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../data-ingestion/bulk.operation.type';
 import { CollectionJobService } from '../data-ingestion/collection/collection.job.service';
 import { DataIngestionService } from '../data-ingestion/data.ingestion.service';
 import { ProductJobService } from '../data-ingestion/product/product.job.service';
+import { SlackService } from '../integrations/slack.service';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
 
@@ -18,11 +20,16 @@ export class ToolsResolver {
         private readonly collectionJobService: CollectionJobService,
         private readonly dataIngestionService: DataIngestionService,
         private readonly bulkOperationService: BulkOperationService,
+        private readonly slackService: SlackService,
     ) {}
 
     // @Query(() => GraphQLBoolean)
     // async test(): Promise<boolean> {
-    //     await runTest();
+    //     const data: { displayName: string; url: string }[] = [
+    //         { displayName: 'test1', url: 'test1.com' },
+    //         { displayName: 'test2', url: 'test2.com' },
+    //     ];
+    //     await this.slackService.sendHealthNotification(NotificationUtils.buildSyncIssueNotifications(data));
     //     return true;
     // }
 
