@@ -22,6 +22,9 @@ import {
     KeepKnownProductsViaFileDocument,
     KeepKnownProductsViaFileMutation,
     KeepKnownProductsViaFileMutationVariables,
+    KeepKnownVariantsViaFileDocument,
+    KeepKnownVariantsViaFileMutation,
+    KeepKnownVariantsViaFileMutationVariables,
     LocationInput,
     MarkUninstalledDocument,
     MarkUninstalledMutation,
@@ -419,6 +422,25 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to handle keepKnownProductsViaFile', mutationTuple.errors);
             await log?.('Failed to handle keepKnownProductsViaFile' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async keepKnownVariantsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(domain);
+
+        const mutationTuple = await authedClient.mutate<
+            KeepKnownVariantsViaFileMutation,
+            KeepKnownVariantsViaFileMutationVariables
+        >({
+            mutation: KeepKnownVariantsViaFileDocument,
+            variables: {
+                fileUrl: url,
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to handle keepKnownVariantsViaFile', mutationTuple.errors);
+            await log?.('Failed to handle keepKnownVariantsViaFile' + inspect(mutationTuple.errors));
         }
     }
 
