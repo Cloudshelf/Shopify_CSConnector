@@ -172,6 +172,7 @@ type Query {
   ): NobleTaskResponse!
   queueDebug: Boolean!
   queueDebugError: Boolean!
+  viewConfig(token: String!): String!
 }
 
 type TaskQueue {

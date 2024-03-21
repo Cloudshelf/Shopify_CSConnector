@@ -985,6 +985,8 @@ export enum CurrencyCode {
   Aud = 'AUD',
   /** Canadian Dollar */
   Cad = 'CAD',
+  /** Swiss Franc */
+  Chf = 'CHF',
   /** Chilean Peso */
   Clp = 'CLP',
   /** Euro */
@@ -1603,6 +1605,8 @@ export type Mutation = {
   endSession: Session;
   /** Allows the user to provide a file with known products to keep, any other products already in their organisation will be deleted */
   keepKnownProductsViaFile: ProductDeletionPayload;
+  /** Allows the user to provide a file with known variants to keep, any other variants already in their organisation will be deleted */
+  keepKnownVariantsViaFile: ProductVariantDeletionPayload;
   /** Allows the current user leave an Organisation. */
   leaveOrganisation: Scalars['Boolean']['output'];
   markInstallComplete: Scalars['Boolean']['output'];
@@ -1752,6 +1756,11 @@ export type MutationEndSessionArgs = {
 
 
 export type MutationKeepKnownProductsViaFileArgs = {
+  fileUrl: Scalars['String']['input'];
+};
+
+
+export type MutationKeepKnownVariantsViaFileArgs = {
   fileUrl: Scalars['String']['input'];
 };
 
@@ -2563,6 +2572,14 @@ export type ProductVariant = {
   sku?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ProductVariantDeletionPayload = {
+  __typename?: 'ProductVariantDeletionPayload';
+  /** The number of variants that were removed from the organisation */
+  count: Scalars['Int']['output'];
+  /** An array of errors that occurred during the delete operation */
+  userErrors: Array<UserError>;
 };
 
 export type ProductVariantInput = {
@@ -3836,6 +3853,17 @@ export const UpsertThemeDocument = gql`
   }
 }
     `;
+export const KeepKnownVariantsViaFileDocument = gql`
+    mutation keepKnownVariantsViaFile($fileUrl: String!) {
+  keepKnownVariantsViaFile(fileUrl: $fileUrl) {
+    count
+    userErrors {
+      code
+      message
+    }
+  }
+}
+    `;
 export const ExchangeTokenDocument = gql`
     query ExchangeToken($domain: String!) {
   customToken(domain: $domain)
@@ -3948,6 +3976,13 @@ export type UpsertThemeMutationVariables = Exact<{
 
 
 export type UpsertThemeMutation = { __typename?: 'Mutation', upsertTheme: { __typename?: 'ThemeUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, theme?: { __typename?: 'Theme', id: any } | null } };
+
+export type KeepKnownVariantsViaFileMutationVariables = Exact<{
+  fileUrl: Scalars['String']['input'];
+}>;
+
+
+export type KeepKnownVariantsViaFileMutation = { __typename?: 'Mutation', keepKnownVariantsViaFile: { __typename?: 'ProductVariantDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
 
 export type ExchangeTokenQueryVariables = Exact<{
   domain: Scalars['String']['input'];

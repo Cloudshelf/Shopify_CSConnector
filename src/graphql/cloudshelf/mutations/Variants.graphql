@@ -1,0 +1,9 @@
+mutation keepKnownVariantsViaFile($fileUrl: String!) {
+    keepKnownVariantsViaFile(fileUrl: $fileUrl) {
+        count
+        userErrors {
+            code
+            message
+        }
+    }
+}

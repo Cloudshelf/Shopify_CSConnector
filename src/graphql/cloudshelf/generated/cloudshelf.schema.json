@@ -5753,6 +5753,12 @@
             "deprecationReason": null
           },
           {
+            "name": "CHF",
+            "description": "Swiss Franc",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "CLP",
             "description": "Chilean Peso",
             "isDeprecated": false,
@@ -10982,6 +10988,39 @@
               "ofType": {
                 "kind": "OBJECT",
                 "name": "ProductDeletionPayload",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "keepKnownVariantsViaFile",
+            "description": "Allows the user to provide a file with known variants to keep, any other variants already in their organisation will be deleted",
+            "args": [
+              {
+                "name": "fileUrl",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "ProductVariantDeletionPayload",
                 "ofType": null
               }
             },
@@ -17234,6 +17273,57 @@
                 "kind": "SCALAR",
                 "name": "DateTime",
                 "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "ProductVariantDeletionPayload",
+        "description": null,
+        "fields": [
+          {
+            "name": "count",
+            "description": "The number of variants that were removed from the organisation",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "userErrors",
+            "description": "An array of errors that occurred during the delete operation",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "UserError",
+                    "ofType": null
+                  }
+                }
               }
             },
             "isDeprecated": false,

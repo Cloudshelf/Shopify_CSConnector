@@ -290,6 +290,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         const productInputs: ProductInput[] = [];
         const allProductShopifyIdsFromThisFile: string[] = [];
+        const allVariantShopifyIdsFromThisFile: string[] = [];
         const productIdsToExplicitlyEnsureDeleted: string[] = [];
         const variantInputs: UpsertVariantsInput[] = [];
 
@@ -298,6 +299,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
             const shopifyIdsForThisChunk = productsInJsonLChunk.map((p: any) => p.id);
             allProductShopifyIdsFromThisFile.push(...shopifyIdsForThisChunk);
+
             await this.nobleService.addTimedLogMessage(task, `Ids in Chunk: ${JSON.stringify(shopifyIdsForThisChunk)}`);
 
             //
@@ -411,6 +413,8 @@ export class ProductProcessor implements OnApplicationBootstrap {
                         metadata: [],
                     };
 
+                    allVariantShopifyIdsFromThisFile.push(variant.id);
+
                     const existingVariantInput = variantInputs.find(v => v.productId === productId);
                     if (existingVariantInput) {
                         existingVariantInput.variants.push(ProductVariantInput);
@@ -458,30 +462,55 @@ export class ProductProcessor implements OnApplicationBootstrap {
         console.log('allProductShopifyIdsFromThisFile', allProductShopifyIdsFromThisFile);
         if (runFullSyncLogic) {
             //For a full sync, we know we should have seen all the ids, so we can call the keepKnownProductsViaFile mutation, which will delete any products that were not in the file
-            const contentToSave: { id: string }[] = [];
+            const productContentToSave: { id: string }[] = [];
 
             //all the IDS that exist in allProductShopifyIdsFromThisFile and do not exist in productIdsToExplicitlyEnsureDeleted should added to contentToSave
             for (const id of allProductShopifyIdsFromThisFile) {
                 if (!productIdsToExplicitlyEnsureDeleted.includes(id)) {
-                    contentToSave.push({ id: GlobalIDUtils.gidConverter(id, 'ShopifyProduct')! });
+                    productContentToSave.push({ id: GlobalIDUtils.gidConverter(id, 'ShopifyProduct')! });
                 }
             }
 
-            const fileName = `${retailer.domain}_${ulid()}.json`;
-            let url = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
-            if (!url.endsWith('/')) {
-                url += '/';
+            const productFileName = `${retailer.domain}_products_${ulid()}.json`;
+            let productUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
+            if (!productUrl.endsWith('/')) {
+                productUrl += '/';
             }
-            url += `${fileName}`;
+            productUrl += `${productFileName}`;
 
-            const didUpload = await S3Utils.UploadJsonFile(
-                JSON.stringify(contentToSave),
+            const didProductFileUpload = await S3Utils.UploadJsonFile(
+                JSON.stringify(productContentToSave),
                 'product-deletion-payloads',
-                fileName,
+                productFileName,
             );
 
-            if (didUpload) {
-                await this.cloudshelfApiService.keepKnownProductsViaFile(retailer.domain, url);
+            if (didProductFileUpload) {
+                await this.cloudshelfApiService.keepKnownProductsViaFile(retailer.domain, productUrl);
+            }
+
+            const variantContentToSave: { id: string }[] = [];
+
+            for (const id of allVariantShopifyIdsFromThisFile) {
+                if (!productIdsToExplicitlyEnsureDeleted.includes(id)) {
+                    variantContentToSave.push({ id: GlobalIDUtils.gidConverter(id, 'ShopifyProductVariant')! });
+                }
+            }
+
+            const variantFileName = `${retailer.domain}_variant_${ulid()}.json`;
+            let variantUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
+            if (!variantUrl.endsWith('/')) {
+                variantUrl += '/';
+            }
+            variantUrl += `${variantFileName}`;
+
+            const didVariantFileUpload = await S3Utils.UploadJsonFile(
+                JSON.stringify(variantContentToSave),
+                'variant-deletion-payloads',
+                variantFileName,
+            );
+
+            if (didVariantFileUpload) {
+                await this.cloudshelfApiService.keepKnownVariantsViaFile(retailer.domain, variantUrl);
             }
         }
 
