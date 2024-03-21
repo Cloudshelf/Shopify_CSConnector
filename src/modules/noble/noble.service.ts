@@ -249,6 +249,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
         errorLog.message = error;
         task.errors.add(errorLog);
 
+        task.beingProcessedBy = null;
         task.retries++;
 
         //find the queue for this task without using lodash
@@ -548,7 +549,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
             beingProcessedBy: {$ne: null},
             // isComplete: false,
             // failed: false,
-            updatedAt: {$lt: subMinutes(new Date(), 30)}
+            updatedAt: {$lt: subMinutes(new Date(), 60)}
         });
         console.log('longRunningTasks: ', longRunningTasks.length);
 
