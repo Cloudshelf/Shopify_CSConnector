@@ -50,7 +50,9 @@ export class RetailerService {
             return { displayName: r.displayName ?? r.domain, url: r.domain };
         });
 
-        await this.slackService.sendHealthNotification(NotificationUtils.buildSyncIssueNotifications(data));
+        if (data.length > 0) {
+            await this.slackService.sendHealthNotification(NotificationUtils.buildSyncIssueNotifications(data));
+        }
     }
 
     @SentryInstrument('RetailerService')
