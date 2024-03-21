@@ -423,35 +423,36 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 });
             }
 
-            await this.nobleService.addTimedLogMessage(
-                task,
-                'Upserting products to cloudshelf for current file chunk, in chunks of 250',
-            );
-
-            //split into chunks of 250
-            const chunkedProductInputs = _.chunk(productInputs, 250);
-            for (const chunk of chunkedProductInputs) {
-                await this.nobleService.addTimedLogMessage(
-                    task,
-                    `Upserting ${chunk.length} products to cloudshelf for current file chunk`,
-                );
-                await this.cloudshelfApiService.upsertProducts(bulkOperationRecord.domain, chunk);
-            }
-
-            await this.nobleService.addTimedLogMessage(
-                task,
-                'Upserting variants to cloudshelf for current file chunk, in chunks of 250',
-            );
-
-            const chunkedVariantInputs = _.chunk(variantInputs, 250);
-            for (const variantInput of chunkedVariantInputs) {
-                await this.nobleService.addTimedLogMessage(
-                    task,
-                    `Upserting ${variantInput.length} variants to cloudshelf for current file chunk`,
-                );
-                await this.cloudshelfApiService.upsertProductVariants(bulkOperationRecord.domain, variantInput);
-            }
             await this.nobleService.addTimedLogMessage(task, '--- Chunk finished ---');
+        }
+
+        await this.nobleService.addTimedLogMessage(
+            task,
+            'Upserting products to cloudshelf for current file, in chunks of 250',
+        );
+
+        //split into chunks of 250
+        const chunkedProductInputs = _.chunk(productInputs, 250);
+        for (const chunk of chunkedProductInputs) {
+            await this.nobleService.addTimedLogMessage(
+                task,
+                `Upserting ${chunk.length} products to cloudshelf for current file`,
+            );
+            await this.cloudshelfApiService.upsertProducts(bulkOperationRecord.domain, chunk);
+        }
+
+        await this.nobleService.addTimedLogMessage(
+            task,
+            'Upserting variants to cloudshelf for current file, in chunks of 250',
+        );
+
+        const chunkedVariantInputs = _.chunk(variantInputs, 250);
+        for (const variantInput of chunkedVariantInputs) {
+            await this.nobleService.addTimedLogMessage(
+                task,
+                `Upserting ${variantInput.length} variants to cloudshelf for current file`,
+            );
+            await this.cloudshelfApiService.upsertProductVariants(bulkOperationRecord.domain, variantInput);
         }
 
         console.log('allProductShopifyIdsFromThisFile', allProductShopifyIdsFromThisFile);
