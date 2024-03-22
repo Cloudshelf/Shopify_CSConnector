@@ -471,7 +471,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 }
             }
 
-            const productFileName = `${retailer.domain}_products_${ulid()}.json`;
+            const productFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_products_${ulid()}.json`;
             let productUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
             if (!productUrl.endsWith('/')) {
                 productUrl += '/';
@@ -496,7 +496,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 }
             }
 
-            const variantFileName = `${retailer.domain}_variant_${ulid()}.json`;
+            const variantFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_variants_${ulid()}.json`;
             let variantUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
             if (!variantUrl.endsWith('/')) {
                 variantUrl += '/';
@@ -505,7 +505,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
             const didVariantFileUpload = await S3Utils.UploadJsonFile(
                 JSON.stringify(variantContentToSave),
-                'variant-deletion-payloads',
+                'product-deletion-payloads',
                 variantFileName,
             );
 
