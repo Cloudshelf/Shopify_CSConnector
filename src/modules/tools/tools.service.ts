@@ -202,30 +202,33 @@ export class ToolsService {
     }
 
     async registerWebhookForRetailer(retailer: RetailerEntity, topic: WebhookSubscriptionTopic, url: string) {
-        const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        try {
+            const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
 
-        const subscription: WebhookSubscriptionInput = {
-            callbackUrl: url,
-            format: WebhookSubscriptionFormat.Json,
-            includeFields: [],
-            metafieldNamespaces: [],
-        };
+            const subscription: WebhookSubscriptionInput = {
+                callbackUrl: url,
+                format: WebhookSubscriptionFormat.Json,
+                includeFields: [],
+                metafieldNamespaces: [],
+            };
 
-        const resp = await authedClient.mutate<RegisterWebhookMutation, RegisterWebhookMutationVariables>({
-            mutation: RegisterWebhookDocument,
-            variables: {
-                topic,
-                subscription,
-            },
-        });
+            const resp = await authedClient.mutate<RegisterWebhookMutation, RegisterWebhookMutationVariables>({
+                mutation: RegisterWebhookDocument,
+                variables: {
+                    topic,
+                    subscription,
+                },
+            });
 
-        if (!resp.data || resp.errors) {
+            if (!resp.data || resp.errors) {
+                return false;
+            }
+
+            return true;
+        } catch {
             return false;
         }
-
-        return true;
     }
-
     async registerAllWebhooksForAllRetailers(
         from: number,
         limit: number,
