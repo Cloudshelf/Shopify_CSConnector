@@ -222,7 +222,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
     }
 
     async findOneById(id: string): Promise<NobleTaskEntity | null> {
-        return this.entityManager.findOne(NobleTaskEntity, { id });
+        return this.entityManager.findOne(NobleTaskEntity, { id }, {disableIdentityMap: true});
     }
 
     async findByOrganisationIdAndType(organisationId: string, type: NobleTaskType): Promise<NobleTaskEntity[]> {
@@ -402,7 +402,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
             return undefined;
         }
 
-        const realTask =  await this.entityManager.findOne(NobleTaskEntity, {id: returned[0].id}, {logging: { enabled: false}});
+        const realTask =  await this.entityManager.findOne(NobleTaskEntity, {id: returned[0].id}, {logging: { enabled: false}, disableIdentityMap: true});
         return realTask ?? undefined;
     }
 
@@ -421,29 +421,35 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                 return;
             }
 
+            let taskId: string | undefined;
             let task: NobleTaskEntity | undefined;
             try {
-                task = queue.nextTask;
-                if (task) {
-                    queue.nextTask = undefined;
-                    await this.setStartTime(task);
-                    await this.addLogMessage(
-                      task,
-                      `${workerId} is processing task ${task.id} running version ${process.env.PACKAGE_VERSION} and release type ${process.env.RELEASE_TYPE}`,
-                    );
-                    await callback(task);
+                taskId = queue.nextTask?.id;
+                if(taskId) {
+                    task = await this.findOneById(taskId) ?? undefined;
+                    if (task) {
+                        queue.nextTask = undefined;
+                        await this.setStartTime(task);
+                        await this.addLogMessage(
+                          task,
+                          `${workerId} is processing task ${task.id} running version ${process.env.PACKAGE_VERSION} and release type ${process.env.RELEASE_TYPE}`,
+                        );
 
-                    // Handle rescheduling
-                    const secondaryTask = await this.findOneById(task.id);
-                    if (!secondaryTask) {
-                        throw new Error('Task disappeared during execution!!');
-                    } else {
-                        task = secondaryTask;
-                    }
-                    if (task.scheduledStart && isFuture(task.scheduledStart)) {
-                        // This has been rescheduled, so it's not complete :)
-                    } else {
-                        await this.setComplete(task);
+
+                        await callback(task);
+
+                        // Handle rescheduling
+                        const secondaryTask = await this.findOneById(task.id);
+                        if (!secondaryTask) {
+                            throw new Error('Task disappeared during execution!!');
+                        } else {
+                            task = secondaryTask;
+                        }
+                        if (task.scheduledStart && isFuture(task.scheduledStart)) {
+                            // This has been rescheduled, so it's not complete :)
+                        } else {
+                            await this.setComplete(task);
+                        }
                     }
                 }
             } catch (err) {
