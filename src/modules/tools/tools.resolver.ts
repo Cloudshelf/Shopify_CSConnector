@@ -25,11 +25,6 @@ export class ToolsResolver {
 
     // @Query(() => GraphQLBoolean)
     // async test(): Promise<boolean> {
-    //     const data: { displayName: string; url: string }[] = [
-    //         { displayName: 'test1', url: 'test1.com' },
-    //         { displayName: 'test2', url: 'test2.com' },
-    //     ];
-    //     await this.slackService.sendHealthNotification(NotificationUtils.buildSyncIssueNotifications(data));
     //     return true;
     // }
 
