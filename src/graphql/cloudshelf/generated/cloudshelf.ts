@@ -134,6 +134,16 @@ export enum CapitalisationStyle {
   Uppercase = 'UPPERCASE'
 }
 
+/** An object used to store catalog reporting stats */
+export type CatalogStats = {
+  __typename?: 'CatalogStats';
+  asExpected: Scalars['Boolean']['output'];
+  extraInformation: Scalars['String']['output'];
+  numberHeldAtTimeOfReporting: Scalars['Float']['output'];
+  /** The key for the value */
+  reportedAt: Scalars['DateTime']['output'];
+};
+
 /** Selects how the cloudshelf handles the checkout experience. */
 export enum CheckoutExperience {
   /** Cloudshelf will use the basket checkout experience, where items are added to a basket that is visible on the screen. */
@@ -1617,6 +1627,7 @@ export type Mutation = {
   registerWebhook: WebhookRegisterPayload;
   /** Removes the given products from the product group, if they are currently part of it */
   removeProductsFromProductGroup: Scalars['Boolean']['output'];
+  reportCatalogStats: Scalars['Boolean']['output'];
   reportDeviceOnline: Scalars['Boolean']['output'];
   requestShopifySubscriptionCheck: Scalars['Boolean']['output'];
   restartLongRunningJobs: Scalars['Boolean']['output'];
@@ -1798,6 +1809,14 @@ export type MutationRegisterWebhookArgs = {
 export type MutationRemoveProductsFromProductGroupArgs = {
   productGroupId: Scalars['GlobalId']['input'];
   productIds: Array<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationReportCatalogStatsArgs = {
+  knownNumberOfImages?: InputMaybe<Scalars['Int']['input']>;
+  knownNumberOfProductGroups?: InputMaybe<Scalars['Int']['input']>;
+  knownNumberOfProductVariants?: InputMaybe<Scalars['Int']['input']>;
+  knownNumberOfProducts?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -2195,6 +2214,12 @@ export type Organisation = {
   installCompleted: Scalars['Boolean']['output'];
   installInformation: InstallInformation;
   installSurveyAnswers?: Maybe<Scalars['String']['output']>;
+  /** The date and time this organisation received ingestion data */
+  lastIngestionDataDate?: Maybe<Scalars['DateTime']['output']>;
+  lastReportedCatalogStatsForImages?: Maybe<CatalogStats>;
+  lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
+  lastReportedCatalogStatsForProducts?: Maybe<CatalogStats>;
+  lastReportedCatalogStatsForVariants?: Maybe<CatalogStats>;
   /** The locations which belong to this organisation. */
   locations: Array<Location>;
   /** The orders which belong to this organisation. */
@@ -2698,6 +2723,7 @@ export type Query = {
   subscriptionCurrentOrg?: Maybe<SubscriptionRecord>;
   /** Returns a list of currently available subscription plans */
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
+  syncStats: SyncStatsPayload;
   testFilters: Scalars['Boolean']['output'];
   testProdGroup: Scalars['Boolean']['output'];
   /** Returns a theme entity */
@@ -2936,6 +2962,11 @@ export type QuerySessionsArgs = {
 
 export type QuerySubscriptionArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type QuerySyncStatsArgs = {
+  id?: InputMaybe<Scalars['GlobalId']['input']>;
 };
 
 
@@ -3254,6 +3285,15 @@ export type Swatch = {
 export type SwatchInput = {
   displayName: Scalars['String']['input'];
   imageUrl: Scalars['String']['input'];
+};
+
+export type SyncStatsPayload = {
+  __typename?: 'SyncStatsPayload';
+  lastIngestionDataDate?: Maybe<Scalars['DateTime']['output']>;
+  lastReportedCatalogStatsForImages?: Maybe<CatalogStats>;
+  lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
+  lastReportedCatalogStatsForProducts?: Maybe<CatalogStats>;
+  lastReportedCatalogStatsForVariants?: Maybe<CatalogStats>;
 };
 
 export type TaskQueue = {
@@ -3690,6 +3730,16 @@ export type WebhookUnregisterInput = {
 };
 
 
+export const ReportCatalogStatsDocument = gql`
+    mutation reportCatalogStats($knownNumberOfImages: Int, $knownNumberOfProductGroups: Int, $knownNumberOfProductVariants: Int, $knownNumberOfProducts: Int) {
+  reportCatalogStats(
+    knownNumberOfImages: $knownNumberOfImages
+    knownNumberOfProductGroups: $knownNumberOfProductGroups
+    knownNumberOfProductVariants: $knownNumberOfProductVariants
+    knownNumberOfProducts: $knownNumberOfProducts
+  )
+}
+    `;
 export const UpsertLocationsDocument = gql`
     mutation UpsertLocations($input: [LocationInput!]!) {
   upsertLocations(input: $input) {
@@ -3874,6 +3924,16 @@ export const IsInstallCompletedDocument = gql`
   organisationInstallComplete(domain: $domain)
 }
     `;
+export type ReportCatalogStatsMutationVariables = Exact<{
+  knownNumberOfImages?: InputMaybe<Scalars['Int']['input']>;
+  knownNumberOfProductGroups?: InputMaybe<Scalars['Int']['input']>;
+  knownNumberOfProductVariants?: InputMaybe<Scalars['Int']['input']>;
+  knownNumberOfProducts?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type ReportCatalogStatsMutation = { __typename?: 'Mutation', reportCatalogStats: boolean };
+
 export type UpsertLocationsMutationVariables = Exact<{
   input: Array<LocationInput> | LocationInput;
 }>;

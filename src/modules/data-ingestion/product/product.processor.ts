@@ -293,6 +293,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
         const allVariantShopifyIdsFromThisFile: string[] = [];
         const productIdsToExplicitlyEnsureDeleted: string[] = [];
         const variantInputs: UpsertVariantsInput[] = [];
+        let imageCount = 0;
 
         for await (const productsInJsonLChunk of JsonLUtils.readJsonlChunked(tempFile, chunkSize)) {
             await this.nobleService.addTimedLogMessage(task, `--- Chunk Started ---`);
@@ -413,6 +414,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                         metadata: [],
                     };
 
+                    imageCount += metaimages.length;
                     allVariantShopifyIdsFromThisFile.push(variant.id);
 
                     const existingVariantInput = variantInputs.find(v => v.productId === productId);
@@ -516,6 +518,14 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
+
+        await this.cloudshelfApiService.reportCatalogStats(
+            retailer.domain,
+            undefined,
+            productInputs.length,
+            variantInputs.length,
+            imageCount,
+        );
 
         await handleComplete(retailer);
     }
