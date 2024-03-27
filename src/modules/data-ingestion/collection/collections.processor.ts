@@ -353,7 +353,9 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             true,
         );
 
-        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input);
+        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
+            await this.nobleService.addTimedLogMessage(task, logMessage, true);
+        });
         await handleComplete(retailer);
     }
 }
