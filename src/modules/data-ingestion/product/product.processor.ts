@@ -222,12 +222,12 @@ export class ProductProcessor implements OnApplicationBootstrap {
     async syncProductsConsumerProcessor(task: NobleTaskEntity) {
         const taskData = task.data as ProductConsumerTaskData;
 
-        const handleComplete = async (retailer?: RetailerEntity) => {
+        const handleComplete = async (msg: string, retailer?: RetailerEntity) => {
             if (retailer) {
                 await this.retailerService.updateLastProductSyncTime(retailer);
                 await this.collectionJobService.scheduleTriggerJob(retailer, true);
             }
-            await this.nobleService.addTimedLogMessage(task, `Handle Complete`);
+            await this.nobleService.addTimedLogMessage(task, `Handle Complete: ${msg}`, true);
         };
 
         const bulkOperationRecord = await this.bulkOperationService.getOneByThirdPartyId(
@@ -254,7 +254,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 task,
                 `Bulk Operation has no data URL, or its status is not "completed. Shopify Job failed."`,
             );
-            await handleComplete(retailer);
+            await handleComplete(`No Data URL, or shopify job failed. Status: ${bulkOperationRecord.status}`, retailer);
             //if shopify didn't return any data... there is nothing we can do here
             return;
         }
@@ -532,6 +532,6 @@ export class ProductProcessor implements OnApplicationBootstrap {
         );
         await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input);
 
-        await handleComplete(retailer);
+        await handleComplete('job complete', retailer);
     }
 }
