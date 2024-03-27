@@ -449,10 +449,12 @@ export class CloudshelfApiService {
 
     async reportCatalogStats(
         domain: string,
-        knownNumberOfProductGroups?: number,
-        knownNumberOfProducts?: number,
-        knownNumberOfProductVariants?: number,
-        knownNumberOfImages?: number,
+        input: {
+            knownNumberOfProductGroups?: number;
+            knownNumberOfProducts?: number;
+            knownNumberOfProductVariants?: number;
+            knownNumberOfImages?: number;
+        },
         log?: (logMessage: string) => Promise<void>,
     ) {
         const authedClient = await this.getCloudshelfAPIApolloClient(domain);
@@ -463,10 +465,10 @@ export class CloudshelfApiService {
         >({
             mutation: ReportCatalogStatsDocument,
             variables: {
-                knownNumberOfProductGroups,
-                knownNumberOfProducts,
-                knownNumberOfProductVariants,
-                knownNumberOfImages,
+                knownNumberOfProductGroups: input.knownNumberOfProductGroups,
+                knownNumberOfProducts: input.knownNumberOfProducts,
+                knownNumberOfProductVariants: input.knownNumberOfProductVariants,
+                knownNumberOfImages: input.knownNumberOfImages,
             },
         });
 

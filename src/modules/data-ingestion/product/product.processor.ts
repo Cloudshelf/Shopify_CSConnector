@@ -519,13 +519,18 @@ export class ProductProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
-        await this.cloudshelfApiService.reportCatalogStats(
-            retailer.domain,
-            undefined,
-            productInputs.length,
-            variantInputs.length,
-            imageCount,
+        const input = {
+            knownNumberOfProductGroups: undefined,
+            knownNumberOfProducts: productInputs.length,
+            knownNumberOfProductVariants: variantInputs.length,
+            knownNumberOfImages: imageCount,
+        };
+        await this.nobleService.addTimedLogMessage(
+            task,
+            `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
+            true,
         );
+        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input);
 
         await handleComplete(retailer);
     }
