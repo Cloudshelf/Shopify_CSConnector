@@ -476,6 +476,8 @@ export class CloudshelfApiService {
             console.log('Failed to report catalog stats', mutationTuple.errors);
             await log?.('Failed to report catalog stats' + inspect(mutationTuple.errors));
         }
+
+        await log?.('reported stats :' + inspect(mutationTuple));
     }
 
     async reportOrderStatus(
