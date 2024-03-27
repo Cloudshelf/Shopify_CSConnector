@@ -33,6 +33,9 @@ import {
     OrderStatus,
     ProductGroupInput,
     ProductInput,
+    ReportCatalogStatsDocument,
+    ReportCatalogStatsMutation,
+    ReportCatalogStatsMutationVariables,
     RequestShopifySubscriptionCheckDocument,
     RequestShopifySubscriptionCheckMutation,
     RequestShopifySubscriptionCheckMutationVariables,
@@ -441,6 +444,35 @@ export class CloudshelfApiService {
         if (mutationTuple.errors) {
             console.log('Failed to handle keepKnownVariantsViaFile', mutationTuple.errors);
             await log?.('Failed to handle keepKnownVariantsViaFile' + inspect(mutationTuple.errors));
+        }
+    }
+
+    async reportCatalogStats(
+        domain: string,
+        knownNumberOfProductGroups?: number,
+        knownNumberOfProducts?: number,
+        knownNumberOfProductVariants?: number,
+        knownNumberOfImages?: number,
+        log?: (logMessage: string) => Promise<void>,
+    ) {
+        const authedClient = await this.getCloudshelfAPIApolloClient(domain);
+
+        const mutationTuple = await authedClient.mutate<
+            ReportCatalogStatsMutation,
+            ReportCatalogStatsMutationVariables
+        >({
+            mutation: ReportCatalogStatsDocument,
+            variables: {
+                knownNumberOfProductGroups,
+                knownNumberOfProducts,
+                knownNumberOfProductVariants,
+                knownNumberOfImages,
+            },
+        });
+
+        if (mutationTuple.errors) {
+            console.log('Failed to report catalog stats', mutationTuple.errors);
+            await log?.('Failed to report catalog stats' + inspect(mutationTuple.errors));
         }
     }
 

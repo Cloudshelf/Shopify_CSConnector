@@ -341,6 +341,7 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
+        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, productGroupInputs.length);
         await handleComplete(retailer);
     }
 }
