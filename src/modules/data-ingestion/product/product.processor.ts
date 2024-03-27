@@ -242,6 +242,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(
             task,
             `Consuming products for bulk operation: ${JSON.stringify(bulkOperationRecord)}`,
+            true,
         );
 
         const retailer = await this.retailerService.getByDomain(bulkOperationRecord.domain);
