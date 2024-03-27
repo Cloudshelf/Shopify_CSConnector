@@ -85,7 +85,10 @@ export class CloudshelfApiService {
         private readonly retailerService: RetailerService,
     ) {}
 
-    private async getCloudshelfAPIApolloClient(domain?: string): Promise<ApolloClient<NormalizedCacheObject>> {
+    private async getCloudshelfAPIApolloClient(
+        domain?: string,
+        log?: (logMessage: string) => Promise<void>,
+    ): Promise<ApolloClient<NormalizedCacheObject>> {
         const httpLink = createHttpLink({
             uri: this.configService.get<string>('CLOUDSHELF_API_URL'),
         });
@@ -107,6 +110,11 @@ export class CloudshelfApiService {
                     ...(domain ? { 'x-store-domain': domain, 'x-hmac': hmac, 'x-nonce': timestamp } : {}),
                 },
             }));
+
+            log?.('HMAC: ' + hmac);
+            log?.('Nonce: ' + timestamp);
+            log?.('Domain: ' + domain);
+            log?.('Variables: ' + variables);
 
             return forward(operation);
         });
@@ -457,7 +465,7 @@ export class CloudshelfApiService {
         },
         log?: (logMessage: string) => Promise<void>,
     ) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(domain, log);
 
         const mutationTuple = await authedClient.mutate<
             ReportCatalogStatsMutation,
