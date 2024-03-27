@@ -341,7 +341,19 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
-        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, productGroupInputs.length);
+        const input = {
+            knownNumberOfProductGroups: productGroupInputs.length,
+            knownNumberOfProducts: undefined,
+            knownNumberOfProductVariants: undefined,
+            knownNumberOfImages: undefined,
+        };
+        await this.nobleService.addTimedLogMessage(
+            task,
+            `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
+            true,
+        );
+
+        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input);
         await handleComplete(retailer);
     }
 }
