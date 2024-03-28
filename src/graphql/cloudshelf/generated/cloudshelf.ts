@@ -141,7 +141,7 @@ export type CatalogStats = {
   extraInformation: Scalars['String']['output'];
   numberHeldAtTimeOfReporting: Scalars['Float']['output'];
   /** The key for the value */
-  reportedAt: Scalars['DateTime']['output'];
+  reportedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 /** Selects how the cloudshelf handles the checkout experience. */
@@ -1380,6 +1380,7 @@ export type IncludablePdpBlock = {
 
 export type IngestionStatsPayload = {
   __typename?: 'IngestionStatsPayload';
+  imageCount: Scalars['Int']['output'];
   productCount: Scalars['Int']['output'];
   productGroupCount: Scalars['Int']['output'];
   productGroupWithValidProductCount: Scalars['Int']['output'];
@@ -1613,6 +1614,8 @@ export type Mutation = {
   duplicateThemes: ThemeDuplicatePayload;
   editSubscription: SubscriptionRecord;
   endSession: Session;
+  /** Allows the user to provide a file with known product variants to keep, any other product groups already in their organisation will be deleted. (with the exception of the all products group) */
+  keepKnownProductGroupsViaFile: ProductGroupDeletionPayload;
   /** Allows the user to provide a file with known products to keep, any other products already in their organisation will be deleted */
   keepKnownProductsViaFile: ProductDeletionPayload;
   /** Allows the user to provide a file with known variants to keep, any other variants already in their organisation will be deleted */
@@ -1763,6 +1766,11 @@ export type MutationEditSubscriptionArgs = {
 export type MutationEndSessionArgs = {
   id: Scalars['GlobalId']['input'];
   interactions: Scalars['Int']['input'];
+};
+
+
+export type MutationKeepKnownProductGroupsViaFileArgs = {
+  fileUrl: Scalars['String']['input'];
 };
 
 
@@ -2474,6 +2482,14 @@ export type ProductGroupDeletePayload = {
   userErrors: Array<UserError>;
 };
 
+export type ProductGroupDeletionPayload = {
+  __typename?: 'ProductGroupDeletionPayload';
+  /** The number of product groups that were removed from the organisation */
+  count: Scalars['Int']['output'];
+  /** An array of errors that occurred during the delete operation */
+  userErrors: Array<UserError>;
+};
+
 export type ProductGroupEdge = {
   __typename?: 'ProductGroupEdge';
   /** The cursor for provided node to be used in pagination */
@@ -2813,6 +2829,11 @@ export type QueryGetVersionByTypeArgs = {
 
 export type QueryIncludeableFiltersArgs = {
   cloudshelfId: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryIngestionStatsArgs = {
+  id?: InputMaybe<Scalars['GlobalId']['input']>;
 };
 
 
@@ -3835,6 +3856,17 @@ export const DeleteProductGroupsDocument = gql`
   }
 }
     `;
+export const KeepKnownProductGroupsViaFileDocument = gql`
+    mutation keepKnownProductGroupsViaFile($fileUrl: String!) {
+  keepKnownProductGroupsViaFile(fileUrl: $fileUrl) {
+    count
+    userErrors {
+      code
+      message
+    }
+  }
+}
+    `;
 export const UpsertProductsDocument = gql`
     mutation upsertProducts($input: [ProductInput!]!) {
   upsertProducts(input: $input) {
@@ -3994,6 +4026,13 @@ export type DeleteProductGroupsMutationVariables = Exact<{
 
 
 export type DeleteProductGroupsMutation = { __typename?: 'Mutation', deleteProductGroups: { __typename?: 'ProductGroupDeletePayload', productGroups: Array<{ __typename?: 'ProductGroup', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type KeepKnownProductGroupsViaFileMutationVariables = Exact<{
+  fileUrl: Scalars['String']['input'];
+}>;
+
+
+export type KeepKnownProductGroupsViaFileMutation = { __typename?: 'Mutation', keepKnownProductGroupsViaFile: { __typename?: 'ProductGroupDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
 
 export type UpsertProductsMutationVariables = Exact<{
   input: Array<ProductInput> | ProductInput;

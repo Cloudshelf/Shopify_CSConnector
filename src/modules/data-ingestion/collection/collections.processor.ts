@@ -1,10 +1,13 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ProductGroupInput } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import * as _ from 'lodash';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
+import { S3Utils } from '../../../utils/S3Utils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
+import { cloudflareSchema } from '../../configuration/schemas/cloudflare.schema';
 import { NobleService } from '../../noble/noble.service';
 import { CollectionConsumerTaskData, CollectionTriggerTaskData } from '../../noble/noble.task.data';
 import { NobleTaskEntity } from '../../noble/noble.task.entity';
@@ -33,6 +36,7 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
         private readonly webhookQueuedService: WebhookQueuedService,
+        private readonly cloudflareConfigService: ConfigService<typeof cloudflareSchema>,
     ) {}
 
     async onApplicationBootstrap() {
@@ -323,19 +327,29 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
 
         await this.cloudshelfApiService.createFirstCloudshelfIfRequired(retailer);
 
-        //todo: delete delete groups that are not in the file
-        if ((bulkOperationRecord.explicitIds ?? []).length === 0) {
-            //this was a full sync, so we can delete all ids we did not see
-            //deleteAllExcept
-        } else {
-            //this was a partial sync, so we need to delete all ids that we did not see
+        const groupContentToSave: { id: string }[] = [];
 
-            const productGroupsIdsWeShouldHaveSeen = bulkOperationRecord.explicitIds;
-            const productGroupIdsWeDidNotSee = productGroupsIdsWeShouldHaveSeen.filter(
-                p => !allProductGroupShopifyIdsFromThisFile.includes(p),
-            );
+        for (const id of allProductGroupShopifyIdsFromThisFile) {
+            if (!productGroupIdsToExplicitlyEnsureDeleted.includes(id)) {
+                groupContentToSave.push({ id });
+            }
+        }
 
-            // deleteByIds
+        const groupFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_product_groups_${ulid()}.json`;
+        let groupUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
+        if (!groupUrl.endsWith('/')) {
+            groupUrl += '/';
+        }
+        groupUrl += `${groupFileName}`;
+
+        const didVariantFileUpload = await S3Utils.UploadJsonFile(
+            JSON.stringify(groupContentToSave),
+            'product-deletion-payloads',
+            groupFileName,
+        );
+
+        if (didVariantFileUpload) {
+            await this.cloudshelfApiService.keepKnownProductGroupsViaFile(retailer.domain, groupUrl);
         }
 
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
