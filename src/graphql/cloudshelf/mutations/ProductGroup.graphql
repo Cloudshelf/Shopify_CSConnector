@@ -25,3 +25,13 @@ mutation deleteProductGroups($ids: [GlobalId!]!) {
         }
     }
 }
+
+mutation keepKnownProductGroupsViaFile($fileUrl: String!) {
+    keepKnownProductGroupsViaFile(fileUrl: $fileUrl) {
+        count
+        userErrors {
+            code
+            message
+        }
+    }
+}
