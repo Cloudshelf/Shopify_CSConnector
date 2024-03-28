@@ -435,7 +435,8 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(
             task,
-            'Upserting products to cloudshelf for current file, in chunks of 250',
+            `Upserting ${productInputs.length} products to cloudshelf for current file, in chunks of 250`,
+            true,
         );
 
         //split into chunks of 250
@@ -450,7 +451,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(
             task,
-            'Upserting variants to cloudshelf for current file, in chunks of 250',
+            `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of 250`,
         );
 
         const chunkedVariantInputs = _.chunk(variantInputs, 250);
@@ -480,12 +481,14 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 productUrl += '/';
             }
             productUrl += `${productFileName}`;
-
+            const fileContent = JSON.stringify(productContentToSave);
             const didProductFileUpload = await S3Utils.UploadJsonFile(
-                JSON.stringify(productContentToSave),
+                fileContent,
                 'product-deletion-payloads',
                 productFileName,
             );
+
+            await this.nobleService.addTimedLogMessage(task, `Product deletion file uploaded: ${fileContent}`, true);
 
             if (didProductFileUpload) {
                 await this.cloudshelfApiService.keepKnownProductsViaFile(retailer.domain, productUrl);
