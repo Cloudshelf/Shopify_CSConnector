@@ -523,21 +523,23 @@ export class ProductProcessor implements OnApplicationBootstrap {
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
-        const sumOfVariants = variantInputs.reduce((acc, val) => acc + val.variants.length, 0);
-        const input = {
-            knownNumberOfProductGroups: undefined,
-            knownNumberOfProducts: productInputs.length,
-            knownNumberOfProductVariants: sumOfVariants,
-            knownNumberOfImages: imageCount,
-        };
-        await this.nobleService.addTimedLogMessage(
-            task,
-            `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
-            true,
-        );
-        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
-            await this.nobleService.addTimedLogMessage(task, logMessage, true);
-        });
+        if (runFullSyncLogic) {
+            const sumOfVariants = variantInputs.reduce((acc, val) => acc + val.variants.length, 0);
+            const input = {
+                knownNumberOfProductGroups: undefined,
+                knownNumberOfProducts: productInputs.length,
+                knownNumberOfProductVariants: sumOfVariants,
+                knownNumberOfImages: imageCount,
+            };
+            await this.nobleService.addTimedLogMessage(
+                task,
+                `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
+                true,
+            );
+            await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
+                await this.nobleService.addTimedLogMessage(task, logMessage, true);
+            });
+        }
 
         await handleComplete('job complete', retailer);
     }
