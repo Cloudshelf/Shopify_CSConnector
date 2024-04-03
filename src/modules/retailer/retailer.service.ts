@@ -4,6 +4,9 @@ import {
     BulkOperationByShopifyIdDocument,
     BulkOperationByShopifyIdQuery,
     BulkOperationByShopifyIdQueryVariables,
+    GetShopInformationDocument,
+    GetShopInformationQuery,
+    GetShopInformationQueryVariables,
 } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import {
     GetThemeInformationDocument,
@@ -156,7 +159,7 @@ export class RetailerService {
         await this.entityManager.persistAndFlush(retailer);
     }
 
-    async updateShopInformationFromShopify(
+    async updateShopInformationFromShopifyOnlineSession(
         shopifyApiInstance: Shopify,
         entity: RetailerEntity,
         session: ShopifySessionEntity,
@@ -176,6 +179,10 @@ export class RetailerService {
                 currency = shopData.data[0].currency ?? 'Unknown';
             }
 
+            if (storeName.toLowerCase().trim() === 'my store') {
+                storeName = `${storeName} (${entity.domain})`;
+            }
+
             entity.displayName = storeName;
             entity.email = email;
             entity.currencyCode = currency;
@@ -185,6 +192,38 @@ export class RetailerService {
 
         await this.save(entity);
         return entity;
+    }
+
+    async updateShopInformationFromShopifyGraphql(retailer: RetailerEntity, log?: (message: string) => Promise<void>) {
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClient(
+            retailer.domain,
+            retailer.accessToken,
+            log,
+        );
+
+        const query = await graphqlClient.query<GetShopInformationQuery, GetShopInformationQueryVariables>({
+            query: GetShopInformationDocument,
+        });
+
+        if (query.error) {
+            await log?.('Query.Error: ' + JSON.stringify(query.error));
+        }
+
+        if (query.errors) {
+            await log?.('Query.Errors: ' + JSON.stringify(query.errors));
+        }
+
+        let name = query.data.shop.name;
+
+        if (name.toLowerCase().trim() === 'my store') {
+            name = `${name} (${retailer.domain})`;
+        }
+        retailer.displayName = query.data.shop.name;
+        retailer.email = query.data.shop.email;
+        retailer.currencyCode = query.data.shop.currencyCode;
+
+        await this.save(retailer);
+        return retailer;
     }
 
     async updateLogoFromShopify(retailer: RetailerEntity, log?: (message: string) => Promise<void>) {
