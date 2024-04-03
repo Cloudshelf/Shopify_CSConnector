@@ -296,4 +296,24 @@ export class ToolsService {
 
         return { success, failed };
     }
+
+    async updateRetailerInfoWhereNull() {
+        const retailersWithNullInfo = await this.entityManager.find(RetailerEntity, {
+            $or: [
+                {
+                    displayName: null,
+                },
+                {
+                    email: null,
+                },
+                {
+                    currencyCode: null,
+                },
+            ],
+        });
+
+        for (const retailer of retailersWithNullInfo) {
+            await this.retailerService.updateShopInformationFromShopifyGraphql(retailer);
+        }
+    }
 }

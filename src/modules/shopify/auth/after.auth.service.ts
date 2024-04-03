@@ -95,7 +95,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
             entity.storefrontToken = storefrontToken;
 
             //Try to get some additional information about the store
-            entity = await this.retailerService.updateShopInformationFromShopify(
+            entity = await this.retailerService.updateShopInformationFromShopifyOnlineSession(
                 this.shopifyApiService,
                 entity,
                 session,
