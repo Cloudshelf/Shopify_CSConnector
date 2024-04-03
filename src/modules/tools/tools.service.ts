@@ -15,6 +15,7 @@ import {
 } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager } from '@mikro-orm/core';
+import { CloudshelfApiService } from '../cloudshelf/cloudshelf.api.service';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { RetailerService } from '../retailer/retailer.service';
 
@@ -22,7 +23,11 @@ import { RetailerService } from '../retailer/retailer.service';
 export class ToolsService {
     private readonly logger = new Logger('ToolsService');
 
-    constructor(private readonly entityManager: EntityManager, private readonly retailerService: RetailerService) {}
+    constructor(
+        private readonly entityManager: EntityManager,
+        private readonly retailerService: RetailerService,
+        private readonly cloudshelfApiService: CloudshelfApiService,
+    ) {}
 
     async getWebhooks(retailer: RetailerEntity) {
         const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
@@ -313,7 +318,8 @@ export class ToolsService {
         });
 
         for (const retailer of retailersWithNullInfo) {
-            await this.retailerService.updateShopInformationFromShopifyGraphql(retailer);
+            const updatedRetailer = await this.retailerService.updateShopInformationFromShopifyGraphql(retailer);
+            await this.cloudshelfApiService.upsertStore(updatedRetailer);
         }
     }
 }
