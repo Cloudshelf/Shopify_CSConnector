@@ -318,8 +318,12 @@ export class ToolsService {
         });
 
         for (const retailer of retailersWithNullInfo) {
-            const updatedRetailer = await this.retailerService.updateShopInformationFromShopifyGraphql(retailer);
-            await this.cloudshelfApiService.upsertStore(updatedRetailer);
+            try {
+                const updatedRetailer = await this.retailerService.updateShopInformationFromShopifyGraphql(retailer);
+                await this.cloudshelfApiService.upsertStore(updatedRetailer);
+            } catch (e) {
+                this.logger.error(`Failed to update retailer info for ${retailer.domain}`);
+            }
         }
     }
 }
