@@ -154,6 +154,7 @@ export class CloudshelfApiService {
             variables: {
                 input: {
                     domain: retailer.domain,
+                    displayName: retailer.displayName,
                     accessToken: retailer.accessToken,
                     scopes: retailer.scopes,
                     storefrontAccessToken: retailer.storefrontToken,

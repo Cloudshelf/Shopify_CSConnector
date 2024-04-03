@@ -15,6 +15,7 @@ import {
 } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager } from '@mikro-orm/core';
+import { CloudshelfApiService } from '../cloudshelf/cloudshelf.api.service';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { RetailerService } from '../retailer/retailer.service';
 
@@ -22,7 +23,11 @@ import { RetailerService } from '../retailer/retailer.service';
 export class ToolsService {
     private readonly logger = new Logger('ToolsService');
 
-    constructor(private readonly entityManager: EntityManager, private readonly retailerService: RetailerService) {}
+    constructor(
+        private readonly entityManager: EntityManager,
+        private readonly retailerService: RetailerService,
+        private readonly cloudshelfApiService: CloudshelfApiService,
+    ) {}
 
     async getWebhooks(retailer: RetailerEntity) {
         const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
@@ -295,5 +300,26 @@ export class ToolsService {
         }
 
         return { success, failed };
+    }
+
+    async updateRetailerInfoWhereNull() {
+        const retailersWithNullInfo = await this.entityManager.find(RetailerEntity, {
+            $or: [
+                {
+                    displayName: null,
+                },
+                {
+                    email: null,
+                },
+                {
+                    currencyCode: null,
+                },
+            ],
+        });
+
+        for (const retailer of retailersWithNullInfo) {
+            const updatedRetailer = await this.retailerService.updateShopInformationFromShopifyGraphql(retailer);
+            await this.cloudshelfApiService.upsertStore(updatedRetailer);
+        }
     }
 }

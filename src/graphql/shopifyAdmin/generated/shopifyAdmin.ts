@@ -1922,7 +1922,7 @@ export type CalculatedDraftOrder = {
   lineItemsSubtotalPrice: MoneyBag;
   /** The name of the selected market. */
   marketName: Scalars['String']['output'];
-  /** The selected market region country code for the draft order. */
+  /** The selected country code that determines the pricing of the draft order. */
   marketRegionCountryCode: CountryCode;
   /** Phone number assigned to draft order. */
   phone?: Maybe<Scalars['String']['output']>;
@@ -8112,7 +8112,163 @@ export type DeliveryAvailableService = {
   name: Scalars['String']['output'];
 };
 
-/** A shipping service provider or a carrier account. */
+/**
+ * A carrier service (also known as a carrier calculated service or shipping service) provides real-time shipping rates to Shopify. Some common carrier services include Canada Post, FedEx, UPS, and USPS. The term **carrier** is often used interchangeably with the terms **shipping company** and **rate provider**.
+ *
+ * Using the CarrierService resource, you can add a carrier service to a shop and then provide a list of applicable shipping rates at checkout. You can even use the cart data to adjust shipping rates and offer shipping discounts based on what is in the customer's cart.
+ *
+ * ## Requirements for accessing the CarrierService resource
+ * To access the CarrierService resource, add the `write_shipping` permission to your app's requested scopes. For more information, see [API access scopes](https://shopify.dev/docs/admin-api/access-scopes).
+ *
+ * Your app's request to create a carrier service will fail unless the store installing your carrier service meets one of the following requirements:
+ * * It's on the Advanced Shopify plan or higher.
+ * * It's on the Shopify plan with yearly billing, or the carrier service feature has been added to the store for a monthly fee. For more information, contact [Shopify Support](https://help.shopify.com/questions).
+ * * It's a development store.
+ *
+ * > Note:
+ * > If a store changes its Shopify plan, then the store's association with a carrier service is deactivated if the store no long meets one of the requirements above.
+ *
+ * ## Providing shipping rates to Shopify
+ * When adding a carrier service to a store, you need to provide a POST endpoint rooted in the `callbackUrl` property where Shopify can retrieve applicable shipping rates. The callback URL should be a public endpoint that expects these requests from Shopify.
+ *
+ * ### Example shipping rate request sent to a carrier service
+ *
+ * ```json
+ * {
+ *   "rate": {
+ *     "origin": {
+ *       "country": "CA",
+ *       "postal_code": "K2P1L4",
+ *       "province": "ON",
+ *       "city": "Ottawa",
+ *       "name": null,
+ *       "address1": "150 Elgin St.",
+ *       "address2": "",
+ *       "address3": null,
+ *       "phone": null,
+ *       "fax": null,
+ *       "email": null,
+ *       "address_type": null,
+ *       "company_name": "Jamie D's Emporium"
+ *     },
+ *     "destination": {
+ *       "country": "CA",
+ *       "postal_code": "K1M1M4",
+ *       "province": "ON",
+ *       "city": "Ottawa",
+ *       "name": "Bob Norman",
+ *       "address1": "24 Sussex Dr.",
+ *       "address2": "",
+ *       "address3": null,
+ *       "phone": null,
+ *       "fax": null,
+ *       "email": null,
+ *       "address_type": null,
+ *       "company_name": null
+ *     },
+ *     "items": [{
+ *       "name": "Short Sleeve T-Shirt",
+ *       "sku": "",
+ *       "quantity": 1,
+ *       "grams": 1000,
+ *       "price": 1999,
+ *       "vendor": "Jamie D's Emporium",
+ *       "requires_shipping": true,
+ *       "taxable": true,
+ *       "fulfillment_service": "manual",
+ *       "properties": null,
+ *       "product_id": 48447225880,
+ *       "variant_id": 258644705304
+ *     }],
+ *     "currency": "USD",
+ *     "locale": "en"
+ *   }
+ * }
+ * ```
+ *
+ * ### Example response
+ * ```json
+ * {
+ *    "rates": [
+ *        {
+ *            "service_name": "canadapost-overnight",
+ *            "service_code": "ON",
+ *            "total_price": "1295",
+ *            "description": "This is the fastest option by far",
+ *            "currency": "CAD",
+ *            "min_delivery_date": "2013-04-12 14:48:45 -0400",
+ *            "max_delivery_date": "2013-04-12 14:48:45 -0400"
+ *        },
+ *        {
+ *            "service_name": "fedex-2dayground",
+ *            "service_code": "2D",
+ *            "total_price": "2934",
+ *            "currency": "USD",
+ *            "min_delivery_date": "2013-04-12 14:48:45 -0400",
+ *            "max_delivery_date": "2013-04-12 14:48:45 -0400"
+ *        },
+ *        {
+ *            "service_name": "fedex-priorityovernight",
+ *            "service_code": "1D",
+ *            "total_price": "3587",
+ *            "currency": "USD",
+ *            "min_delivery_date": "2013-04-12 14:48:45 -0400",
+ *            "max_delivery_date": "2013-04-12 14:48:45 -0400"
+ *        }
+ *    ]
+ * }
+ * ```
+ *
+ * The `address3`, `fax`, `address_type`, and `company_name` fields are returned by specific [ActiveShipping](https://github.com/Shopify/active_shipping) providers. For API-created carrier services, you should use only the following shipping address fields:
+ * * `address1`
+ * * `address2`
+ * * `city`
+ * * `zip`
+ * * `province`
+ * * `country`
+ *
+ * Other values remain as `null` and are not sent to the callback URL.
+ *
+ * ### Response fields
+ *
+ * When Shopify requests shipping rates using your callback URL, the response object `rates` must be a JSON array of objects with the following fields.  Required fields must be included in the response for the carrier service integration to work properly.
+ *
+ * | Field                   | Required | Description                                                                                                                                                                                                  |
+ * | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+ * | `service_name`          | Yes      | The name of the rate, which customers see at checkout. For example: `Expedited Mail`.                                                                                                                        |
+ * | `description`           | Yes      | A description of the rate, which customers see at checkout. For example: `Includes tracking and insurance`.                                                                                                  |
+ * | `service_code`          | Yes      | A unique code associated with the rate. For example: `expedited_mail`.                                                                                                                                       |
+ * | `currency`              | Yes      | The currency of the shipping rate.                                                                                                                                                                           |
+ * | `total_price`           | Yes      | The total price expressed in subunits. If the currency doesn't use subunits, then the value must be multiplied by 100. For example: `"total_price": 500` for 5.00 CAD, `"total_price": 100000` for 1000 JPY. |
+ * | `phone_required`        | No       | Whether the customer must provide a phone number at checkout.                                                                                                                                                |
+ * | `min_delivery_date`     | No       | The earliest delivery date for the displayed rate.                                                                                                                                                           |
+ * | `max_delivery_date`     | No       | The latest delivery date for the displayed rate to still be valid.                                                                                                                                           |
+ *
+ * ## Response Timeouts
+ * The read timeout for rate requests are dynamic, based on the number of requests per minute (RPM). These limits are applied to each shop-app pair. The timeout values are as follows.
+ *
+ * | RPM Range     | Timeout    |
+ * | ------------- | ---------- |
+ * | Under 1500    | 10s        |
+ * | 1500 to 3000  | 5s         |
+ * | Over 3000     | 3s         |
+ *
+ * > Note:
+ * > These values are upper limits and should not be interpretted as a goal to develop towards. Shopify is constantly evaluating the performance of the platform and working towards improving resilience as well as app capabilities. As such, these numbers may be adjusted outside of our normal versioning timelines.
+ *
+ * ## Server-side caching of requests
+ * Shopify provides server-side caching to reduce the number of requests it makes. Any shipping rate request that identically matches the following fields will be retrieved from Shopify's cache of the initial response:
+ * * variant IDs
+ * * default shipping box weight and dimensions
+ * * variant quantities
+ * * carrier service ID
+ * * origin address
+ * * destination address
+ * * item weights and signatures
+ *
+ * If any of these fields differ, or if the cache has expired since the original request, then new shipping rates are requested. The cache expires 15 minutes after rates are successfully returned. If an error occurs, then the cache expires after 30 seconds.
+ *
+ */
 export type DeliveryCarrierService = Node & {
   __typename?: 'DeliveryCarrierService';
   /** The list of services offered for given destinations. */
@@ -8128,7 +8284,163 @@ export type DeliveryCarrierService = Node & {
 };
 
 
-/** A shipping service provider or a carrier account. */
+/**
+ * A carrier service (also known as a carrier calculated service or shipping service) provides real-time shipping rates to Shopify. Some common carrier services include Canada Post, FedEx, UPS, and USPS. The term **carrier** is often used interchangeably with the terms **shipping company** and **rate provider**.
+ *
+ * Using the CarrierService resource, you can add a carrier service to a shop and then provide a list of applicable shipping rates at checkout. You can even use the cart data to adjust shipping rates and offer shipping discounts based on what is in the customer's cart.
+ *
+ * ## Requirements for accessing the CarrierService resource
+ * To access the CarrierService resource, add the `write_shipping` permission to your app's requested scopes. For more information, see [API access scopes](https://shopify.dev/docs/admin-api/access-scopes).
+ *
+ * Your app's request to create a carrier service will fail unless the store installing your carrier service meets one of the following requirements:
+ * * It's on the Advanced Shopify plan or higher.
+ * * It's on the Shopify plan with yearly billing, or the carrier service feature has been added to the store for a monthly fee. For more information, contact [Shopify Support](https://help.shopify.com/questions).
+ * * It's a development store.
+ *
+ * > Note:
+ * > If a store changes its Shopify plan, then the store's association with a carrier service is deactivated if the store no long meets one of the requirements above.
+ *
+ * ## Providing shipping rates to Shopify
+ * When adding a carrier service to a store, you need to provide a POST endpoint rooted in the `callbackUrl` property where Shopify can retrieve applicable shipping rates. The callback URL should be a public endpoint that expects these requests from Shopify.
+ *
+ * ### Example shipping rate request sent to a carrier service
+ *
+ * ```json
+ * {
+ *   "rate": {
+ *     "origin": {
+ *       "country": "CA",
+ *       "postal_code": "K2P1L4",
+ *       "province": "ON",
+ *       "city": "Ottawa",
+ *       "name": null,
+ *       "address1": "150 Elgin St.",
+ *       "address2": "",
+ *       "address3": null,
+ *       "phone": null,
+ *       "fax": null,
+ *       "email": null,
+ *       "address_type": null,
+ *       "company_name": "Jamie D's Emporium"
+ *     },
+ *     "destination": {
+ *       "country": "CA",
+ *       "postal_code": "K1M1M4",
+ *       "province": "ON",
+ *       "city": "Ottawa",
+ *       "name": "Bob Norman",
+ *       "address1": "24 Sussex Dr.",
+ *       "address2": "",
+ *       "address3": null,
+ *       "phone": null,
+ *       "fax": null,
+ *       "email": null,
+ *       "address_type": null,
+ *       "company_name": null
+ *     },
+ *     "items": [{
+ *       "name": "Short Sleeve T-Shirt",
+ *       "sku": "",
+ *       "quantity": 1,
+ *       "grams": 1000,
+ *       "price": 1999,
+ *       "vendor": "Jamie D's Emporium",
+ *       "requires_shipping": true,
+ *       "taxable": true,
+ *       "fulfillment_service": "manual",
+ *       "properties": null,
+ *       "product_id": 48447225880,
+ *       "variant_id": 258644705304
+ *     }],
+ *     "currency": "USD",
+ *     "locale": "en"
+ *   }
+ * }
+ * ```
+ *
+ * ### Example response
+ * ```json
+ * {
+ *    "rates": [
+ *        {
+ *            "service_name": "canadapost-overnight",
+ *            "service_code": "ON",
+ *            "total_price": "1295",
+ *            "description": "This is the fastest option by far",
+ *            "currency": "CAD",
+ *            "min_delivery_date": "2013-04-12 14:48:45 -0400",
+ *            "max_delivery_date": "2013-04-12 14:48:45 -0400"
+ *        },
+ *        {
+ *            "service_name": "fedex-2dayground",
+ *            "service_code": "2D",
+ *            "total_price": "2934",
+ *            "currency": "USD",
+ *            "min_delivery_date": "2013-04-12 14:48:45 -0400",
+ *            "max_delivery_date": "2013-04-12 14:48:45 -0400"
+ *        },
+ *        {
+ *            "service_name": "fedex-priorityovernight",
+ *            "service_code": "1D",
+ *            "total_price": "3587",
+ *            "currency": "USD",
+ *            "min_delivery_date": "2013-04-12 14:48:45 -0400",
+ *            "max_delivery_date": "2013-04-12 14:48:45 -0400"
+ *        }
+ *    ]
+ * }
+ * ```
+ *
+ * The `address3`, `fax`, `address_type`, and `company_name` fields are returned by specific [ActiveShipping](https://github.com/Shopify/active_shipping) providers. For API-created carrier services, you should use only the following shipping address fields:
+ * * `address1`
+ * * `address2`
+ * * `city`
+ * * `zip`
+ * * `province`
+ * * `country`
+ *
+ * Other values remain as `null` and are not sent to the callback URL.
+ *
+ * ### Response fields
+ *
+ * When Shopify requests shipping rates using your callback URL, the response object `rates` must be a JSON array of objects with the following fields.  Required fields must be included in the response for the carrier service integration to work properly.
+ *
+ * | Field                   | Required | Description                                                                                                                                                                                                  |
+ * | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+ * | `service_name`          | Yes      | The name of the rate, which customers see at checkout. For example: `Expedited Mail`.                                                                                                                        |
+ * | `description`           | Yes      | A description of the rate, which customers see at checkout. For example: `Includes tracking and insurance`.                                                                                                  |
+ * | `service_code`          | Yes      | A unique code associated with the rate. For example: `expedited_mail`.                                                                                                                                       |
+ * | `currency`              | Yes      | The currency of the shipping rate.                                                                                                                                                                           |
+ * | `total_price`           | Yes      | The total price expressed in subunits. If the currency doesn't use subunits, then the value must be multiplied by 100. For example: `"total_price": 500` for 5.00 CAD, `"total_price": 100000` for 1000 JPY. |
+ * | `phone_required`        | No       | Whether the customer must provide a phone number at checkout.                                                                                                                                                |
+ * | `min_delivery_date`     | No       | The earliest delivery date for the displayed rate.                                                                                                                                                           |
+ * | `max_delivery_date`     | No       | The latest delivery date for the displayed rate to still be valid.                                                                                                                                           |
+ *
+ * ## Response Timeouts
+ * The read timeout for rate requests are dynamic, based on the number of requests per minute (RPM). These limits are applied to each shop-app pair. The timeout values are as follows.
+ *
+ * | RPM Range     | Timeout    |
+ * | ------------- | ---------- |
+ * | Under 1500    | 10s        |
+ * | 1500 to 3000  | 5s         |
+ * | Over 3000     | 3s         |
+ *
+ * > Note:
+ * > These values are upper limits and should not be interpretted as a goal to develop towards. Shopify is constantly evaluating the performance of the platform and working towards improving resilience as well as app capabilities. As such, these numbers may be adjusted outside of our normal versioning timelines.
+ *
+ * ## Server-side caching of requests
+ * Shopify provides server-side caching to reduce the number of requests it makes. Any shipping rate request that identically matches the following fields will be retrieved from Shopify's cache of the initial response:
+ * * variant IDs
+ * * default shipping box weight and dimensions
+ * * variant quantities
+ * * carrier service ID
+ * * origin address
+ * * destination address
+ * * item weights and signatures
+ *
+ * If any of these fields differ, or if the cache has expired since the original request, then new shipping rates are requested. The cache expires 15 minutes after rates are successfully returned. If an error occurs, then the cache expires after 30 seconds.
+ *
+ */
 export type DeliveryCarrierServiceAvailableServicesForCountriesArgs = {
   countryCodes?: InputMaybe<Array<CountryCode>>;
   origins?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -8636,7 +8948,7 @@ export type DeliveryMethodDefinition = Node & {
   __typename?: 'DeliveryMethodDefinition';
   /** Whether this method definition is active. */
   active: Scalars['Boolean']['output'];
-  /** The description of the method definition. */
+  /** The description of the method definition. Only available on shipping rates that are custom. */
   description?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
@@ -11101,7 +11413,7 @@ export enum DiscountStatus {
   Active = 'ACTIVE',
   /** The discount is expired. */
   Expired = 'EXPIRED',
-  /** The discount is scheduled. */
+  /** The discount is scheduled when it has a start date in the future. */
   Scheduled = 'SCHEDULED'
 }
 
@@ -11181,6 +11493,10 @@ export enum DisputeEvidenceUpdateUserErrorCode {
 /** The possible statuses of a dispute. */
 export enum DisputeStatus {
   Accepted = 'ACCEPTED',
+  /**
+   * Status previously used by Stripe to indicate that a dispute led to a refund.
+   * @deprecated CHARGE_REFUNDED is no longer supported.
+   */
   ChargeRefunded = 'CHARGE_REFUNDED',
   Lost = 'LOST',
   NeedsResponse = 'NEEDS_RESPONSE',
@@ -11300,7 +11616,7 @@ export type DraftOrder = CommentEventSubject & HasEvents & HasLocalizationExtens
   localizationExtensions: LocalizationExtensionConnection;
   /** The name of the selected market. */
   marketName: Scalars['String']['output'];
-  /** The selected market region country code for the draft order. */
+  /** The selected country code that determines the pricing of the draft order. */
   marketRegionCountryCode: CountryCode;
   /** Returns a metafield by namespace and key that belongs to the resource. */
   metafield?: Maybe<Metafield>;
@@ -11799,10 +12115,10 @@ export type DraftOrderInput = {
   lineItems?: InputMaybe<Array<DraftOrderLineItemInput>>;
   /** The localization extensions attached to the draft order. For example, Tax IDs. */
   localizationExtensions?: InputMaybe<Array<LocalizationExtensionInput>>;
-  /** The selected market region country code for the draft order. */
+  /** The selected country code that determines the pricing of the draft order. */
   marketRegionCountryCode?: InputMaybe<CountryCode>;
   /**
-   * Metafields attached to the draft order.
+   * Metafields attached to the draft order. An existing metafield can not be used when creating a draft order.
    *
    */
   metafields?: InputMaybe<Array<MetafieldInput>>;
@@ -14531,15 +14847,8 @@ export type FulfillmentOrderMovePayload = {
   /**
    * The fulfillment order which now contains the moved line items and is assigned to the destination location.
    *
-   * **First scenario:** All line items belonging to the original fulfillment order are re-assigned.
-   *
-   * In this case, this will be the original fulfillment order.
-   *
-   * **Second scenario:** A subset of the line items belonging to the original fulfillment order are re-assigned.
-   *
-   * If the new location is already assigned to fulfill line items on the order, then
-   * this will be an existing active fulfillment order.
-   * Otherwise, this will be a new fulfillment order with the moved line items assigned.
+   * If the original fulfillment order doesn't have any line items which are fully or partially fulfilled, the original fulfillment order will be moved to the new location.
+   * However if this isn't the case, the moved fulfillment order will differ from the original one.
    *
    */
   movedFulfillmentOrder?: Maybe<FulfillmentOrder>;
@@ -14949,6 +15258,11 @@ export type FulfillmentService = {
   /**
    * Whether the fulfillment service uses the [fulfillment order based workflow](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments) for managing fulfillments.
    *
+   * As the migration is now finished, the `fulfillmentOrdersOptIn` property is [deprecated](
+   * https://shopify.dev/changelog/deprecation-of-the-fulfillmentservice-fulfillmentordersoptin-field)
+   * and is always set to `true` on correctly functioning fulfillment services.
+   *
+   * @deprecated Migration period ended. All correctly functioning fulfillment services have `fulfillmentOrdersOptIn` set to `true`.
    */
   fulfillmentOrdersOptIn: Scalars['Boolean']['output'];
   /** Human-readable unique identifier for this fulfillment service. */
@@ -15084,7 +15398,6 @@ export type FulfillmentTrackingInfo = {
    *   * DHL eCommerce
    *   * DHL eCommerce Asia
    *   * DHL Express
-   *   * DoorDash
    *   * DPD
    *   * DPD Local
    *   * DPD UK
@@ -16777,25 +17090,25 @@ export type LineItem = Node & {
   canRestock: Scalars['Boolean']['output'];
   /** The subscription contract associated with this line item. */
   contract?: Maybe<SubscriptionContract>;
-  /** The line item's quantity, minus the removed quantity. */
+  /** The number of units ordered, excluding refunded and removed units. */
   currentQuantity: Scalars['Int']['output'];
   /** A list of attributes that represent custom features or special requests. */
   customAttributes: Array<Attribute>;
-  /** The discounts that have been allocated onto the line item by discount applications, not including order edits and refunds. */
+  /** The discounts that have been allocated to the line item by discount applications, including discounts allocated to refunded and removed quantities. */
   discountAllocations: Array<DiscountAllocation>;
   /**
-   * The total line price after discounts are applied, in shop currency.
+   * The total discounted price of the line item in shop currency, including refunded and removed quantities. This value doesn't include order-level discounts.
    * @deprecated Use `discountedTotalSet` instead.
    */
   discountedTotal: Scalars['Money']['output'];
-  /** The total line price after discounts are applied, in shop and presentment currencies. */
+  /** The total discounted price of the line item in shop and presentment currencies, including refunded and removed quantities. This value doesn't include order-level discounts. Code-based discounts aren't included by default. */
   discountedTotalSet: MoneyBag;
   /**
-   * The approximate split price of a line item unit, in shop currency. This value doesn't include discounts applied to the entire order.
+   * The approximate unit price of the line item in shop currency. This value includes line-level discounts and discounts applied to refunded and removed quantities. It doesn't include order-level discounts.
    * @deprecated Use `discountedUnitPriceSet` instead.
    */
   discountedUnitPrice: Scalars['Money']['output'];
-  /** The approximate split price of a line item unit, in shop and presentment currencies. This value doesn't include discounts applied to the entire order. */
+  /** The approximate unit price of the line item in shop and presentment currencies. This value includes line-level discounts and discounts applied to refunded and removed quantities. It doesn't include order-level discounts. */
   discountedUnitPriceSet: MoneyBag;
   /** The duties associated with the line item. */
   duties: Array<Duty>;
@@ -16848,26 +17161,30 @@ export type LineItem = Node & {
   /** The total number of units that can't be fulfilled. For example, if items have been refunded, or the item is not something that can be fulfilled, like a tip. Please see the [FulfillmentOrder](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentOrder) object for more fulfillment details. */
   nonFulfillableQuantity: Scalars['Int']['output'];
   /**
-   * The total price without discounts applied, in shop currency.
-   * This value is based on the unit price of the variant x quantity.
+   * In shop currency, the total price of the line item when the order was created.
+   * This value doesn't include discounts.
    *
    * @deprecated Use `originalTotalSet` instead.
    */
   originalTotal: Scalars['Money']['output'];
-  /** The total price in shop and presentment currencies, without discounts applied. This value is based on the unit price of the variant x quantity. */
+  /**
+   * In shop and presentment currencies, the total price of the line item when the order was created.
+   * This value doesn't include discounts.
+   *
+   */
   originalTotalSet: MoneyBag;
   /**
-   * The variant unit price without discounts applied, in shop currency.
+   * In shop currency, the unit price of the line item when the order was created. This value doesn't include discounts.
    * @deprecated Use `originalUnitPriceSet` instead.
    */
   originalUnitPrice: Scalars['Money']['output'];
-  /** The variant unit price without discounts applied, in shop and presentment currencies. */
+  /** In shop and presentment currencies, the unit price of the line item when the order was created. This value doesn't include discounts. */
   originalUnitPriceSet: MoneyBag;
   /** The Product object associated with this line item's variant. */
   product?: Maybe<Product>;
-  /** The number of variant units ordered. */
+  /** The number of units ordered, including refunded and removed units. */
   quantity: Scalars['Int']['output'];
-  /** The line item's quantity, minus the removed quantity. */
+  /** The number of units ordered, excluding refunded units. */
   refundableQuantity: Scalars['Int']['output'];
   /** Whether physical shipping is required for the variant. */
   requiresShipping: Scalars['Boolean']['output'];
@@ -16879,32 +17196,32 @@ export type LineItem = Node & {
   sku?: Maybe<Scalars['String']['output']>;
   /** Staff attributed to the line item. */
   staffMember?: Maybe<StaffMember>;
-  /** The taxes charged for this line item. */
+  /** The taxes charged for the line item, including taxes charged for refunded and removed quantities. */
   taxLines: Array<TaxLine>;
   /** Whether the variant is taxable. */
   taxable: Scalars['Boolean']['output'];
   /** The title of the product at time of order creation. */
   title: Scalars['String']['output'];
   /**
-   * The total amount of the discount allocated to the line item in the shop currency.
+   * The total discount allocated to the line item in shop currency, including the total allocated to refunded and removed quantities. This value doesn't include order-level discounts.
    * @deprecated Use `totalDiscountSet` instead.
    */
   totalDiscount: Scalars['Money']['output'];
-  /** The total amount of the discount that's allocated to the line item, in the shop and presentment currencies. This field must be explicitly set using draft orders, Shopify scripts, or the API. */
+  /** The total discount allocated to the line item in shop and presentment currencies, including the total allocated to refunded and removed quantities. This value doesn't include order-level discounts. */
   totalDiscountSet: MoneyBag;
   /**
-   * The total discounted value of unfulfilled units, in shop currency.
+   * In shop currency, the total discounted price of the unfulfilled quantity for the line item.
    * @deprecated Use `unfulfilledDiscountedTotalSet` instead.
    */
   unfulfilledDiscountedTotal: Scalars['Money']['output'];
-  /** The total discounted value of unfulfilled units, in shop and presentment currencies. */
+  /** In shop and presentment currencies, the total discounted price of the unfulfilled quantity for the line item. */
   unfulfilledDiscountedTotalSet: MoneyBag;
   /**
-   * The total price, without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop currency.
+   * In shop currency, the total price of the unfulfilled quantity for the line item. This value doesn't include discounts.
    * @deprecated Use `unfulfilledOriginalTotalSet` instead.
    */
   unfulfilledOriginalTotal: Scalars['Money']['output'];
-  /** The total price, without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop and presentment currencies. */
+  /** In shop and presentment currencies, the total price of the unfulfilled quantity for the line item. This value doesn't include discounts. */
   unfulfilledOriginalTotalSet: MoneyBag;
   /** The number of units not yet fulfilled. */
   unfulfilledQuantity: Scalars['Int']['output'];
@@ -17018,7 +17335,7 @@ export type LineItemMutable = Node & {
   product?: Maybe<Product>;
   /** The number of variant units ordered. */
   quantity: Scalars['Int']['output'];
-  /** The line item's quantity, minus the removed quantity. */
+  /** The line item's quantity, minus the refunded quantity. */
   refundableQuantity: Scalars['Int']['output'];
   /** Whether physical shipping is required for the variant. */
   requiresShipping: Scalars['Boolean']['output'];
@@ -18719,7 +19036,7 @@ export type MarketWebPresence = Node & {
   /** The associated market. */
   market: Market;
   /**
-   * The list of root URLs for each of the web presence’s locales.
+   * The list of root URLs for each of the web presence’s locales. As of version `2024-04` this value will no longer have a trailing slash.
    *
    */
   rootUrls: Array<MarketWebPresenceRootUrl>;
@@ -19169,7 +19486,7 @@ export type MarketingActivityUpdatePayload = {
   userErrors: Array<UserError>;
 };
 
-/** An error that occurs during the execution of a Shopify Marketing mutation. */
+/** An error that occurs during the execution of marketing activity and engagement mutations. */
 export type MarketingActivityUserError = DisplayableError & {
   __typename?: 'MarketingActivityUserError';
   /** The error code. */
@@ -19182,8 +19499,54 @@ export type MarketingActivityUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MarketingActivityUserError`. */
 export enum MarketingActivityUserErrorCode {
+  /** The marketing activity must be an external activity. */
+  ActivityNotExternal = 'ACTIVITY_NOT_EXTERNAL',
+  /** This activity has child activities and thus cannot be deleted. Child activities must be deleted before a parent activity. */
+  CannotDeleteActivityWithChildEvents = 'CANNOT_DELETE_ACTIVITY_WITH_CHILD_EVENTS',
+  /** The activity's tactic can not be updated from STOREFRONT_APP. */
+  CannotUpdateTacticIfOriginallyStorefrontApp = 'CANNOT_UPDATE_TACTIC_IF_ORIGINALLY_STOREFRONT_APP',
+  /** The activity's tactic can not be updated to STOREFRONT_APP. This type of tactic can only be specified when creating a new activity. */
+  CannotUpdateTacticToStorefrontApp = 'CANNOT_UPDATE_TACTIC_TO_STOREFRONT_APP',
+  /** All currency codes provided in the input need to match. */
+  CurrencyCodeMismatchInput = 'CURRENCY_CODE_MISMATCH_INPUT',
+  /** A mutation can not be ran because a job to delete all external activities has been enqueued, which happens either from calling the marketingActivitiesDeleteAllExternal mutation or as a result of an app uninstall. */
+  DeleteJobEnqueued = 'DELETE_JOB_ENQUEUED',
+  /** The job to delete all external activities failed to enqueue. */
+  DeleteJobFailedToEnqueue = 'DELETE_JOB_FAILED_TO_ENQUEUE',
+  /** The channel handle value cannot be modified. */
+  ImmutableChannelHandle = 'IMMUTABLE_CHANNEL_HANDLE',
+  /** The hierarchy level cannot be modified. */
+  ImmutableHierarchyLevel = 'IMMUTABLE_HIERARCHY_LEVEL',
+  /** The parent activity cannot be modified. */
+  ImmutableParentId = 'IMMUTABLE_PARENT_ID',
+  /** The URL parameter value cannot be modified. */
+  ImmutableUrlParameter = 'IMMUTABLE_URL_PARAMETER',
+  /** The UTM parameters cannot be modified. */
+  ImmutableUtmParameters = 'IMMUTABLE_UTM_PARAMETERS',
   /** The input value is invalid. */
   Invalid = 'INVALID',
+  /** The channel handle is not recognized. */
+  InvalidChannelHandle = 'INVALID_CHANNEL_HANDLE',
+  /** Either the marketing activity ID or remote ID must be provided for the activity to be deleted. */
+  InvalidDeleteActivityExternalArguments = 'INVALID_DELETE_ACTIVITY_EXTERNAL_ARGUMENTS',
+  /** Either the channel_handle or delete_engagements_for_all_channels must be provided when deleting a marketing engagement. */
+  InvalidDeleteEngagementsArguments = 'INVALID_DELETE_ENGAGEMENTS_ARGUMENTS',
+  /** Either the marketing activity ID, remote ID, or UTM must be provided. */
+  InvalidMarketingActivityExternalArguments = 'INVALID_MARKETING_ACTIVITY_EXTERNAL_ARGUMENTS',
+  /** For activity level engagement, either the marketing activity ID or remote ID must be provided. For channel level engagement, the channel handle must be provided. */
+  InvalidMarketingEngagementArguments = 'INVALID_MARKETING_ENGAGEMENT_ARGUMENTS',
+  /** No identifier found. For activity level engagement, either the marketing activity ID or remote ID must be provided. For channel level engagement, the channel handle must be provided. */
+  InvalidMarketingEngagementArgumentMissing = 'INVALID_MARKETING_ENGAGEMENT_ARGUMENT_MISSING',
+  /** The remote ID does not correspond to an existing activity. */
+  InvalidRemoteId = 'INVALID_REMOTE_ID',
+  /** The currency codes provided need to match the referenced marketing activity's currency code. */
+  MarketingActivityCurrencyCodeMismatch = 'MARKETING_ACTIVITY_CURRENCY_CODE_MISMATCH',
+  /** Marketing activity does not exist. */
+  MarketingActivityDoesNotExist = 'MARKETING_ACTIVITY_DOES_NOT_EXIST',
+  /** Marketing activity is not valid, the associated marketing event does not exist. */
+  MarketingEventDoesNotExist = 'MARKETING_EVENT_DOES_NOT_EXIST',
+  /** Non-hierarchical marketing activities must have UTM parameters or a URL parameter value. */
+  NonHierarchialRequiresUtmUrlParameter = 'NON_HIERARCHIAL_REQUIRES_UTM_URL_PARAMETER',
   /** The input value is already taken. */
   Taken = 'TAKEN'
 }
@@ -19266,9 +19629,14 @@ export type MarketingEngagement = {
 /** Return type for `marketingEngagementCreate` mutation. */
 export type MarketingEngagementCreatePayload = {
   __typename?: 'MarketingEngagementCreatePayload';
+  /** The list of errors that occurred from executing the mutation. */
+  marketingActivityUserError: Array<MarketingActivityUserError>;
   /** The marketing engagement that was created. */
   marketingEngagement?: Maybe<MarketingEngagement>;
-  /** The list of errors that occurred from executing the mutation. */
+  /**
+   * The list of errors that occurred from executing the mutation.
+   * @deprecated Use `marketingActivityUserError` instead.
+   */
   userErrors: Array<UserError>;
 };
 
@@ -19402,7 +19770,7 @@ export enum MarketingEventSortKeys {
   StartedAt = 'STARTED_AT'
 }
 
-/** The available types of marketing event. */
+/** The available types of tactics for a marketing activity. */
 export enum MarketingTactic {
   /** An abandoned cart recovery email. */
   AbandonedCart = 'ABANDONED_CART',
@@ -19410,7 +19778,10 @@ export enum MarketingTactic {
   Ad = 'AD',
   /** An affiliate link. */
   Affiliate = 'AFFILIATE',
-  /** A direct visit to the online store. */
+  /**
+   * A direct visit to the online store.
+   * @deprecated `DIRECT` is deprecated. Use `LINK` instead.
+   */
   Direct = 'DIRECT',
   /**
    * A display ad.
@@ -19446,7 +19817,10 @@ export enum MarketingTactic {
    * @deprecated `SEARCH` is deprecated. Use `AD` instead.
    */
   Search = 'SEARCH',
-  /** Search engine optimization. */
+  /**
+   * Search engine optimization.
+   * @deprecated `SEO` is deprecated. Use `AD` instead.
+   */
   Seo = 'SEO',
   /** A popup on the online store. */
   StorefrontApp = 'STOREFRONT_APP',
@@ -20558,7 +20932,7 @@ export type MetafieldReferenceEdge = {
  * Types of resources that may use metafields to reference other resources.
  *
  */
-export type MetafieldReferencer = AppInstallation | Collection | Customer | DeliveryCustomization | DiscountAutomaticNode | DiscountCodeNode | DiscountNode | DraftOrder | FulfillmentOrder | Location | Market | Metaobject | OnlineStoreArticle | OnlineStoreBlog | OnlineStorePage | Order | PaymentCustomization | Product | ProductVariant | Shop;
+export type MetafieldReferencer = AppInstallation | Collection | Company | CompanyLocation | Customer | DeliveryCustomization | DiscountAutomaticNode | DiscountCodeNode | DiscountNode | DraftOrder | FulfillmentOrder | Location | Market | Metaobject | OnlineStoreArticle | OnlineStoreBlog | OnlineStorePage | Order | PaymentCustomization | Product | ProductVariant | Shop;
 
 /**
  * Defines a relation between two resources via a reference metafield.
@@ -22285,7 +22659,10 @@ export type Mutation = {
    *
    */
   orderEditCommit?: Maybe<OrderEditCommitPayload>;
-  /** Removes a line item discount that was applied as part of an order edit. */
+  /**
+   * Removes a line item discount that was applied as part of an order edit.
+   * @deprecated Use generic OrderEditRemoveDiscount mutation instead.
+   */
   orderEditRemoveLineItemDiscount?: Maybe<OrderEditRemoveLineItemDiscountPayload>;
   /** Sets the quantity of a line item on an order that is being edited. For more information on how to use the GraphQL Admin API to edit an existing order, refer to [Edit existing orders](https://shopify.dev/apps/fulfillment/order-management-apps/order-editing). */
   orderEditSetQuantity?: Maybe<OrderEditSetQuantityPayload>;
@@ -22319,7 +22696,7 @@ export type Mutation = {
   paymentTermsDelete?: Maybe<PaymentTermsDeletePayload>;
   /** Update payment terms on an order. To update payment terms on a draft order, use a draft order mutation and include the request with the `DraftOrderInput`. */
   paymentTermsUpdate?: Maybe<PaymentTermsUpdatePayload>;
-  /** Creates a price list. You can use the `priceListCreate` mutation to create a new price list for a country. This enables you to sell your products with international pricing. */
+  /** Creates a price list. You can use the `priceListCreate` mutation to create a new price list and associate it with a catalog. This enables you to sell your products with contextual pricing. */
   priceListCreate?: Maybe<PriceListCreatePayload>;
   /** Deletes a price list. For example, you can delete a price list so that it no longer applies for products in the associated market. */
   priceListDelete?: Maybe<PriceListDeletePayload>;
@@ -22401,6 +22778,8 @@ export type Mutation = {
   productChangeStatus?: Maybe<ProductChangeStatusPayload>;
   /**
    * Creates a product.
+   *
+   * For versions `2024-01` and older:
    *
    * If you need to create a product with many
    * [variants](https://shopify.dev/api/admin-graphql/latest/input-objects/ProductVariantInput)
@@ -22513,10 +22892,16 @@ export type Mutation = {
    */
   productUnpublish?: Maybe<ProductUnpublishPayload>;
   /**
-   * Updates a product. If you update a product and only include some variants in the update,
-   * then any variants not included will be deleted. To safely manage variants without the risk of
+   * Updates a product.
+   *
+   * For versions `2024-01` and older:
+   * If you update a product and only include some variants in the update,
+   * then any variants not included will be deleted.
+   *
+   * To safely manage variants without the risk of
    * deleting excluded variants, use
    * [productVariantsBulkUpdate](https://shopify.dev/api/admin-graphql/latest/mutations/productvariantsbulkupdate).
+   *
    * If you want to update a single variant, then use
    * [productVariantUpdate](https://shopify.dev/api/admin-graphql/latest/mutations/productvariantupdate).
    *
@@ -23965,7 +24350,6 @@ export type MutationFulfillmentOrderSubmitFulfillmentRequestArgs = {
   id: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
   notifyCustomer?: InputMaybe<Scalars['Boolean']['input']>;
-  shippingMethod?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -24004,7 +24388,6 @@ export type MutationFulfillmentServiceDeleteArgs = {
 /** The schema's entry point for all mutation operations. */
 export type MutationFulfillmentServiceUpdateArgs = {
   callbackUrl?: InputMaybe<Scalars['URL']['input']>;
-  fulfillmentOrdersOptIn?: InputMaybe<Scalars['Boolean']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   permitsSkuSharing?: InputMaybe<Scalars['Boolean']['input']>;
@@ -25938,6 +26321,7 @@ export type Order = CommentEventSubject & HasEvents & HasLocalizationExtensions 
    * Use the [`FulfillmentOrder`](https://shopify.dev/api/admin-graphql/latest/objects/fulfillmentorder)
    * object for up to date fulfillment location information.
    *
+   * @deprecated Use `fulfillmentOrders` to get the fulfillment location for the order
    */
   physicalLocation?: Maybe<Location>;
   /** The payment `CurrencyCode` of the customer for the order. */
@@ -26011,9 +26395,15 @@ export type Order = CommentEventSubject & HasEvents & HasLocalizationExtensions 
   returnStatus: OrderReturnStatus;
   /** A list of returns for the order. */
   returns: ReturnConnection;
-  /** The fraud risk level of the order. */
+  /**
+   * The fraud risk level of the order.
+   * @deprecated This field is deprecated in version 2024-04. Please use OrderRiskAssessment.riskLevel
+   */
   riskLevel: OrderRiskLevel;
-  /** A list of risks associated with the order. */
+  /**
+   * A list of risks associated with the order.
+   * @deprecated This field is deprecated in version 2024-04. Please use OrderRiskAssessment
+   */
   risks: Array<OrderRisk>;
   /** The mailing address of the customer. */
   shippingAddress?: Maybe<MailingAddress>;
@@ -27078,19 +27468,31 @@ export enum OrderReturnStatus {
   ReturnRequested = 'RETURN_REQUESTED'
 }
 
-/** Represents a fraud check on an order. */
+/**
+ * Represents a fraud check on an order.
+ * As of version 2024-04 this resource is deprecated. Risk Assessments can be queried via the
+ * [OrderRisk Assessments API](https://shopify.dev/api/admin-graphql/2024-04/objects/OrderRiskAssessment).
+ *
+ */
 export type OrderRisk = {
   __typename?: 'OrderRisk';
-  /** Whether the risk level is shown in the Shopify admin. If false, then this order risk is ignored when Shopify determines the overall risk level for the order. */
+  /**
+   * Whether the risk level is shown in the Shopify admin. If false, then this order risk is ignored when Shopify determines the overall risk level for the order.
+   * @deprecated This field is deprecated in version 2024-04
+   */
   display: Scalars['Boolean']['output'];
   /**
    * The likelihood that an order is fraudulent, based on this order risk.
    *
    * The level can be set by Shopify risk analysis or by an app.
    *
+   * @deprecated This field is deprecated in version 2024-04. Please use OrderRiskAssessment.riskLevel
    */
   level?: Maybe<OrderRiskLevel>;
-  /** The risk message that's shown to the merchant in the Shopify admin. */
+  /**
+   * The risk message that's shown to the merchant in the Shopify admin.
+   * @deprecated This field is deprecated in version 2024-04
+   */
   message?: Maybe<Scalars['String']['output']>;
 };
 
@@ -29864,7 +30266,10 @@ export type Product = HasMetafieldDefinitions & HasMetafields & HasPublishedTran
    *
    */
   privateMetafields: PrivateMetafieldConnection;
-  /** The product category specified by the merchant. */
+  /**
+   * The product category specified by the merchant.
+   * @deprecated Use `category` instead.
+   */
   productCategory?: Maybe<ProductCategory>;
   /**
    * A list of the channels where the product is published.
@@ -30534,8 +30939,6 @@ export type ProductInput = {
   id?: InputMaybe<Scalars['ID']['input']>;
   /** The metafields to associate with this product. */
   metafields?: InputMaybe<Array<MetafieldInput>>;
-  /** List of custom product options (maximum of 3 per product). */
-  options?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The product category in the Shopify product taxonomy. */
   productCategory?: InputMaybe<ProductCategoryInput>;
   /** The product type specified by the merchant. */
@@ -30560,11 +30963,6 @@ export type ProductInput = {
   templateSuffix?: InputMaybe<Scalars['String']['input']>;
   /** The title of the product. */
   title?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * A list of variants associated with the product.
-   *
-   */
-  variants?: InputMaybe<Array<ProductVariantInput>>;
   /** The name of the product's vendor. */
   vendor?: InputMaybe<Scalars['String']['input']>;
 };
@@ -30955,7 +31353,12 @@ export type ProductVariant = HasMetafieldDefinitions & HasMetafields & HasPublis
    *
    */
   fulfillmentService?: Maybe<FulfillmentService>;
-  /** Whether changes to the fulfillment service for the product variant are allowed. */
+  /**
+   * Whether changes to the fulfillment service for the product variant are allowed.
+   * @deprecated The [relationship between a product variant and a fulfillment service was changed in the `2022-07` API version](/changelog/fulfillment-service-sku-sharing). A [ProductVariant](/api/admin-graphql/latest/objects/ProductVariant) can be stocked by multiple fulfillment services.
+   * As a result, the fulfillment_service is no longer directly editable on a ProductVariant and this field is no longer applicable.
+   *
+   */
   fulfillmentServiceEditable: EditableProperty;
   /**
    * The Harmonized System Code (or HS Tariff Code) for the variant.
@@ -31061,11 +31464,15 @@ export type ProductVariant = HasMetafieldDefinitions & HasMetafields & HasPublis
    *
    */
   updatedAt: Scalars['DateTime']['output'];
-  /** The weight of the product variant in the unit system specified with weight_unit. */
+  /**
+   * The weight of the product variant in the unit system specified with weight_unit.
+   * @deprecated Use InventoryItem.measurement.weight instead
+   */
   weight?: Maybe<Scalars['Float']['output']>;
   /**
    * The unit of measurement that applies to the product variant's weight. If you don't specify a value for weight_unit, then the shop's default unit of measurement is applied. Valid values: `g`, `kg`, `oz`, `lb`.
    *
+   * @deprecated Use InventoryItem.measurement.weight instead
    */
   weightUnit: WeightUnit;
 };
@@ -31270,8 +31677,6 @@ export type ProductVariantInput = {
   barcode?: InputMaybe<Scalars['String']['input']>;
   /** The compare-at price of the variant. */
   compareAtPrice?: InputMaybe<Scalars['Money']['input']>;
-  /** The Harmonized System code (or HS Tariff code) for the variant. */
-  harmonizedSystemCode?: InputMaybe<Scalars['String']['input']>;
   /** Specifies the product variant to update or create a new variant if absent. */
   id?: InputMaybe<Scalars['ID']['input']>;
   /** The inventory item associated with the variant. Used for unit cost. */
@@ -31295,18 +31700,12 @@ export type ProductVariantInput = {
   price?: InputMaybe<Scalars['Money']['input']>;
   /** The product to create the variant for. Used as input only to the `productVariantCreate` mutation. */
   productId?: InputMaybe<Scalars['ID']['input']>;
-  /** Whether the variant requires shipping. */
-  requiresShipping?: InputMaybe<Scalars['Boolean']['input']>;
   /** The SKU for the variant. Case-sensitive string. */
   sku?: InputMaybe<Scalars['String']['input']>;
   /** The tax code associated with the variant. */
   taxCode?: InputMaybe<Scalars['String']['input']>;
   /** Whether the variant is taxable. */
   taxable?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The weight of the variant. */
-  weight?: InputMaybe<Scalars['Float']['input']>;
-  /** The unit of weight that's used to measure the variant. */
-  weightUnit?: InputMaybe<WeightUnit>;
 };
 
 /** The valid values for the method of inventory tracking for a product variant. */
@@ -31531,8 +31930,6 @@ export type ProductVariantsBulkInput = {
   barcode?: InputMaybe<Scalars['String']['input']>;
   /** The compare-at price of the variant. */
   compareAtPrice?: InputMaybe<Scalars['Money']['input']>;
-  /** The Harmonized System code (or HS Tariff code) for the variant. */
-  harmonizedSystemCode?: InputMaybe<Scalars['String']['input']>;
   /** Specifies the product variant to update or delete. */
   id?: InputMaybe<Scalars['ID']['input']>;
   /** The inventory item associated with the variant, used for unit cost. */
@@ -31550,22 +31947,14 @@ export type ProductVariantsBulkInput = {
   mediaSrc?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The additional customizable information about the product variant. */
   metafields?: InputMaybe<Array<MetafieldInput>>;
-  /** The custom properties that a shop owner uses to define product variants. */
-  options?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The price of the variant. */
   price?: InputMaybe<Scalars['Money']['input']>;
-  /** Whether the variant requires shipping. */
-  requiresShipping?: InputMaybe<Scalars['Boolean']['input']>;
   /** The SKU for the variant. */
   sku?: InputMaybe<Scalars['String']['input']>;
   /** The tax code associated with the variant. */
   taxCode?: InputMaybe<Scalars['String']['input']>;
   /** Whether the variant is taxable. */
   taxable?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The weight of the variant. */
-  weight?: InputMaybe<Scalars['Float']['input']>;
-  /** The unit of weight that's used to measure the variant. */
-  weightUnit?: InputMaybe<WeightUnit>;
 };
 
 /** Return type for `productVariantsBulkReorder` mutation. */
@@ -37600,7 +37989,10 @@ export type ShippingLine = {
    * @deprecated Use `discountedPriceSet` instead.
    */
   discountedPrice: MoneyV2;
-  /** The pre-tax shipping price with discounts applied. */
+  /**
+   * The shipping price after applying discounts. If the parent order.taxesIncluded field is true, then this price includes taxes. If not, it's the pre-tax price.
+   *
+   */
   discountedPriceSet: MoneyBag;
   /** A globally-unique ID. */
   id?: Maybe<Scalars['ID']['output']>;
@@ -37660,7 +38052,13 @@ export type ShippingLineEdge = {
   node: ShippingLine;
 };
 
-/** The input fields for specifying the shipping details for the order. */
+/**
+ * The input fields for specifying the shipping details for the draft order.
+ *
+ * > Note:
+ * > A custom shipping line includes a title and price with `shippingRateHandle` set to `nil`. A shipping line with a carrier-provided shipping rate (currently set via the Shopify admin) includes the shipping rate handle.
+ *
+ */
 export type ShippingLineInput = {
   /** Price of the shipping rate. */
   price?: InputMaybe<Scalars['Money']['input']>;
@@ -38019,7 +38417,10 @@ export type Shop = HasMetafields & HasPublishedTranslations & Node & {
    * @deprecated Use `QueryRoot.productByHandle` instead.
    */
   productByHandle?: Maybe<Product>;
-  /** The list of all images of all products for the shop. */
+  /**
+   * The list of all images of all products for the shop.
+   * @deprecated Use `files` instead. See [filesQuery](https://shopify.dev/docs/api/admin-graphql/latest/queries/files) and its [query](https://shopify.dev/docs/api/admin-graphql/2024-01/queries/files#argument-query) argument for more information.
+   */
   productImages: ImageConnection;
   /**
    * List of the shop's product saved searches.
@@ -38594,7 +38995,7 @@ export type ShopUploadedImagesByIdsArgs = {
   imageIds: Array<Scalars['ID']['input']>;
 };
 
-/** The shop's billing address. */
+/** An address for a shop. */
 export type ShopAddress = Node & {
   __typename?: 'ShopAddress';
   /** The first line of the address. Typically the street address or PO Box number. */
@@ -38680,7 +39081,7 @@ export type ShopAddress = Node & {
 };
 
 
-/** The shop's billing address. */
+/** An address for a shop. */
 export type ShopAddressFormattedArgs = {
   withCompany?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -42954,7 +43355,7 @@ export enum TranslatableResourceType {
   OnlineStoreTheme = 'ONLINE_STORE_THEME',
   /** A packing slip template. Translatable fields: `body`. */
   PackingSlipTemplate = 'PACKING_SLIP_TEMPLATE',
-  /** A payment gateway. Translatable fields: `name`. */
+  /** A payment gateway. Translatable fields: `name`, `message`, `before_payment_instructions`. */
   PaymentGateway = 'PAYMENT_GATEWAY',
   /** An online store product. Translatable fields: `title`, `body_html`, `handle`, `product_type`, `meta_title`, `meta_description`. */
   Product = 'PRODUCT',
@@ -42963,7 +43364,10 @@ export enum TranslatableResourceType {
    *         Translatable fields: `name`.
    */
   ProductOption = 'PRODUCT_OPTION',
-  /** An online store product variant. Translatable fields: `option1`, `option2`, `option3`. */
+  /**
+   * An online store product variant. Translatable fields: `option1`, `option2`, `option3`.
+   * @deprecated `PRODUCT_VARIANT` is deprecated, it is no longer a translatable resource type. Use `PRODUCT_OPTION_VALUE` instead.
+   */
   ProductVariant = 'PRODUCT_VARIANT',
   /** A selling plan. Translatable fields:`name`, `option1`, `option2`, `option3`, `description`. */
   SellingPlan = 'SELLING_PLAN',
@@ -43748,9 +44152,10 @@ export enum WebhookSubscriptionSortKeys {
  * The supported topics for webhook subscriptions. You can use webhook subscriptions to receive
  * notifications about particular events in a shop.
  *
- * You don't create webhook subscriptions to
- * [mandatory webhooks](https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks).
- * Instead, you configure mandatory webhooks in your Partner Dashboard as part of your app setup.
+ * You create mandatory webhooks either via the
+ * [Partner Dashboard](https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks#subscribe-to-privacy-webhooks)
+ * or by updating the
+ * [app configuration TOML](https://shopify.dev/apps/tools/cli/configuration#app-configuration-file-example).
  *
  */
 export enum WebhookSubscriptionTopic {
@@ -43868,27 +44273,27 @@ export enum WebhookSubscriptionTopic {
   FulfillmentEventsCreate = 'FULFILLMENT_EVENTS_CREATE',
   /** The webhook topic for `fulfillment_events/delete` events. Occurs whenever a fulfillment event is deleted. Requires the `read_fulfillments` scope. */
   FulfillmentEventsDelete = 'FULFILLMENT_EVENTS_DELETE',
-  /** The webhook topic for `fulfillment_orders/cancellation_request_accepted` events. Occurs when a 3PL accepts a fulfillment cancellation request, received from a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/cancellation_request_accepted` events. Occurs when a 3PL accepts a fulfillment cancellation request, received from a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersCancellationRequestAccepted = 'FULFILLMENT_ORDERS_CANCELLATION_REQUEST_ACCEPTED',
-  /** The webhook topic for `fulfillment_orders/cancellation_request_rejected` events. Occurs when a 3PL rejects a fulfillment cancellation request, received from a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/cancellation_request_rejected` events. Occurs when a 3PL rejects a fulfillment cancellation request, received from a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersCancellationRequestRejected = 'FULFILLMENT_ORDERS_CANCELLATION_REQUEST_REJECTED',
-  /** The webhook topic for `fulfillment_orders/cancellation_request_submitted` events. Occurs when a merchant requests a fulfillment request to be cancelled after that request was approved by a 3PL. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/cancellation_request_submitted` events. Occurs when a merchant requests a fulfillment request to be cancelled after that request was approved by a 3PL. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersCancellationRequestSubmitted = 'FULFILLMENT_ORDERS_CANCELLATION_REQUEST_SUBMITTED',
-  /** The webhook topic for `fulfillment_orders/cancelled` events. Occurs when a fulfillment order is cancelled. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/cancelled` events. Occurs when a fulfillment order is cancelled. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersCancelled = 'FULFILLMENT_ORDERS_CANCELLED',
-  /** The webhook topic for `fulfillment_orders/fulfillment_request_accepted` events. Occurs when a fulfillment service accepts a request to fulfill a fulfillment order. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/fulfillment_request_accepted` events. Occurs when a fulfillment service accepts a request to fulfill a fulfillment order. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersFulfillmentRequestAccepted = 'FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_ACCEPTED',
-  /** The webhook topic for `fulfillment_orders/fulfillment_request_rejected` events. Occurs when a 3PL rejects a fulfillment request that was sent by a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/fulfillment_request_rejected` events. Occurs when a 3PL rejects a fulfillment request that was sent by a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersFulfillmentRequestRejected = 'FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_REJECTED',
-  /** The webhook topic for `fulfillment_orders/fulfillment_request_submitted` events. Occurs when a merchant submits a fulfillment request to a 3PL. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_buyer_membership_orders. */
+  /** The webhook topic for `fulfillment_orders/fulfillment_request_submitted` events. Occurs when a merchant submits a fulfillment request to a 3PL. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_buyer_membership_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersFulfillmentRequestSubmitted = 'FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_SUBMITTED',
-  /** The webhook topic for `fulfillment_orders/fulfillment_service_failed_to_complete` events. Occurs when a fulfillment service intends to close an in_progress fulfillment order. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/fulfillment_service_failed_to_complete` events. Occurs when a fulfillment service intends to close an in_progress fulfillment order. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersFulfillmentServiceFailedToComplete = 'FULFILLMENT_ORDERS_FULFILLMENT_SERVICE_FAILED_TO_COMPLETE',
-  /** The webhook topic for `fulfillment_orders/hold_released` events. Occurs whenever a fulfillment order hold is released. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/hold_released` events. Occurs whenever a fulfillment order hold is released. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersHoldReleased = 'FULFILLMENT_ORDERS_HOLD_RELEASED',
-  /** The webhook topic for `fulfillment_orders/line_items_prepared_for_local_delivery` events. Occurs whenever a fulfillment order's line items are prepared for local delivery. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/line_items_prepared_for_local_delivery` events. Occurs whenever a fulfillment order's line items are prepared for local delivery. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersLineItemsPreparedForLocalDelivery = 'FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_LOCAL_DELIVERY',
-  /** The webhook topic for `fulfillment_orders/line_items_prepared_for_pickup` events. Triggers when one or more of the line items for a fulfillment order are prepared for pickup Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/line_items_prepared_for_pickup` events. Triggers when one or more of the line items for a fulfillment order are prepared for pickup Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersLineItemsPreparedForPickup = 'FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_PICKUP',
   /**
    * The webhook topic for `fulfillment_orders/moved` events. Occurs whenever the location which is assigned to fulfill one or more fulfillment order line items is changed.
@@ -43903,12 +44308,12 @@ export enum WebhookSubscriptionTopic {
    * If you need to determine the originally assigned location, then you should refer to the `source_location`.
    *
    * [Learn more about moving line items](https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentOrderMove).
-   *  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders.
+   *  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
    */
   FulfillmentOrdersMoved = 'FULFILLMENT_ORDERS_MOVED',
-  /** The webhook topic for `fulfillment_orders/order_routing_complete` events. Occurs when an order has finished being routed and it's fulfillment orders assigned to a fulfillment service's location. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_buyer_membership_orders. */
+  /** The webhook topic for `fulfillment_orders/order_routing_complete` events. Occurs when an order has finished being routed and it's fulfillment orders assigned to a fulfillment service's location. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_buyer_membership_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersOrderRoutingComplete = 'FULFILLMENT_ORDERS_ORDER_ROUTING_COMPLETE',
-  /** The webhook topic for `fulfillment_orders/placed_on_hold` events. Occurs when a fulfillment order is placed on hold. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/placed_on_hold` events. Occurs when a fulfillment order is placed on hold. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersPlacedOnHold = 'FULFILLMENT_ORDERS_PLACED_ON_HOLD',
   /**
    * The webhook topic for `fulfillment_orders/rescheduled` events. Triggers when a fulfillment order is rescheduled.
@@ -43916,10 +44321,10 @@ export enum WebhookSubscriptionTopic {
    * Fulfillment orders may be merged if they have the same `fulfillAt` datetime.
    * If the fulfillment order is merged then the resulting fulfillment order will be indicated in the webhook body.
    * Otherwise it will be the original fulfillment order with an updated `fulfill_at` datetime.
-   *  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders.
+   *  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
    */
   FulfillmentOrdersRescheduled = 'FULFILLMENT_ORDERS_RESCHEDULED',
-  /** The webhook topic for `fulfillment_orders/scheduled_fulfillment_order_ready` events. Occurs whenever a fulfillment order which was scheduled becomes due. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
+  /** The webhook topic for `fulfillment_orders/scheduled_fulfillment_order_ready` events. Occurs whenever a fulfillment order which was scheduled becomes due. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders. */
   FulfillmentOrdersScheduledFulfillmentOrderReady = 'FULFILLMENT_ORDERS_SCHEDULED_FULFILLMENT_ORDER_READY',
   /** The webhook topic for `inventory_items/create` events. Occurs whenever an inventory item is created. Requires the `read_inventory` scope. */
   InventoryItemsCreate = 'INVENTORY_ITEMS_CREATE',
@@ -44280,6 +44685,15 @@ export const GetLocationsDocument = gql`
   }
 }
     ${LocationDetails}`;
+export const GetShopInformationDocument = gql`
+    query GetShopInformation {
+  shop {
+    name
+    email
+    currencyCode
+  }
+}
+    `;
 export const GetStorefrontAccessTokensDocument = gql`
     query GetStorefrontAccessTokens {
   shop {
@@ -44297,7 +44711,7 @@ export const GetStorefrontAccessTokensDocument = gql`
     `;
 export const WebhooksDocument = gql`
     query Webhooks($after: String) {
-  webhookSubscriptions(first: 10, after: $after) {
+  webhookSubscriptions(first: 25, after: $after) {
     pageInfo {
       hasNextPage
       endCursor
@@ -44374,6 +44788,11 @@ export type GetLocationsQueryVariables = Exact<{
 
 
 export type GetLocationsQuery = { __typename?: 'QueryRoot', locations: { __typename?: 'LocationConnection', edges: Array<{ __typename?: 'LocationEdge', cursor: string, node: { __typename?: 'Location', id: string, name: string, isActive: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean } } };
+
+export type GetShopInformationQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetShopInformationQuery = { __typename?: 'QueryRoot', shop: { __typename?: 'Shop', name: string, email: string, currencyCode: CurrencyCode } };
 
 export type GetStorefrontAccessTokensQueryVariables = Exact<{ [key: string]: never; }>;
 

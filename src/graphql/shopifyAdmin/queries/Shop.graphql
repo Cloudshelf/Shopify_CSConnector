@@ -1,0 +1,7 @@
+query GetShopInformation {
+  shop {
+    name
+    email
+    currencyCode
+  }
+}
