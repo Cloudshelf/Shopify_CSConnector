@@ -231,12 +231,14 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
 
         const productGroupIdToExplicitlyCheck = bulkOperationRecord.explicitIds ?? [];
 
+        let runFullSyncLogic = false;
         if (productGroupIdToExplicitlyCheck.length > 0) {
             await this.nobleService.addTimedLogMessage(
                 task,
                 `Explicit Update the following collections: ${JSON.stringify(productGroupIdToExplicitlyCheck)}`,
             );
         } else {
+            runFullSyncLogic = true;
             await this.nobleService.addTimedLogMessage(task, `Full collection update`);
         }
 
@@ -327,49 +329,53 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
 
         await this.cloudshelfApiService.createFirstCloudshelfIfRequired(retailer);
 
-        const groupContentToSave: { id: string }[] = [];
+        if (runFullSyncLogic) {
+            const groupContentToSave: { id: string }[] = [];
 
-        for (const id of allProductGroupShopifyIdsFromThisFile) {
-            if (!productGroupIdsToExplicitlyEnsureDeleted.includes(id)) {
-                groupContentToSave.push({ id });
+            for (const id of allProductGroupShopifyIdsFromThisFile) {
+                if (!productGroupIdsToExplicitlyEnsureDeleted.includes(id)) {
+                    groupContentToSave.push({ id });
+                }
             }
-        }
 
-        const groupFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_product_groups_${ulid()}.json`;
-        let groupUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
-        if (!groupUrl.endsWith('/')) {
-            groupUrl += '/';
-        }
-        groupUrl += `${groupFileName}`;
+            const groupFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_product_groups_${ulid()}.json`;
+            let groupUrl = `${this.cloudflareConfigService.get<string>('CLOUDFLARE_R2_PUBLIC_ENDPOINT')}`;
+            if (!groupUrl.endsWith('/')) {
+                groupUrl += '/';
+            }
+            groupUrl += `${groupFileName}`;
 
-        const didVariantFileUpload = await S3Utils.UploadJsonFile(
-            JSON.stringify(groupContentToSave),
-            'product-deletion-payloads',
-            groupFileName,
-        );
+            const didGroupFileUpload = await S3Utils.UploadJsonFile(
+                JSON.stringify(groupContentToSave),
+                'product-deletion-payloads',
+                groupFileName,
+            );
 
-        if (didVariantFileUpload) {
-            await this.cloudshelfApiService.keepKnownProductGroupsViaFile(retailer.domain, groupUrl);
+            if (didGroupFileUpload) {
+                await this.cloudshelfApiService.keepKnownProductGroupsViaFile(retailer.domain, groupUrl);
+            }
         }
 
         await this.nobleService.addTimedLogMessage(task, `Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
 
-        const input = {
-            knownNumberOfProductGroups: productGroupInputs.length,
-            knownNumberOfProducts: undefined,
-            knownNumberOfProductVariants: undefined,
-            knownNumberOfImages: undefined,
-        };
-        await this.nobleService.addTimedLogMessage(
-            task,
-            `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
-            true,
-        );
+        if (runFullSyncLogic) {
+            const input = {
+                knownNumberOfProductGroups: productGroupInputs.length,
+                knownNumberOfProducts: undefined,
+                knownNumberOfProductVariants: undefined,
+                knownNumberOfImages: undefined,
+            };
+            await this.nobleService.addTimedLogMessage(
+                task,
+                `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
+                true,
+            );
 
-        await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
-            await this.nobleService.addTimedLogMessage(task, logMessage, true);
-        });
+            await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
+                await this.nobleService.addTimedLogMessage(task, logMessage, true);
+            });
+        }
         await handleComplete(retailer);
     }
 }
