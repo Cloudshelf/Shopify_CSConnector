@@ -47,6 +47,7 @@ type Mutation {
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   reprocessBulkOperation(opId: String!, token: String!): Boolean!
   restartTask(id: String!): Boolean!
+  sendAllRetailerToCloudshelf(token: String!): Boolean!
 }
 
 union NobleTaskDataUnion = CollectionConsumerTaskData | CollectionTriggerTaskData | DebugErrorJobData | DebugJobData | LocationJobData | ProductConsumerTaskData | ProductTriggerTaskData

@@ -326,4 +326,16 @@ export class ToolsService {
             }
         }
     }
+
+    async sendAllRetailersToCloudshelf() {
+        const retailers = await this.entityManager.find(RetailerEntity, {});
+
+        for (const retailer of retailers) {
+            try {
+                await this.cloudshelfApiService.upsertStore(retailer);
+            } catch (e) {
+                this.logger.error(`Failed to send retailer to cloudshelf for ${retailer.domain}`);
+            }
+        }
+    }
 }
