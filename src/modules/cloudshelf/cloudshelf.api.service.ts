@@ -149,12 +149,18 @@ export class CloudshelfApiService {
     async upsertStore(retailer: RetailerEntity): Promise<void> {
         const timestamp = new Date().getTime().toString();
         const authedClient = await this.getCloudshelfAPIApolloClient(retailer.domain);
+
+        let storeName = retailer.displayName ?? retailer.domain;
+        if (storeName.toLowerCase().trim() === 'my store') {
+            storeName = `${storeName} (${retailer.domain})`;
+        }
+
         const upsertStoreMutation = await authedClient.mutate<UpsertStoreMutation, UpsertStoreMutationVariables>({
             mutation: UpsertStoreDocument,
             variables: {
                 input: {
                     domain: retailer.domain,
-                    displayName: retailer.displayName,
+                    displayName: storeName,
                     accessToken: retailer.accessToken,
                     scopes: retailer.scopes,
                     storefrontAccessToken: retailer.storefrontToken,
