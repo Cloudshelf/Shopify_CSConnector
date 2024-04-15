@@ -787,6 +787,15 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "sync_error_code": {
+          "name": "sync_error_code",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
         }
       },
       "name": "retailer_entity",
