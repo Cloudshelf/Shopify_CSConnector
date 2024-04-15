@@ -20,6 +20,7 @@ import { NobleTaskErrorEntity } from "./noble.task.error.entity";
 import { JobDataUnion } from "./noble.task.data";
 import { Cron } from "@nestjs/schedule";
 import { BulkOperation } from "../data-ingestion/bulk.operation.entity";
+import { RetailerEntity } from "../retailer/retailer.entity";
 
 @Injectable()
 export class NobleService implements BeforeApplicationShutdown, OnApplicationBootstrap {
@@ -459,6 +460,16 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                     console.log(`Failed to process task with type ${taskType}: ${errStr}`);
                     await this.addTimedLogMessage(task, `Failed to process task with type ${taskType}`, true);
                     await this.markRetryNeeded(task, errStr);
+
+                    if(task.organisationId) {
+                        if (err.message.toLocaleString().includes('received status code 402')) {
+                            const foundOrg = await this.entityManager.findOne(RetailerEntity, { id: task.organisationId });
+                            if (foundOrg) {
+                                foundOrg.syncErrorCode = '402';
+                                await this.entityManager.persistAndFlush(foundOrg);
+                            }
+                        }
+                    }
                 }
             } finally {
                 if (task) {

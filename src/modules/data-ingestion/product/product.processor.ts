@@ -250,6 +250,8 @@ export class ProductProcessor implements OnApplicationBootstrap {
             throw new Error(`Retailer for bulk operation no longer exists. ${JSON.stringify(bulkOperationRecord)}`);
         }
 
+        retailer.syncErrorCode = null;
+
         if (!bulkOperationRecord.dataUrl || bulkOperationRecord.status !== BulkOperationStatus.Completed) {
             await this.nobleService.addTimedLogMessage(
                 task,

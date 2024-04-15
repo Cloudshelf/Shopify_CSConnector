@@ -46,6 +46,9 @@ export class RetailerEntity extends BaseEntity {
     @Property({ type: 'text', nullable: true })
     logoUrlFromShopify: string | null;
 
+    @Property({ type: 'text', nullable: true })
+    syncErrorCode: string | null;
+
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');
     }

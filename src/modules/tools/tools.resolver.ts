@@ -29,6 +29,20 @@ export class ToolsResolver {
     // }
 
     @Mutation(() => GraphQLBoolean)
+    async forceSyncIssueNotfication(
+        @Args({ name: 'token', type: () => GraphQLString })
+        token: string,
+    ): Promise<boolean> {
+        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
+            throw new Error('Unauthorized access to tools graphql');
+        }
+
+        await this.retailerService.checkAndReportSyncIssues();
+
+        return true;
+    }
+
+    @Mutation(() => GraphQLBoolean)
     async sendAllRetailerToCloudshelf(
         @Args({ name: 'token', type: () => GraphQLString })
         token: string,
