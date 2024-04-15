@@ -47,6 +47,7 @@ export class RetailerService {
             lastSafetySyncCompleted: {
                 $lt: new Date(Date.now() - 48 * 60 * 60 * 1000),
             },
+            syncErrorCode: { $ne: null },
         });
 
         const data = retailers.map(r => {

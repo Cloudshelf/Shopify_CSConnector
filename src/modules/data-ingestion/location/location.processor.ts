@@ -75,6 +75,8 @@ export class LocationProcessor implements OnApplicationBootstrap {
             throw new Error(`Retailer does not exist for id "${task.organisationId}"`);
         }
 
+        retailer.syncErrorCode = null;
+
         await this.nobleService.addTimedLogMessage(task, `Asking shopify for locations`);
         let hasNextPage = true;
         let cursor: string | null = null;
