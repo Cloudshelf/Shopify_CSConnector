@@ -29,7 +29,7 @@ export class ToolsResolver {
     // }
 
     @Mutation(() => GraphQLBoolean)
-    async forceSyncIssueNotfication(
+    async forceSyncIssueNotification(
         @Args({ name: 'token', type: () => GraphQLString })
         token: string,
     ): Promise<boolean> {
