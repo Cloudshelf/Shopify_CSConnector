@@ -48,7 +48,7 @@ export class BulkOperationService {
         retailer: RetailerEntity,
         logFn?: (s: string) => void,
     ): Promise<{ status: BulkOperationStatus; id: string } | undefined> {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer, logFn);
 
         const result = await graphqlClient.query<CurrentBulkOperationQuery, CurrentBulkOperationQueryVariables>({
             query: CurrentBulkOperationDocument,

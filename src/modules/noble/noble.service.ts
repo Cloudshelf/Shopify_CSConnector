@@ -21,6 +21,7 @@ import { JobDataUnion } from "./noble.task.data";
 import { Cron } from "@nestjs/schedule";
 import { BulkOperation } from "../data-ingestion/bulk.operation.entity";
 import { RetailerEntity } from "../retailer/retailer.entity";
+import { CloudshelfApiService } from "../cloudshelf/cloudshelf.api.service";
 
 @Injectable()
 export class NobleService implements BeforeApplicationShutdown, OnApplicationBootstrap {
@@ -37,6 +38,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
         private readonly entityManager: EntityManager,
         private readonly configService: ConfigService<typeof runtimeSchema>,
         private readonly cls: ClsService,
+      private readonly cloudshelfApiService: CloudshelfApiService,
     ) {}
 
     @Cron('*/5 * * * *', { name: 'restart-stuck-jobs', timeZone: 'Europe/London' })
@@ -455,19 +457,24 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                 }
             } catch (err) {
                 // Sentry.captureException(err);
-                if (task) {
+                if (task !== undefined) {
                     const errStr = JSON.stringify(err, Object.getOwnPropertyNames(err));
                     console.log(`Failed to process task with type ${taskType}: ${errStr}`);
                     await this.addTimedLogMessage(task, `Failed to process task with type ${taskType}`, true);
                     await this.markRetryNeeded(task, errStr);
 
                     if(task.organisationId) {
-                        if (err.message.toLocaleString().includes('received status code 402')) {
+                        if (err.message.toLowerCase().includes('received status code 402')) {
                             const foundOrg = await this.entityManager.findOne(RetailerEntity, { id: task.organisationId });
                             if (foundOrg) {
                                 foundOrg.syncErrorCode = '402';
-                                await this.entityManager.persistAndFlush(foundOrg);
+                                this.entityManager.persist(foundOrg);
+
+                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true}, async logMessage => {
+                                    await this.addTimedLogMessage(task!, logMessage, true);
+                                });
                             }
+
                         }
                     }
                 }

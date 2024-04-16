@@ -123,6 +123,8 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             throw new Error(`Retailer does not exist for id "${task.organisationId}"`);
         }
 
+        retailer.syncErrorCode = null;
+
         const currentBulkOperation = await this.bulkOperationService.checkForRunningBulkOperationByRetailer(
             retailer,
             (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),

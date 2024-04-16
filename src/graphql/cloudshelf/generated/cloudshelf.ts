@@ -39,14 +39,12 @@ export enum Animation {
 
 export type AttributeValue = {
   __typename?: 'AttributeValue';
-  categoryIds: Array<Scalars['String']['output']>;
   parentFilterId?: Maybe<Scalars['String']['output']>;
   priority: Scalars['Float']['output'];
   value: Scalars['String']['output'];
 };
 
 export type AttributeValueInput = {
-  categoryIds: Array<Scalars['String']['input']>;
   parentFilterId?: InputMaybe<Scalars['String']['input']>;
   priority?: Scalars['Float']['input'];
   value: Scalars['String']['input'];
@@ -156,7 +154,9 @@ export enum CheckoutExperience {
 
 /** Selects what checkout flow the customers will see. */
 export enum CheckoutFlow {
-  /** Users will be taken through the Shopify checkout flow. */
+  /** Users will be taken through the online Salesforce B2C checkout flow. */
+  SalesforceB2C = 'SALESFORCE_B2C',
+  /** Users will be taken through the online Shopify checkout flow. */
   Shopify = 'SHOPIFY',
   /** Users will have the basket transferred to a third party service. */
   TransferBasket = 'TRANSFER_BASKET',
@@ -1146,6 +1146,8 @@ export type DraftOrderInput = {
 export enum ECommercePlatform {
   /** The organisation is connected to Cloudshelf via a custom integration */
   Custom = 'CUSTOM',
+  /** The organisation is connected to Cloudshelf via the Salesforce B2C Cartridge */
+  SalesforceB2C = 'SALESFORCE_B2C',
   /** The organisation is connected to Cloudshelf via the Cloudshelf Shopify app */
   Shopify = 'SHOPIFY',
   /** A internal value for when the eCommerce platform is unknown */
@@ -1349,6 +1351,8 @@ export enum ImageAnchor {
   Center = 'CENTER',
   /** Anchor the images at the left */
   Left = 'LEFT',
+  /** No anchor point. */
+  None = 'NONE',
   /** Anchor the images at the right */
   Right = 'RIGHT',
   /** Anchor the images at the top */
@@ -1699,6 +1703,7 @@ export type MutationCreateTrackedUrlArgs = {
 
 
 export type MutationCreateUserAndOrganisationForCustomIntegrationArgs = {
+  eCommercePlatform?: InputMaybe<ECommercePlatform>;
   email: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
   lastName: Scalars['String']['input'];
@@ -1825,6 +1830,7 @@ export type MutationReportCatalogStatsArgs = {
   knownNumberOfProductGroups?: InputMaybe<Scalars['Int']['input']>;
   knownNumberOfProductVariants?: InputMaybe<Scalars['Int']['input']>;
   knownNumberOfProducts?: InputMaybe<Scalars['Int']['input']>;
+  retailerClosed?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -2222,6 +2228,7 @@ export type Organisation = {
   installCompleted: Scalars['Boolean']['output'];
   installInformation: InstallInformation;
   installSurveyAnswers?: Maybe<Scalars['String']['output']>;
+  isClosed: Scalars['Boolean']['output'];
   /** The date and time this organisation received ingestion data */
   lastIngestionDataDate?: Maybe<Scalars['DateTime']['output']>;
   lastReportedCatalogStatsForImages?: Maybe<CatalogStats>;
@@ -2450,6 +2457,8 @@ export type ProductEdge = {
 /** A group of products, usually a category or a brand. */
 export type ProductGroup = {
   __typename?: 'ProductGroup';
+  /** The content associated with this product group. */
+  content?: Maybe<Array<CloudshelfContent>>;
   /** The date and time this entity was created. */
   createdAt: Scalars['DateTime']['output'];
   /** The name of the product group. */
@@ -2741,7 +2750,6 @@ export type Query = {
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
   syncStats: SyncStatsPayload;
   testFilters: Scalars['Boolean']['output'];
-  testProdGroup: Scalars['Boolean']['output'];
   /** Returns a theme entity */
   theme?: Maybe<Theme>;
   /** Returns a paginated array of Themes */
@@ -3310,6 +3318,7 @@ export type SwatchInput = {
 
 export type SyncStatsPayload = {
   __typename?: 'SyncStatsPayload';
+  isClosed?: Maybe<Scalars['Boolean']['output']>;
   lastIngestionDataDate?: Maybe<Scalars['DateTime']['output']>;
   lastReportedCatalogStatsForImages?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
@@ -3348,6 +3357,10 @@ export type Theme = {
   createdAt: Scalars['DateTime']['output'];
   /** The name of the theme. */
   displayName: Scalars['String']['output'];
+  dynamicProductGridIncludeHero: Scalars['Boolean']['output'];
+  dynamicProductGridIncludeSquare: Scalars['Boolean']['output'];
+  dynamicProductGridIncludeTall: Scalars['Boolean']['output'];
+  dynamicProductGridIncludeWide: Scalars['Boolean']['output'];
   headingFont: ThemeFont;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -3368,7 +3381,7 @@ export type Theme = {
   /** A boolean value indicating whether or not the Cloudshelf branding should be removed. */
   removeCloudshelfBranding: Scalars['Boolean']['output'];
   subheadingFont: ThemeFont;
-  tileSizeModifier: Scalars['Float']['output'];
+  tileSize: TileSize;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -3418,6 +3431,10 @@ export type ThemeInput = {
   blocksRounded?: InputMaybe<Scalars['Boolean']['input']>;
   bodyFont?: InputMaybe<ThemeFontInput>;
   displayName?: InputMaybe<Scalars['String']['input']>;
+  dynamicProductGridIncludeHero?: InputMaybe<Scalars['Boolean']['input']>;
+  dynamicProductGridIncludeSquare?: InputMaybe<Scalars['Boolean']['input']>;
+  dynamicProductGridIncludeTall?: InputMaybe<Scalars['Boolean']['input']>;
+  dynamicProductGridIncludeWide?: InputMaybe<Scalars['Boolean']['input']>;
   headingFont?: InputMaybe<ThemeFontInput>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
@@ -3429,7 +3446,7 @@ export type ThemeInput = {
   purchaseColor?: InputMaybe<Scalars['String']['input']>;
   removeCloudshelfBranding?: InputMaybe<Scalars['Boolean']['input']>;
   subheadingFont?: InputMaybe<ThemeFontInput>;
-  tileSizeModifier?: InputMaybe<Scalars['Float']['input']>;
+  tileSize?: InputMaybe<TileSize>;
 };
 
 export type ThemePageInfo = {
@@ -3467,6 +3484,20 @@ export type ThemeUpsertPayload = {
   /** An array of errors that occurred during the upsert operation */
   userErrors: Array<UserError>;
 };
+
+/** The default size your product tiles will use, hero sizes will be larger than the standard size selected here */
+export enum TileSize {
+  /** 2x2 */
+  Hero = 'HERO',
+  /** A dynamic grid */
+  Mixed = 'MIXED',
+  /** 1x1 */
+  Square = 'SQUARE',
+  /** 2x1 */
+  Tall = 'TALL',
+  /** 2x1 */
+  Wide = 'WIDE'
+}
 
 export enum TouchIndicator {
   BouncingArrow = 'BOUNCING_ARROW',
@@ -3752,12 +3783,13 @@ export type WebhookUnregisterInput = {
 
 
 export const ReportCatalogStatsDocument = gql`
-    mutation reportCatalogStats($knownNumberOfImages: Int, $knownNumberOfProductGroups: Int, $knownNumberOfProductVariants: Int, $knownNumberOfProducts: Int) {
+    mutation reportCatalogStats($knownNumberOfImages: Int, $knownNumberOfProductGroups: Int, $knownNumberOfProductVariants: Int, $knownNumberOfProducts: Int, $retailerClosed: Boolean) {
   reportCatalogStats(
     knownNumberOfImages: $knownNumberOfImages
     knownNumberOfProductGroups: $knownNumberOfProductGroups
     knownNumberOfProductVariants: $knownNumberOfProductVariants
     knownNumberOfProducts: $knownNumberOfProducts
+    retailerClosed: $retailerClosed
   )
 }
     `;
@@ -3961,6 +3993,7 @@ export type ReportCatalogStatsMutationVariables = Exact<{
   knownNumberOfProductGroups?: InputMaybe<Scalars['Int']['input']>;
   knownNumberOfProductVariants?: InputMaybe<Scalars['Int']['input']>;
   knownNumberOfProducts?: InputMaybe<Scalars['Int']['input']>;
+  retailerClosed?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
