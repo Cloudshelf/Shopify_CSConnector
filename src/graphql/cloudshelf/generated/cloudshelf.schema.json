@@ -66,30 +66,6 @@
         "description": null,
         "fields": [
           {
-            "name": "categoryIds",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "parentFilterId",
             "description": null,
             "args": [],
@@ -145,30 +121,6 @@
         "description": null,
         "fields": null,
         "inputFields": [
-          {
-            "name": "categoryIds",
-            "description": null,
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
           {
             "name": "parentFilterId",
             "description": null,
@@ -1006,8 +958,14 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "SALESFORCE_B2C",
+            "description": "Users will be taken through the online Salesforce B2C checkout flow.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "SHOPIFY",
-            "description": "Users will be taken through the Shopify checkout flow.",
+            "description": "Users will be taken through the online Shopify checkout flow.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -6873,6 +6831,12 @@
             "deprecationReason": null
           },
           {
+            "name": "SALESFORCE_B2C",
+            "description": "The organisation is connected to Cloudshelf via the Salesforce B2C Cartridge",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "SHOPIFY",
             "description": "The organisation is connected to Cloudshelf via the Cloudshelf Shopify app",
             "isDeprecated": false,
@@ -8669,6 +8633,12 @@
             "deprecationReason": null
           },
           {
+            "name": "NONE",
+            "description": "No anchor point.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "RIGHT",
             "description": "Anchor the images at the right",
             "isDeprecated": false,
@@ -10456,6 +10426,18 @@
             "description": null,
             "args": [
               {
+                "name": "eCommercePlatform",
+                "description": null,
+                "type": {
+                  "kind": "ENUM",
+                  "name": "ECommercePlatform",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "email",
                 "description": null,
                 "type": {
@@ -11507,6 +11489,18 @@
                 "type": {
                   "kind": "SCALAR",
                   "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "retailerClosed",
+                "description": "Reporting if the retailer has been closed (forced to false if other values are provided)",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -14669,6 +14663,22 @@
             "deprecationReason": null
           },
           {
+            "name": "isClosed",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "lastIngestionDataDate",
             "description": "The date and time this organisation received ingestion data",
             "args": [],
@@ -16410,6 +16420,26 @@
         "name": "ProductGroup",
         "description": "A group of products, usually a category or a brand.",
         "fields": [
+          {
+            "name": "content",
+            "description": "The content associated with this product group.",
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "CloudshelfContent",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "createdAt",
             "description": "The date and time this entity was created.",
@@ -19984,22 +20014,6 @@
             "deprecationReason": null
           },
           {
-            "name": "testProdGroup",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Boolean",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "theme",
             "description": "Returns a theme entity",
             "args": [
@@ -22639,6 +22653,18 @@
         "description": null,
         "fields": [
           {
+            "name": "isClosed",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "lastIngestionDataDate",
             "description": null,
             "args": [],
@@ -22990,6 +23016,70 @@
             "deprecationReason": null
           },
           {
+            "name": "dynamicProductGridIncludeHero",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "dynamicProductGridIncludeSquare",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "dynamicProductGridIncludeTall",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "dynamicProductGridIncludeWide",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "headingFont",
             "description": null,
             "args": [],
@@ -23174,15 +23264,15 @@
             "deprecationReason": null
           },
           {
-            "name": "tileSizeModifier",
+            "name": "tileSize",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "Float",
+                "kind": "ENUM",
+                "name": "TileSize",
                 "ofType": null
               }
             },
@@ -23589,6 +23679,54 @@
             "deprecationReason": null
           },
           {
+            "name": "dynamicProductGridIncludeHero",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "dynamicProductGridIncludeSquare",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "dynamicProductGridIncludeTall",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "dynamicProductGridIncludeWide",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "headingFont",
             "description": null,
             "type": {
@@ -23709,11 +23847,11 @@
             "deprecationReason": null
           },
           {
-            "name": "tileSizeModifier",
+            "name": "tileSize",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "Float",
+              "kind": "ENUM",
+              "name": "TileSize",
               "ofType": null
             },
             "defaultValue": null,
@@ -23971,6 +24109,47 @@
         "inputFields": null,
         "interfaces": [],
         "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "TileSize",
+        "description": "The default size your product tiles will use, hero sizes will be larger than the standard size selected here",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "HERO",
+            "description": "2x2",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "MIXED",
+            "description": "A dynamic grid",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "SQUARE",
+            "description": "1x1",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "TALL",
+            "description": "2x1",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "WIDE",
+            "description": "2x1",
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
         "possibleTypes": null
       },
       {

@@ -491,6 +491,7 @@ export class CloudshelfApiService {
             knownNumberOfProducts?: number;
             knownNumberOfProductVariants?: number;
             knownNumberOfImages?: number;
+            storeClosed?: boolean;
         },
         log?: (logMessage: string) => Promise<void>,
     ) {
@@ -506,6 +507,7 @@ export class CloudshelfApiService {
                 knownNumberOfProducts: input.knownNumberOfProducts,
                 knownNumberOfProductVariants: input.knownNumberOfProductVariants,
                 knownNumberOfImages: input.knownNumberOfImages,
+                retailerClosed: input.storeClosed,
             },
         });
 

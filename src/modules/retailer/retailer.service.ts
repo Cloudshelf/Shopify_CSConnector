@@ -42,12 +42,21 @@ export class RetailerService {
 
     @CreateRequestContext()
     async checkAndReportSyncIssues() {
-        //find any retailers where the lastSafetySyncCompleted was more than 48 hours ago
+        //find any retailers where the lastSafetySyncCompleted was more than 48 hours ago (or its null) AND there is not a sync error code
         const retailers = await this.entityManager.find(RetailerEntity, {
-            lastSafetySyncCompleted: {
-                $lt: new Date(Date.now() - 48 * 60 * 60 * 1000),
-            },
-            syncErrorCode: { $ne: null },
+            $or: [
+                {
+                    lastSafetySyncCompleted: {
+                        $lt: new Date(Date.now() - 48 * 60 * 60 * 1000),
+                    },
+                },
+                {
+                    lastSafetySyncCompleted: {
+                        $eq: null,
+                    },
+                },
+            ],
+            syncErrorCode: { $eq: null },
         });
 
         const data = retailers.map(r => {

@@ -42,6 +42,7 @@ type LocationJobData {
 type Mutation {
   deleteAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   deleteTask(id: String!): Boolean!
+  forceSyncIssueNotfication(token: String!): Boolean!
   getRetailerInfoWhereNull(token: String!): Boolean!
   promoteTask(id: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!

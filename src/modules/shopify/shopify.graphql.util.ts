@@ -5,7 +5,10 @@ import { createShopifyRetryLink } from './throttling/shopify.throttling.error.li
 
 export class ShopifyGraphqlUtil {
     static async getShopifyAdminApolloClientByRetailer(retailer: RetailerEntity, logFn?: (s: string) => void) {
-        return this.getShopifyAdminApolloClient(retailer.domain, retailer.accessToken, logFn);
+        const domain = retailer.domain;
+        const accessToken = retailer.accessToken;
+
+        return this.getShopifyAdminApolloClient(domain, accessToken, logFn);
     }
 
     static async getShopifyAdminApolloClient(
