@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { DataIngestionModule } from '../data-ingestion/data.ingestion.module';
 import { IntegrationsModule } from '../integrations/integrations.module';
@@ -7,7 +7,7 @@ import { ToolsResolver } from './tools.resolver';
 import { ToolsService } from './tools.service';
 
 @Module({
-    imports: [RetailerModule, DataIngestionModule, IntegrationsModule, CloudshelfModule],
+    imports: [RetailerModule, forwardRef(() => DataIngestionModule), IntegrationsModule, CloudshelfModule],
     providers: [ToolsService, ToolsResolver],
     controllers: [],
     exports: [ToolsService],
