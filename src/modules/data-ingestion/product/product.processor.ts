@@ -187,13 +187,14 @@ export class ProductProcessor implements OnApplicationBootstrap {
         );
 
         if (currentBulkOperation) {
-            await this.nobleService.addTimedLogMessage(
-                task,
-                `Shopify is already running a bulk operation for this store. ${JSON.stringify(currentBulkOperation)}`,
-                true,
-            );
-
             if (currentBulkOperation.status === BulkOperationStatus.Running) {
+                await this.nobleService.addTimedLogMessage(
+                    task,
+                    `Shopify is already running a bulk operation for this store. ${JSON.stringify(
+                        currentBulkOperation,
+                    )}`,
+                    true,
+                );
                 //if an existing bulk operation is running, we simply reschedule this one
                 await this.nobleService.rescheduleTask(task, addSeconds(new Date(), 120));
                 return;
@@ -310,15 +311,10 @@ export class ProductProcessor implements OnApplicationBootstrap {
         for await (const productsInJsonLChunk of JsonLUtils.readJsonlChunked(tempFile, chunkSize)) {
             await this.nobleService.addTimedLogMessage(task, `--- Chunk Started ---`);
 
-            const shopifyIdsForThisChunk = productsInJsonLChunk.map((p: any) => p.id);
-            allProductShopifyIdsFromThisFile.push(...shopifyIdsForThisChunk);
-
-            await this.nobleService.addTimedLogMessage(task, `Ids in Chunk: ${JSON.stringify(shopifyIdsForThisChunk)}`);
-
-            //
             for (const productInJsonL of productsInJsonLChunk) {
                 const product = productInJsonL as any;
                 const productId = GlobalIDUtils.gidConverter(product.id, 'ShopifyProduct')!;
+                allProductShopifyIdsFromThisFile.push(productId);
 
                 if (product.status.toLowerCase() !== 'active' || !product.publishedOnCurrentPublication) {
                     await this.nobleService.addTimedLogMessage(
@@ -427,7 +423,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                     };
 
                     imageCount += metaimages.length;
-                    allVariantShopifyIdsFromThisFile.push(variant.id);
+                    allVariantShopifyIdsFromThisFile.push(ProductVariantInput.id);
 
                     const existingVariantInput = variantInputs.find(v => v.productId === productId);
                     if (existingVariantInput) {
@@ -482,7 +478,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
             //all the IDS that exist in allProductShopifyIdsFromThisFile and do not exist in productIdsToExplicitlyEnsureDeleted should added to contentToSave
             for (const id of allProductShopifyIdsFromThisFile) {
                 if (!productIdsToExplicitlyEnsureDeleted.includes(id)) {
-                    productContentToSave.push({ id: GlobalIDUtils.gidConverter(id, 'ShopifyProduct')! });
+                    productContentToSave.push({ id: id });
                 }
             }
 
@@ -508,9 +504,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
             const variantContentToSave: { id: string }[] = [];
 
             for (const id of allVariantShopifyIdsFromThisFile) {
-                if (!productIdsToExplicitlyEnsureDeleted.includes(id)) {
-                    variantContentToSave.push({ id: GlobalIDUtils.gidConverter(id, 'ShopifyProductVariant')! });
-                }
+                variantContentToSave.push({ id: id });
             }
 
             const variantFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_variants_${ulid()}.json`;

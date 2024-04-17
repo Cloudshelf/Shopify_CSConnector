@@ -131,13 +131,15 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         );
 
         if (currentBulkOperation) {
-            await this.nobleService.addTimedLogMessage(
-                task,
-                `Shopify is already running a bulk operation for this store. ${JSON.stringify(currentBulkOperation)}`,
-                true,
-            );
-
             if (currentBulkOperation.status === BulkOperationStatus.Running) {
+                await this.nobleService.addTimedLogMessage(
+                    task,
+                    `Shopify is already running a bulk operation for this store. ${JSON.stringify(
+                        currentBulkOperation,
+                    )}`,
+                    true,
+                );
+
                 //if an existing bulk operation is running, we simply reschedule this one
                 await this.nobleService.rescheduleTask(task, addSeconds(new Date(), 120));
                 return;
