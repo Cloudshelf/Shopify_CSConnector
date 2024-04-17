@@ -21,6 +21,7 @@ import { NobleTaskEntity } from '../../noble/noble.task.entity';
 import { NobleTaskType } from '../../noble/noble.task.type';
 import { RetailerEntity } from '../../retailer/retailer.entity';
 import { RetailerService } from '../../retailer/retailer.service';
+import { ToolsService } from '../../tools/tools.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
 import { CollectionJobService } from '../collection/collection.job.service';
@@ -47,6 +48,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
         private readonly collectionJobService: CollectionJobService,
         private readonly webhookQueuedService: WebhookQueuedService,
         private readonly cloudflareConfigService: ConfigService<typeof cloudflareSchema>,
+        private readonly toolsService: ToolsService,
     ) {}
 
     async onApplicationBootstrap() {
@@ -173,6 +175,11 @@ export class ProductProcessor implements OnApplicationBootstrap {
         }
 
         retailer.syncErrorCode = null;
+
+        if (task.data?.installSync) {
+            // If it's a daily sync, we should check we have all the webhooks for this retailer
+            await this.toolsService.registerAllWebhooksForRetailer(retailer);
+        }
 
         const currentBulkOperation = await this.bulkOperationService.checkForRunningBulkOperationByRetailer(
             retailer,

@@ -4,6 +4,7 @@ import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { NobleModule } from '../noble/noble.module';
 import { RetailerModule } from '../retailer/retailer.module';
 import { ShopifyModule } from '../shopify/shopify.module';
+import { ToolsModule } from '../tools/tools.module';
 import { BulkOperation } from './bulk.operation.entity';
 import { BulkOperationService } from './bulk.operation.service';
 import { CollectionJobService } from './collection/collection.job.service';
@@ -23,6 +24,7 @@ import { WebhookQueuedService } from './webhook.queued.service';
         NobleModule,
         RetailerModule,
         CloudshelfModule,
+        ToolsModule,
     ],
     providers: [
         CollectionsProcessor,
