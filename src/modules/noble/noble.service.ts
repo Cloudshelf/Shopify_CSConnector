@@ -459,8 +459,9 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                 // Sentry.captureException(err);
                 if (task !== undefined) {
                     const errStr = JSON.stringify(err, Object.getOwnPropertyNames(err));
-                    console.log(`Failed to process task with type ${taskType}: ${errStr}`);
-                    await this.addTimedLogMessage(task, `Failed to process task with type ${taskType}`, true);
+                    console.log(`Failed to process task with type ${taskType}:${errStr}`);
+
+                    await this.addTimedLogMessage(task, `Failed to process task with type ${taskType} : ${errStr}`, true);
                     await this.markRetryNeeded(task, errStr);
 
                     if(task.organisationId) {
