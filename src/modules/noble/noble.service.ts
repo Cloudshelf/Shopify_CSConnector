@@ -287,6 +287,11 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
     }
 
     async addTimedLogMessage(task: NobleTaskEntity, message: string, forcedLog = false) {
+
+        if(task.organisationId === '01HND084GBP1JGJ5VGYRHG935G') {
+            forcedLog = true;
+        }
+
         if (task.retries >= task.queueMaxRetries || forcedLog) {
             const dateTime = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
             const timedMessage = `[${dateTime}] ${message}`;
