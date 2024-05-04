@@ -477,7 +477,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                                 this.entityManager.persist(foundOrg);
 
                                 await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true}, async logMessage => {
-                                    await this.addTimedLogMessage(task!, logMessage, true);
+                                    await this.addTimedLogMessage(task!, logMessage);
                                 });
                             }
 
