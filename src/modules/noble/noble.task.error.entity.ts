@@ -9,9 +9,9 @@ import { NobleTaskEntity } from './noble.task.entity';
     tableName: 'noble_task_error',
 })
 export class NobleTaskErrorEntity extends BaseEntity {
-    @ManyToOne(() => NobleTaskEntity, { cascade: [Cascade.ALL] })
-    @Field(() => NobleTaskEntity)
-    task: NobleTaskEntity;
+    @ManyToOne(() => NobleTaskEntity, { nullable: true })
+    @Field(() => NobleTaskEntity, { nullable: true })
+    task?: NobleTaskEntity;
 
     @Property({ type: types.blob })
     @Field(() => GraphQLString)

@@ -104,12 +104,12 @@ type NobleTaskEntityPageInfo {
 
 type NobleTaskErrorEntity {
   message: String!
-  task: NobleTaskEntity!
+  task: NobleTaskEntity
 }
 
 type NobleTaskLogEntity {
   message: String!
-  task: NobleTaskEntity!
+  task: NobleTaskEntity
 }
 
 type NobleTaskResponse {

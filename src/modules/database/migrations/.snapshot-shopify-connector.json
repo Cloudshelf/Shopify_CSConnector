@@ -524,7 +524,7 @@
             "id"
           ],
           "referencedTableName": "public.noble_task",
-          "deleteRule": "cascade",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },
@@ -618,7 +618,7 @@
             "id"
           ],
           "referencedTableName": "public.noble_task",
-          "deleteRule": "cascade",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },
