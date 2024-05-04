@@ -495,7 +495,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 productFileName,
             );
 
-            await this.nobleService.addTimedLogMessage(task, `Product deletion file uploaded: ${fileContent}`, true);
+            await this.nobleService.addTimedLogMessage(task, `Product deletion file uploaded: ${fileContent}`);
 
             if (didProductFileUpload) {
                 await this.cloudshelfApiService.keepKnownProductsViaFile(retailer.domain, productUrl);
@@ -539,10 +539,9 @@ export class ProductProcessor implements OnApplicationBootstrap {
             await this.nobleService.addTimedLogMessage(
                 task,
                 `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
-                true,
             );
             await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
-                await this.nobleService.addTimedLogMessage(task, logMessage, true);
+                await this.nobleService.addTimedLogMessage(task, logMessage);
             });
         }
 

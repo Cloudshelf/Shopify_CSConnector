@@ -9,9 +9,9 @@ import { NobleTaskEntity } from './noble.task.entity';
     tableName: 'noble_task_log',
 })
 export class NobleTaskLogEntity extends BaseEntity {
-    @ManyToOne(() => NobleTaskEntity, { cascade: [Cascade.ALL] })
-    @Field(() => NobleTaskEntity)
-    task: NobleTaskEntity;
+    @ManyToOne(() => NobleTaskEntity, { nullable: true })
+    @Field(() => NobleTaskEntity, { nullable: true })
+    task?: NobleTaskEntity;
 
     @Property({ type: types.blob })
     @Field(() => GraphQLString)
