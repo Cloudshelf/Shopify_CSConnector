@@ -22,9 +22,9 @@ export class RequiredWebhooksController {
             username: shopDomain,
         });
 
-        await this.slackService.sendGeneralNotification(
-            NotificationUtils.buildUninstallAttachments(shopDomain, 'redact'),
-        );
+        // await this.slackService.sendGeneralNotification(
+        //     NotificationUtils.buildUninstallAttachments(shopDomain, 'redact'),
+        // );
     }
 
     @Post('/customer_redact')
