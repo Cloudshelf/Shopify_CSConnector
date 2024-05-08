@@ -493,6 +493,19 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                             }
 
                         }
+
+                        if (err.message.toLowerCase().includes('received status code 401')) {
+                            const foundOrg = await this.entityManager.findOne(RetailerEntity, { id: task.organisationId });
+                            if (foundOrg) {
+                                foundOrg.syncErrorCode = '401';
+                                this.entityManager.persist(foundOrg);
+
+                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true}, async logMessage => {
+                                    await this.addTimedLogMessage(task!, logMessage);
+                                });
+                            }
+
+                        }
                     }
                 }
             } finally {
