@@ -13,10 +13,10 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
   GlobalId: { input: any; output: any; }
   Latitude: { input: any; output: any; }
   Longitude: { input: any; output: any; }
+  UTCDateTime: { input: any; output: any; }
 };
 
 /** How to align the entity in the parent's space. */
@@ -71,7 +71,7 @@ export type Banner = {
   backgroundType: BannerBackgroundType;
   cloudshelf: Cloudshelf;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   linkProduct?: Maybe<Scalars['String']['output']>;
@@ -82,7 +82,7 @@ export type Banner = {
   position: Scalars['Int']['output'];
   text: Scalars['String']['output'];
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export enum BannerBackgroundType {
@@ -139,7 +139,7 @@ export type CatalogStats = {
   extraInformation: Scalars['String']['output'];
   numberHeldAtTimeOfReporting: Scalars['Float']['output'];
   /** The key for the value */
-  reportedAt?: Maybe<Scalars['DateTime']['output']>;
+  reportedAt?: Maybe<Scalars['UTCDateTime']['output']>;
 };
 
 /** Selects how the cloudshelf handles the checkout experience. */
@@ -154,6 +154,7 @@ export enum CheckoutExperience {
 
 /** Selects what checkout flow the customers will see. */
 export enum CheckoutFlow {
+  None = 'NONE',
   /** Users will be taken through the online Salesforce B2C checkout flow. */
   SalesforceB2C = 'SALESFORCE_B2C',
   /** Users will be taken through the online Shopify checkout flow. */
@@ -178,7 +179,7 @@ export type Cloudshelf = {
   checkoutFlow: CheckoutFlow;
   content: Array<CloudshelfContent>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   devices: Array<Device>;
   displayDiscountCodeEntry: Scalars['Boolean']['output'];
   displayHomeFrame: Scalars['Boolean']['output'];
@@ -232,13 +233,13 @@ export type Cloudshelf = {
   soldOutLabel?: Maybe<Scalars['String']['output']>;
   theme: Theme;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 
 export type CloudshelfEngagementsArgs = {
-  endDate?: InputMaybe<Scalars['DateTime']['input']>;
-  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  endDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
+  startDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
 };
 
 export type CloudshelfContent = {
@@ -247,7 +248,7 @@ export type CloudshelfContent = {
   configurationIssues: Array<ContentConfigurationIssue>;
   contentType: ContentType;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   displayName: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -267,7 +268,7 @@ export type CloudshelfContent = {
   productGroupIsUpsellContent?: Maybe<Scalars['Boolean']['output']>;
   productGroupUseAlternativeImage?: Maybe<Scalars['Boolean']['output']>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type CloudshelfContentInput = {
@@ -319,8 +320,10 @@ export type CloudshelfEnginePayload = {
   device?: Maybe<Device>;
   engineType: EngineType;
   errorMessage?: Maybe<Scalars['String']['output']>;
+  handoffPayload?: Maybe<HandoffPayload>;
   inMaintenanceMode: Scalars['Boolean']['output'];
   owningOrganisation?: Maybe<Organisation>;
+  plugins: Array<Plugin>;
   salesAssistants: Array<SalesAssistant>;
   status: CloudshelfPayloadStatus;
 };
@@ -455,7 +458,7 @@ export type ComplexSession = {
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   location: Scalars['String']['output'];
-  occurredAt: Scalars['DateTime']['output'];
+  occurredAt: Scalars['UTCDateTime']['output'];
   orderStatus?: Maybe<Scalars['String']['output']>;
   orderUrl?: Maybe<Scalars['String']['output']>;
   salesPerson?: Maybe<Scalars['String']['output']>;
@@ -1028,7 +1031,7 @@ export type Device = {
   barcodeDetectionMethod: BarcodeDetectionMethod;
   cloudshelf?: Maybe<Cloudshelf>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** The uptime records which belong to this organisation. */
   deviceUptimeRecords: Array<DeviceUptimeRecord>;
   displayName: Scalars['String']['output'];
@@ -1041,7 +1044,7 @@ export type Device = {
   engineVersionLastSeen?: Maybe<Scalars['String']['output']>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
-  lastSeen?: Maybe<Scalars['DateTime']['output']>;
+  lastSeen?: Maybe<Scalars['UTCDateTime']['output']>;
   location?: Maybe<Location>;
   owningOrganisation?: Maybe<Organisation>;
   /** An externally provided GlobalId */
@@ -1051,7 +1054,7 @@ export type Device = {
   screenSizeInches: Scalars['Float']['output'];
   status: EngineStatus;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   visibilityType?: Maybe<VisibilityType>;
 };
 
@@ -1122,13 +1125,13 @@ export type DeviceUptimeRecord = {
   __typename?: 'DeviceUptimeRecord';
   count: Scalars['Int']['output'];
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   device: Device;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   owningOrganisation: Organisation;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type DraftOrderInput = {
@@ -1178,7 +1181,7 @@ export type EngineProductWithAdditionalInfo = {
   id: Scalars['GlobalId']['output'];
   images: Array<EngineImageWithVariantInfo>;
   metadata: Array<Metadata>;
-  remoteUpdatedAt: Scalars['DateTime']['output'];
+  remoteUpdatedAt: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   type: Scalars['String']['output'];
@@ -1247,7 +1250,7 @@ export type Filter = {
   __typename?: 'Filter';
   attributeValues: Array<AttributeValue>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   displayName?: Maybe<Scalars['String']['output']>;
   ecommProviderFieldName: Scalars['String']['output'];
   expandedByDefault: Scalars['Boolean']['output'];
@@ -1264,7 +1267,7 @@ export type Filter = {
   priority: Scalars['Int']['output'];
   type: FilterType;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   valueOverrides: Array<AttributeValueOverride>;
 };
 
@@ -1343,6 +1346,12 @@ export enum FilterType {
   Vendor = 'VENDOR'
 }
 
+export type HandoffPayload = {
+  __typename?: 'HandoffPayload';
+  productHandle: Scalars['String']['output'];
+  productOptionId: Scalars['Float']['output'];
+};
+
 /** The anchor point for the images in the theme. This is used to determine how the images are cropped when they don't match the aspect ratio of the container. */
 export enum ImageAnchor {
   /** Anchor the images at the bottom */
@@ -1415,6 +1424,14 @@ export type KeyValuePairInput = {
   value: Scalars['String']['input'];
 };
 
+export enum KnownPlugin {
+  BarcodeReader = 'BARCODE_READER',
+  BookThatApp = 'BOOK_THAT_APP',
+  CloudshelfBasketTransfer = 'CLOUDSHELF_BASKET_TRANSFER',
+  SalesforceBasket = 'SALESFORCE_BASKET',
+  ThirdPartyWeglot = 'THIRD_PARTY_WEGLOT'
+}
+
 export type KnownVersion = {
   __typename?: 'KnownVersion';
   /** A unique internal GlobalId for this entity. */
@@ -1431,7 +1448,7 @@ export type Location = {
   /** The country code of the country of where the location is based. */
   countryCode: CountryCode;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** An array of devices which are located at this location. */
   devices: Array<Device>;
   /** The name of the location. */
@@ -1446,7 +1463,7 @@ export type Location = {
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   salesAssistants: Array<SalesAssistant>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type LocationDeletePayload = {
@@ -1522,7 +1539,7 @@ export type MergedInFilterInput = {
 export type Metadata = {
   __typename?: 'Metadata';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** The value for the key, this can be any string value. Usually either plain string or a stringified JSON object. */
   data: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
@@ -1542,7 +1559,7 @@ export type Metadata = {
   /** The product variant which this metadata is linked too. */
   productVariant?: Maybe<ProductVariant>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   /** The user which this metadata is linked too. */
   user?: Maybe<User>;
 };
@@ -1561,7 +1578,7 @@ export type Metaimage = {
   /** A boolean value that represents if the image was accessible last time it was checked. */
   available: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** The height of the image in pixels. */
   height?: Maybe<Scalars['Int']['output']>;
   /** A unique internal GlobalId for this entity. */
@@ -1580,7 +1597,7 @@ export type Metaimage = {
   /** The quality of the image */
   quality?: Maybe<ImageQuality>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   /** The URL of the image */
   url: Scalars['String']['output'];
   /** The width of the image in pixels. */
@@ -1593,10 +1610,28 @@ export type MetaimageInput = {
   url: Scalars['String']['input'];
 };
 
+export type MobileHandoff = {
+  __typename?: 'MobileHandoff';
+  cloudshelf: Cloudshelf;
+  /** The date and time this entity was created. */
+  createdAt: Scalars['UTCDateTime']['output'];
+  /** A unique internal GlobalId for this entity. */
+  id: Scalars['GlobalId']['output'];
+  isCanceled: Scalars['Boolean']['output'];
+  isScanned: Scalars['Boolean']['output'];
+  productOptionId: Scalars['Float']['output'];
+  shopifyProductHandle: Scalars['String']['output'];
+  /** The date and time this entity was last updated. */
+  updatedAt: Scalars['UTCDateTime']['output'];
+  uploadedImageUrl?: Maybe<Scalars['String']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   /** Adds the given list of products to the product group, if they are not already part of the product group */
   addProductsToProductGroup: Scalars['Boolean']['output'];
+  cancelHandoff: MobileHandoff;
+  createMobileHandoff: MobileHandoff;
   createTrackedURL: TrackedUrlPayload;
   createUserAndOrganisationForCustomIntegration: CustomIntegrationFullSignupResultPayload;
   /** Allows deletion of Cloudshelves */
@@ -1605,6 +1640,8 @@ export type Mutation = {
   deleteDevices: DeviceDeletePayload;
   /** Allows deletion of locations */
   deleteLocations: LocationDeletePayload;
+  /** Deletes a plugin */
+  deletePlugin: Scalars['Boolean']['output'];
   /** Allows deletion of product groups */
   deleteProductGroups: ProductGroupDeletePayload;
   /** Allows the deletion of Products */
@@ -1647,6 +1684,7 @@ export type Mutation = {
   selectCurrentOrganisationAccess: Scalars['Boolean']['output'];
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
+  setHandoffImageUrl: MobileHandoff;
   setPausedNobleQueuesByType: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
@@ -1674,6 +1712,8 @@ export type Mutation = {
   upsertOrders: OrderUpsertPayload;
   /** Allows upserting of an organisation */
   upsertOrganisation: OrganisationUpsertPayload;
+  /** Create or updates a plugin, overriding any previous settings */
+  upsertPlugin: Plugin;
   /** Allows upserting of product groups */
   upsertProductGroups: ProductGroupUpsertPayload;
   upsertProductVariants: ProductVariantUpsertPayload;
@@ -1692,6 +1732,18 @@ export type Mutation = {
 export type MutationAddProductsToProductGroupArgs = {
   productGroupId: Scalars['GlobalId']['input'];
   productIds: Array<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationCancelHandoffArgs = {
+  id: Scalars['GlobalId']['input'];
+};
+
+
+export type MutationCreateMobileHandoffArgs = {
+  cloudshelfId: Scalars['GlobalId']['input'];
+  productHandle: Scalars['String']['input'];
+  productOptionId: Scalars['Int']['input'];
 };
 
 
@@ -1725,6 +1777,11 @@ export type MutationDeleteDevicesArgs = {
 
 export type MutationDeleteLocationsArgs = {
   ids: Array<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationDeletePluginArgs = {
+  id: Scalars['GlobalId']['input'];
 };
 
 
@@ -1864,6 +1921,7 @@ export type MutationRevokeAccessRightArgs = {
 
 
 export type MutationRunInternalToolArgs = {
+  optionalData1?: InputMaybe<Scalars['String']['input']>;
   toolType: Scalars['String']['input'];
 };
 
@@ -1887,6 +1945,12 @@ export type MutationSetActiveVersionArgs = {
   key: Scalars['String']['input'];
   type: VersionType;
   versionString: Scalars['String']['input'];
+};
+
+
+export type MutationSetHandoffImageUrlArgs = {
+  id: Scalars['GlobalId']['input'];
+  imageUrl: Scalars['String']['input'];
 };
 
 
@@ -1967,6 +2031,11 @@ export type MutationUpsertOrganisationArgs = {
 };
 
 
+export type MutationUpsertPluginArgs = {
+  input: PluginInput;
+};
+
+
 export type MutationUpsertProductGroupsArgs = {
   input: Array<ProductGroupInput>;
 };
@@ -2008,12 +2077,12 @@ export type NobleTask = {
   __typename?: 'NobleTask';
   beingProcessedBy?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   data?: Maybe<NobleTaskDataUnion>;
   errors?: Maybe<Array<Scalars['String']['output']>>;
   failed: Scalars['Boolean']['output'];
   /** The time this job started */
-  finishTime: Scalars['DateTime']['output'];
+  finishTime: Scalars['UTCDateTime']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   isComplete: Scalars['Boolean']['output'];
@@ -2024,13 +2093,13 @@ export type NobleTask = {
   processingOnInstance?: Maybe<Scalars['String']['output']>;
   retries: Scalars['Float']['output'];
   /** The date time this job is schedule to run at. Note that this is not a guaranteed time, its simple the earliest it can run. */
-  scheduledStart: Scalars['DateTime']['output'];
+  scheduledStart: Scalars['UTCDateTime']['output'];
   /** The time this job started */
-  startTime: Scalars['DateTime']['output'];
+  startTime: Scalars['UTCDateTime']['output'];
   status: NobleTaskStatus;
   taskType: NobleTaskType;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type NobleTaskDataUnion = FilterExtractionJobData | ShopifySubscriptionCheckData;
@@ -2091,7 +2160,7 @@ export enum NonInteractiveCollectionType {
 export type Order = {
   __typename?: 'Order';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   discountCode?: Maybe<Scalars['String']['output']>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -2101,7 +2170,7 @@ export type Order = {
   status: OrderStatus;
   thirdPartyId?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type OrderEdge = {
@@ -2131,7 +2200,7 @@ export type OrderInput = {
 export type OrderLine = {
   __typename?: 'OrderLine';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   currencyCode: CurrencyCode;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -2146,7 +2215,7 @@ export type OrderLine = {
   productVariantName: Scalars['String']['output'];
   quantity: Scalars['Int']['output'];
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type OrderLineInput = {
@@ -2206,7 +2275,7 @@ export type OrderUpsertPayload = {
 export type Organisation = {
   __typename?: 'Organisation';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** Returns the latest subscription (or null if the organisation has never subscribed) */
   currentSubscription?: Maybe<SubscriptionRecord>;
   /** The uptime records which belong to this organisation. */
@@ -2230,7 +2299,7 @@ export type Organisation = {
   installSurveyAnswers?: Maybe<Scalars['String']['output']>;
   isClosed: Scalars['Boolean']['output'];
   /** The date and time this organisation received ingestion data */
-  lastIngestionDataDate?: Maybe<Scalars['DateTime']['output']>;
+  lastIngestionDataDate?: Maybe<Scalars['UTCDateTime']['output']>;
   lastReportedCatalogStatsForImages?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProducts?: Maybe<CatalogStats>;
@@ -2239,6 +2308,8 @@ export type Organisation = {
   locations: Array<Location>;
   /** The orders which belong to this organisation. */
   orders: Array<Order>;
+  /** The plugin records which belong to this organisation. */
+  plugins: Array<Plugin>;
   /** The product groups which belong to this organisation. */
   productGroups: Array<ProductGroup>;
   /** The products which belong to this organisation. */
@@ -2248,7 +2319,7 @@ export type Organisation = {
   salesAssistantNameRule: SalesAssistantNameRule;
   uninstallStarted: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   users: Array<User>;
   /** An array of KeyValuePairs which contain user provided variables to be used by Cloudshelf or Cloudshelf Extensions. */
   variables: Array<KeyValuePair>;
@@ -2257,8 +2328,8 @@ export type Organisation = {
 
 /** This object represents an organisation, usually a retailer. This object owns all the other data in the system for a given organisation. */
 export type OrganisationEngagementsArgs = {
-  endDate?: InputMaybe<Scalars['DateTime']['input']>;
-  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  endDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
+  startDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
 };
 
 export type OrganisationEdge = {
@@ -2388,6 +2459,57 @@ export type PdpSpacerBlock = {
   style: PdpBlockStyle;
 };
 
+/** This object represents a plugin for a given organisation */
+export type Plugin = {
+  __typename?: 'Plugin';
+  /** The date and time this entity was created. */
+  createdAt: Scalars['UTCDateTime']['output'];
+  /** A unique internal GlobalId for this entity. */
+  id: Scalars['GlobalId']['output'];
+  /** The organisation which owns this entity. */
+  owningOrganisation: Organisation;
+  type: KnownPlugin;
+  /** The date and time this entity was last updated. */
+  updatedAt: Scalars['UTCDateTime']['output'];
+  /** An array of KeyValuePairs which contain user provided variables to be used by this plugin. */
+  variables: Array<KeyValuePair>;
+};
+
+export type PluginEdge = {
+  __typename?: 'PluginEdge';
+  /** The cursor for provided node to be used in pagination */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The Plugin entity */
+  node?: Maybe<Plugin>;
+};
+
+export type PluginInput = {
+  id?: InputMaybe<Scalars['GlobalId']['input']>;
+  type: KnownPlugin;
+  /** An array of variables of the product variant */
+  variables?: InputMaybe<Array<KeyValuePairInput>>;
+};
+
+export type PluginPageInfo = {
+  __typename?: 'PluginPageInfo';
+  /** The cursor for the last node in the page */
+  endCursor?: Maybe<Scalars['String']['output']>;
+  /** Whether or not there is a another page of data */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** Whether or not there is a previous page of data */
+  hasPreviousPage: Scalars['Boolean']['output'];
+  /** The cursor for the first node in the page */
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type PluginPaginatedPayload = {
+  __typename?: 'PluginPaginatedPayload';
+  edges?: Maybe<Array<PluginEdge>>;
+  pageInfo?: Maybe<PluginPageInfo>;
+  /** The total number of items available */
+  totalCount: Scalars['Int']['output'];
+};
+
 export enum PowerTileBackgroundType {
   Gradient = 'GRADIENT',
   Image = 'IMAGE',
@@ -2399,7 +2521,7 @@ export enum PowerTileBackgroundType {
 export type Product = {
   __typename?: 'Product';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** The description of the product */
   description?: Maybe<Scalars['String']['output']>;
   /** The name of the product. */
@@ -2421,11 +2543,11 @@ export type Product = {
   /** An array of product variants which are associated with this product */
   productVariants: Array<ProductVariant>;
   /** The date and time this entity was updated on its eCommerceProvider (this can be null if the retailer chooses not to provider it) */
-  remoteUpdatedAt?: Maybe<Scalars['DateTime']['output']>;
+  remoteUpdatedAt?: Maybe<Scalars['UTCDateTime']['output']>;
   /** An array of tags which are associated with the product */
   tags: Array<Scalars['String']['output']>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   /** The vendor of the product. Usually used for the Brand Name */
   vendor?: Maybe<Scalars['String']['output']>;
 };
@@ -2460,7 +2582,7 @@ export type ProductGroup = {
   /** The content associated with this product group. */
   content?: Maybe<Array<CloudshelfContent>>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** The name of the product group. */
   displayName: Scalars['String']['output'];
   featuredImage?: Maybe<Metaimage>;
@@ -2480,7 +2602,7 @@ export type ProductGroup = {
   /** The products which are members of this product group */
   products: Array<Product>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type ProductGroupDeletePayload = {
@@ -2558,7 +2680,7 @@ export type ProductInput = {
   /** The type of the product */
   productType?: InputMaybe<Scalars['String']['input']>;
   /** The date and time this entity was updated on its eCommerceProvider (this can be null if the retailer chooses not to provider it) */
-  remoteUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  remoteUpdatedAt?: InputMaybe<Scalars['UTCDateTime']['input']>;
   /** An array of tags to attach to the product */
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   /** The vendor of the product */
@@ -2600,7 +2722,7 @@ export type ProductVariant = {
   /** Whether this variant is available to purchase. */
   availableToPurchase: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   currentPrice: Scalars['Float']['output'];
   /** The name of the variant */
   displayName?: Maybe<Scalars['String']['output']>;
@@ -2621,7 +2743,7 @@ export type ProductVariant = {
   product: Product;
   sku?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type ProductVariantDeletionPayload = {
@@ -2697,6 +2819,8 @@ export type Query = {
   engineProducts: EngineProductWithAdditionalInfoPayload;
   /** Returns a Filter entity */
   filter?: Maybe<Filter>;
+  getMobileHandoff?: Maybe<MobileHandoff>;
+  getPresignedCustomisationUrl: Scalars['String']['output'];
   getVersionByType: KnownVersion;
   /** Returns all filters that can possibly be included in the Cloudshelf */
   includeableFilters: Array<CloudshelfIncludableFilter>;
@@ -2727,6 +2851,8 @@ export type Query = {
   /** Returns a paginated array of organisations */
   organisations: OrganisationPaginatedPayload;
   pausedNobleQueues: Array<NobleTaskType>;
+  /** Returns a paginated array of plugins */
+  plugins: PluginPaginatedPayload;
   /** Returns a Product entity. */
   product?: Maybe<Product>;
   /** Returns a Product Group */
@@ -2830,6 +2956,16 @@ export type QueryFilterArgs = {
 };
 
 
+export type QueryGetMobileHandoffArgs = {
+  id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryGetPresignedCustomisationUrlArgs = {
+  type: Scalars['String']['input'];
+};
+
+
 export type QueryGetVersionByTypeArgs = {
   type: VersionType;
 };
@@ -2929,6 +3065,16 @@ export type QueryOrganisationsArgs = {
 };
 
 
+export type QueryPluginsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<SortOptionsInput>;
+  textSearch?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryProductArgs = {
   id: Scalars['GlobalId']['input'];
 };
@@ -2981,11 +3127,11 @@ export type QuerySalesAssistantsArgs = {
 export type QuerySessionsArgs = {
   cloudshelfId?: InputMaybe<Scalars['GlobalId']['input']>;
   deviceId?: InputMaybe<Scalars['GlobalId']['input']>;
-  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  endDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
   includeIncomplete?: InputMaybe<Scalars['Boolean']['input']>;
   includeInternal?: InputMaybe<Scalars['Boolean']['input']>;
   organisationIds?: InputMaybe<Array<Scalars['GlobalId']['input']>>;
-  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  startDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
 };
 
 
@@ -3046,7 +3192,7 @@ export type QueryWebhooksArgs = {
 export type SalesAssistant = {
   __typename?: 'SalesAssistant';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   displayName: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -3057,7 +3203,7 @@ export type SalesAssistant = {
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   thirdPartyReference: Scalars['String']['output'];
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type SalesAssistantDeletePayload = {
@@ -3131,12 +3277,12 @@ export type Session = {
   cloudshelfId?: Maybe<Scalars['String']['output']>;
   cloudshelfName?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   deviceId?: Maybe<Scalars['String']['output']>;
   deviceName?: Maybe<Scalars['String']['output']>;
   duration: Scalars['Float']['output'];
   /** The date and time that this session ended at. */
-  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  endedAt?: Maybe<Scalars['UTCDateTime']['output']>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   /** The number of interactions that took place in this session */
@@ -3154,7 +3300,7 @@ export type Session = {
   status: SessionStatus;
   trackedUrl?: Maybe<TrackedUrl>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   visibilityType: VisibilityType;
 };
 
@@ -3241,7 +3387,7 @@ export type SubscriptionPlan = {
   accessToVideoBanners: Scalars['Boolean']['output'];
   cloudshelfBranded: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   displayName: Scalars['String']['output'];
   displayOrder: Scalars['Int']['output'];
   englishDisplayName: Scalars['String']['output'];
@@ -3252,7 +3398,7 @@ export type SubscriptionPlan = {
   pricePerMonthPerLocation: Scalars['Float']['output'];
   retailerCanSelectThisPlan: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type SubscriptionPlanUsage = {
@@ -3274,7 +3420,7 @@ export type SubscriptionRecord = {
   billingInterval: SubscriptionInterval;
   canRemoveCloudshelfBranding: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   devicesPerLocation: Scalars['Int']['output'];
   freeLocations: Scalars['Int']['output'];
   hubspotDealNumber?: Maybe<Scalars['String']['output']>;
@@ -3288,7 +3434,7 @@ export type SubscriptionRecord = {
   thirdPartyId?: Maybe<Scalars['String']['output']>;
   type: SubscriptionType;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   usage: SubscriptionPlanUsage;
 };
 
@@ -3319,7 +3465,7 @@ export type SwatchInput = {
 export type SyncStatsPayload = {
   __typename?: 'SyncStatsPayload';
   isClosed?: Maybe<Scalars['Boolean']['output']>;
-  lastIngestionDataDate?: Maybe<Scalars['DateTime']['output']>;
+  lastIngestionDataDate?: Maybe<Scalars['UTCDateTime']['output']>;
   lastReportedCatalogStatsForImages?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProducts?: Maybe<CatalogStats>;
@@ -3354,7 +3500,7 @@ export type Theme = {
   /** An array of Cloudshelves that use this theme. */
   cloudshelves: Array<Cloudshelf>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** The name of the theme. */
   displayName: Scalars['String']['output'];
   dynamicProductGridIncludeHero: Scalars['Boolean']['output'];
@@ -3383,7 +3529,7 @@ export type Theme = {
   subheadingFont: ThemeFont;
   tileSize: TileSize;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
 };
 
 export type ThemeDeletePayload = {
@@ -3510,13 +3656,13 @@ export type TrackedUrl = {
   cloudshelfId?: Maybe<Scalars['GlobalId']['output']>;
   cloudshelfName?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   session?: Maybe<Session>;
   status: TrackedUrlStatus;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   url: Scalars['String']['output'];
 };
 
@@ -3565,10 +3711,10 @@ export enum UsageSessionType {
 }
 
 export type UsageSessionsInput = {
-  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  endDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
   queryString?: InputMaybe<Scalars['String']['input']>;
   sessionTypes: Array<UsageSessionType>;
-  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  startDate?: InputMaybe<Scalars['UTCDateTime']['input']>;
 };
 
 export type UsageSessionsResponse = {
@@ -3583,17 +3729,17 @@ export type User = {
   __typename?: 'User';
   actingAs?: Maybe<UserOrganisationAccess>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   email: Scalars['String']['output'];
   firebaseIdentifier?: Maybe<Scalars['String']['output']>;
   firstName: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
-  lastAccess?: Maybe<Scalars['DateTime']['output']>;
+  lastAccess?: Maybe<Scalars['UTCDateTime']['output']>;
   lastName: Scalars['String']['output'];
   metadata: Array<Metadata>;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   userOrganisationAccessRights: Array<UserOrganisationAccess>;
 };
 
@@ -3677,7 +3823,7 @@ export type UserOrganisationAccess = {
   __typename?: 'UserOrganisationAccess';
   apiKey?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   hasAdminAccess: Scalars['Boolean']['output'];
   hasDeleteAccess: Scalars['Boolean']['output'];
   hasWriteAccess: Scalars['Boolean']['output'];
@@ -3686,7 +3832,7 @@ export type UserOrganisationAccess = {
   isCloudshelfStaff: Scalars['Boolean']['output'];
   organisation: Organisation;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   user: User;
 };
 
@@ -3716,13 +3862,13 @@ export enum VisibilityType {
 export type Webhook = {
   __typename?: 'Webhook';
   /** The date and time this entity was created. */
-  createdAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['UTCDateTime']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   owningOrganisation: Organisation;
   subject: WebhookSubject;
   /** The date and time this entity was last updated. */
-  updatedAt: Scalars['DateTime']['output'];
+  updatedAt: Scalars['UTCDateTime']['output'];
   /** The URL to send the webhook payload to */
   url: Scalars['String']['output'];
 };
