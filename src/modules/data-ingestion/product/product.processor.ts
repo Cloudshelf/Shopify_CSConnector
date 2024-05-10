@@ -342,6 +342,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 const productInput: ProductInput = {
                     id: productId!,
                     displayName: product.title,
+                    handle: product.handle,
                     description: product.descriptionHtml,
                     vendor: product.vendor,
                     tags: product.tags,
