@@ -120,23 +120,6 @@ export class ToolsService {
             }
         }
 
-        if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.ProductsUpdate)) {
-            const r4 = await this.registerWebhookForRetailer(
-                retailer,
-                WebhookSubscriptionTopic.ProductsUpdate,
-                `https://${process.env.HOST}/shopify/webhooks`,
-            );
-
-            if (!r4) {
-                this.logger.error(
-                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsUpdate}`,
-                );
-                throw new Error(
-                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsUpdate}`,
-                );
-            }
-        }
-
         if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.ProductsDelete)) {
             const r5 = await this.registerWebhookForRetailer(
                 retailer,
@@ -150,23 +133,6 @@ export class ToolsService {
                 );
                 throw new Error(
                     `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.ProductsDelete}`,
-                );
-            }
-        }
-
-        if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.CollectionsUpdate)) {
-            const r6 = await this.registerWebhookForRetailer(
-                retailer,
-                WebhookSubscriptionTopic.CollectionsUpdate,
-                `https://${process.env.HOST}/shopify/webhooks`,
-            );
-
-            if (!r6) {
-                this.logger.error(
-                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.CollectionsUpdate}`,
-                );
-                throw new Error(
-                    `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.CollectionsUpdate}`,
                 );
             }
         }
