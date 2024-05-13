@@ -16,10 +16,6 @@ import { RetailerEntity } from '../../retailer/retailer.entity';
 import { RetailerService } from '../../retailer/retailer.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
-import { WebhookQueuedDataActionType } from '../webhook.queued.data.action.type';
-import { WebhookQueuedDataContentType } from '../webhook.queued.data.content.type';
-import { WebhookQueuedData } from '../webhook.queued.data.entity';
-import { WebhookQueuedService } from '../webhook.queued.service';
 import axios from 'axios';
 import { addSeconds } from 'date-fns';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -35,7 +31,6 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         private readonly nobleService: NobleService,
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
-        private readonly webhookQueuedService: WebhookQueuedService,
         private readonly cloudflareConfigService: ConfigService<typeof cloudflareSchema>,
     ) {}
 
@@ -147,31 +142,16 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             //in v2 we had a massive check here to cancel a bulk operation... but I don't think the logic makes any sense... so not porting to v3.
         }
 
-        let collectionIds: string[] = [];
-        let queuedWebhooks: WebhookQueuedData[] = [];
-        if (!taskData.installSync) {
-            queuedWebhooks = await this.webhookQueuedService.getAllByDomainAndTypeAndAction(
-                retailer.domain,
-                WebhookQueuedDataContentType.COLLECTION,
-                WebhookQueuedDataActionType.UPDATE,
-            );
-            collectionIds = _.uniq(queuedWebhooks.map(w => w.content));
-        }
-
         //There was no existing bulk operation running on shopify, so we can make one.
-        const queryPayload = await this.buildCollectionTriggerQueryPayload(retailer, collectionIds);
+        const queryPayload = await this.buildCollectionTriggerQueryPayload(retailer, []);
         await this.bulkOperationService.requestBulkOperation(
             retailer,
             BulkOperationType.ProductGroupSync,
-            collectionIds,
+            [],
             queryPayload,
             taskData.installSync,
             (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
         );
-
-        if (queuedWebhooks.length > 0) {
-            await this.webhookQueuedService.delete(queuedWebhooks);
-        }
     }
 
     async syncCollectionsConsumerProcessor(task: NobleTaskEntity) {
