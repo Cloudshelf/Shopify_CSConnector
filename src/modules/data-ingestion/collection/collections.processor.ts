@@ -16,10 +16,7 @@ import { RetailerEntity } from '../../retailer/retailer.entity';
 import { RetailerService } from '../../retailer/retailer.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
-import { WebhookQueuedDataActionType } from '../webhook.queued.data.action.type';
-import { WebhookQueuedDataContentType } from '../webhook.queued.data.content.type';
-import { WebhookQueuedData } from '../webhook.queued.data.entity';
-import { WebhookQueuedService } from '../webhook.queued.service';
+import { ProductJobService } from '../product/product.job.service';
 import axios from 'axios';
 import { addSeconds } from 'date-fns';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -35,8 +32,8 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         private readonly nobleService: NobleService,
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
-        private readonly webhookQueuedService: WebhookQueuedService,
         private readonly cloudflareConfigService: ConfigService<typeof cloudflareSchema>,
+        private readonly productJobService: ProductJobService,
     ) {}
 
     async onApplicationBootstrap() {
@@ -63,23 +60,15 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
         });
     }
 
-    private async buildCollectionTriggerQueryPayload(retailer: RetailerEntity, explicitIds: string[]): Promise<string> {
+    private async buildCollectionTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
         const withPublicationStatus = await retailer.supportsWithPublicationStatus();
         let queryString = '';
 
-        if (explicitIds.length !== 0) {
+        if (changesSince !== undefined) {
             //we want to build an explicit query string
-            queryString = explicitIds
-                .map(collectionId => {
-                    let id = collectionId;
-                    if (id.includes('gid://shopify/Collection/')) {
-                        id = id.replace('gid://shopify/Collection/', '');
-                    }
-                    return `(id:${id})`;
-                })
-                .join(` OR `);
+            queryString = `updated_at:>'${changesSince.toISOString()}'`;
 
-            queryString = `(first: ${explicitIds.length}, query: \"${queryString}\")`;
+            queryString = `(query: \"${queryString}\")`;
         }
 
         return `{
@@ -94,6 +83,7 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
                       url
                     }
                     storefrontId
+                    updatedAt
                     products {
                       edges {
                         node {
@@ -147,31 +137,22 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             //in v2 we had a massive check here to cancel a bulk operation... but I don't think the logic makes any sense... so not porting to v3.
         }
 
-        let collectionIds: string[] = [];
-        let queuedWebhooks: WebhookQueuedData[] = [];
+        //There was no existing bulk operation running on shopify, so we can make one.
+
+        let changesSince: Date | undefined = undefined;
         if (!taskData.installSync) {
-            queuedWebhooks = await this.webhookQueuedService.getAllByDomainAndTypeAndAction(
-                retailer.domain,
-                WebhookQueuedDataContentType.COLLECTION,
-                WebhookQueuedDataActionType.UPDATE,
-            );
-            collectionIds = _.uniq(queuedWebhooks.map(w => w.content));
+            //We don't need to do anything special here, as the time was
+            changesSince = retailer.lastPartialSyncRequestTime ?? undefined;
         }
 
-        //There was no existing bulk operation running on shopify, so we can make one.
-        const queryPayload = await this.buildCollectionTriggerQueryPayload(retailer, collectionIds);
+        const queryPayload = await this.buildCollectionTriggerQueryPayload(retailer, changesSince);
         await this.bulkOperationService.requestBulkOperation(
             retailer,
             BulkOperationType.ProductGroupSync,
-            collectionIds,
             queryPayload,
             taskData.installSync,
             (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
         );
-
-        if (queuedWebhooks.length > 0) {
-            await this.webhookQueuedService.delete(queuedWebhooks);
-        }
     }
 
     async syncCollectionsConsumerProcessor(task: NobleTaskEntity) {
@@ -185,7 +166,10 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
                     await this.retailerService.updateLastSafetyCompletedTime(retailer);
                 }
                 // await this.collectionJobService.scheduleTriggerJob(retailer, [], true);
+
+                await this.productJobService.scheduleTriggerJob(retailer, false);
             }
+
             await this.nobleService.addTimedLogMessage(task, `Handle Complete`);
         };
 
@@ -235,17 +219,11 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(task, `Data file downloaded`);
 
-        const productGroupIdToExplicitlyCheck = bulkOperationRecord.explicitIds ?? [];
-
-        let runFullSyncLogic = false;
-        if (productGroupIdToExplicitlyCheck.length > 0) {
-            await this.nobleService.addTimedLogMessage(
-                task,
-                `Explicit Update the following collections: ${JSON.stringify(productGroupIdToExplicitlyCheck)}`,
-            );
-        } else {
-            runFullSyncLogic = true;
+        const runFullSyncLogic = taskData.installSync;
+        if (runFullSyncLogic) {
             await this.nobleService.addTimedLogMessage(task, `Full collection update`);
+        } else {
+            await this.nobleService.addTimedLogMessage(task, `Partial collection update`);
         }
 
         await this.nobleService.addTimedLogMessage(task, `Reading data file`);

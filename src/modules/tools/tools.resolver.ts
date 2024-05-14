@@ -100,6 +100,8 @@ export class ToolsResolver {
         token: string,
         @Args({ name: 'domain', type: () => GraphQLString })
         domain: string,
+        @Args({ name: 'partial', type: () => GraphQLBoolean, nullable: true })
+        partial: boolean,
     ): Promise<string> {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
@@ -110,8 +112,11 @@ export class ToolsResolver {
             return "false, retailer doesn't exist";
         }
 
-        await this.productJobService.scheduleTriggerJob(retailer, true, false);
-
+        if (partial) {
+            await this.productJobService.scheduleTriggerJob(retailer, false, 10);
+        } else {
+            await this.productJobService.scheduleTriggerJob(retailer, true);
+        }
         return 'Scheduled a sync';
     }
 

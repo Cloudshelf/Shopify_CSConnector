@@ -25,12 +25,8 @@ import { ToolsService } from '../../tools/tools.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
 import { CollectionJobService } from '../collection/collection.job.service';
-import { WebhookQueuedDataActionType } from '../webhook.queued.data.action.type';
-import { WebhookQueuedDataContentType } from '../webhook.queued.data.content.type';
-import { WebhookQueuedData } from '../webhook.queued.data.entity';
-import { WebhookQueuedService } from '../webhook.queued.service';
 import axios from 'axios';
-import { addSeconds } from 'date-fns';
+import { addSeconds, subDays, subMinutes } from 'date-fns';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
@@ -46,7 +42,6 @@ export class ProductProcessor implements OnApplicationBootstrap {
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
         private readonly collectionJobService: CollectionJobService,
-        private readonly webhookQueuedService: WebhookQueuedService,
         private readonly cloudflareConfigService: ConfigService<typeof cloudflareSchema>,
         private readonly toolsService: ToolsService,
     ) {}
@@ -75,23 +70,15 @@ export class ProductProcessor implements OnApplicationBootstrap {
         });
     }
 
-    private async buildProductTriggerQueryPayload(retailer: RetailerEntity, explicitIds: string[]): Promise<string> {
+    private async buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
         const withPublicationStatus = await retailer.supportsWithPublicationStatus();
         let queryString = '';
 
-        if (explicitIds.length !== 0) {
+        if (changesSince !== undefined) {
             //we want to build an explicit query string
-            queryString = explicitIds
-                .map(productId => {
-                    let id = productId;
-                    if (id.includes('gid://shopify/Product/')) {
-                        id = id.replace('gid://shopify/Product/', '');
-                    }
-                    return `(id:${id})`;
-                })
-                .join(` OR `);
+            queryString = `updated_at:>'${changesSince.toISOString()}'`;
 
-            queryString = `(first: ${explicitIds.length}, query: \"${queryString}\")`;
+            queryString = `(query: \"${queryString}\")`;
         }
 
         return `{
@@ -202,31 +189,33 @@ export class ProductProcessor implements OnApplicationBootstrap {
             //in v2 we had a massive check here to cancel a bulk operation... but I don't think the logic makes any sense... so not porting to v3.
         }
 
-        let productIds: string[] = [];
-        let queuedWebhooks: WebhookQueuedData[] = [];
+        //There was no existing bulk operation running on shopify, so we can make one.
+
+        let changesSince: Date | undefined = undefined;
         if (!taskData.installSync) {
-            queuedWebhooks = await this.webhookQueuedService.getAllByDomainAndTypeAndAction(
-                retailer.domain,
-                WebhookQueuedDataContentType.PRODUCT,
-                WebhookQueuedDataActionType.UPDATE,
-            );
-            productIds = _.uniq(queuedWebhooks.map(w => w.content));
+            changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
+
+            if (changesSince === undefined) {
+                //If we have never don't a partial sync, lets just get the last days worth of changes...
+                //This is just so we get something.
+                changesSince = subDays(new Date(), 1);
+            }
+
+            retailer.lastPartialSyncRequestTime = changesSince;
         }
 
-        //There was no existing bulk operation running on shopify, so we can make one.
-        const queryPayload = await this.buildProductTriggerQueryPayload(retailer, productIds);
+        const queryPayload = await this.buildProductTriggerQueryPayload(retailer, changesSince);
         await this.bulkOperationService.requestBulkOperation(
             retailer,
             BulkOperationType.ProductSync,
-            productIds,
             queryPayload,
             taskData.installSync,
             (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
         );
 
-        if (queuedWebhooks.length > 0) {
-            await this.webhookQueuedService.delete(queuedWebhooks);
-        }
+        //After the bulk operation is requested, we can update the lastPartialSyncRequestTime, so that next time we know what time to use
+        // retailer.lastPartialSyncRequestTime = subMinutes(new Date(), 1);
+        retailer.nextPartialSyncRequestTime = subMinutes(new Date(), 1);
     }
 
     async syncProductsConsumerProcessor(task: NobleTaskEntity) {
@@ -235,7 +224,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
         const handleComplete = async (msg: string, retailer?: RetailerEntity) => {
             if (retailer) {
                 await this.retailerService.updateLastProductSyncTime(retailer);
-                await this.collectionJobService.scheduleTriggerJob(retailer, true);
+                await this.collectionJobService.scheduleTriggerJob(retailer, taskData.installSync);
             }
             await this.nobleService.addTimedLogMessage(task, `Handle Complete: ${msg}`, true);
         };
@@ -286,18 +275,14 @@ export class ProductProcessor implements OnApplicationBootstrap {
         });
 
         await this.nobleService.addTimedLogMessage(task, `Data file downloaded`);
-        const productIdToExplicitlyCheck = bulkOperationRecord.explicitIds ?? [];
 
-        let runFullSyncLogic = false;
-        if (productIdToExplicitlyCheck.length > 0) {
-            await this.nobleService.addTimedLogMessage(
-                task,
-                `Explicit Update the following products: ${JSON.stringify(productIdToExplicitlyCheck)}`,
-            );
-        } else {
-            runFullSyncLogic = true;
+        const runFullSyncLogic = taskData.installSync;
+        if (runFullSyncLogic) {
             await this.nobleService.addTimedLogMessage(task, `Full product update`);
+        } else {
+            await this.nobleService.addTimedLogMessage(task, `Partial product update`);
         }
+
         const chunkSize = 1000;
         await this.nobleService.addTimedLogMessage(task, `Reading data file in chunks of ${chunkSize}`);
 

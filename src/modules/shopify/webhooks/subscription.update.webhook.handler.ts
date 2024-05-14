@@ -1,12 +1,8 @@
 import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
-import { WebhookQueuedDataActionType } from '../../data-ingestion/webhook.queued.data.action.type';
-import { WebhookQueuedDataContentType } from '../../data-ingestion/webhook.queued.data.content.type';
-import { WebhookQueuedService } from '../../data-ingestion/webhook.queued.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 
@@ -23,7 +19,6 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
     constructor(
         private readonly retailerService: RetailerService,
         private readonly cloudshelfApiService: CloudshelfApiService,
-        private readonly webhookQueuedService: WebhookQueuedService,
         private readonly configService: ConfigService<typeof shopifySchema>,
     ) {
         super();
@@ -39,12 +34,6 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
             this.logger.debug('Ignoring webhook due to environment configuration');
             return;
         }
-        // await this.webhookQueuedService.queue(
-        //     domain,
-        //     data.app_subscription.admin_graphql_api_id,
-        //     WebhookQueuedDataContentType.SUBSCRIPTION,
-        //     WebhookQueuedDataActionType.CHECK,
-        // );
 
         const retailer = await this.retailerService.getByDomain(domain);
         if (!retailer) {

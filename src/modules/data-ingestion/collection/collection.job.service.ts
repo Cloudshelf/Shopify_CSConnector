@@ -9,16 +9,12 @@ import { BulkOperation } from '../bulk.operation.entity';
 export class CollectionJobService {
     constructor(private readonly nobleService: NobleService) {}
 
-    async scheduleTriggerJob(retailer: RetailerEntity, installSync?: boolean, fromWebhook?: boolean) {
-        let delay = 1; //1 second
+    async scheduleTriggerJob(retailer: RetailerEntity, installSync?: boolean) {
+        const delay = 1; //1 second
         let prio = 1;
 
         if (installSync) {
             prio = 1000;
-        }
-
-        if (fromWebhook) {
-            delay = 60 * 15; //15 minutes
         }
 
         const triggerData: CollectionTriggerTaskData = {
@@ -45,38 +41,6 @@ export class CollectionJobService {
                 delay,
             );
         }
-        //
-        // if (explicitIds.length === 0) {
-        //     // we want to do a full sync, remove any existing jobs
-        //     if (existingJob) {
-        //         await this.nobleService.deleteTaskById(existingJob.id);
-        //     }
-        //
-        //     await this.nobleService.scheduleTask<CollectionTriggerTaskData>(
-        //         NobleTaskType.SyncCollectionsTrigger,
-        //         retailer.id,
-        //         triggerData,
-        //         prio,
-        //         delay,
-        //     );
-        // } else {
-        //     if (existingJob) {
-        //         const existingJobData = existingJob.data as CollectionTriggerTaskData;
-        //         existingJobData.collectionIds = [...existingJobData.collectionIds, ...explicitIds];
-        //
-        //         await this.nobleService.updateData<CollectionTriggerTaskData>(existingJob, {
-        //             ...existingJobData,
-        //         });
-        //     } else {
-        //         await this.nobleService.scheduleTask<CollectionTriggerTaskData>(
-        //             NobleTaskType.SyncCollectionsTrigger,
-        //             retailer.id,
-        //             triggerData,
-        //             prio,
-        //             delay,
-        //         );
-        //     }
-        // }
     }
 
     async scheduleConsumerJob(retailer: RetailerEntity, bulkOp: BulkOperation) {
