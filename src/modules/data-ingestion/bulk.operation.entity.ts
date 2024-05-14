@@ -34,9 +34,6 @@ export class BulkOperation extends BaseEntity {
     @Enum({ items: () => BulkOperationType })
     type!: BulkOperationType;
 
-    @Property({ type: types.array, default: [] })
-    explicitIds!: string[];
-
     @Property({ type: types.boolean, default: false })
     installSync!: boolean;
 }

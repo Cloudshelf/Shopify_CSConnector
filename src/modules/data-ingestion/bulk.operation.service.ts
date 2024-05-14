@@ -21,16 +21,9 @@ import { BulkOperationType } from './bulk.operation.type';
 export class BulkOperationService {
     constructor(private readonly entityManager: EntityManager) {}
 
-    async create(
-        thirdPartyId: string,
-        type: BulkOperationType,
-        retailerDomain: string,
-        explicitIds?: string[],
-        installSync?: boolean,
-    ) {
+    async create(thirdPartyId: string, type: BulkOperationType, retailerDomain: string, installSync?: boolean) {
         const now = new Date();
         const op = this.entityManager.create(BulkOperation, {
-            explicitIds: explicitIds ?? [],
             installSync: installSync ?? false,
             domain: retailerDomain,
             shopifyBulkOpId: thirdPartyId,
@@ -69,7 +62,6 @@ export class BulkOperationService {
     async requestBulkOperation(
         retailer: RetailerEntity,
         operationType: BulkOperationType,
-        explicitIds: string[],
         queryPayload: string,
         installSync?: boolean,
         logFn?: (s: string) => void,
@@ -132,7 +124,7 @@ export class BulkOperationService {
             );
         }
 
-        const newBulkOp = await this.create(shopifyBulkOp.id, operationType, retailer.domain, explicitIds, installSync);
+        const newBulkOp = await this.create(shopifyBulkOp.id, operationType, retailer.domain, installSync);
         return newBulkOp;
     }
 

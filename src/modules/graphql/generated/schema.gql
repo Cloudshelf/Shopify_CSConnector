@@ -153,7 +153,7 @@ type ProductTriggerTaskData {
 
 type Query {
   forceASafetySyncNow(token: String!): String!
-  forceSync(domain: String!, token: String!): String!
+  forceSync(domain: String!, partial: Boolean, token: String!): String!
   getWebhooksForRetailer(domain: String!, token: String!): String!
   nobleQueueByTaskType(taskType: NobleTaskType!): TaskQueue!
   nobleQueues: [TaskQueue!]!

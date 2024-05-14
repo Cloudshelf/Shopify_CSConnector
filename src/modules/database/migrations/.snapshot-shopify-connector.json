@@ -107,16 +107,6 @@
           ],
           "mappedType": "enum"
         },
-        "explicit_ids": {
-          "name": "explicit_ids",
-          "type": "text[]",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'{}'",
-          "mappedType": "array"
-        },
         "install_sync": {
           "name": "install_sync",
           "type": "boolean",
@@ -735,6 +725,26 @@
         },
         "last_product_group_sync": {
           "name": "last_product_group_sync",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "last_partial_sync_request_time": {
+          "name": "last_partial_sync_request_time",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        },
+        "next_partial_sync_request_time": {
+          "name": "next_partial_sync_request_time",
           "type": "timestamptz",
           "unsigned": false,
           "autoincrement": false,

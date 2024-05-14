@@ -31,6 +31,12 @@ export class RetailerEntity extends BaseEntity {
     @Property({ type: types.datetime, nullable: true })
     lastProductGroupSync: Date | null;
 
+    @Property({ type: types.datetime, nullable: true })
+    lastPartialSyncRequestTime: Date | null;
+
+    @Property({ type: types.datetime, nullable: true })
+    nextPartialSyncRequestTime: Date | null;
+
     @Property({ type: 'text', nullable: true })
     email: string | null;
 
