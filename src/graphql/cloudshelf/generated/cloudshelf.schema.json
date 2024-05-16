@@ -16383,6 +16383,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "BARCODE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "SKU",
             "description": null,
             "isDeprecated": false,
@@ -18260,6 +18266,18 @@
             "deprecationReason": null
           },
           {
+            "name": "barcode",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "createdAt",
             "description": "The date and time this entity was created.",
             "args": [],
@@ -18563,6 +18581,18 @@
             "deprecationReason": null
           },
           {
+            "name": "barcode",
+            "description": "The barcode of the product variant",
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "currentPrice",
             "description": "The current price of the product variant",
             "type": {
@@ -18850,6 +18880,30 @@
         "name": "Query",
         "description": null,
         "fields": [
+          {
+            "name": "allIngestionStats",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "IngestionStatsPayload",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "availablePDPBlocks",
             "description": "Returns an array of PDP Blocks that are available to add to the PDP",

@@ -2446,6 +2446,7 @@ export type PdpProductDataBlock = {
 };
 
 export enum PdpProductDataType {
+  Barcode = 'BARCODE',
   Sku = 'SKU',
   Vendor = 'VENDOR'
 }
@@ -2723,6 +2724,7 @@ export type ProductVariant = {
   attributes: Array<KeyValuePair>;
   /** Whether this variant is available to purchase. */
   availableToPurchase: Scalars['Boolean']['output'];
+  barcode?: Maybe<Scalars['String']['output']>;
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   currentPrice: Scalars['Float']['output'];
@@ -2761,6 +2763,8 @@ export type ProductVariantInput = {
   attributes?: InputMaybe<Array<KeyValuePairInput>>;
   /** Whether the product variant is available to purchase */
   availableToPurchase?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The barcode of the product variant */
+  barcode?: InputMaybe<Scalars['String']['input']>;
   /** The current price of the product variant */
   currentPrice?: InputMaybe<Scalars['Float']['input']>;
   /** The display name of the product variant */
@@ -2803,6 +2807,7 @@ export type PublicDevicePayload = {
 
 export type Query = {
   __typename?: 'Query';
+  allIngestionStats: Array<IngestionStatsPayload>;
   /** Returns an array of PDP Blocks that are available to add to the PDP */
   availablePDPBlocks: Array<IncludablePdpBlock>;
   /** Returns a boolean value which indicates if the organisation can register a new device */

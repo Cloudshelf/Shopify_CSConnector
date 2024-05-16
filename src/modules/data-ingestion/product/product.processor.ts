@@ -133,6 +133,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                           }
                           price
                           sku
+                          barcode
                           compareAtPrice
                           availableForSale
                           sellableOnlineQuantity
@@ -399,6 +400,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                         currentPrice: currentPrice,
                         originalPrice: originalPrice,
                         sku: variant.sku ?? '',
+                        barcode: variant.barcode ?? '',
                         //We only support in stock / out of stock not stock count in v3
                         isInStock: variant.sellableOnlineQuantity > 0,
                         attributes: attributes,
