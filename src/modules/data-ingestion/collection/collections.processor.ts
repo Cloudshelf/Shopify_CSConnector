@@ -297,14 +297,16 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(task, `Updating products in collections on cloudshelf`);
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
+            const reversedProductIds = productIds.slice().reverse();
+
             this.nobleService.addTimedLogMessage(
                 task,
-                `Product Group: ${productGroupId}, products: ${inspect(productIds)}`,
+                `Product Group: ${productGroupId}, products: ${inspect(reversedProductIds)}`,
             );
             await this.cloudshelfApiService.updateProductsInProductGroup(
                 retailer.domain,
                 productGroupId,
-                productIds,
+                reversedProductIds,
                 async (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
             );
         }
