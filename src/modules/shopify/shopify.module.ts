@@ -77,6 +77,10 @@ export class ShopifyModule {
                         'read_merchant_managed_fulfillment_orders',
                         'read_price_rules',
                         'write_discounts',
+                        'write_draft_orders',
+                        'write_assigned_fulfillment_orders',
+                        'write_merchant_managed_fulfillment_orders',
+                        'write_third_party_fulfillment_orders',
                     ],
                 };
             },
