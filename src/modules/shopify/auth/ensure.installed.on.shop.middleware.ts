@@ -70,6 +70,17 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
 
                 // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
             }
+
+            const hasAllRequiredScopes = this.shopifyApiService.config.scopes.equals(offlineSession.scope);
+
+            if (!hasAllRequiredScopes) {
+                if (queryHasSession) {
+                    return res.end(HtmlUtils.generateExitToInstallPage(shop));
+                } else {
+                    return res.redirect(HtmlUtils.generateInstallRedirectUrl(shop));
+                }
+            }
+
             await this.customTokenService.storeToken(shop, token);
         }
 
