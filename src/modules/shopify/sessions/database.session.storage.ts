@@ -33,8 +33,8 @@ export class DatabaseSessionStorage implements SessionStorage {
     }
 
     @SentryInstrument('DatabaseSessionStorage')
-    async loadSession(id: string): Promise<ShopifySessionEntity | null> {
-        return await this.entityManager.findOne(ShopifySessionEntity, id);
+    async loadSession(id: string): Promise<ShopifySessionEntity | undefined> {
+        return (await this.entityManager.findOne(ShopifySessionEntity, id)) ?? undefined;
     }
 
     @SentryInstrument('DatabaseSessionStorage')
