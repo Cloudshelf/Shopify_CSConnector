@@ -142,7 +142,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                             nextJob.queueMaxRetries = queue.retries;
                             registeredQueue.nextTask = nextJob;
                         } else {
-                            await MiscellaneousUtils.sleep(2000);
+                            await MiscellaneousUtils.sleep(200);
                         }
                     } catch {}
                 }
