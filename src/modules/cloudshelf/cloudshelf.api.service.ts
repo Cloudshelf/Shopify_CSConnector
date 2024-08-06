@@ -430,21 +430,20 @@ export class CloudshelfApiService {
     async keepKnownProductsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
         const authedClient = await this.getCloudshelfAPIApolloClient(domain);
 
-        //Temp: Disable this feature
-        // const mutationTuple = await authedClient.mutate<
-        //     KeepKnownProductsViaFileMutation,
-        //     KeepKnownProductsViaFileMutationVariables
-        // >({
-        //     mutation: KeepKnownProductsViaFileDocument,
-        //     variables: {
-        //         fileUrl: url,
-        //     },
-        // });
+        const mutationTuple = await authedClient.mutate<
+            KeepKnownProductsViaFileMutation,
+            KeepKnownProductsViaFileMutationVariables
+        >({
+            mutation: KeepKnownProductsViaFileDocument,
+            variables: {
+                fileUrl: url,
+            },
+        });
 
-        // if (mutationTuple.errors) {
-        //     console.log('Failed to handle keepKnownProductsViaFile', mutationTuple.errors);
-        //     await log?.('Failed to handle keepKnownProductsViaFile' + inspect(mutationTuple.errors));
-        // }
+        if (mutationTuple.errors) {
+            console.log('Failed to handle keepKnownProductsViaFile', mutationTuple.errors);
+            await log?.('Failed to handle keepKnownProductsViaFile' + inspect(mutationTuple.errors));
+        }
     }
 
     async keepKnownVariantsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
@@ -469,21 +468,20 @@ export class CloudshelfApiService {
     async keepKnownProductGroupsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
         const authedClient = await this.getCloudshelfAPIApolloClient(domain);
 
-        ////Temp: Disable this feature
-        // const mutationTuple = await authedClient.mutate<
-        //     KeepKnownProductGroupsViaFileMutation,
-        //     KeepKnownProductGroupsViaFileMutationVariables
-        // >({
-        //     mutation: KeepKnownProductGroupsViaFileDocument,
-        //     variables: {
-        //         fileUrl: url,
-        //     },
-        // });
+        const mutationTuple = await authedClient.mutate<
+            KeepKnownProductGroupsViaFileMutation,
+            KeepKnownProductGroupsViaFileMutationVariables
+        >({
+            mutation: KeepKnownProductGroupsViaFileDocument,
+            variables: {
+                fileUrl: url,
+            },
+        });
 
-        // if (mutationTuple.errors) {
-        //     console.log('Failed to handle keepKnownProductGroupsViaFile', mutationTuple.errors);
-        //     await log?.('Failed to handle keepKnownProductGroupsViaFile' + inspect(mutationTuple.errors));
-        // }
+        if (mutationTuple.errors) {
+            console.log('Failed to handle keepKnownProductGroupsViaFile', mutationTuple.errors);
+            await log?.('Failed to handle keepKnownProductGroupsViaFile' + inspect(mutationTuple.errors));
+        }
     }
 
     async reportCatalogStats(
