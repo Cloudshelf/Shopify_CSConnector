@@ -450,21 +450,20 @@ export class CloudshelfApiService {
     async keepKnownVariantsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
         const authedClient = await this.getCloudshelfAPIApolloClient(domain);
 
-        //Temp: Disable this feature
-        // const mutationTuple = await authedClient.mutate<
-        //     KeepKnownVariantsViaFileMutation,
-        //     KeepKnownVariantsViaFileMutationVariables
-        // >({
-        //     mutation: KeepKnownVariantsViaFileDocument,
-        //     variables: {
-        //         fileUrl: url,
-        //     },
-        // });
+        const mutationTuple = await authedClient.mutate<
+            KeepKnownVariantsViaFileMutation,
+            KeepKnownVariantsViaFileMutationVariables
+        >({
+            mutation: KeepKnownVariantsViaFileDocument,
+            variables: {
+                fileUrl: url,
+            },
+        });
 
-        // if (mutationTuple.errors) {
-        //     console.log('Failed to handle keepKnownVariantsViaFile', mutationTuple.errors);
-        //     await log?.('Failed to handle keepKnownVariantsViaFile' + inspect(mutationTuple.errors));
-        // }
+        if (mutationTuple.errors) {
+            console.log('Failed to handle keepKnownVariantsViaFile', mutationTuple.errors);
+            await log?.('Failed to handle keepKnownVariantsViaFile' + inspect(mutationTuple.errors));
+        }
     }
 
     async keepKnownProductGroupsViaFile(domain: string, url: string, log?: (logMessage: string) => Promise<void>) {
