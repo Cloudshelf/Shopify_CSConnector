@@ -290,7 +290,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
 
     async addTimedLogMessage(task: NobleTaskEntity, message: string, forcedLog = false) {
 
-        if(task.organisationId === '01HND084GBKYZX67MD7RQ7TMAV') {
+        if(task.organisationId === '01HND084GBKYZX67MD7RQ7TMAV' || task.organisationId === '01HND084GA5TRA58WQ3Z2FZH7V') {
             forcedLog = true;
         }
 
