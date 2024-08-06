@@ -432,7 +432,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(
             task,
-            `Upserting ${productInputs.length} products to cloudshelf for current file, in chunks of 250`,
+            `Upserting ${productInputs.length} products to cloudshelf for current file, in chunks of ${CHUNK_UPLOAD_SIZE}`,
             true,
         );
 
@@ -448,7 +448,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(
             task,
-            `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of 250`,
+            `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of ${CHUNK_UPLOAD_SIZE}`,
         );
 
         const chunkedVariantInputs = _.chunk(variantInputs, CHUNK_UPLOAD_SIZE);
