@@ -338,7 +338,9 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             );
 
             if (didGroupFileUpload) {
+                await this.nobleService.addTimedLogMessage(task, `Starting delete product groups via file`, true);
                 await this.cloudshelfApiService.keepKnownProductGroupsViaFile(retailer.domain, groupUrl);
+                await this.nobleService.addTimedLogMessage(task, `Finished delete product groups via file`, true);
             }
         }
 

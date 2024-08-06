@@ -486,7 +486,9 @@ export class ProductProcessor implements OnApplicationBootstrap {
             await this.nobleService.addTimedLogMessage(task, `Product deletion file uploaded: ${fileContent}`);
 
             if (didProductFileUpload) {
+                await this.nobleService.addTimedLogMessage(task, `Starting delete products via file`, true);
                 await this.cloudshelfApiService.keepKnownProductsViaFile(retailer.domain, productUrl);
+                await this.nobleService.addTimedLogMessage(task, `Finished delete products via file`, true);
             }
 
             const variantContentToSave: { id: string }[] = [];
