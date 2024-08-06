@@ -509,7 +509,9 @@ export class ProductProcessor implements OnApplicationBootstrap {
             );
 
             if (didVariantFileUpload) {
+                await this.nobleService.addTimedLogMessage(task, `Starting delete variants via file`, true);
                 await this.cloudshelfApiService.keepKnownVariantsViaFile(retailer.domain, variantUrl);
+                await this.nobleService.addTimedLogMessage(task, `Finished delete variants via file`, true);
             }
         }
 
