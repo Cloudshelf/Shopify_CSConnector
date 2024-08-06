@@ -34,7 +34,8 @@ import { promisify } from 'util';
 
 const finished = promisify(stream.finished);
 
-export const CHUNK_UPLOAD_SIZE = 500;
+export const PRODUCT_CHUNK_UPLOAD_SIZE = 1000;
+export const VARIANT_CHUNK_UPLOAD_SIZE = 500;
 
 @Injectable()
 export class ProductProcessor implements OnApplicationBootstrap {
@@ -432,12 +433,12 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(
             task,
-            `Upserting ${productInputs.length} products to cloudshelf for current file, in chunks of ${CHUNK_UPLOAD_SIZE}`,
+            `Upserting ${productInputs.length} products to cloudshelf for current file, in chunks of ${PRODUCT_CHUNK_UPLOAD_SIZE}`,
             true,
         );
 
         //split into chunks of 250
-        const chunkedProductInputs = _.chunk(productInputs, CHUNK_UPLOAD_SIZE);
+        const chunkedProductInputs = _.chunk(productInputs, PRODUCT_CHUNK_UPLOAD_SIZE);
         for (const chunk of chunkedProductInputs) {
             await this.nobleService.addTimedLogMessage(
                 task,
@@ -448,10 +449,10 @@ export class ProductProcessor implements OnApplicationBootstrap {
 
         await this.nobleService.addTimedLogMessage(
             task,
-            `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of ${CHUNK_UPLOAD_SIZE}`,
+            `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of ${VARIANT_CHUNK_UPLOAD_SIZE}`,
         );
 
-        const chunkedVariantInputs = _.chunk(variantInputs, CHUNK_UPLOAD_SIZE);
+        const chunkedVariantInputs = _.chunk(variantInputs, VARIANT_CHUNK_UPLOAD_SIZE);
         for (const variantInput of chunkedVariantInputs) {
             await this.nobleService.addTimedLogMessage(
                 task,
