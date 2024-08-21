@@ -19,6 +19,34 @@ export type Scalars = {
   UTCDateTime: { input: any; output: any; }
 };
 
+/** The availability of an acquisition option. */
+export enum AcquisitionOptionAvailability {
+  /** This option will be available for all products. */
+  AllProducts = 'ALL_PRODUCTS',
+  /** This option will be available for products that are in stock. */
+  InstockProducts = 'INSTOCK_PRODUCTS',
+  /** This option will be available for products with the the provided tag. */
+  TaggedProducts = 'TAGGED_PRODUCTS'
+}
+
+/** The price type of an acquisition option. */
+export enum AcquisitionOptionPriceType {
+  /** The acquisition cost will be fixed. */
+  Fixed = 'FIXED',
+  /** The acquisition cost will be free if the order amount is above a certain threshold. */
+  FreeIfAboveThreshold = 'FREE_IF_ABOVE_THRESHOLD'
+}
+
+/** The type of an acquisition. */
+export enum AcquisitionType {
+  /** The items will be delivered to the user. */
+  Delivery = 'DELIVERY',
+  /** The items will be available for immediate pickup (take items already in hand) */
+  ImmediatePickup = 'IMMEDIATE_PICKUP',
+  /** The items will be available for collection from the store. */
+  StoreCollection = 'STORE_COLLECTION'
+}
+
 /** How to align the entity in the parent's space. */
 export enum Alignment {
   /** Align the entity to the center of the parent. */
@@ -27,14 +55,6 @@ export enum Alignment {
   Left = 'LEFT',
   /** Align the entity to the right of the parent. */
   Right = 'RIGHT'
-}
-
-/** How to animate the entity. */
-export enum Animation {
-  /** Fade the entity. */
-  Fade = 'FADE',
-  /** Flip the entity. */
-  Flip = 'FLIP'
 }
 
 export type AttributeValue = {
@@ -69,6 +89,7 @@ export type Banner = {
   backgroundImageHorizontal?: Maybe<Scalars['String']['output']>;
   backgroundImageVertical?: Maybe<Scalars['String']['output']>;
   backgroundType: BannerBackgroundType;
+  bannerText: Array<Scalars['String']['output']>;
   cloudshelf: Cloudshelf;
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
@@ -79,8 +100,8 @@ export type Banner = {
   linkText?: Maybe<Scalars['String']['output']>;
   linkType: BannerLinkType;
   linkURL?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
   position: Scalars['Int']['output'];
-  text: Scalars['String']['output'];
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
 };
@@ -103,14 +124,15 @@ export type BannerInput = {
   backgroundImageHorizontal?: InputMaybe<Scalars['String']['input']>;
   backgroundImageVertical?: InputMaybe<Scalars['String']['input']>;
   backgroundType: BannerBackgroundType;
+  bannerText: Array<Scalars['String']['input']>;
   id: Scalars['GlobalId']['input'];
   linkProduct?: InputMaybe<Scalars['String']['input']>;
   linkProductGroup?: InputMaybe<Scalars['String']['input']>;
   linkText?: InputMaybe<Scalars['String']['input']>;
   linkType?: InputMaybe<BannerLinkType>;
   linkURL?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
   position: Scalars['Int']['input'];
-  text: Scalars['String']['input'];
 };
 
 export enum BannerLinkType {
@@ -142,6 +164,12 @@ export type CatalogStats = {
   reportedAt?: Maybe<Scalars['UTCDateTime']['output']>;
 };
 
+export type CategoryOrder = {
+  __typename?: 'CategoryOrder';
+  categoryHandle: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+};
+
 /** Selects how the cloudshelf handles the checkout experience. */
 export enum CheckoutExperience {
   /** Cloudshelf will use the basket checkout experience, where items are added to a basket that is visible on the screen. */
@@ -152,18 +180,131 @@ export enum CheckoutExperience {
   None = 'NONE'
 }
 
-/** Selects what checkout flow the customers will see. */
-export enum CheckoutFlow {
-  None = 'NONE',
-  /** Users will be taken through the online Salesforce B2C checkout flow. */
-  SalesforceB2C = 'SALESFORCE_B2C',
-  /** Users will be taken through the online Shopify checkout flow. */
-  Shopify = 'SHOPIFY',
-  /** Users will have the basket transferred to a third party service. */
-  TransferBasket = 'TRANSFER_BASKET',
-  /** A internal value for when the checkout flow is unknown */
-  Unknown = 'UNKNOWN'
-}
+export type CheckoutFlowAcquisitionOption = {
+  __typename?: 'CheckoutFlowAcquisitionOption';
+  acquisitionType: AcquisitionType;
+  availability: AcquisitionOptionAvailability;
+  availabilityMetadataKey?: Maybe<Scalars['String']['output']>;
+  availabilityMetadataValue?: Maybe<Scalars['String']['output']>;
+  availabilityTag?: Maybe<Scalars['String']['output']>;
+  basketValueThreshold: Scalars['Float']['output'];
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  internalName: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  price: Scalars['Float']['output'];
+  priceType: AcquisitionOptionPriceType;
+};
+
+export type CheckoutFlowAcquisitionOptionInput = {
+  acquisitionType: AcquisitionType;
+  availability: AcquisitionOptionAvailability;
+  availabilityMetadataKey?: InputMaybe<Scalars['String']['input']>;
+  availabilityMetadataValue?: InputMaybe<Scalars['String']['input']>;
+  availabilityTag?: InputMaybe<Scalars['String']['input']>;
+  basketValueThreshold: Scalars['Float']['input'];
+  displayName: Scalars['String']['input'];
+  /** Use this field to provide either a Cloudshelf gid */
+  id: Scalars['GlobalId']['input'];
+  internalName: Scalars['String']['input'];
+  position: Scalars['Int']['input'];
+  price: Scalars['Float']['input'];
+  priceType: AcquisitionOptionPriceType;
+};
+
+export type CheckoutFlowDeletePayload = {
+  __typename?: 'CheckoutFlowDeletePayload';
+  /** An array of CheckoutFlows that were deleted */
+  checkoutFlows: Array<CheckoutFlowOptions>;
+  /** An array of errors that occurred during the delete operation */
+  userErrors: Array<UserError>;
+};
+
+export type CheckoutFlowEdge = {
+  __typename?: 'CheckoutFlowEdge';
+  /** The cursor for provided node to be used in pagination */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The CheckoutFlow entity */
+  node?: Maybe<CheckoutFlowOptions>;
+};
+
+export type CheckoutFlowInput = {
+  acquisitionOptions?: InputMaybe<Array<CheckoutFlowAcquisitionOptionInput>>;
+  allowPaymentsViaCards?: InputMaybe<Scalars['Boolean']['input']>;
+  allowPaymentsViaQRCode?: InputMaybe<Scalars['Boolean']['input']>;
+  collectionSlipPrinterBlocks?: InputMaybe<Array<PrinterBlockInput>>;
+  /** The display name of the checkout flow */
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
+  id?: InputMaybe<Scalars['GlobalId']['input']>;
+  paymentQRCodeDestination?: InputMaybe<QrCheckoutDestination>;
+  paymentQRCodeDestinationTransferBasketURL?: InputMaybe<Scalars['String']['input']>;
+  paymentViaCardsAvailableForAcquisitionTypes?: InputMaybe<Array<AcquisitionType>>;
+  paymentViaCardsProvider?: InputMaybe<VivawalletPaymentProviderInput>;
+  paymentViaQRCodeAvailableForAcquisitionTypes?: InputMaybe<Array<AcquisitionType>>;
+  purchaseReceiptPrinterBlocks?: InputMaybe<Array<PrinterBlockInput>>;
+};
+
+export type CheckoutFlowOptions = {
+  __typename?: 'CheckoutFlowOptions';
+  acquisitionOptions: Array<CheckoutFlowAcquisitionOption>;
+  /** Whether payments can be made via credit card. (requires integration with a payment provider) */
+  allowPaymentsViaCards: Scalars['Boolean']['output'];
+  /** Whether payments can be made via QR code. */
+  allowPaymentsViaQRCode: Scalars['Boolean']['output'];
+  /** An array of Cloudshelves that use this checkout flow. */
+  cloudshelves: Array<Cloudshelf>;
+  collectionSlipPrinterBlocks: Array<PrinterBlocksUnion>;
+  /** The date and time this entity was created. */
+  createdAt: Scalars['UTCDateTime']['output'];
+  /** The name of the checkout flow. */
+  displayName: Scalars['String']['output'];
+  /** A unique internal GlobalId for this entity. */
+  id: Scalars['GlobalId']['output'];
+  /** The organisation which owns this entity. */
+  owningOrganisation: Organisation;
+  /** The destination of the QR code checkout. */
+  paymentQRCodeDestination: QrCheckoutDestination;
+  paymentQRCodeDestinationTransferBasketURL?: Maybe<Scalars['String']['output']>;
+  /** The types of acquisitions that are available for the card payment checkout. */
+  paymentViaCardsAvailableForAcquisitionTypes: Array<AcquisitionType>;
+  paymentViaCardsProvider?: Maybe<PaymentProvidersUnion>;
+  /** The types of acquisitions that are available for the QR code checkout. */
+  paymentViaQRCodeAvailableForAcquisitionTypes: Array<AcquisitionType>;
+  /** An externally provided GlobalId */
+  platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  purchaseReceiptPrinterBlocks: Array<PrinterBlocksUnion>;
+  /** The date and time this entity was last updated. */
+  updatedAt: Scalars['UTCDateTime']['output'];
+};
+
+export type CheckoutFlowPageInfo = {
+  __typename?: 'CheckoutFlowPageInfo';
+  /** The cursor for the last node in the page */
+  endCursor?: Maybe<Scalars['String']['output']>;
+  /** Whether or not there is a another page of data */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** Whether or not there is a previous page of data */
+  hasPreviousPage: Scalars['Boolean']['output'];
+  /** The cursor for the first node in the page */
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type CheckoutFlowPaginatedPayload = {
+  __typename?: 'CheckoutFlowPaginatedPayload';
+  edges?: Maybe<Array<CheckoutFlowEdge>>;
+  pageInfo?: Maybe<CheckoutFlowPageInfo>;
+  /** The total number of items available */
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CheckoutFlowUpsertPayload = {
+  __typename?: 'CheckoutFlowUpsertPayload';
+  /** An array of CheckoutFlows that were created or updated */
+  checkoutFlows: Array<CheckoutFlowOptions>;
+  /** An array of errors that occurred during the upsert operation */
+  userErrors: Array<UserError>;
+};
 
 export enum ClearSalesAssistantRule {
   Daily = 'DAILY',
@@ -174,9 +315,14 @@ export enum ClearSalesAssistantRule {
 export type Cloudshelf = {
   __typename?: 'Cloudshelf';
   addScannedProductsToBasket: Scalars['Boolean']['output'];
+  attractLoopHomeScreenPlacementX: Scalars['Int']['output'];
+  attractLoopIncludeBanners: Scalars['Boolean']['output'];
+  attractLoopIncludeHomeScreen: Scalars['Boolean']['output'];
+  attractLoopIncludeProductGroups: Scalars['Boolean']['output'];
+  attractLoopItemMinimumDuration: Scalars['Int']['output'];
   banners: Array<Banner>;
   checkoutExperience: CheckoutExperience;
-  checkoutFlow: CheckoutFlow;
+  checkoutFlow: CheckoutFlowOptions;
   content: Array<CloudshelfContent>;
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
@@ -195,24 +341,16 @@ export type Cloudshelf = {
   homeFrameCallToAction: Scalars['String']['output'];
   homeFrameCallToActionAlignment: Alignment;
   homeFrameCallToActionSize: Size;
-  homeFrameTileAnimation: Animation;
-  homeFrameTouchIndicator: TouchIndicator;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   inStockLabel?: Maybe<Scalars['String']['output']>;
   includeOnOrderProducts: Scalars['Boolean']['output'];
   includeOutOfStockProducts: Scalars['Boolean']['output'];
   includedFilterConfig: Array<CloudshelfIncludableFilter>;
-  interactiveBannerDisplayMode: BannerDisplayMode;
-  interactiveBannerShowDurationInSeconds: Scalars['Int']['output'];
-  interactiveBannerShowEverySeconds: Scalars['Int']['output'];
-  interactiveDisplayLogo: Scalars['Boolean']['output'];
-  interactiveLogoSize: Size;
   limitedSelectionLabel?: Maybe<Scalars['String']['output']>;
   nonInteractiveBannerDisplayMode: BannerDisplayMode;
   nonInteractiveBannerShowDurationInSeconds: Scalars['Int']['output'];
   nonInteractiveCollectionType: NonInteractiveCollectionType;
-  nonInteractiveDisplayLogo: Scalars['Boolean']['output'];
   nonInteractiveIncludeLandscapeImages: Scalars['Boolean']['output'];
   nonInteractiveIncludePortraitImages: Scalars['Boolean']['output'];
   nonInteractiveIncludeProductName: Scalars['Boolean']['output'];
@@ -220,7 +358,6 @@ export type Cloudshelf = {
   nonInteractiveIncludeProductQRCode: Scalars['Boolean']['output'];
   nonInteractiveIncludeProductStock: Scalars['Boolean']['output'];
   nonInteractiveIncludeSquareImages: Scalars['Boolean']['output'];
-  nonInteractiveLogoSize: Size;
   nonInteractiveMaximumImagesPerProduct: Scalars['Int']['output'];
   nonInteractiveMaximumProductsPerCollection: Scalars['Int']['output'];
   nonInteractiveMinimumImageQuality: ImageQuality;
@@ -228,8 +365,10 @@ export type Cloudshelf = {
   onOrderLabel?: Maybe<Scalars['String']['output']>;
   owningOrganisation: Organisation;
   pdpBlocks: Array<PdpBlockUnion>;
+  pdpIncludeSuggestedItems: Scalars['Boolean']['output'];
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  productGridIncludeBrand: Scalars['Boolean']['output'];
   soldOutLabel?: Maybe<Scalars['String']['output']>;
   theme: Theme;
   /** The date and time this entity was last updated. */
@@ -252,7 +391,6 @@ export type CloudshelfContent = {
   displayName: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
-  pinned: Scalars['Boolean']['output'];
   position: Scalars['Int']['output'];
   powerTileBackgroundImage?: Maybe<Scalars['String']['output']>;
   powerTileBackgroundPrimaryColour?: Maybe<Scalars['String']['output']>;
@@ -265,8 +403,16 @@ export type CloudshelfContent = {
   powerTileUseIcon?: Maybe<Scalars['Boolean']['output']>;
   productGroup?: Maybe<ProductGroup>;
   productGroupAlternativeImage?: Maybe<Scalars['String']['output']>;
+  productGroupBackgroundImageHorizontal?: Maybe<Scalars['String']['output']>;
+  productGroupBackgroundImageVertical?: Maybe<Scalars['String']['output']>;
+  productGroupBannerText?: Maybe<Array<Scalars['String']['output']>>;
+  productGroupCallToAction?: Maybe<Scalars['String']['output']>;
+  productGroupCallToActionDisplayCTA?: Maybe<Scalars['Boolean']['output']>;
   productGroupIsUpsellContent?: Maybe<Scalars['Boolean']['output']>;
   productGroupUseAlternativeImage?: Maybe<Scalars['Boolean']['output']>;
+  productGroupVisibleInAttractLoop?: Maybe<Scalars['Boolean']['output']>;
+  /** TileSize.Mixed will not be accepted for this field. */
+  tileSize: TileSize;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
 };
@@ -275,7 +421,6 @@ export type CloudshelfContentInput = {
   contentType: ContentType;
   displayName: Scalars['String']['input'];
   id: Scalars['GlobalId']['input'];
-  pinned: Scalars['Boolean']['input'];
   position: Scalars['Int']['input'];
   powerTileBackgroundImage?: InputMaybe<Scalars['String']['input']>;
   powerTileBackgroundPrimaryColour?: InputMaybe<Scalars['String']['input']>;
@@ -287,9 +432,16 @@ export type CloudshelfContentInput = {
   powerTileQRURL?: InputMaybe<Scalars['String']['input']>;
   powerTileUseIcon?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupAlternativeImage?: InputMaybe<Scalars['String']['input']>;
+  productGroupBackgroundImageHorizontal?: InputMaybe<Scalars['String']['input']>;
+  productGroupBackgroundImageVertical?: InputMaybe<Scalars['String']['input']>;
+  productGroupBannerText?: InputMaybe<Array<Scalars['String']['input']>>;
+  productGroupCallToAction?: InputMaybe<Scalars['String']['input']>;
+  productGroupCallToActionDisplayCTA?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupId?: InputMaybe<Scalars['GlobalId']['input']>;
   productGroupIsUpsellContent?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupUseAlternativeImage?: InputMaybe<Scalars['Boolean']['input']>;
+  productGroupVisibleInAttractLoop?: InputMaybe<Scalars['Boolean']['input']>;
+  tileSize: TileSize;
 };
 
 export type CloudshelfDeletePayload = {
@@ -298,6 +450,13 @@ export type CloudshelfDeletePayload = {
   cloudshelves: Array<Cloudshelf>;
   /** An array of errors that occurred during the delete operation */
   userErrors: Array<UserError>;
+};
+
+export type CloudshelfDetailsPrinterBlock = {
+  __typename?: 'CloudshelfDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
 };
 
 export type CloudshelfDuplicatePayload = {
@@ -343,9 +502,15 @@ export type CloudshelfIncludableFilterInput = {
 
 export type CloudshelfInput = {
   addScannedProductsToBasket?: InputMaybe<Scalars['Boolean']['input']>;
+  attractLoopHomeScreenPlacementX?: InputMaybe<Scalars['Int']['input']>;
+  attractLoopIncludeBanners?: InputMaybe<Scalars['Boolean']['input']>;
+  attractLoopIncludeHomeScreen?: InputMaybe<Scalars['Boolean']['input']>;
+  attractLoopIncludeProductGroups?: InputMaybe<Scalars['Boolean']['input']>;
+  attractLoopItemMinimumDuration?: InputMaybe<Scalars['Int']['input']>;
   banners?: InputMaybe<Array<BannerInput>>;
   checkoutExperience?: InputMaybe<CheckoutExperience>;
-  checkoutFlow?: InputMaybe<CheckoutFlow>;
+  /** The GlobalID of the checkout flow to apply to this Cloudshelf */
+  checkoutFlowId?: InputMaybe<Scalars['GlobalId']['input']>;
   content?: InputMaybe<Array<CloudshelfContentInput>>;
   displayDiscountCodeEntry?: InputMaybe<Scalars['Boolean']['input']>;
   displayHomeFrame?: InputMaybe<Scalars['Boolean']['input']>;
@@ -360,24 +525,16 @@ export type CloudshelfInput = {
   homeFrameCallToAction?: InputMaybe<Scalars['String']['input']>;
   homeFrameCallToActionAlignment?: InputMaybe<Alignment>;
   homeFrameCallToActionSize?: InputMaybe<Size>;
-  homeFrameTileAnimation?: InputMaybe<Animation>;
-  homeFrameTouchIndicator?: InputMaybe<TouchIndicator>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   inStockLabel?: InputMaybe<Scalars['String']['input']>;
   includeOnOrderProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includeOutOfStockProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includedFilterConfig?: InputMaybe<Array<CloudshelfIncludableFilterInput>>;
-  interactiveBannerDisplayMode?: InputMaybe<BannerDisplayMode>;
-  interactiveBannerShowDurationInSeconds?: InputMaybe<Scalars['Int']['input']>;
-  interactiveBannerShowEverySeconds?: InputMaybe<Scalars['Int']['input']>;
-  interactiveDisplayLogo?: InputMaybe<Scalars['Boolean']['input']>;
-  interactiveLogoSize?: InputMaybe<Size>;
   limitedSelectionLabel?: InputMaybe<Scalars['String']['input']>;
   nonInteractiveBannerDisplayMode?: InputMaybe<BannerDisplayMode>;
   nonInteractiveBannerShowDurationInSeconds?: InputMaybe<Scalars['Int']['input']>;
   nonInteractiveCollectionType?: InputMaybe<NonInteractiveCollectionType>;
-  nonInteractiveDisplayLogo?: InputMaybe<Scalars['Boolean']['input']>;
   nonInteractiveIncludeLandscapeImages?: InputMaybe<Scalars['Boolean']['input']>;
   nonInteractiveIncludePortraitImages?: InputMaybe<Scalars['Boolean']['input']>;
   nonInteractiveIncludeProductName?: InputMaybe<Scalars['Boolean']['input']>;
@@ -385,13 +542,14 @@ export type CloudshelfInput = {
   nonInteractiveIncludeProductQRCode?: InputMaybe<Scalars['Boolean']['input']>;
   nonInteractiveIncludeProductStock?: InputMaybe<Scalars['Boolean']['input']>;
   nonInteractiveIncludeSquareImages?: InputMaybe<Scalars['Boolean']['input']>;
-  nonInteractiveLogoSize?: InputMaybe<Size>;
   nonInteractiveMaximumImagesPerProduct?: InputMaybe<Scalars['Int']['input']>;
   nonInteractiveMaximumProductsPerCollection?: InputMaybe<Scalars['Int']['input']>;
   nonInteractiveMinimumImageQuality?: InputMaybe<ImageQuality>;
   nonInteractiveProductImageDurationInSeconds?: InputMaybe<Scalars['Int']['input']>;
   onOrderLabel?: InputMaybe<Scalars['String']['input']>;
   pdpBlocks?: InputMaybe<Array<PdpBlockInput>>;
+  pdpIncludeSuggestedItems?: InputMaybe<Scalars['Boolean']['input']>;
+  productGridIncludeBrand?: InputMaybe<Scalars['Boolean']['input']>;
   /** Whether or not to use randomly selected content or not. Only takes affect for newly created Cloudshelves */
   randomContent?: InputMaybe<Scalars['Boolean']['input']>;
   soldOutLabel?: InputMaybe<Scalars['String']['input']>;
@@ -991,17 +1149,40 @@ export enum CountryCode {
   Zz = 'ZZ'
 }
 
+export type CreatePaidOrderInput = {
+  acquisitionOptionId: Scalars['GlobalId']['input'];
+  attemptId: Scalars['String']['input'];
+  basketId: Scalars['GlobalId']['input'];
+  emailAddress: Scalars['String']['input'];
+  onDevicePaymentId?: InputMaybe<Scalars['String']['input']>;
+  sessionId: Scalars['GlobalId']['input'];
+  token: Scalars['String']['input'];
+};
+
+export type CreatePaidOrderPayload = {
+  __typename?: 'CreatePaidOrderPayload';
+  message?: Maybe<Scalars['String']['output']>;
+  order?: Maybe<ThirdPartyOrder>;
+  success: Scalars['Boolean']['output'];
+};
+
 export enum CurrencyCode {
   /** United Arab Emirates Dirham */
   Aed = 'AED',
   /** Australian Dollar */
   Aud = 'AUD',
+  /** Bulgarian Lev */
+  Bgn = 'BGN',
   /** Canadian Dollar */
   Cad = 'CAD',
   /** Swiss Franc */
   Chf = 'CHF',
   /** Chilean Peso */
   Clp = 'CLP',
+  /** Czech Koruna */
+  Czk = 'CZK',
+  /** Danish Krone */
+  Ddk = 'DDK',
   /** Euro */
   Eur = 'EUR',
   /** Great British Pound */
@@ -1012,12 +1193,24 @@ export enum CurrencyCode {
   Ils = 'ILS',
   /** Peruvian Sol */
   Pen = 'PEN',
+  /** Polish Zloty */
+  Pln = 'PLN',
+  /** Romanian Leu */
+  Ron = 'RON',
   /** Saudi Arabian Riyal */
   Sar = 'SAR',
+  /** Swedish Krona */
+  Sek = 'SEK',
   Unknown = 'UNKNOWN',
   /** United States Dollar */
   Usd = 'USD'
 }
+
+export type CustomCssInput = {
+  allowCustomCSS?: InputMaybe<Scalars['Boolean']['input']>;
+  allowCustomCSSRetailerChanges?: InputMaybe<Scalars['Boolean']['input']>;
+  id: Scalars['GlobalId']['input'];
+};
 
 export type CustomIntegrationFullSignupResultPayload = {
   __typename?: 'CustomIntegrationFullSignupResultPayload';
@@ -1055,6 +1248,8 @@ export type Device = {
   status: EngineStatus;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
+  /** An array of KeyValuePairs which contain user provided variables to be used by this device. */
+  variables: Array<KeyValuePair>;
   visibilityType?: Maybe<VisibilityType>;
 };
 
@@ -1066,12 +1261,27 @@ export type DeviceDeletePayload = {
   userErrors: Array<UserError>;
 };
 
+export type DeviceDetailsPrinterBlock = {
+  __typename?: 'DeviceDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
+
 export type DeviceEdge = {
   __typename?: 'DeviceEdge';
   /** The cursor for provided node to be used in pagination */
   cursor?: Maybe<Scalars['String']['output']>;
   /** The Device entity */
   node?: Maybe<Device>;
+};
+
+export type DeviceEngagementRecord = {
+  __typename?: 'DeviceEngagementRecord';
+  count: Scalars['Int']['output'];
+  date: Scalars['UTCDateTime']['output'];
+  deviceId: Scalars['String']['output'];
+  deviceName: Scalars['String']['output'];
 };
 
 export type DeviceInput = {
@@ -1089,6 +1299,8 @@ export type DeviceInput = {
   registrationCode?: InputMaybe<Scalars['String']['input']>;
   /** The display name of the device */
   screenSizeInInches?: InputMaybe<Scalars['Int']['input']>;
+  /** An array of variables of the device */
+  variables?: InputMaybe<Array<KeyValuePairInput>>;
   /** The visibility type of the device */
   visibilityType?: InputMaybe<VisibilityType>;
 };
@@ -1175,6 +1387,7 @@ export type EngineProductWithAdditionalInfo = {
   availableForSale: Scalars['Boolean']['output'];
   categoryHandles: Array<Scalars['String']['output']>;
   categoryIds: Array<Scalars['String']['output']>;
+  categoryOrderByHandles: Array<CategoryOrder>;
   descriptionHtml: Scalars['String']['output'];
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   handle: Scalars['String']['output'];
@@ -1233,6 +1446,7 @@ export enum EngineType {
 export type EngineVariant = {
   __typename?: 'EngineVariant';
   availableForSale: Scalars['Boolean']['output'];
+  barcode: Scalars['String']['output'];
   currentlyNotInStock: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
@@ -1346,6 +1560,13 @@ export enum FilterType {
   Vendor = 'VENDOR'
 }
 
+export type FulfilmentDetailsPrinterBlock = {
+  __typename?: 'FulfilmentDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
+
 export type HandoffPayload = {
   __typename?: 'HandoffPayload';
   productHandle: Scalars['String']['output'];
@@ -1425,9 +1646,9 @@ export type KeyValuePairInput = {
 };
 
 export enum KnownPlugin {
+  AdditionalConfiguration = 'ADDITIONAL_CONFIGURATION',
   BarcodeReader = 'BARCODE_READER',
   BookThatApp = 'BOOK_THAT_APP',
-  CloudshelfBasketTransfer = 'CLOUDSHELF_BASKET_TRANSFER',
   SalesforceBasket = 'SALESFORCE_BASKET',
   ThirdPartyWeglot = 'THIRD_PARTY_WEGLOT'
 }
@@ -1439,6 +1660,67 @@ export type KnownVersion = {
   versionString: Scalars['String']['output'];
   versionType: VersionType;
 };
+
+export type LabelRule = {
+  __typename?: 'LabelRule';
+  backgroundColour: Scalars['String']['output'];
+  checkType: LabelRuleCheckType;
+  comparisonValue: Scalars['String']['output'];
+  displayType: LabelRuleDisplayType;
+  foregroundColour: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  metadataKey: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  ruleType: LabelRuleType;
+  tagValue: Scalars['String']['output'];
+  text: Scalars['String']['output'];
+};
+
+/** Defines the type of check for label rules */
+export enum LabelRuleCheckType {
+  /** Check if the label is equal to a specified value */
+  Equal = 'EQUAL',
+  /** Check if the label exists */
+  Exists = 'EXISTS',
+  /** Check if the label is not equal to a specified value */
+  NotEqual = 'NOT_EQUAL',
+  /** Check if the label does not exist */
+  NotExists = 'NOT_EXISTS'
+}
+
+/** Defines the type of display for label rules */
+export enum LabelRuleDisplayType {
+  /** Calculate and display percent discount */
+  CalculatePercentDiscount = 'CALCULATE_PERCENT_DISCOUNT',
+  /** Calculate and display price discount */
+  CalculatePriceDiscount = 'CALCULATE_PRICE_DISCOUNT',
+  /** Display as text */
+  Text = 'TEXT'
+}
+
+export type LabelRuleInput = {
+  backgroundColour: Scalars['String']['input'];
+  checkType: LabelRuleCheckType;
+  comparisonValue?: Scalars['String']['input'];
+  displayType: LabelRuleDisplayType;
+  foregroundColour: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+  metadataKey?: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  ruleType: LabelRuleType;
+  tagValue?: Scalars['String']['input'];
+  text?: Scalars['String']['input'];
+};
+
+/** Selects the type of label rule */
+export enum LabelRuleType {
+  /** Check if the product is discounted */
+  Discounted = 'DISCOUNTED',
+  /** Check against a products metadata */
+  Metadata = 'METADATA',
+  /** Check against a product tag */
+  Tag = 'TAG'
+}
 
 /** This object represents a physical location, usually a store or a warehouse. */
 export type Location = {
@@ -1472,6 +1754,13 @@ export type LocationDeletePayload = {
   locations: Array<Location>;
   /** An array of errors that occurred during the delete operation */
   userErrors: Array<UserError>;
+};
+
+export type LocationDetailsPrinterBlock = {
+  __typename?: 'LocationDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
 };
 
 export type LocationEdge = {
@@ -1628,12 +1917,16 @@ export type MobileHandoff = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  abortPaymentRequest: PaymentGenericPayload;
   /** Adds the given list of products to the product group, if they are not already part of the product group */
   addProductsToProductGroup: Scalars['Boolean']['output'];
   cancelHandoff: MobileHandoff;
   createMobileHandoff: MobileHandoff;
+  createPaidOrder: CreatePaidOrderPayload;
   createTrackedURL: TrackedUrlPayload;
   createUserAndOrganisationForCustomIntegration: CustomIntegrationFullSignupResultPayload;
+  /** Allows deletion of checkout flows */
+  deleteCheckoutFlows: CheckoutFlowDeletePayload;
   /** Allows deletion of Cloudshelves */
   deleteCloudshelves: CloudshelfDeletePayload;
   /** Allows deletion of Devices */
@@ -1688,18 +1981,22 @@ export type Mutation = {
   setPausedNobleQueuesByType: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
+  startPaymentRequest: PaymentGenericPayload;
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
   toggleNoblePaused: Scalars['Boolean']['output'];
   /** Unregister a webhook for a given subject. If an array of ids is supplied, only the webhooks corresponding to the supplied ids will be unregistered, if they exists. If no array is supplied, all webhooks for the given subject will be unregistered. */
   unregisterWebhooks: WebhookRegisterPayload;
   unsubscribe: Scalars['Boolean']['output'];
+  updateCustomCSSRules: Scalars['Boolean']['output'];
   /** Allows updating basic user information */
   updateMyUser: User;
   /** Sets the products in the product group to the given list of products */
   updateProductsInProductGroup: Scalars['Boolean']['output'];
   updateSalesAssistantRules: Scalars['Boolean']['output'];
   updateSession: Session;
+  /** Allows upserting of checkout flows */
+  upsertCheckoutFlows: CheckoutFlowUpsertPayload;
   /** Allows upserting of Cloudshelves */
   upsertCloudshelves: CloudshelfUpsertPayload;
   /** Allows upserting of Devices */
@@ -1729,6 +2026,13 @@ export type Mutation = {
 };
 
 
+export type MutationAbortPaymentRequestArgs = {
+  attemptId: Scalars['String']['input'];
+  sessionId: Scalars['GlobalId']['input'];
+  token: Scalars['String']['input'];
+};
+
+
 export type MutationAddProductsToProductGroupArgs = {
   productGroupId: Scalars['GlobalId']['input'];
   productIds: Array<Scalars['GlobalId']['input']>;
@@ -1747,6 +2051,11 @@ export type MutationCreateMobileHandoffArgs = {
 };
 
 
+export type MutationCreatePaidOrderArgs = {
+  input: CreatePaidOrderInput;
+};
+
+
 export type MutationCreateTrackedUrlArgs = {
   cloudshelfId: Scalars['GlobalId']['input'];
   sessionId?: InputMaybe<Scalars['GlobalId']['input']>;
@@ -1762,6 +2071,11 @@ export type MutationCreateUserAndOrganisationForCustomIntegrationArgs = {
   orgDomain: Scalars['String']['input'];
   orgName: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteCheckoutFlowsArgs = {
+  ids: Array<Scalars['GlobalId']['input']>;
 };
 
 
@@ -1964,6 +2278,15 @@ export type MutationSetVariablesArgs = {
 };
 
 
+export type MutationStartPaymentRequestArgs = {
+  amount: Scalars['Int']['input'];
+  attemptId: Scalars['String']['input'];
+  organisationId: Scalars['GlobalId']['input'];
+  sessionId: Scalars['GlobalId']['input'];
+  token: Scalars['String']['input'];
+};
+
+
 export type MutationSubscribeArgs = {
   features: SubscriptionFeaturesInput;
 };
@@ -1971,6 +2294,11 @@ export type MutationSubscribeArgs = {
 
 export type MutationUnregisterWebhooksArgs = {
   inputs: Array<WebhookUnregisterInput>;
+};
+
+
+export type MutationUpdateCustomCssRulesArgs = {
+  input: CustomCssInput;
 };
 
 
@@ -1997,6 +2325,11 @@ export type MutationUpdateSessionArgs = {
   id: Scalars['GlobalId']['input'];
   interactions: Scalars['Int']['input'];
   salesAssistantId?: InputMaybe<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationUpsertCheckoutFlowsArgs = {
+  input: Array<CheckoutFlowInput>;
 };
 
 
@@ -2173,6 +2506,13 @@ export type Order = {
   updatedAt: Scalars['UTCDateTime']['output'];
 };
 
+export type OrderDetailsPrinterBlock = {
+  __typename?: 'OrderDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
+
 export type OrderEdge = {
   __typename?: 'OrderEdge';
   /** The cursor for provided node to be used in pagination */
@@ -2250,6 +2590,13 @@ export type OrderPaginatedPayload = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type OrderReferencePrinterBlock = {
+  __typename?: 'OrderReferencePrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
+
 /** The status of the order */
 export enum OrderStatus {
   /** The order is a draft basket */
@@ -2260,7 +2607,9 @@ export enum OrderStatus {
   /** The order has been placed & paid for */
   Placed = 'PLACED',
   /** The order has been fully refunded */
-  Refunded = 'REFUNDED'
+  Refunded = 'REFUNDED',
+  /** The order has been voided */
+  Voided = 'VOIDED'
 }
 
 export type OrderUpsertPayload = {
@@ -2274,6 +2623,8 @@ export type OrderUpsertPayload = {
 /** This object represents an organisation, usually a retailer. This object owns all the other data in the system for a given organisation. */
 export type Organisation = {
   __typename?: 'Organisation';
+  allowCustomCSS: Scalars['Boolean']['output'];
+  allowCustomCSSRetailerChanges: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   /** Returns the latest subscription (or null if the organisation has never subscribed) */
@@ -2312,6 +2663,8 @@ export type Organisation = {
   plugins: Array<Plugin>;
   /** The product groups which belong to this organisation. */
   productGroups: Array<ProductGroup>;
+  /** The product variants which belong to this organisation. */
+  productVariants: Array<ProductVariant>;
   /** The products which belong to this organisation. */
   products: Array<Product>;
   salesAssistantAllocation: Scalars['Boolean']['output'];
@@ -2401,12 +2754,14 @@ export enum PdpBlockStyle {
 
 export enum PdpBlockType {
   Description = 'DESCRIPTION',
+  Labels = 'LABELS',
   Metadata = 'METADATA',
   ProductData = 'PRODUCT_DATA',
-  Spacer = 'SPACER'
+  Spacer = 'SPACER',
+  Variants = 'VARIANTS'
 }
 
-export type PdpBlockUnion = PdpDescriptionBlock | PdpMetadataBlock | PdpProductDataBlock | PdpSpacerBlock;
+export type PdpBlockUnion = PdpDescriptionBlock | PdpLabelsBlock | PdpMetadataBlock | PdpProductDataBlock | PdpSpacerBlock | PdpVariantsBlock;
 
 export type PdpDescriptionBlock = {
   __typename?: 'PDPDescriptionBlock';
@@ -2415,6 +2770,15 @@ export type PdpDescriptionBlock = {
   id: Scalars['GlobalId']['output'];
   position: Scalars['Float']['output'];
   removeThemeShortcodes?: Maybe<Scalars['Boolean']['output']>;
+  style: PdpBlockStyle;
+};
+
+export type PdpLabelsBlock = {
+  __typename?: 'PDPLabelsBlock';
+  blockType: PdpBlockType;
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Float']['output'];
   style: PdpBlockStyle;
 };
 
@@ -2458,6 +2822,46 @@ export type PdpSpacerBlock = {
   id: Scalars['GlobalId']['output'];
   position: Scalars['Float']['output'];
   style: PdpBlockStyle;
+};
+
+export type PdpVariantsBlock = {
+  __typename?: 'PDPVariantsBlock';
+  blockType: PdpBlockType;
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Float']['output'];
+  style: PdpBlockStyle;
+};
+
+export type PaymentDetailsPrinterBlock = {
+  __typename?: 'PaymentDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
+
+export type PaymentGenericPayload = {
+  __typename?: 'PaymentGenericPayload';
+  authorizationId?: Maybe<Scalars['String']['output']>;
+  cancelled?: Maybe<Scalars['Boolean']['output']>;
+  cardType?: Maybe<Scalars['String']['output']>;
+  extra?: Maybe<Scalars['String']['output']>;
+  maskedCardNumber?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  pending?: Maybe<Scalars['Boolean']['output']>;
+  success?: Maybe<Scalars['Boolean']['output']>;
+  tid?: Maybe<Scalars['String']['output']>;
+  transactionId?: Maybe<Scalars['String']['output']>;
+  verificationMethod?: Maybe<Scalars['String']['output']>;
+};
+
+export type PaymentProvidersUnion = VivawalletPaymentProvider;
+
+export type PaymentTokenPayload = {
+  __typename?: 'PaymentTokenPayload';
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+  token?: Maybe<Scalars['String']['output']>;
 };
 
 /** This object represents a plugin for a given organisation */
@@ -2517,6 +2921,23 @@ export enum PowerTileBackgroundType {
   SolidColour = 'SOLID_COLOUR',
   Transparent = 'TRANSPARENT'
 }
+
+export type PrecutPrinterBlock = {
+  __typename?: 'PrecutPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
+
+export type PrinterBlockInput = {
+  alignment?: InputMaybe<Alignment>;
+  id: Scalars['GlobalId']['input'];
+  position: Scalars['Int']['input'];
+  printerBlockDiscriminator: Scalars['String']['input'];
+  size?: InputMaybe<Size>;
+};
+
+export type PrinterBlocksUnion = CloudshelfDetailsPrinterBlock | DeviceDetailsPrinterBlock | FulfilmentDetailsPrinterBlock | LocationDetailsPrinterBlock | OrderDetailsPrinterBlock | OrderReferencePrinterBlock | PaymentDetailsPrinterBlock | PrecutPrinterBlock | SalesAssistantDetailsPrinterBlock | SpacerPrinterBlock | TextPrinterBlock | TimestampPrinterBlock;
 
 /** This object represents a product, which will always contain at least one variant */
 export type Product = {
@@ -2739,6 +3160,8 @@ export type ProductVariant = {
   /** Images related this variant */
   metaimages: Array<Metaimage>;
   originalPrice: Scalars['Float']['output'];
+  /** The organisation which owns this entity. */
+  owningOrganisation: Organisation;
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   /** The position of the product variant in the list of variants */
@@ -2805,6 +3228,18 @@ export type PublicDevicePayload = {
   registrationCode: Scalars['String']['output'];
 };
 
+/** The destination of the QR code checkout. */
+export enum QrCheckoutDestination {
+  /** When a user scans a QR, they will be taken to the Salesforce B2C checkout flow. */
+  SalesforceB2C = 'SALESFORCE_B2C',
+  /** When a user scans a QR, they will be taken to the shopify payments page. */
+  Shopify = 'SHOPIFY',
+  /** When a user scans a QR, they will have the basket transferred to a third party service. */
+  TransferBasket = 'TRANSFER_BASKET',
+  /** This is an internal value and should not be used. */
+  Unknown = 'UNKNOWN'
+}
+
 export type Query = {
   __typename?: 'Query';
   allIngestionStats: Array<IngestionStatsPayload>;
@@ -2812,21 +3247,29 @@ export type Query = {
   availablePDPBlocks: Array<IncludablePdpBlock>;
   /** Returns a boolean value which indicates if the organisation can register a new device */
   canRegisterDevice: Scalars['Boolean']['output'];
+  /** Returns a checkout flow entity */
+  checkoutFlow?: Maybe<CheckoutFlowOptions>;
+  /** Returns a paginated array of checkout flows */
+  checkoutFlows: CheckoutFlowPaginatedPayload;
   /** Returns a Cloudshelf entity */
   cloudshelf?: Maybe<Cloudshelf>;
   cloudshelfEnginePayload: CloudshelfEnginePayload;
   /** Returns a paginated array of Cloudshelves */
   cloudshelves: CloudshelfPaginatedPayload;
+  createPaymentAttempt: PaymentGenericPayload;
   /** An internal function for getting a Cloudshelf Authentication Token. */
   customToken?: Maybe<Scalars['String']['output']>;
   /** Returns a Device entity */
   device?: Maybe<Device>;
+  deviceEngagementRecords: Array<DeviceEngagementRecord>;
   /** Returns a paginated array of Devices. */
   devices: DevicePaginatedPayload;
   engineProducts: EngineProductWithAdditionalInfoPayload;
   /** Returns a Filter entity */
   filter?: Maybe<Filter>;
   getMobileHandoff?: Maybe<MobileHandoff>;
+  getPaymentRequest: PaymentGenericPayload;
+  getPaymentToken: PaymentTokenPayload;
   getPresignedCustomisationUrl: Scalars['String']['output'];
   getVersionByType: KnownVersion;
   /** Returns all filters that can possibly be included in the Cloudshelf */
@@ -2841,6 +3284,7 @@ export type Query = {
   locations: LocationPaginatedPayload;
   /** Returns the currently authenticated user. */
   me: User;
+  metadataKeys: Array<Scalars['String']['output']>;
   nobleQueueByTaskType: TaskQueue;
   nobleQueues: Array<TaskQueue>;
   nobleTask?: Maybe<NobleTask>;
@@ -2887,6 +3331,7 @@ export type Query = {
   theme?: Maybe<Theme>;
   /** Returns a paginated array of Themes */
   themes: ThemePaginatedPayload;
+  uptimeRecords: Array<DeviceUptimeRecord>;
   usageStatsSessions: UsageSessionsResponse;
   /** Returns a User entity */
   user: User;
@@ -2899,6 +3344,21 @@ export type Query = {
 
 export type QueryAvailablePdpBlocksArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryCheckoutFlowArgs = {
+  id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryCheckoutFlowsArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  sortBy?: InputMaybe<SortOptionsInput>;
+  textSearch?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2925,6 +3385,12 @@ export type QueryCloudshelvesArgs = {
 };
 
 
+export type QueryCreatePaymentAttemptArgs = {
+  organisationId: Scalars['GlobalId']['input'];
+  sessionId: Scalars['GlobalId']['input'];
+};
+
+
 export type QueryCustomTokenArgs = {
   domain: Scalars['String']['input'];
 };
@@ -2932,6 +3398,13 @@ export type QueryCustomTokenArgs = {
 
 export type QueryDeviceArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryDeviceEngagementRecordsArgs = {
+  endDate: Scalars['UTCDateTime']['input'];
+  locationIds?: InputMaybe<Array<Scalars['GlobalId']['input']>>;
+  startDate: Scalars['UTCDateTime']['input'];
 };
 
 
@@ -2965,6 +3438,19 @@ export type QueryFilterArgs = {
 
 export type QueryGetMobileHandoffArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryGetPaymentRequestArgs = {
+  attemptId: Scalars['String']['input'];
+  sessionId: Scalars['GlobalId']['input'];
+  token: Scalars['String']['input'];
+};
+
+
+export type QueryGetPaymentTokenArgs = {
+  organisationId: Scalars['GlobalId']['input'];
+  sessionId: Scalars['GlobalId']['input'];
 };
 
 
@@ -3167,6 +3653,13 @@ export type QueryThemesArgs = {
 };
 
 
+export type QueryUptimeRecordsArgs = {
+  endDate: Scalars['UTCDateTime']['input'];
+  locationIds?: InputMaybe<Array<Scalars['GlobalId']['input']>>;
+  startDate: Scalars['UTCDateTime']['input'];
+};
+
+
 export type QueryUsageStatsSessionsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -3219,6 +3712,13 @@ export type SalesAssistantDeletePayload = {
   salesAssistants: Array<SalesAssistant>;
   /** An array of errors that occurred during the delete operation */
   userErrors: Array<UserError>;
+};
+
+export type SalesAssistantDetailsPrinterBlock = {
+  __typename?: 'SalesAssistantDetailsPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
 };
 
 export type SalesAssistantEdge = {
@@ -3301,6 +3801,7 @@ export type Session = {
   order?: Maybe<Order>;
   /** The organisation which owns this entity. */
   owningOrganisation: Organisation;
+  paymentAttemptId?: Maybe<Scalars['String']['output']>;
   salesAssistantId?: Maybe<Scalars['String']['output']>;
   salesAssistantName?: Maybe<Scalars['String']['output']>;
   /** The static of the session */
@@ -3343,6 +3844,7 @@ export type ShopifySubscriptionCheckData = {
 };
 
 export enum Size {
+  Hidden = 'HIDDEN',
   Large = 'LARGE',
   Regular = 'REGULAR',
   Small = 'SMALL'
@@ -3361,6 +3863,13 @@ export enum SortOrder {
   /** Sort in descending order */
   Desc = 'DESC'
 }
+
+export type SpacerPrinterBlock = {
+  __typename?: 'SpacerPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
 
 export type SubscriptionFeaturesInput = {
   accessToDisplayScheduling?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3500,14 +4009,30 @@ export type TaskQueueTasksArgs = {
   searchTypes?: InputMaybe<Array<NobleTaskStatus>>;
 };
 
+export type TextPrinterBlock = {
+  __typename?: 'TextPrinterBlock';
+  alignment: Alignment;
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+  size: Size;
+  textContent: Scalars['String']['output'];
+};
+
 /** This object represents a theme, which is a collection of styles and fonts that can be applied to a Cloudshelf. */
 export type Theme = {
   __typename?: 'Theme';
+  attractLoopBackgroundColor: Scalars['String']['output'];
+  attractLoopFontColor: Scalars['String']['output'];
+  attractLoopFontSize: Size;
   bodyFont: ThemeFont;
   /** An array of Cloudshelves that use this theme. */
   cloudshelves: Array<Cloudshelf>;
+  collectionGridTileModifier: Scalars['Float']['output'];
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
+  /** The custom CSS that will be loaded */
+  customCSS?: Maybe<Scalars['String']['output']>;
   /** The name of the theme. */
   displayName: Scalars['String']['output'];
   dynamicProductGridIncludeHero: Scalars['Boolean']['output'];
@@ -3518,6 +4043,12 @@ export type Theme = {
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   imageAnchor: ImageAnchor;
+  labelHorizontalAlignment: Alignment;
+  labelRules: Array<LabelRule>;
+  labelVerticalAlignment: VerticalAlignment;
+  /** The cloudshelf engine will override all colours and show the logo as a white cutout. */
+  logoForceWhite: Scalars['Boolean']['output'];
+  logoSize: Size;
   /** The logo URL for the organisations logo */
   logoUrl?: Maybe<Scalars['String']['output']>;
   /** The colour of the main text. */
@@ -3528,11 +4059,18 @@ export type Theme = {
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   /** The primary colour of the theme. */
   primaryColor: Scalars['String']['output'];
+  /** The primary contrastcolour of the theme. */
+  primaryContrastColor: Scalars['String']['output'];
+  productGridTileModifier: Scalars['Float']['output'];
   /** The colour of the purchase button. */
   purchaseColor: Scalars['String']['output'];
   radius: ThemeRadius;
   /** A boolean value indicating whether or not the Cloudshelf branding should be removed. */
   removeCloudshelfBranding: Scalars['Boolean']['output'];
+  /** The colour of the sale text (current price). */
+  saleColour: Scalars['String']['output'];
+  /** The colour of the sale text (original price). */
+  saleOriginalColour: Scalars['String']['output'];
   subheadingFont: ThemeFont;
   tileSize: TileSize;
   /** The date and time this entity was last updated. */
@@ -3581,8 +4119,14 @@ export type ThemeFontInput = {
 };
 
 export type ThemeInput = {
+  attractLoopBackgroundColor?: InputMaybe<Scalars['String']['input']>;
+  attractLoopFontColor?: InputMaybe<Scalars['String']['input']>;
+  /** Hidden will not be respected by the API */
+  attractLoopFontSize?: InputMaybe<Size>;
   blocksRounded?: InputMaybe<Scalars['Boolean']['input']>;
   bodyFont?: InputMaybe<ThemeFontInput>;
+  collectionGridTileModifier?: InputMaybe<Scalars['Float']['input']>;
+  customCSS?: InputMaybe<Scalars['String']['input']>;
   displayName?: InputMaybe<Scalars['String']['input']>;
   dynamicProductGridIncludeHero?: InputMaybe<Scalars['Boolean']['input']>;
   dynamicProductGridIncludeSquare?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3593,11 +4137,20 @@ export type ThemeInput = {
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   imageAnchor?: InputMaybe<ImageAnchor>;
   inputsRounded?: InputMaybe<Scalars['Boolean']['input']>;
+  labelHorizontalAlignment?: InputMaybe<Alignment>;
+  labelRules?: InputMaybe<Array<LabelRuleInput>>;
+  labelVerticalAlignment?: InputMaybe<VerticalAlignment>;
+  logoForceWhite?: InputMaybe<Scalars['Boolean']['input']>;
+  logoSize?: InputMaybe<Size>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   mainTextColor?: InputMaybe<Scalars['String']['input']>;
   primaryColor?: InputMaybe<Scalars['String']['input']>;
+  primaryContrastColor?: InputMaybe<Scalars['String']['input']>;
+  productGridTileModifier?: InputMaybe<Scalars['Float']['input']>;
   purchaseColor?: InputMaybe<Scalars['String']['input']>;
   removeCloudshelfBranding?: InputMaybe<Scalars['Boolean']['input']>;
+  saleColour?: InputMaybe<Scalars['String']['input']>;
+  saleOriginalColour?: InputMaybe<Scalars['String']['input']>;
   subheadingFont?: InputMaybe<ThemeFontInput>;
   tileSize?: InputMaybe<TileSize>;
 };
@@ -3638,6 +4191,19 @@ export type ThemeUpsertPayload = {
   userErrors: Array<UserError>;
 };
 
+export type ThirdPartyOrder = {
+  __typename?: 'ThirdPartyOrder';
+  id: Scalars['String']['output'];
+  taxLines: Array<ThirdPartyTaxLine>;
+};
+
+export type ThirdPartyTaxLine = {
+  __typename?: 'ThirdPartyTaxLine';
+  money: Scalars['Float']['output'];
+  ratePercentage: Scalars['Float']['output'];
+  title: Scalars['String']['output'];
+};
+
 /** The default size your product tiles will use, hero sizes will be larger than the standard size selected here */
 export enum TileSize {
   /** 2x2 */
@@ -3652,11 +4218,12 @@ export enum TileSize {
   Wide = 'WIDE'
 }
 
-export enum TouchIndicator {
-  BouncingArrow = 'BOUNCING_ARROW',
-  ClassicHandPointer = 'CLASSIC_HAND_POINTER',
-  None = 'NONE'
-}
+export type TimestampPrinterBlock = {
+  __typename?: 'TimestampPrinterBlock';
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Int']['output'];
+  printerBlockDiscriminator: Scalars['String']['output'];
+};
 
 export type TrackedUrl = {
   __typename?: 'TrackedURL';
@@ -3861,10 +4428,44 @@ export enum VersionType {
   Worker = 'WORKER'
 }
 
+/** How to vertically align the entity in the parent's space. */
+export enum VerticalAlignment {
+  /** Align the entity to the bottom of the parent. */
+  Bottom = 'BOTTOM',
+  /** Align the entity to the center of the parent. */
+  Center = 'CENTER',
+  /** Align the entity to the top of the parent. */
+  Top = 'TOP'
+}
+
 export enum VisibilityType {
   CloudshelfInternal = 'CLOUDSHELF_INTERNAL',
   Retailer = 'RETAILER'
 }
+
+export type VivawalletPaymentProvider = {
+  __typename?: 'VivawalletPaymentProvider';
+  currencyCode: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  paymentProviderDiscriminator: Scalars['String']['output'];
+  posApiClientId: Scalars['String']['output'];
+  posApiClientSecret: Scalars['String']['output'];
+  useDemoMode: Scalars['Boolean']['output'];
+};
+
+export type VivawalletPaymentProviderInput = {
+  currencyCode: Scalars['String']['input'];
+  /** The display name of the payment provider */
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  /** Use this field to provide either a Cloudshelf gid */
+  id?: InputMaybe<Scalars['GlobalId']['input']>;
+  /** This must be VIVAWALLET */
+  paymentProviderDiscriminator?: Scalars['String']['input'];
+  posApiClientId: Scalars['String']['input'];
+  posApiClientSecret: Scalars['String']['input'];
+  useDemoMode: Scalars['Boolean']['input'];
+};
 
 export type Webhook = {
   __typename?: 'Webhook';
