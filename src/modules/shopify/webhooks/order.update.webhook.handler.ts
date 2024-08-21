@@ -66,6 +66,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         const shopifyCartGid = `gid://shopify/Cart/${data.cart_token}`;
 
         this.logger.debug('Order ID: ' + data.admin_graphql_api_id);
+        this.logger.debug('Order for cartID: ' + shopifyCartGid);
         this.logger.debug('Order for CheckoutId:' + data.checkout_id);
         this.logger.debug('Order financial status:' + data.financial_status);
         this.logger.debug(`Order Placed on Cloudshelf: ${cloudshelfAttribute?.value}`);
