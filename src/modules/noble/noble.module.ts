@@ -10,11 +10,7 @@ import { NobleTaskQueueResolver } from './noble.task.queue.resolver';
 import { NobleTaskResolver } from './noble.task.resolver';
 
 @Module({
-    imports: [
-        MikroOrmModule.forFeature([NobleTaskEntity, NobleTaskLogEntity, NobleTaskErrorEntity]),
-        CloudshelfModule,
-        forwardRef(() => ToolsModule),
-    ],
+    imports: [CloudshelfModule, forwardRef(() => ToolsModule)],
     providers: [NobleService, NobleTaskQueueResolver, NobleTaskResolver],
     exports: [NobleService],
 })

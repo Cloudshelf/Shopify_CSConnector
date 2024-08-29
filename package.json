@@ -25,17 +25,21 @@
         "start:prod": "node dist/main",
         "sentry:sourcemaps": "sentry-cli sourcemaps inject --org cloudshelf --project connector-shopify ./dist && sentry-cli --url https://apm.cloudshelf.ai sourcemaps upload --org cloudshelf --project connector-shopify ./dist",
         "--- other ---": "",
-        "postinstall": "patch-package"
+        "postinstall": "patch-package",
+        "--- trigger ---": "",
+        "trigger:dev": "npx trigger.dev@beta dev",
+        "trigger:deploy:staging": "npx trigger.dev@beta deploy --env staging",
+        "trigger:deploy:production": "npx trigger.dev@beta deploy --env prod"
     },
     "dependencies": {
         "@apollo/client": "^3.8.1",
         "@apollo/server": "^4.10.0",
         "@aws-sdk/client-s3": "^3.515.0",
-        "@mikro-orm/cli": "^6.2.5",
-        "@mikro-orm/core": "^6.2.5",
-        "@mikro-orm/migrations": "^6.2.5",
-        "@mikro-orm/nestjs": "^5.2.3",
-        "@mikro-orm/postgresql": "^6.2.5",
+        "@mikro-orm/cli": "^6.3.6",
+        "@mikro-orm/core": "^6.3.6",
+        "@mikro-orm/migrations": "^6.3.6",
+        "@mikro-orm/nestjs": "^6.0.2",
+        "@mikro-orm/postgresql": "^6.3.6",
         "@mikro-orm/sql-highlighter": "^1.0.1",
         "@nestjs-shopify/auth": "^4.2.0",
         "@nestjs-shopify/core": "^3.3.0",
@@ -54,6 +58,7 @@
         "@sentry/tracing": "^7.114.0",
         "@shopify/shopify-api": "^9.0.2",
         "@slack/web-api": "^7.0.1",
+        "@trigger.dev/sdk": "3.0.0-beta.55",
         "apollo-server-core": "^3.13.0",
         "async": "^3.2.5",
         "date-fns": "^3.3.1",
@@ -66,7 +71,13 @@
         "nestjs-cls": "^4.3.0",
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.2.0",
-        "ulid": "^2.3.0"
+        "ulid": "^2.3.0",
+        "@opentelemetry/instrumentation-fs": "^0.14.0",
+        "@opentelemetry/instrumentation-http": "^0.52.1",
+        "@opentelemetry/instrumentation-pg": "^0.43.0",
+        "@opentelemetry/instrumentation-undici": "^0.4.0",
+        "class-transformer": "^0.3.1",
+        "ts-morph":"21.0.0"
     },
     "devDependencies": {
         "@graphql-codegen/cli": "5.0.0",
@@ -100,7 +111,108 @@
         "ts-loader": "^9.2.3",
         "ts-node": "^10.0.0",
         "tsconfig-paths": "4.2.0",
-        "typescript": "^4.7.4"
+        "typescript": "^4.7.4",
+        "@azure/app-configuration": "1.7.0",
+        "@azure/keyvault-secrets": "4.8.0",
+        "oci-common": "2.93.0",
+        "oci-identity": "2.93.0",
+        "oci-secrets": "2.93.0",
+        "oci-objectstorage": "2.93.0"
+    },
+    "peerDependencies": {
+        "@apollo/subgraph": "*",
+        "@nestjs/microservices": "*",
+        "@nestjs/platform-socket.io": "*",
+        "@nestjs/websockets": "*",
+        "amqp-connection-manager": "*",
+        "amqplib": "*",
+        "better-sqlite3": "*",
+        "class-validator": "*",
+        "ioredis": "*",
+        "kafkajs": "*",
+        "libsql": "*",
+        "mariadb": "*",
+        "mqtt": "*",
+        "mysql": "*",
+        "mysql2": "*",
+        "nats": "*",
+        "oracledb": "*",
+        "pg-query-stream": "*",
+        "sqlite3": "*",
+        "tedious": "*",
+        "ts-morph": "*",
+        "@azure/app-configuration": "*"
+      },
+      "peerDependenciesMeta": {
+        "@apollo/subgraph": {
+            "optional": true
+        },
+        "@nestjs/microservices": {
+            "optional": true
+        },
+        "@nestjs/platform-socket.io": {
+            "optional": true
+        },
+        "@nestjs/websockets": {
+            "optional": true
+        },
+        "amqp-connection-manager": {
+            "optional": true
+        },
+        "amqplib": {
+            "optional": true
+        },
+        "better-sqlite3": {
+            "optional": true
+        },
+        "class-transformer": {
+            "optional": true
+        },
+        "class-validator": {
+        "optional": true
+        },
+        "ioredis": {
+            "optional": true
+        },
+        "kafkajs": {
+            "optional": true
+        },
+        "libsql": {
+            "optional": true
+        },
+        "mariadb": {
+            "optional": true
+        },
+        "mqtt": {
+            "optional": true
+        },
+        "mysql": {
+            "optional": true
+        },
+        "mysql2": {
+            "optional": true
+        },
+        "nats": {
+            "optional": true
+        },
+        "oracledb": {
+            "optional": true
+        },
+        "pg-query-stream": {
+            "optional": true
+        },
+        "sqlite3": {
+            "optional": true
+        },
+        "tedious": {
+            "optional": true
+        },
+        "ts-morph": {
+            "optional": true
+        },
+        "@azure/app-configuration": {
+            "optional": true
+        }
     },
     "jest": {
         "moduleFileExtensions": [

@@ -16,14 +16,7 @@ import { ProductJobService } from './product/product.job.service';
 import { ProductProcessor } from './product/product.processor';
 
 @Module({
-    imports: [
-        MikroOrmModule.forFeature([BulkOperation]),
-        forwardRef(() => ShopifyModule),
-        NobleModule,
-        RetailerModule,
-        CloudshelfModule,
-        ToolsModule,
-    ],
+    imports: [forwardRef(() => ShopifyModule), NobleModule, RetailerModule, CloudshelfModule, ToolsModule],
     providers: [
         CollectionsProcessor,
         ProductProcessor,

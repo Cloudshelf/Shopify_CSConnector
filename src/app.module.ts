@@ -12,8 +12,10 @@ import { ClsModule } from 'nestjs-cls';
 import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
 import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.module';
+import { AllDatabaseEntities } from './modules/database/entites';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { NobleModule } from './modules/noble/noble.module';
@@ -48,6 +50,7 @@ import { ToolsModule } from './modules/tools/tools.module';
         NobleModule,
         ToolsModule,
         ScheduleModule.forRoot(),
+        MikroOrmModule.forFeature(AllDatabaseEntities),
     ],
     controllers: [],
     providers: [],
