@@ -26,8 +26,8 @@ export const config: TriggerConfig = {
         new HttpInstrumentation(),
         new FsInstrumentation(),
     ],
-    onStart: async (payload, { ctx }) => {
-        logger.info(`Started on machine "${ctx.machine?.name ?? 'Unknown'}"`, { ctx });
+    init: async (payload, { ctx }) => {
+        logger.info(`Initialized on machine "${ctx.machine?.name ?? 'Unknown'}"`, { ctx });
         await StartMikroORMForTrigger();
     },
     onSuccess: async (payload, output, params) => {

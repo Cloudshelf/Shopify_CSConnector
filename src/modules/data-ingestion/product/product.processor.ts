@@ -536,9 +536,7 @@ export class ProductProcessor implements OnApplicationBootstrap {
                 task,
                 `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
             );
-            await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
-                await this.nobleService.addTimedLogMessage(task, logMessage);
-            });
+            await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input);
         }
 
         await handleComplete('job complete', retailer);

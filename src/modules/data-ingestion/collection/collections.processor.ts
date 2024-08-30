@@ -289,11 +289,7 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
             `Upserting collections to cloudshelf: ${JSON.stringify(productGroupInputs)}`,
         );
 
-        await this.cloudshelfApiService.updateProductGroups(
-            retailer.domain,
-            productGroupInputs,
-            async (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
-        );
+        await this.cloudshelfApiService.updateProductGroups(retailer.domain, productGroupInputs);
 
         await this.nobleService.addTimedLogMessage(task, `Updating products in collections on cloudshelf`);
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
@@ -307,7 +303,6 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
                 retailer.domain,
                 productGroupId,
                 reversedProductIds,
-                async (logMessage: string) => this.nobleService.addTimedLogMessage(task, logMessage),
             );
         }
 
@@ -359,9 +354,7 @@ export class CollectionsProcessor implements OnApplicationBootstrap {
                 `Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`,
             );
 
-            await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input, async logMessage => {
-                await this.nobleService.addTimedLogMessage(task, logMessage);
-            });
+            await this.cloudshelfApiService.reportCatalogStats(retailer.domain, input);
         }
         await handleComplete(retailer);
     }

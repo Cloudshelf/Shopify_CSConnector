@@ -1,4 +1,3 @@
-
 fragment LocationAddressDetails on LocationAddress {
     formatted
     phone
@@ -24,6 +23,7 @@ query getLocations($after: String) {
         }
         pageInfo {
             hasNextPage
+            endCursor
         }
     }
 }

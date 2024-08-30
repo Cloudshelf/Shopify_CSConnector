@@ -478,9 +478,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                                 foundOrg.syncErrorCode = '402';
                                 this.entityManager.persist(foundOrg);
 
-                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true}, async logMessage => {
-                                    await this.addTimedLogMessage(task!, logMessage);
-                                });
+                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true});
                             }
                         }
                         if (err.message.toLowerCase().includes('received status code 404')) {
@@ -489,9 +487,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                                 foundOrg.syncErrorCode = '404';
                                 this.entityManager.persist(foundOrg);
 
-                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true}, async logMessage => {
-                                    await this.addTimedLogMessage(task!, logMessage);
-                                });
+                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true});
                             }
 
                         }
@@ -502,9 +498,7 @@ export class NobleService implements BeforeApplicationShutdown, OnApplicationBoo
                                 foundOrg.syncErrorCode = '401';
                                 this.entityManager.persist(foundOrg);
 
-                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true}, async logMessage => {
-                                    await this.addTimedLogMessage(task!, logMessage);
-                                });
+                                await this.cloudshelfApiService.reportCatalogStats(foundOrg.domain, {storeClosed: true});
                             }
 
                         }
