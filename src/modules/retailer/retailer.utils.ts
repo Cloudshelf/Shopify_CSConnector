@@ -153,7 +153,7 @@ export class RetailerUtils {
             logs?.error(e);
         }
 
-        await this.save(em, entity);
+        await RetailerUtils.save(em, entity);
         return entity;
     }
 
@@ -189,7 +189,7 @@ export class RetailerUtils {
         retailer.email = query.data.shop.email;
         retailer.currencyCode = query.data.shop.currencyCode;
 
-        await this.save(em, retailer);
+        await RetailerUtils.save(em, retailer);
         return retailer;
     }
 
@@ -209,7 +209,7 @@ export class RetailerUtils {
         }
 
         retailer.logoUrlFromShopify = query.data.shop.brand?.logo?.image?.url ?? null;
-        await this.save(em, retailer);
+        await RetailerUtils.save(em, retailer);
         return retailer;
     }
 
