@@ -6,10 +6,10 @@ import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../../data-ingestion/bulk.operation.type';
-import { CollectionJobService } from '../../data-ingestion/collection/collection.job.service';
-import { ProductJobService } from '../../data-ingestion/product/product.job.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { CollectionJobUtils } from 'src/modules/data-ingestion/collection.job.utils';
+import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
 
 export interface BulkOperationWebhookPayload {
     admin_graphql_api_id: string;
@@ -27,8 +27,6 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
     constructor(
         private readonly retailerService: RetailerService,
         private readonly bulkOperationService: BulkOperationService,
-        private readonly productJobService: ProductJobService,
-        private readonly collectionJobService: CollectionJobService,
         private readonly configService: ConfigService<typeof shopifySchema>,
     ) {
         super();
@@ -69,10 +67,10 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
 
             if (bulkOp.type === BulkOperationType.ProductSync) {
                 //create the product consumer
-                await this.productJobService.scheduleConsumerJob(retailer, bulkOp);
+                await ProductJobUtils.scheduleConsumerJob(retailer, bulkOp);
             } else if (bulkOp.type === BulkOperationType.ProductGroupSync) {
                 //create the product group consumer
-                await this.collectionJobService.scheduleConsumerJob(retailer, bulkOp);
+                await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOp);
             } else {
                 this.logger.error('Unknown bulk operation type ' + bulkOp.type);
             }

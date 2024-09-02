@@ -1,20 +1,21 @@
 import { ApolloClient, InMemoryCache, NormalizedCacheObject, createHttpLink, from } from '@apollo/client/core';
 import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
+import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { createShopifyRetryLink } from './throttling/shopify.throttling.error.link';
 
 export class ShopifyGraphqlUtil {
-    static async getShopifyAdminApolloClientByRetailer(retailer: RetailerEntity, logFn?: (s: string) => void) {
+    static async getShopifyAdminApolloClientByRetailer(retailer: RetailerEntity, logs?: LogsInterface) {
         const domain = retailer.domain;
         const accessToken = retailer.accessToken;
 
-        return this.getShopifyAdminApolloClient(domain, accessToken, logFn);
+        return this.getShopifyAdminApolloClient(domain, accessToken, logs);
     }
 
     static async getShopifyAdminApolloClient(
         domain: string,
         accessToken: string,
-        logFn?: (s: string) => void,
+        logs?: LogsInterface,
     ): Promise<ApolloClient<NormalizedCacheObject>> {
         const endpoint = createHttpLink({
             uri: `https://${domain}/admin/api/2024-01/graphql.json`,
@@ -24,7 +25,7 @@ export class ShopifyGraphqlUtil {
             },
         });
 
-        const rateLimit = createShopifyRetryLink(logFn);
+        const rateLimit = createShopifyRetryLink(logs);
 
         return new ApolloClient({
             cache: new InMemoryCache(),

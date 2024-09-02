@@ -1485,12 +1485,6 @@ export type Filter = {
   valueOverrides: Array<AttributeValueOverride>;
 };
 
-export type FilterExtractionJobData = {
-  __typename?: 'FilterExtractionJobData';
-  cloudshelfId: Scalars['GlobalId']['output'];
-  dataType: Scalars['String']['output'];
-};
-
 export enum FilterExtractionStatus {
   Extracted = 'EXTRACTED',
   Pending = 'PENDING',
@@ -1544,7 +1538,6 @@ export enum FilterType {
   CategoryHandle = 'CATEGORY_HANDLE',
   CategoryId = 'CATEGORY_ID',
   Colour = 'COLOUR',
-  Images = 'IMAGES',
   Material = 'MATERIAL',
   Metadata = 'METADATA',
   Price = 'PRICE',
@@ -1552,7 +1545,6 @@ export enum FilterType {
   ProductTitle = 'PRODUCT_TITLE',
   ProductType = 'PRODUCT_TYPE',
   Promotions = 'PROMOTIONS',
-  ShoeSize = 'SHOE_SIZE',
   Size = 'SIZE',
   SortOrder = 'SORT_ORDER',
   StockLevel = 'STOCK_LEVEL',
@@ -1941,7 +1933,6 @@ export type Mutation = {
   deleteProducts: ProductDeletePayload;
   /** Allows the deletion of sales assistants */
   deleteSalesAssistants: SalesAssistantDeletePayload;
-  deleteTask: Scalars['Boolean']['output'];
   /** Allows the deletion of Themes */
   deleteThemes: ThemeDeletePayload;
   duplicateCloudshelves: CloudshelfDuplicatePayload;
@@ -1959,7 +1950,6 @@ export type Mutation = {
   markInstallComplete: Scalars['Boolean']['output'];
   markShopifyOrganisationUninstallStarted: Scalars['Boolean']['output'];
   newSession: Session;
-  promoteTask: Scalars['Boolean']['output'];
   /** Register a webhook for a given subject. The supplied URL will be called with a POST request when the subject is triggered. */
   registerWebhook: WebhookRegisterPayload;
   /** Removes the given products from the product group, if they are currently part of it */
@@ -1967,8 +1957,6 @@ export type Mutation = {
   reportCatalogStats: Scalars['Boolean']['output'];
   reportDeviceOnline: Scalars['Boolean']['output'];
   requestShopifySubscriptionCheck: Scalars['Boolean']['output'];
-  restartLongRunningJobs: Scalars['Boolean']['output'];
-  restartTask: Scalars['Boolean']['output'];
   revokeAccessRight: Scalars['Boolean']['output'];
   /** This is an internal function. This allows Cloudshelf staff to run internal tools */
   runInternalTool: Scalars['String']['output'];
@@ -1978,13 +1966,11 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
-  setPausedNobleQueuesByType: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
   startPaymentRequest: PaymentGenericPayload;
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
-  toggleNoblePaused: Scalars['Boolean']['output'];
   /** Unregister a webhook for a given subject. If an array of ids is supplied, only the webhooks corresponding to the supplied ids will be unregistered, if they exists. If no array is supplied, all webhooks for the given subject will be unregistered. */
   unregisterWebhooks: WebhookRegisterPayload;
   unsubscribe: Scalars['Boolean']['output'];
@@ -2114,11 +2100,6 @@ export type MutationDeleteSalesAssistantsArgs = {
 };
 
 
-export type MutationDeleteTaskArgs = {
-  id: Scalars['GlobalId']['input'];
-};
-
-
 export type MutationDeleteThemesArgs = {
   ids: Array<Scalars['GlobalId']['input']>;
 };
@@ -2180,11 +2161,6 @@ export type MutationNewSessionArgs = {
 };
 
 
-export type MutationPromoteTaskArgs = {
-  id: Scalars['GlobalId']['input'];
-};
-
-
 export type MutationRegisterWebhookArgs = {
   inputs: Array<WebhookRegisterInput>;
 };
@@ -2216,16 +2192,6 @@ export type MutationReportDeviceOnlineArgs = {
 
 export type MutationRequestShopifySubscriptionCheckArgs = {
   shopifyGid: Scalars['String']['input'];
-};
-
-
-export type MutationRestartLongRunningJobsArgs = {
-  key: Scalars['String']['input'];
-};
-
-
-export type MutationRestartTaskArgs = {
-  id: Scalars['GlobalId']['input'];
 };
 
 
@@ -2265,11 +2231,6 @@ export type MutationSetActiveVersionArgs = {
 export type MutationSetHandoffImageUrlArgs = {
   id: Scalars['GlobalId']['input'];
   imageUrl: Scalars['String']['input'];
-};
-
-
-export type MutationSetPausedNobleQueuesByTypeArgs = {
-  types: Array<NobleTaskType>;
 };
 
 
@@ -2404,84 +2365,6 @@ export type MutationUpsertThemeArgs = {
 export type MutationUpsertUserArgs = {
   input: UpsertUserInput;
 };
-
-/** Represents a a background processing job */
-export type NobleTask = {
-  __typename?: 'NobleTask';
-  beingProcessedBy?: Maybe<Scalars['String']['output']>;
-  /** The date and time this entity was created. */
-  createdAt: Scalars['UTCDateTime']['output'];
-  data?: Maybe<NobleTaskDataUnion>;
-  errors?: Maybe<Array<Scalars['String']['output']>>;
-  failed: Scalars['Boolean']['output'];
-  /** The time this job started */
-  finishTime: Scalars['UTCDateTime']['output'];
-  /** A unique internal GlobalId for this entity. */
-  id: Scalars['GlobalId']['output'];
-  isComplete: Scalars['Boolean']['output'];
-  jsonData?: Maybe<Scalars['String']['output']>;
-  logMessages: Array<Scalars['String']['output']>;
-  organisationId?: Maybe<Scalars['String']['output']>;
-  priority: Scalars['Float']['output'];
-  processingOnInstance?: Maybe<Scalars['String']['output']>;
-  retries: Scalars['Float']['output'];
-  /** The date time this job is schedule to run at. Note that this is not a guaranteed time, its simple the earliest it can run. */
-  scheduledStart: Scalars['UTCDateTime']['output'];
-  /** The time this job started */
-  startTime: Scalars['UTCDateTime']['output'];
-  status: NobleTaskStatus;
-  taskType: NobleTaskType;
-  /** The date and time this entity was last updated. */
-  updatedAt: Scalars['UTCDateTime']['output'];
-};
-
-export type NobleTaskDataUnion = FilterExtractionJobData | ShopifySubscriptionCheckData;
-
-export type NobleTaskEdge = {
-  __typename?: 'NobleTaskEdge';
-  /** The cursor for provided node to be used in pagination */
-  cursor?: Maybe<Scalars['String']['output']>;
-  /** The NobleTask entity */
-  node?: Maybe<NobleTask>;
-};
-
-export type NobleTaskPageInfo = {
-  __typename?: 'NobleTaskPageInfo';
-  /** The cursor for the last node in the page */
-  endCursor?: Maybe<Scalars['String']['output']>;
-  /** Whether or not there is a another page of data */
-  hasNextPage: Scalars['Boolean']['output'];
-  /** Whether or not there is a previous page of data */
-  hasPreviousPage: Scalars['Boolean']['output'];
-  /** The cursor for the first node in the page */
-  startCursor?: Maybe<Scalars['String']['output']>;
-};
-
-export type NobleTaskResponse = {
-  __typename?: 'NobleTaskResponse';
-  edges?: Maybe<Array<NobleTaskEdge>>;
-  pageInfo?: Maybe<NobleTaskPageInfo>;
-  /** The total number of items available */
-  totalCount: Scalars['Int']['output'];
-};
-
-export enum NobleTaskStatus {
-  All = 'All',
-  Complete = 'Complete',
-  Failed = 'Failed',
-  InProgress = 'InProgress',
-  Pending = 'Pending'
-}
-
-export enum NobleTaskType {
-  Debug = 'Debug',
-  DebugError = 'DebugError',
-  FilterExtraction = 'FilterExtraction',
-  ImageProcessing = 'ImageProcessing',
-  ShopifySubscriptionCheck = 'ShopifySubscriptionCheck',
-  StorefinderSearch = 'StorefinderSearch',
-  WappalyzerQuery = 'WappalyzerQuery'
-}
 
 export enum NonInteractiveCollectionType {
   Cheapest = 'CHEAPEST',
@@ -3276,7 +3159,6 @@ export type Query = {
   includeableFilters: Array<CloudshelfIncludableFilter>;
   ingestionStats: IngestionStatsPayload;
   isInMaintenanceMode: Scalars['Boolean']['output'];
-  isNobleEnabled: Scalars['Boolean']['output'];
   isTrackedURLScanned: Scalars['Boolean']['output'];
   /** Returns a location entity */
   location?: Maybe<Location>;
@@ -3285,10 +3167,6 @@ export type Query = {
   /** Returns the currently authenticated user. */
   me: User;
   metadataKeys: Array<Scalars['String']['output']>;
-  nobleQueueByTaskType: TaskQueue;
-  nobleQueues: Array<TaskQueue>;
-  nobleTask?: Maybe<NobleTask>;
-  nobleTasksByTypes: NobleTaskResponse;
   /** Returns an Order entity. */
   order?: Maybe<Order>;
   /** Returns a paginated array of Order entities */
@@ -3301,7 +3179,6 @@ export type Query = {
   organisationUsers: UserForOrganisationPaginatedPayload;
   /** Returns a paginated array of organisations */
   organisations: OrganisationPaginatedPayload;
-  pausedNobleQueues: Array<NobleTaskType>;
   /** Returns a paginated array of plugins */
   plugins: PluginPaginatedPayload;
   /** Returns a Product entity. */
@@ -3326,7 +3203,6 @@ export type Query = {
   /** Returns a list of currently available subscription plans */
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
   syncStats: SyncStatsPayload;
-  testFilters: Scalars['Boolean']['output'];
   /** Returns a theme entity */
   theme?: Maybe<Theme>;
   /** Returns a paginated array of Themes */
@@ -3491,26 +3367,6 @@ export type QueryLocationsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<SortOptionsInput>;
   textSearch?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryNobleQueueByTaskTypeArgs = {
-  taskType: NobleTaskType;
-};
-
-
-export type QueryNobleTaskArgs = {
-  id: Scalars['GlobalId']['input'];
-};
-
-
-export type QueryNobleTasksByTypesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  searchTypes?: InputMaybe<Array<NobleTaskStatus>>;
-  types?: InputMaybe<Array<NobleTaskType>>;
 };
 
 
@@ -3837,12 +3693,6 @@ export type ShopifyStoreUninstallInput = {
   domain: Scalars['String']['input'];
 };
 
-export type ShopifySubscriptionCheckData = {
-  __typename?: 'ShopifySubscriptionCheckData';
-  dataType: Scalars['String']['output'];
-  shopifyGid: Scalars['String']['output'];
-};
-
 export enum Size {
   Hidden = 'HIDDEN',
   Large = 'LARGE',
@@ -3986,27 +3836,6 @@ export type SyncStatsPayload = {
   lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProducts?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForVariants?: Maybe<CatalogStats>;
-};
-
-export type TaskQueue = {
-  __typename?: 'TaskQueue';
-  activeWorkers: Scalars['Int']['output'];
-  concurrency: Scalars['Float']['output'];
-  name: Scalars['String']['output'];
-  noTasksDelay: Scalars['Float']['output'];
-  retries: Scalars['Float']['output'];
-  taskDelay: Scalars['Float']['output'];
-  taskType: NobleTaskType;
-  tasks: NobleTaskResponse;
-};
-
-
-export type TaskQueueTasksArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  searchTypes?: InputMaybe<Array<NobleTaskStatus>>;
 };
 
 export type TextPrinterBlock = {
@@ -4552,6 +4381,7 @@ export const UpsertLocationsDocument = gql`
   upsertLocations(input: $input) {
     locations {
       id
+      platformProvidedId
     }
     userErrors {
       code
@@ -4758,7 +4588,7 @@ export type UpsertLocationsMutationVariables = Exact<{
 }>;
 
 
-export type UpsertLocationsMutation = { __typename?: 'Mutation', upsertLocations: { __typename?: 'LocationUpsertPayload', locations: Array<{ __typename?: 'Location', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+export type UpsertLocationsMutation = { __typename?: 'Mutation', upsertLocations: { __typename?: 'LocationUpsertPayload', locations: Array<{ __typename?: 'Location', id: any, platformProvidedId?: any | null }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
 
 export type UpsertStoreMutationVariables = Exact<{
   input: ShopifyStoreInput;

@@ -6,7 +6,7 @@ import { RetailerEntityResolver } from './retailer.resolver';
 import { RetailerService } from './retailer.service';
 
 @Module({
-    imports: [MikroOrmModule.forFeature([RetailerEntity]), IntegrationsModule],
+    imports: [IntegrationsModule],
     providers: [RetailerService, RetailerEntityResolver],
     controllers: [],
     exports: [RetailerService],

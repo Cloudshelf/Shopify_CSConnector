@@ -2,6 +2,7 @@ mutation UpsertLocations($input: [LocationInput!]!) {
     upsertLocations(input: $input) {
         locations {
             id
+            platformProvidedId
         }
         userErrors {
             code

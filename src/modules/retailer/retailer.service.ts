@@ -1,28 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import {
-    BulkOperationByShopifyIdDocument,
-    BulkOperationByShopifyIdQuery,
-    BulkOperationByShopifyIdQueryVariables,
-    GetShopInformationDocument,
-    GetShopInformationQuery,
-    GetShopInformationQueryVariables,
-} from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
-import {
-    GetThemeInformationDocument,
-    GetThemeInformationQuery,
-    GetThemeInformationQueryVariables,
-} from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
-import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
-import { app } from '../../main';
-import { NotificationUtils } from '../../utils/NotificationUtils';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
+import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { SlackService } from '../integrations/slack.service';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
-import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
+import { RetailerUtils } from './retailer.utils';
+import { Shopify } from '@shopify/shopify-api';
+import { NotificationUtils } from 'src/utils/NotificationUtils';
 
 @Injectable()
 export class RetailerService {
@@ -74,99 +61,53 @@ export class RetailerService {
         accessToken: string,
         scopesString: string,
     ): Promise<{ entity: RetailerEntity; status: UpdateOrCreateStatusType }> {
-        this.logger.log(`findOrCreate: ${domain}`);
-        let status: UpdateOrCreateStatusType = 'noChange';
-        let shop = await this.entityManager.findOne(RetailerEntity, { domain });
-        const scopesArray = scopesString.split(',') ?? [];
-
-        if (shop) {
-            if (shop.accessToken !== accessToken || shop.scopes !== scopesArray) {
-                status = 'updated';
-            }
-            shop = this.entityManager.assign(shop, { accessToken, scopes: scopesArray });
-        } else {
-            const now = new Date();
-            shop = this.entityManager.create(RetailerEntity, {
-                domain,
-                accessToken,
-                scopes: scopesArray,
-                createdAt: now,
-                updatedAt: now,
-            });
-            status = 'created';
-        }
-
-        await this.entityManager.persistAndFlush(shop);
-        return { entity: shop, status };
+        return RetailerUtils.updateOrCreate(this.entityManager, domain, accessToken, scopesString);
     }
 
     @SentryInstrument('RetailerService')
     async existsByDomain(domain: string): Promise<boolean> {
-        return !!(await this.entityManager.findOne(RetailerEntity, { domain }));
+        return RetailerUtils.existsByDomain(this.entityManager, domain);
     }
 
     @SentryInstrument('RetailerService')
     async deleteByDomain(domain: string): Promise<boolean> {
-        const retailer = await this.entityManager.findOne(RetailerEntity, { domain });
-        if (!!retailer) {
-            await this.entityManager.removeAndFlush(retailer);
-            return true;
-        }
-
-        return false;
+        return RetailerUtils.deleteByDomain(this.entityManager, domain);
     }
 
     @SentryInstrument('RetailerService')
     async getSharedSecret(domain: string): Promise<string | undefined> {
-        let em = this.entityManager;
-
-        if (em === undefined) {
-            const orm = app!.get(MikroORM);
-            em = orm.em.fork();
-        }
-
-        const shop = await em.findOne(RetailerEntity, { domain });
-
-        if (!shop) {
-            return undefined;
-        }
-
-        return shop.sharedSecret ?? undefined;
+        return RetailerUtils.getSharedSecret(this.entityManager, domain);
     }
 
     @SentryInstrument('RetailerService')
     async save(entity: RetailerEntity) {
-        await this.entityManager.persistAndFlush(entity);
+        return await RetailerUtils.save(this.entityManager, entity);
     }
 
     @SentryInstrument('RetailerService')
     getById(organisationId: string) {
-        return this.entityManager.findOne(RetailerEntity, { id: organisationId });
+        return RetailerUtils.getById(this.entityManager, organisationId);
     }
 
     @SentryInstrument('RetailerService')
     async getByDomain(domain: string) {
-        return this.entityManager.findOne(RetailerEntity, { domain });
+        return RetailerUtils.getByDomain(this.entityManager, domain);
     }
 
     async updateLastProductSyncTime(retailer: RetailerEntity) {
-        retailer.lastProductSync = new Date();
-        await this.entityManager.persistAndFlush(retailer);
+        return await RetailerUtils.updateLastProductSyncTime(this.entityManager, retailer);
     }
 
     async updateLastProductGroupSyncTime(retailer: RetailerEntity) {
-        retailer.lastProductGroupSync = new Date();
-        await this.entityManager.persistAndFlush(retailer);
+        return await RetailerUtils.updateLastProductGroupSyncTime(this.entityManager, retailer);
     }
 
     async updateLastSafetyRequestedTime(retailer: RetailerEntity) {
-        retailer.lastSafetySyncRequested = new Date();
-        await this.entityManager.persistAndFlush(retailer);
+        return await RetailerUtils.updateLastSafetyRequestedTime(this.entityManager, retailer);
     }
 
     async updateLastSafetyCompletedTime(retailer: RetailerEntity) {
-        retailer.lastSafetySyncCompleted = new Date();
-        await this.entityManager.persistAndFlush(retailer);
+        return await RetailerUtils.updateLastSafetyCompletedTime(this.entityManager, retailer);
     }
 
     async updateShopInformationFromShopifyOnlineSession(
@@ -174,89 +115,23 @@ export class RetailerService {
         entity: RetailerEntity,
         session: ShopifySessionEntity,
     ) {
-        let storeName = 'Unknown';
-        let email = 'Unknown';
-        let currency = 'Unknown';
-
-        try {
-            const shopData = await (shopifyApiInstance.rest as ShopifyRestResources).Shop.all({
-                session: session,
-            });
-
-            if (shopData.data.length >= 1) {
-                storeName = shopData.data[0].name ?? 'Unknown';
-                email = shopData.data[0].email ?? 'Unknown';
-                currency = shopData.data[0].currency ?? 'Unknown';
-            }
-
-            if (storeName.toLowerCase().trim() === 'my store') {
-                storeName = `${storeName} (${entity.domain})`;
-            }
-
-            entity.displayName = storeName;
-            entity.email = email;
-            entity.currencyCode = currency;
-        } catch (e) {
-            this.logger.error(e);
-        }
-
-        await this.save(entity);
-        return entity;
-    }
-
-    async updateShopInformationFromShopifyGraphql(retailer: RetailerEntity, log?: (message: string) => Promise<void>) {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClient(
-            retailer.domain,
-            retailer.accessToken,
-            log,
+        return await RetailerUtils.updateShopInformationFromShopifyOnlineSession(
+            this.entityManager,
+            shopifyApiInstance,
+            entity,
+            session,
         );
-
-        const query = await graphqlClient.query<GetShopInformationQuery, GetShopInformationQueryVariables>({
-            query: GetShopInformationDocument,
-        });
-
-        if (query.error) {
-            await log?.('Query.Error: ' + JSON.stringify(query.error));
-        }
-
-        if (query.errors) {
-            await log?.('Query.Errors: ' + JSON.stringify(query.errors));
-        }
-
-        let name = query.data.shop.name;
-
-        if (name.toLowerCase().trim() === 'my store') {
-            name = `${name} (${retailer.domain})`;
-        }
-        retailer.displayName = query.data.shop.name;
-        retailer.email = query.data.shop.email;
-        retailer.currencyCode = query.data.shop.currencyCode;
-
-        await this.save(retailer);
-        return retailer;
     }
 
-    async updateLogoFromShopify(retailer: RetailerEntity, log?: (message: string) => Promise<void>) {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyStorefrontApolloClientByRetailer(retailer);
+    async updateShopInformationFromShopifyGraphql(retailer: RetailerEntity, logs?: LogsInterface) {
+        return await RetailerUtils.updateShopInformationFromShopifyGraphql(this.entityManager, retailer, logs);
+    }
 
-        const query = await graphqlClient.query<GetThemeInformationQuery, GetThemeInformationQueryVariables>({
-            query: GetThemeInformationDocument,
-        });
-
-        if (query.error) {
-            await log?.('Query.Error: ' + JSON.stringify(query.error));
-        }
-
-        if (query.errors) {
-            await log?.('Query.Errors: ' + JSON.stringify(query.errors));
-        }
-
-        retailer.logoUrlFromShopify = query.data.shop.brand?.logo?.image?.url ?? null;
-        await this.save(retailer);
-        return retailer;
+    async updateLogoFromShopify(retailer: RetailerEntity, logs?: LogsInterface) {
+        return RetailerUtils.updateLogoFromShopify(this.entityManager, retailer, logs);
     }
 
     async getAll(from: number, limit: number) {
-        return this.entityManager.find(RetailerEntity, {}, { limit, offset: from });
+        return RetailerUtils.getAll(this.entityManager, from, limit);
     }
 }
