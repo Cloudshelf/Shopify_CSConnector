@@ -3,6 +3,7 @@ import { onError } from '@apollo/client/link/error';
 import { GraphQLError } from 'graphql';
 import * as _ from 'lodash';
 import { CostExtension, ShopifyExecutionResult } from './shopify.throttling.extension';
+import { LogsInterface } from 'src/modules/cloudshelf/cloudshelf.api.util';
 import { Observable } from 'zen-observable-ts';
 
 const logger = new Logger('ShopifyThrottlingErrorLink');
@@ -88,10 +89,10 @@ function debugLog(networkError: any, graphQLErrors: any) {
     }
 }
 
-export function createShopifyRetryLink(logFn?: (s: string) => void) {
+export function createShopifyRetryLink(logs?: LogsInterface) {
     return onError(({ graphQLErrors, networkError, forward, operation, response }) => {
         if (networkError) {
-            logFn?.(
+            logs?.warn(
                 `[ShopifyRetryLink] networkError: ${JSON.stringify(
                     networkError,
                     Object.getOwnPropertyNames(networkError),
@@ -102,7 +103,7 @@ export function createShopifyRetryLink(logFn?: (s: string) => void) {
 
         if (graphQLErrors) {
             if (!Array.isArray(graphQLErrors)) {
-                logFn?.(
+                logs?.warn(
                     `[ShopifyRetryLink] graphQLErrors: ${JSON.stringify(
                         graphQLErrors,
                         Object.getOwnPropertyNames(graphQLErrors),
@@ -163,7 +164,7 @@ export function createShopifyRetryLink(logFn?: (s: string) => void) {
 
         const msToWait = calculateDelayCost(cost) * 1.5;
         logger.warn(`Shopify query throttled; will wait: ${msToWait}`);
-        logFn?.(`Shopify query throttled; will wait: ${msToWait}`);
+        logs?.warn(`Shopify query throttled; will wait: ${msToWait}`);
 
         operation.setContext({ retry: true, msToWait });
         return delay(msToWait).concat(forward(operation));

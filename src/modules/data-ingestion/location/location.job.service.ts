@@ -1,31 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { NobleService } from '../../noble/noble.service';
-import { LocationJobData } from '../../noble/noble.task.data';
-import { NobleTaskType } from '../../noble/noble.task.type';
 import { RetailerEntity } from '../../retailer/retailer.entity';
+import { SyncLocationsTask } from 'src/trigger/data-ingestion/location/sync-locations';
 
 @Injectable()
 export class LocationJobService {
-    constructor(private readonly nobleService: NobleService) {}
+    constructor() {}
 
-    async schedule(retailer: RetailerEntity, installSync?: boolean) {
-        let prio = 1;
-
-        if (installSync) {
-            prio = 1000;
-        }
-
-        const triggerData: LocationJobData = {
-            dataType: 'location',
-            installSync: installSync ?? false,
-        };
-
-        await this.nobleService.scheduleTask<LocationJobData>(
-            NobleTaskType.LocationSync,
-            retailer.id,
-            triggerData,
-            prio,
-            1,
+    async schedule(retailer: RetailerEntity) {
+        SyncLocationsTask.trigger(
+            { organisationId: retailer.id },
+            {
+                queue: {
+                    name: `ingestion`,
+                    concurrencyLimit: 1,
+                },
+                concurrencyKey: retailer.id,
+                tags: [`retailer_${retailer.id}`],
+            },
         );
     }
 }

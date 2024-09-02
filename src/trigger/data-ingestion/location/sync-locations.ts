@@ -9,10 +9,7 @@ import {
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from 'src/modules/shopify/shopify.graphql.util';
 import { FlushMode } from '@mikro-orm/core';
-import { logger, task, wait } from '@trigger.dev/sdk/v3';
-import { AppModule } from 'src/app.module';
-import { TriggerExceptionFilter } from 'src/modules/apm/trigger.exception.filter';
-import { CloudshelfApiService } from 'src/modules/cloudshelf/cloudshelf.api.service';
+import { logger, task } from '@trigger.dev/sdk/v3';
 import { CloudshelfApiUtils } from 'src/modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { AppDataSource } from 'src/trigger/reuseables/orm';
@@ -22,6 +19,7 @@ import { MiscellaneousUtils } from 'src/utils/MiscellaneousUtils';
 export const SyncLocationsTask = task({
     id: 'sync-locations',
     queue: {
+        name: `ingestion`,
         concurrencyLimit: 1,
     },
     run: async (payload: { organisationId: string }, { ctx }) => {
@@ -36,6 +34,8 @@ export const SyncLocationsTask = task({
             logger.error(`CLOUDSHELF_API_URL is not set`);
             throw new Error(`CLOUDSHELF_API_URL is not set`);
         }
+
+        await new Promise(resolve => setTimeout(resolve, 10000));
 
         const em = AppDataSource.em.fork({
             flushMode: FlushMode.COMMIT,
