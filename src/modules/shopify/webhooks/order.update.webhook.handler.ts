@@ -2,7 +2,6 @@ import { ConfigService } from '@nestjs/config';
 import { CurrencyCode, OrderLineInput, OrderStatus } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { OrderFinancialStatus } from '../../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
@@ -44,7 +43,6 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         super();
     }
 
-    @SentryInstrument('OrdersUpdatedWebhookHandler')
     async handle(domain: string, data: OrderUpdateWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received ORDERS_UPDATED webhook for domain ' + domain);
         this.logger.debug('data: ' + JSON.stringify(data));

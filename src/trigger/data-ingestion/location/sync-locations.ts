@@ -1,4 +1,3 @@
-import { NestFactory } from '@nestjs/core';
 import { ApolloQueryResult } from '@apollo/client';
 import { LocationInput } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import {
@@ -34,8 +33,6 @@ export const SyncLocationsTask = task({
             logger.error(`CLOUDSHELF_API_URL is not set`);
             throw new Error(`CLOUDSHELF_API_URL is not set`);
         }
-
-        await new Promise(resolve => setTimeout(resolve, 10000));
 
         const em = AppDataSource.em.fork({
             flushMode: FlushMode.COMMIT,

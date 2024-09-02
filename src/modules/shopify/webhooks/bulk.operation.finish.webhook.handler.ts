@@ -2,7 +2,6 @@ import { ConfigService } from '@nestjs/config';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../../data-ingestion/bulk.operation.type';
@@ -32,7 +31,6 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         super();
     }
 
-    @SentryInstrument('BulkOperationFinishedWebhookHandler')
     async handle(domain: string, data: BulkOperationWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received BULK_OPERATIONS_FINISH webhook for domain ' + domain);
         this.logger.debug(data);

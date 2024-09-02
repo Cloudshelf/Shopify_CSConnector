@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
+
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { RetailerService } from '../../retailer/retailer.service';
@@ -23,7 +23,6 @@ export class CollectionDeleteWebhookHandler extends ShopifyWebhookHandler<unknow
         super();
     }
 
-    @SentryInstrument('CollectionDeleteWebhookHandler')
     async handle(domain: string, data: CollectionDeleteWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received COLLECTIONS_DELETE webhook for domain ' + domain);
         this.logger.debug(data);

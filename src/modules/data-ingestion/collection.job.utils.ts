@@ -1,7 +1,7 @@
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
-import { ProcessProductGroupsTask } from 'src/trigger/product-groups/process-product-groups';
-import { RequestProductGroupsTask } from 'src/trigger/product-groups/request-product-groups';
+import { ProcessProductGroupsTask } from 'src/trigger/data-ingestion/product-groups/process-product-groups';
+import { RequestProductGroupsTask } from 'src/trigger/data-ingestion/product-groups/request-product-groups';
 
 export class CollectionJobUtils {
     static async scheduleTriggerJob(retailer: RetailerEntity, fullSync?: boolean) {

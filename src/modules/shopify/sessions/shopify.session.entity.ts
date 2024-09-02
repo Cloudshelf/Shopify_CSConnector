@@ -9,7 +9,7 @@ export class ShopifySessionEntity extends Session {
     public id: string;
 
     @Property()
-    public shop!: string;
+    public shop: string;
 
     @Property()
     public state: string;

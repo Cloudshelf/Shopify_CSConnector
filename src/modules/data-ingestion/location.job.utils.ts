@@ -1,5 +1,5 @@
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { SyncLocationsTask } from 'src/trigger/data-ingestion/location/sync-locations';
+import { SyncLocationsTask } from 'src/trigger/data-ingestion/location/sync-locations.js';
 
 export class LocationJobUtils {
     static async schedule(retailer: RetailerEntity) {

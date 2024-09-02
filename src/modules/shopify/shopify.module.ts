@@ -1,4 +1,4 @@
-import { DynamicModule, Module, forwardRef } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';

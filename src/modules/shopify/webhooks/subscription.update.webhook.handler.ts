@@ -1,6 +1,5 @@
 import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { RetailerService } from '../../retailer/retailer.service';
@@ -24,7 +23,6 @@ export class SubscriptionUpdateWebhookHandler extends ShopifyWebhookHandler<unkn
         super();
     }
 
-    @SentryInstrument('SubscriptionUpdateWebhookHandler')
     async handle(domain: string, data: AppSubscriptionUpdateWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received APP_SUBSCRIPTIONS_UPDATE webhook for domain ' + domain);
         this.logger.debug(data);

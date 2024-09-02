@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
-import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { SlackService } from '../integrations/slack.service';
@@ -55,7 +54,6 @@ export class RetailerService {
         }
     }
 
-    @SentryInstrument('RetailerService')
     async updateOrCreate(
         domain: string,
         accessToken: string,
@@ -64,32 +62,26 @@ export class RetailerService {
         return RetailerUtils.updateOrCreate(this.entityManager, domain, accessToken, scopesString);
     }
 
-    @SentryInstrument('RetailerService')
     async existsByDomain(domain: string): Promise<boolean> {
         return RetailerUtils.existsByDomain(this.entityManager, domain);
     }
 
-    @SentryInstrument('RetailerService')
     async deleteByDomain(domain: string): Promise<boolean> {
         return RetailerUtils.deleteByDomain(this.entityManager, domain);
     }
 
-    @SentryInstrument('RetailerService')
     async getSharedSecret(domain: string): Promise<string | undefined> {
         return RetailerUtils.getSharedSecret(this.entityManager, domain);
     }
 
-    @SentryInstrument('RetailerService')
     async save(entity: RetailerEntity) {
         return await RetailerUtils.save(this.entityManager, entity);
     }
 
-    @SentryInstrument('RetailerService')
     getById(organisationId: string) {
         return RetailerUtils.getById(this.entityManager, organisationId);
     }
 
-    @SentryInstrument('RetailerService')
     async getByDomain(domain: string) {
         return RetailerUtils.getByDomain(this.entityManager, domain);
     }

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
 import { ShopifyRestResources } from '../shopify.module';
 import { InjectShopify } from '@nestjs-shopify/core';
@@ -13,7 +12,6 @@ export class StorefrontService {
 
     constructor(@InjectShopify() private readonly shopifyApiService: Shopify) {}
 
-    @SentryInstrument('StorefrontService')
     async generateStorefrontTokenIfRequired(session: ShopifySessionEntity): Promise<string | null> {
         try {
             const allTokens = await (this.shopifyApiService.rest as ShopifyRestResources).StorefrontAccessToken.all({
@@ -31,7 +29,6 @@ export class StorefrontService {
         return this.createStorefrontToken(session);
     }
 
-    @SentryInstrument('StorefrontService')
     private async createStorefrontToken(session: ShopifySessionEntity): Promise<string | null> {
         try {
             const storefront_access_token = new (

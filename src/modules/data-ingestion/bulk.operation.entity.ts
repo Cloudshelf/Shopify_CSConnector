@@ -13,11 +13,11 @@ export class BulkOperation extends BaseEntity {
 
     @Index()
     @Property({ type: 'text' })
-    domain!: string;
+    domain: string;
 
     @Index()
     @Property({ type: 'text', unique: true })
-    shopifyBulkOpId!: string;
+    shopifyBulkOpId: string;
 
     @Property({ type: 'text', nullable: true })
     dataUrl: string | null;
@@ -29,11 +29,11 @@ export class BulkOperation extends BaseEntity {
     endedAt: Date | null;
 
     @Property({ type: 'text', default: '' })
-    status!: string;
+    status: string;
 
     @Enum({ items: () => BulkOperationType })
-    type!: BulkOperationType;
+    type: BulkOperationType;
 
     @Property({ type: types.boolean, default: false })
-    installSync!: boolean;
+    installSync: boolean;
 }

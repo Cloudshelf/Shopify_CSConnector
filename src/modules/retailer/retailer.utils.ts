@@ -9,9 +9,7 @@ import {
     GetThemeInformationQueryVariables,
 } from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
-import { EntityManager, MikroORM } from '@mikro-orm/core';
-import { app } from '../../main';
-import { SentryInstrument } from '../apm/sentry.function.instrumenter';
+import { EntityManager } from '@mikro-orm/core';
 import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
@@ -19,7 +17,6 @@ import { RetailerEntity } from './retailer.entity';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
 
 export class RetailerUtils {
-    @SentryInstrument('RetailerUtils')
     static async updateOrCreate(
         em: EntityManager,
         domain: string,
@@ -53,12 +50,10 @@ export class RetailerUtils {
         return { entity: shop, status };
     }
 
-    @SentryInstrument('RetailerUtils')
     static async existsByDomain(em: EntityManager, domain: string): Promise<boolean> {
         return !!(await em.findOne(RetailerEntity, { domain }));
     }
 
-    @SentryInstrument('RetailerUtils')
     static async deleteByDomain(em: EntityManager, domain: string): Promise<boolean> {
         const retailer = await em.findOne(RetailerEntity, { domain });
         if (!!retailer) {
@@ -69,12 +64,11 @@ export class RetailerUtils {
         return false;
     }
 
-    @SentryInstrument('RetailerUtils')
     static async getSharedSecret(em: EntityManager, domain: string): Promise<string | undefined> {
-        if (em === undefined) {
-            const orm = app!.get(MikroORM);
-            em = orm.em.fork();
-        }
+        // if (em === undefined) {
+        //     const orm = app!.get(MikroORM);
+        //     em = orm.em.fork();
+        // }
 
         const shop = await em.findOne(RetailerEntity, { domain });
 
@@ -85,17 +79,14 @@ export class RetailerUtils {
         return shop.sharedSecret ?? undefined;
     }
 
-    @SentryInstrument('RetailerUtils')
     static async save(em: EntityManager, entity: RetailerEntity) {
         await em.persistAndFlush(entity);
     }
 
-    @SentryInstrument('RetailerUtils')
     static getById(em: EntityManager, organisationId: string) {
         return em.findOne(RetailerEntity, { id: organisationId });
     }
 
-    @SentryInstrument('RetailerUtils')
     static async getByDomain(em: EntityManager, domain: string) {
         return em.findOne(RetailerEntity, { domain });
     }

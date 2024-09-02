@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { SlackService } from '../../integrations/slack.service';
@@ -34,7 +33,6 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         @InjectShopify() private readonly shopifyApiService: Shopify,
     ) {}
 
-    @SentryInstrument('AfterAuthHandlerService')
     async afterAuth(req: Request, res: Response, session: ShopifySessionEntity): Promise<void> {
         const { host } = req.query;
 
