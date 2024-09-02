@@ -16,7 +16,7 @@ import { RetailerEntity } from '../../retailer/retailer.entity';
 import { RetailerService } from '../../retailer/retailer.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
-import { ProductJobService } from '../product/product.job.service';
+import { ProductJobService } from '../product/product.job.utils';
 import axios from 'axios';
 import { addSeconds } from 'date-fns';
 import { createWriteStream, promises as fsPromises } from 'fs';

@@ -111,7 +111,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         }
 
         this.logger.debug(`Order Lines: ${JSON.stringify(orderLines)}`);
-        //Possible todo: move this to a noble task and.
+        //Possible todo: move this to a trigger task and.
         //Possible todo: have the connector create an order if it doesnt already exist (offline cloudshelves)
         await this.cloudshelfApiService.reportOrderStatus(
             domain,

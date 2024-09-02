@@ -4,7 +4,7 @@ import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
 import { ExtendedLogger } from '../../utils/ExtendedLogger';
 import { NobleTaskEntity } from '../noble/noble.task.entity';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { ProductJobService } from './product/product.job.service';
+import { ProductJobService } from './product/product.job.utils';
 
 @Injectable()
 export class DataIngestionService {

@@ -1,12 +1,4 @@
-import {
-    KeyValuePairInput,
-    MetadataInput,
-    MetaimageInput,
-    ProductGroupInput,
-    ProductInput,
-    ProductVariantInput,
-    UpsertVariantsInput,
-} from 'src/graphql/cloudshelf/generated/cloudshelf';
+import { ProductGroupInput } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
@@ -16,6 +8,7 @@ import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import { CloudshelfApiUtils } from 'src/modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from 'src/modules/data-ingestion/bulk.operation.utils';
+import { ProductJobUtils } from 'src/modules/data-ingestion/product/product.job.utils';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerUtils } from 'src/modules/retailer/retailer.utils';
 import { AppDataSource } from 'src/trigger/reuseables/orm';
@@ -45,8 +38,8 @@ export const ProcessProductGroupsTask = task({
                 if (payload.fullSync) {
                     await RetailerUtils.updateLastSafetyCompletedTime(em, retailer);
                 }
-                //TODO: figure out how to schedule the trigger job, from another job
-                // await this.productJobService.scheduleTriggerJob(retailer, false);
+
+                await ProductJobUtils.scheduleTriggerJob(retailer, false);
             }
             logger.info(`Handle Complete: ${msg}`);
 
@@ -77,6 +70,13 @@ export const ProcessProductGroupsTask = task({
         if (!cloudflarePublicEndpoint) {
             logger.error(`CLOUDFLARE_R2_PUBLIC_ENDPOINT is not set`);
             throw new Error(`CLOUDFLARE_R2_PUBLIC_ENDPOINT is not set`);
+        }
+
+        const filePrefix = process.env.FILE_PREFIX;
+
+        if (!filePrefix) {
+            logger.error(`FILE_PREFIX is not set`);
+            throw new Error(`FILE_PREFIX is not set`);
         }
 
         const em = AppDataSource.em.fork({
@@ -228,8 +228,7 @@ export const ProcessProductGroupsTask = task({
                     groupContentToSave.push({ id });
                 }
             }
-            //TODO: check how we get this env var
-            const groupFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_product_groups_${ulid()}.json`;
+            const groupFileName = `${filePrefix}_${retailer.domain}_product_groups_${ulid()}.json`;
             let groupUrl = cloudflarePublicEndpoint;
             if (!groupUrl.endsWith('/')) {
                 groupUrl += '/';

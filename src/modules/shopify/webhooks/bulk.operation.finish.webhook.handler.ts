@@ -6,8 +6,8 @@ import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../../data-ingestion/bulk.operation.type';
-import { CollectionJobService } from '../../data-ingestion/collection/collection.job.service';
-import { ProductJobService } from '../../data-ingestion/product/product.job.service';
+import { CollectionJobService } from '../../data-ingestion/collection/collection.job.utils';
+import { ProductJobService } from '../../data-ingestion/product/product.job.utils';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 

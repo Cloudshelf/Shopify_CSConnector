@@ -105,6 +105,7 @@ export const RequestProductGroupsTask = task({
                     )}`,
                 );
                 //TODO:trigger how to reschedule this task?
+                // await this.nobleService.rescheduleTask(task, addSeconds(new Date(), 120));
                 return;
             }
         }

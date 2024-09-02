@@ -15,6 +15,7 @@ import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import { CloudshelfApiUtils } from 'src/modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from 'src/modules/data-ingestion/bulk.operation.utils';
+import { CollectionJobUtils } from 'src/modules/data-ingestion/collection/collection.job.utils';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerUtils } from 'src/modules/retailer/retailer.utils';
 import { AppDataSource } from 'src/trigger/reuseables/orm';
@@ -40,8 +41,8 @@ export const ProcessProductsTask = task({
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
             if (retailer) {
                 await RetailerUtils.updateLastProductSyncTime(em, retailer);
-                //TODO: figure out how to schedule the trigger job, from another job
-                // await this.collectionJobService.scheduleTriggerJob(retailer, taskData.installSync);
+
+                await CollectionJobUtils.scheduleTriggerJob(retailer, payload.fullSync);
             }
             logger.info(`Handle Complete: ${msg}`);
 

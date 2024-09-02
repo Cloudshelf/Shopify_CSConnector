@@ -7,7 +7,7 @@ import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { LocationJobService } from '../../data-ingestion/location/location.job.service';
-import { ProductJobService } from '../../data-ingestion/product/product.job.service';
+import { ProductJobService } from '../../data-ingestion/product/product.job.utils';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';

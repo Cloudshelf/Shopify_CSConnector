@@ -24,7 +24,7 @@ import { RetailerService } from '../../retailer/retailer.service';
 import { ToolsService } from '../../tools/tools.service';
 import { BulkOperationService } from '../bulk.operation.service';
 import { BulkOperationType } from '../bulk.operation.type';
-import { CollectionJobService } from '../collection/collection.job.service';
+import { CollectionJobService } from '../collection/collection.job.utils';
 import axios from 'axios';
 import { addSeconds, subDays, subMinutes } from 'date-fns';
 import { createWriteStream, promises as fsPromises } from 'fs';
