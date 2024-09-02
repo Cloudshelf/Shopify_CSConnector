@@ -18,7 +18,6 @@ import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.mod
 import { AllDatabaseEntities } from './modules/database/entites';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
-import { NobleModule } from './modules/noble/noble.module';
 import { ToolsModule } from './modules/tools/tools.module';
 
 @Module({
@@ -47,7 +46,6 @@ import { ToolsModule } from './modules/tools/tools.module';
         RetailerModule,
         ManagerProxyModule,
         CloudshelfModule,
-        NobleModule,
         ToolsModule,
         ScheduleModule.forRoot(),
         MikroOrmModule.forFeature(AllDatabaseEntities),

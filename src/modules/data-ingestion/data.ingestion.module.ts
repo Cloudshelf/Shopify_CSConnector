@@ -1,42 +1,15 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
-import { NobleModule } from '../noble/noble.module';
 import { RetailerModule } from '../retailer/retailer.module';
 import { ShopifyModule } from '../shopify/shopify.module';
 import { ToolsModule } from '../tools/tools.module';
-import { BulkOperation } from './bulk.operation.entity';
 import { BulkOperationService } from './bulk.operation.service';
-import { CollectionJobService } from './collection/collection.job.utils';
-import { CollectionsProcessor } from './collection/collections.processor';
 import { DataIngestionService } from './data.ingestion.service';
-import { LocationJobService } from './location/location.job.service';
-import { LocationProcessor } from './location/location.processor';
-import { ProductJobService } from './product/product.job.utils';
-import { ProductProcessor } from './product/product.processor';
 
 @Module({
-    imports: [forwardRef(() => ShopifyModule), NobleModule, RetailerModule, CloudshelfModule, ToolsModule],
-    providers: [
-        CollectionsProcessor,
-        ProductProcessor,
-        BulkOperationService,
-        ProductJobService,
-        CollectionJobService,
-        LocationJobService,
-        LocationProcessor,
-        DataIngestionService,
-    ],
+    imports: [forwardRef(() => ShopifyModule), RetailerModule, CloudshelfModule, ToolsModule],
+    providers: [BulkOperationService, DataIngestionService],
     controllers: [],
-    exports: [
-        CollectionsProcessor,
-        ProductProcessor,
-        BulkOperationService,
-        ProductJobService,
-        CollectionJobService,
-        LocationJobService,
-        LocationProcessor,
-        DataIngestionService,
-    ],
+    exports: [BulkOperationService, DataIngestionService],
 })
 export class DataIngestionModule {}

@@ -1,5 +1,5 @@
-import { RetailerEntity } from '../../retailer/retailer.entity';
-import { BulkOperation } from '../bulk.operation.entity';
+import { RetailerEntity } from '../retailer/retailer.entity';
+import { BulkOperation } from './bulk.operation.entity';
 import { ProcessProductsTask } from 'src/trigger/data-ingestion/product/process-products';
 import { RequestProductsTask } from 'src/trigger/data-ingestion/product/request-products';
 

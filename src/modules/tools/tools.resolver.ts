@@ -1,13 +1,11 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
-import { NotificationUtils } from '../../utils/NotificationUtils';
 import { BulkOperationService } from '../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../data-ingestion/bulk.operation.type';
-import { CollectionJobService } from '../data-ingestion/collection/collection.job.utils';
+import { CollectionJobUtils } from '../data-ingestion/collection.job.utils';
 import { DataIngestionService } from '../data-ingestion/data.ingestion.service';
-import { ProductJobService } from '../data-ingestion/product/product.job.utils';
-import { SlackService } from '../integrations/slack.service';
+import { ProductJobUtils } from '../data-ingestion/product.job.utils';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
 
@@ -16,31 +14,9 @@ export class ToolsResolver {
     constructor(
         private readonly toolsService: ToolsService,
         private readonly retailerService: RetailerService,
-        private readonly productJobService: ProductJobService,
-        private readonly collectionJobService: CollectionJobService,
         private readonly dataIngestionService: DataIngestionService,
         private readonly bulkOperationService: BulkOperationService,
-        private readonly slackService: SlackService,
     ) {}
-
-    // @Query(() => GraphQLBoolean)
-    // async test(): Promise<boolean> {
-    //     return true;
-    // }
-
-    @Mutation(() => GraphQLBoolean)
-    async forceSyncIssueNotification(
-        @Args({ name: 'token', type: () => GraphQLString })
-        token: string,
-    ): Promise<boolean> {
-        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
-            throw new Error('Unauthorized access to tools graphql');
-        }
-
-        await this.retailerService.checkAndReportSyncIssues();
-
-        return true;
-    }
 
     @Mutation(() => GraphQLBoolean)
     async sendAllRetailerToCloudshelf(
@@ -113,9 +89,9 @@ export class ToolsResolver {
         }
 
         if (partial) {
-            await this.productJobService.scheduleTriggerJob(retailer, false, 10);
+            await ProductJobUtils.scheduleTriggerJob(retailer, false, 10);
         } else {
-            await this.productJobService.scheduleTriggerJob(retailer, true);
+            await ProductJobUtils.scheduleTriggerJob(retailer, true);
         }
         return 'Scheduled a sync';
     }
@@ -167,9 +143,9 @@ export class ToolsResolver {
         }
 
         if (bulkOperation.type === BulkOperationType.ProductSync) {
-            await this.productJobService.scheduleConsumerJob(retailer, bulkOperation);
+            await ProductJobUtils.scheduleConsumerJob(retailer, bulkOperation);
         } else if (bulkOperation.type === BulkOperationType.ProductGroupSync) {
-            await this.collectionJobService.scheduleConsumerJob(retailer, bulkOperation);
+            await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOperation);
         }
         return true;
     }

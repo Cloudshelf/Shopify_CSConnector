@@ -15,7 +15,7 @@ import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import { CloudshelfApiUtils } from 'src/modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from 'src/modules/data-ingestion/bulk.operation.utils';
-import { CollectionJobUtils } from 'src/modules/data-ingestion/collection/collection.job.utils';
+import { CollectionJobUtils } from 'src/modules/data-ingestion/collection.job.utils';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerUtils } from 'src/modules/retailer/retailer.utils';
 import { AppDataSource } from 'src/trigger/reuseables/orm';

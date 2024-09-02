@@ -6,8 +6,6 @@ import { RequestUtils } from '../../../utils/RequestUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
-import { LocationJobService } from '../../data-ingestion/location/location.job.service';
-import { ProductJobService } from '../../data-ingestion/product/product.job.utils';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
@@ -16,8 +14,10 @@ import { StorefrontService } from '../storefront/storefront.service';
 import { ShopifyAuthAfterHandler } from '@nestjs-shopify/auth';
 import { InjectShopify } from '@nestjs-shopify/core';
 import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
-import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
+import { Shopify } from '@shopify/shopify-api';
 import { Request, Response } from 'express';
+import { LocationJobUtils } from 'src/modules/data-ingestion/location.job.utils';
+import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
 
 @Injectable()
 export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
@@ -31,8 +31,6 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly customTokenService: CustomTokenService,
         private readonly configService: ConfigService<typeof shopifySchema>,
         private readonly cloudshelfApiService: CloudshelfApiService,
-        private readonly productJobService: ProductJobService,
-        private readonly locationJobService: LocationJobService,
         @InjectShopify() private readonly shopifyApiService: Shopify,
     ) {}
 
@@ -118,9 +116,10 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         await this.cloudshelfApiService.createTheme(entity);
 
         //queue a sync job
-        await this.productJobService.scheduleTriggerJob(entity, true);
+
+        await ProductJobUtils.scheduleTriggerJob(entity, true);
         //queue a location job
-        await this.locationJobService.schedule(entity, true);
+        await LocationJobUtils.schedule(entity);
 
         //at the end of the install, we have to redirect to "online auth", which lets us exchange an online session token for a Cloudshelf Auth Token
         return res.redirect(`/shopify/online/auth?shop=${session.shop}`);

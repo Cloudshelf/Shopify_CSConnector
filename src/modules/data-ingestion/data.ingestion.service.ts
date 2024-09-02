@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
 import { ExtendedLogger } from '../../utils/ExtendedLogger';
-import { NobleTaskEntity } from '../noble/noble.task.entity';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { ProductJobService } from './product/product.job.utils';
+import { ProductJobUtils } from './product.job.utils';
 
 @Injectable()
 export class DataIngestionService {
@@ -14,7 +13,6 @@ export class DataIngestionService {
         //orm is required by CreateRequestContext
         private readonly orm: MikroORM,
         private readonly entityManager: EntityManager,
-        private readonly productJobService: ProductJobService,
     ) {}
 
     @Cron('0 2 * * *', { name: 'data-ingestion-safety-sync', timeZone: 'Europe/London' })
@@ -28,7 +26,7 @@ export class DataIngestionService {
 
         for (const retailer of retailers) {
             this.logger.debug('Creating safety sync for retailer ' + retailer.domain);
-            await this.productJobService.scheduleTriggerJob(retailer, true);
+            await ProductJobUtils.scheduleTriggerJob(retailer, true);
             retailer.lastSafetySyncRequested = new Date();
         }
 

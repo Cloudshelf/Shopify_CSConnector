@@ -1,12 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { RetailerEntity } from '../../retailer/retailer.entity';
+import { RetailerEntity } from '../retailer/retailer.entity';
 import { SyncLocationsTask } from 'src/trigger/data-ingestion/location/sync-locations';
 
-@Injectable()
-export class LocationJobService {
-    constructor() {}
-
-    async schedule(retailer: RetailerEntity) {
+export class LocationJobUtils {
+    static async schedule(retailer: RetailerEntity) {
         SyncLocationsTask.trigger(
             { organisationId: retailer.id },
             {
