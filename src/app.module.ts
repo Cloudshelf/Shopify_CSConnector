@@ -15,7 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
 import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.module';
-import { AllDatabaseEntities } from './modules/database/entites';
+import { AllDatabaseEntities } from './modules/database/entities';
 import { IntegrationsModule } from './modules/integrations/integrations.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { ToolsModule } from './modules/tools/tools.module';
