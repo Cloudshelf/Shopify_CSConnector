@@ -94,22 +94,6 @@ export class RetailerService {
         return RetailerUtils.getByDomain(this.entityManager, domain);
     }
 
-    async updateLastProductSyncTime(retailer: RetailerEntity) {
-        return await RetailerUtils.updateLastProductSyncTime(this.entityManager, retailer);
-    }
-
-    async updateLastProductGroupSyncTime(retailer: RetailerEntity) {
-        return await RetailerUtils.updateLastProductGroupSyncTime(this.entityManager, retailer);
-    }
-
-    async updateLastSafetyRequestedTime(retailer: RetailerEntity) {
-        return await RetailerUtils.updateLastSafetyRequestedTime(this.entityManager, retailer);
-    }
-
-    async updateLastSafetyCompletedTime(retailer: RetailerEntity) {
-        return await RetailerUtils.updateLastSafetyCompletedTime(this.entityManager, retailer);
-    }
-
     async updateShopInformationFromShopifyOnlineSession(
         shopifyApiInstance: Shopify,
         entity: RetailerEntity,
