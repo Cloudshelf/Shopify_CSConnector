@@ -18,3 +18,5 @@ export const configurationSchema = Joi.object({
     ...cloudshelfSchema,
     ...cloudflareSchema,
 });
+
+export const triggerConfigurationSchema = Joi.object({});

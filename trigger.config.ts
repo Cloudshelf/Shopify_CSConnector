@@ -1,13 +1,31 @@
+import { StartMikroORMForTrigger } from './src/trigger/reuseables/orm';
 import { FsInstrumentation } from '@opentelemetry/instrumentation-fs';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
-import type { TriggerConfig } from '@trigger.dev/sdk/v3';
-import { logger, usage } from '@trigger.dev/sdk/v3';
-import { StartMikroORMForTrigger } from 'src/trigger/reuseables/orm';
+import { additionalFiles } from '@trigger.dev/build/extensions/core';
+import { emitDecoratorMetadata } from '@trigger.dev/build/extensions/typescript';
+import { defineConfig, logger, usage } from '@trigger.dev/sdk/v3';
 
-export const config: TriggerConfig = {
+export default defineConfig({
     project: 'proj_pnqbfgxmeuaytlevhxap',
+    build: {
+        external: [
+            '@as-integrations/fastify',
+            '@apollo/gateway',
+            '@nestjs/mongoose',
+            '@nestjs/sequelize',
+            '@sentry/profiling-node',
+            '@nestjs/apollo',
+            '@nestjs/terminus',
+            'fsevents',
+        ],
+
+        extensions: [
+            emitDecoratorMetadata(),
+            additionalFiles({ files: ['./src/modules/cloudshelf/logs.interface.ts'] }),
+        ],
+    },
     logLevel: 'log',
     retries: {
         enabledInDev: true,
@@ -19,7 +37,6 @@ export const config: TriggerConfig = {
             randomize: true,
         },
     },
-    additionalPackages: ['patch-package'],
     instrumentations: [
         new PgInstrumentation(),
         new UndiciInstrumentation(),
@@ -56,4 +73,4 @@ export const config: TriggerConfig = {
 
         logger.error(`[Costing] This task failed, with a total cost of ${costInDollars}`);
     },
-};
+});

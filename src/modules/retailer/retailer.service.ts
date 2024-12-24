@@ -1,15 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
+import { NotificationUtils } from '../../utils/NotificationUtils';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
-import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
+import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { SlackService } from '../integrations/slack.service';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { RetailerUtils } from './retailer.utils';
 import { Shopify } from '@shopify/shopify-api';
-import { NotificationUtils } from 'src/utils/NotificationUtils';
 
 @Injectable()
 export class RetailerService {

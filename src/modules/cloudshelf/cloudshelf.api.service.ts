@@ -1,85 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
-    ApolloClient,
-    ApolloLink,
-    InMemoryCache,
-    NormalizedCacheObject,
-    createHttpLink,
-    from,
-} from '@apollo/client/core';
-import {
-    CloudshelfInput,
-    DeleteProductGroupsDocument,
-    DeleteProductGroupsMutation,
-    DeleteProductGroupsMutationVariables,
-    DeleteProductsDocument,
-    DeleteProductsMutation,
-    DeleteProductsMutationVariables,
-    ExchangeTokenDocument,
-    ExchangeTokenQuery,
-    ExchangeTokenQueryVariables,
-    KeepKnownProductGroupsViaFileDocument,
-    KeepKnownProductGroupsViaFileMutation,
-    KeepKnownProductGroupsViaFileMutationVariables,
-    KeepKnownProductsViaFileDocument,
-    KeepKnownProductsViaFileMutation,
-    KeepKnownProductsViaFileMutationVariables,
-    KeepKnownVariantsViaFileDocument,
-    KeepKnownVariantsViaFileMutation,
-    KeepKnownVariantsViaFileMutationVariables,
     LocationInput,
-    MarkUninstalledDocument,
-    MarkUninstalledMutation,
-    MarkUninstalledMutationVariables,
     OrderLineInput,
     OrderStatus,
     ProductGroupInput,
     ProductInput,
-    ReportCatalogStatsDocument,
-    ReportCatalogStatsMutation,
-    ReportCatalogStatsMutationVariables,
-    RequestShopifySubscriptionCheckDocument,
-    RequestShopifySubscriptionCheckMutation,
-    RequestShopifySubscriptionCheckMutationVariables,
-    ThemeInput,
-    UpdateProductsInProductGroupDocument,
-    UpdateProductsInProductGroupMutation,
-    UpdateProductsInProductGroupMutationVariables,
-    UpsertCloudshelfDocument,
-    UpsertCloudshelfMutation,
-    UpsertCloudshelfMutationVariables,
-    UpsertLocationsDocument,
-    UpsertLocationsMutation,
-    UpsertLocationsMutationVariables,
-    UpsertOrdersDocument,
-    UpsertOrdersMutation,
-    UpsertOrdersMutationVariables,
-    UpsertProductGroupsDocument,
-    UpsertProductGroupsMutation,
-    UpsertProductGroupsMutationVariables,
-    UpsertProductVariantsDocument,
-    UpsertProductVariantsMutation,
-    UpsertProductVariantsMutationVariables,
-    UpsertProductsDocument,
-    UpsertProductsMutation,
-    UpsertProductsMutationVariables,
-    UpsertStoreDocument,
-    UpsertStoreMutation,
-    UpsertStoreMutationVariables,
-    UpsertThemeDocument,
-    UpsertThemeMutation,
-    UpsertThemeMutationVariables,
     UpsertVariantsInput,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
-import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { CryptographyUtils } from '../../utils/CryptographyUtils';
 import { cloudshelfSchema } from '../configuration/schemas/cloudshelf.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { RetailerService } from '../retailer/retailer.service';
-import { CloudshelfApiUtils, LogsInterface } from './cloudshelf.api.util';
-import { inspect } from 'util';
+import { CloudshelfApiUtils } from './cloudshelf.api.util';
+import { LogsInterface } from './logs.interface';
 
 @Injectable()
 export class CloudshelfApiService {

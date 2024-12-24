@@ -1,12 +1,11 @@
-import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
+import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
+import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
+import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
+import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
+import { AppDataSource } from '../../reuseables/orm';
 import { logger, task } from '@trigger.dev/sdk/v3';
-import { subDays, subMinutes } from 'date-fns';
-import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
-import { BulkOperationUtils } from 'src/modules/data-ingestion/bulk.operation.utils';
-import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { ToolsUtils } from 'src/modules/tools/tools.utils';
-import { AppDataSource } from 'src/trigger/reuseables/orm';
+import { subDays } from 'date-fns';
 
 async function buildCollectionTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
@@ -90,25 +89,7 @@ export const RequestProductGroupsTask = task({
             `Requesting product groups for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
         );
 
-        logger.info(`Checking for running bulk operation`);
-        const currentBulkOperation = await BulkOperationUtils.checkForRunningBulkOperationByRetailer(retailer, {
-            info: logger.info,
-            error: logger.error,
-            warn: logger.warn,
-        });
-
-        if (currentBulkOperation) {
-            if (currentBulkOperation.status === BulkOperationStatus.Running) {
-                logger.warn(
-                    `Shopify is already running a bulk operation for this store. ${JSON.stringify(
-                        currentBulkOperation,
-                    )}`,
-                );
-                //TODO:trigger how to reschedule this task?
-                // await this.nobleService.rescheduleTask(task, addSeconds(new Date(), 120));
-                return;
-            }
-        }
+        await TriggerWaitForNobleReschedule(retailer);
 
         let changesSince: Date | undefined = undefined;
         if (!payload.fullSync) {

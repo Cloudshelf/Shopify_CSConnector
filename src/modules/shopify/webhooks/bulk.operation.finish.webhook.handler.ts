@@ -2,14 +2,14 @@ import { ConfigService } from '@nestjs/config';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
+import { ProductJobUtils } from '../..//data-ingestion/product.job.utils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../../data-ingestion/bulk.operation.type';
+import { CollectionJobUtils } from '../../data-ingestion/collection.job.utils';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
-import { CollectionJobUtils } from 'src/modules/data-ingestion/collection.job.utils';
-import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
 
 export interface BulkOperationWebhookPayload {
     admin_graphql_api_id: string;

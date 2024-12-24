@@ -2,8 +2,8 @@ import { Logger } from '@nestjs/common';
 import { onError } from '@apollo/client/link/error';
 import { GraphQLError } from 'graphql';
 import * as _ from 'lodash';
+import { LogsInterface } from '../../cloudshelf/logs.interface';
 import { CostExtension, ShopifyExecutionResult } from './shopify.throttling.extension';
-import { LogsInterface } from 'src/modules/cloudshelf/cloudshelf.api.util';
 import { Observable } from 'zen-observable-ts';
 
 const logger = new Logger('ShopifyThrottlingErrorLink');

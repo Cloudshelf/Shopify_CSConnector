@@ -14,7 +14,8 @@ import {
 } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { CloudshelfApiUtils, LogsInterface } from '../cloudshelf/cloudshelf.api.util';
+import { CloudshelfApiUtils } from '../cloudshelf/cloudshelf.api.util';
+import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { RetailerUtils } from '../retailer/retailer.utils';
 

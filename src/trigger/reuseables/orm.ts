@@ -1,6 +1,6 @@
 import { LoadStrategy, MikroORM } from '@mikro-orm/postgresql';
-import { AllDatabaseEntities } from 'src/modules/database/entites';
-import { buildDatabaseConfig } from 'src/modules/database/mikro-orm.config';
+import { AllDatabaseEntities } from '../../modules/database/entites';
+import { buildDatabaseConfig } from '../../modules/database/mikro-orm.config';
 
 export let AppDataSource: MikroORM | undefined;
 

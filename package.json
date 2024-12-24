@@ -27,9 +27,10 @@
     "--- other ---": "",
     "postinstall": "patch-package",
     "--- trigger ---": "",
-    "trigger:dev": "npx trigger.dev@beta dev",
-    "trigger:deploy:staging": "npx trigger.dev@beta deploy --env staging",
-    "trigger:deploy:production": "npx trigger.dev@beta deploy --env prod"
+    "trigger:dev": "npx trigger.dev@latest dev",
+    "trigger:dev:debug": "npx trigger.dev@latest dev --log-level debug",
+    "trigger:deploy:staging": "npx trigger.dev@latest deploy --env staging",
+    "trigger:deploy:production": "npx trigger.dev@latest deploy --env prod"
   },
   "dependencies": {
     "@apollo/client": "^3.8.1",
@@ -58,7 +59,7 @@
     "@sentry/tracing": "^7.114.0",
     "@shopify/shopify-api": "^9.0.2",
     "@slack/web-api": "^7.0.1",
-    "@trigger.dev/sdk": "3.0.0-beta.56",
+    "@trigger.dev/sdk": "^3.3.7",
     "apollo-server-core": "^3.13.0",
     "async": "^3.2.5",
     "date-fns": "^3.3.1",
@@ -117,7 +118,8 @@
     "oci-common": "2.93.0",
     "oci-identity": "2.93.0",
     "oci-secrets": "2.93.0",
-    "oci-objectstorage": "2.93.0"
+    "oci-objectstorage": "2.93.0",
+    "@trigger.dev/build": "^3.3.7"
   },
   "peerDependencies": {
     "@apollo/subgraph": "*",
@@ -211,6 +213,9 @@
       "optional": true
     },
     "@azure/app-configuration": {
+      "optional": true
+    },
+    "@sentry/profiling-node": {
       "optional": true
     }
   },

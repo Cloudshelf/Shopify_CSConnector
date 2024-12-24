@@ -6,6 +6,8 @@ import { RequestUtils } from '../../../utils/RequestUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
+import { LocationJobUtils } from '../../data-ingestion/location.job.utils';
+import { ProductJobUtils } from '../../data-ingestion/product.job.utils';
 import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
@@ -16,8 +18,6 @@ import { InjectShopify } from '@nestjs-shopify/core';
 import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
 import { Shopify } from '@shopify/shopify-api';
 import { Request, Response } from 'express';
-import { LocationJobUtils } from 'src/modules/data-ingestion/location.job.utils';
-import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
 
 @Injectable()
 export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
@@ -117,9 +117,9 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
 
         //queue a sync job
 
-        await ProductJobUtils.scheduleTriggerJob(entity, true);
+        await ProductJobUtils.scheduleTriggerJob(entity, true, undefined, 'install');
         //queue a location job
-        await LocationJobUtils.schedule(entity);
+        await LocationJobUtils.schedule(entity, 'install');
 
         //at the end of the install, we have to redirect to "online auth", which lets us exchange an online session token for a Cloudshelf Auth Token
         return res.redirect(`/shopify/online/auth?shop=${session.shop}`);
