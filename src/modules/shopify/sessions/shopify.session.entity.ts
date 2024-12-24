@@ -9,7 +9,7 @@ export class ShopifySessionEntity extends Session {
     public id: string;
 
     @Property()
-    public shop!: string;
+    public shop: string;
 
     @Property()
     public state: string;
@@ -18,14 +18,14 @@ export class ShopifySessionEntity extends Session {
     public isOnline: boolean;
 
     @Property({ nullable: true, length: 1000 })
-    public scope?: string;
+    public scope: string | undefined;
 
     @Property({ type: Date, nullable: true })
-    public expires?: Date;
+    public expires: Date | undefined;
 
     @Property({ nullable: true })
-    public accessToken?: string;
+    public accessToken: string | undefined;
 
     @Property({ type: 'json', nullable: true })
-    public onlineAccessInfo?: OnlineAccessInfo;
+    public onlineAccessInfo: OnlineAccessInfo | undefined;
 }

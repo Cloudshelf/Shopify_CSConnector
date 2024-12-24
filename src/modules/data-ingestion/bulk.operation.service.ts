@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { EntityManager } from '@mikro-orm/core';
-import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
+import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
 import { BulkOperationType } from './bulk.operation.type';

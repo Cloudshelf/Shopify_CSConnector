@@ -1,5 +1,3 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
     ApolloClient,
     ApolloLink,
@@ -76,13 +74,7 @@ import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { CryptographyUtils } from '../../utils/CryptographyUtils';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { inspect } from 'util';
-
-export interface LogsInterface {
-    info: (logMessage: string, ...args: any[]) => Promise<void> | void;
-    warn: (logMessage: string, ...args: any[]) => Promise<void> | void;
-    error: (logMessage: string, ...args: any[]) => Promise<void> | void;
-}
+import { LogsInterface } from './logs.interface';
 
 export class CloudshelfApiUtils {
     static async getCloudshelfAPIApolloClient(

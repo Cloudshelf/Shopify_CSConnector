@@ -1,20 +1,19 @@
-import { NestFactory } from '@nestjs/core';
 import { ApolloQueryResult } from '@apollo/client';
-import { LocationInput } from 'src/graphql/cloudshelf/generated/cloudshelf';
+import { LocationInput } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import {
     GetLocationsDocument,
     GetLocationsQuery,
     GetLocationsQueryVariables,
     LocationDetailsFragment,
-} from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
-import { ShopifyGraphqlUtil } from 'src/modules/shopify/shopify.graphql.util';
+} from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.util';
 import { FlushMode } from '@mikro-orm/core';
+import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
+import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
+import { AppDataSource } from '../../../trigger/reuseables/orm';
+import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
+import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
 import { logger, task } from '@trigger.dev/sdk/v3';
-import { CloudshelfApiUtils } from 'src/modules/cloudshelf/cloudshelf.api.util';
-import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { AppDataSource } from 'src/trigger/reuseables/orm';
-import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
-import { MiscellaneousUtils } from 'src/utils/MiscellaneousUtils';
 
 export const SyncLocationsTask = task({
     id: 'sync-locations',

@@ -5,10 +5,10 @@ import { BaseEntity } from '../database/abstract-entities/entity.base';
 export class RetailerEntity extends BaseEntity {
     @Index()
     @Property({ type: 'text', unique: true })
-    domain!: string;
+    domain: string;
 
     @Property({ type: 'text' })
-    accessToken!: string;
+    accessToken: string;
 
     @Property({ type: 'text', nullable: true })
     sharedSecret: string | null;
@@ -17,7 +17,7 @@ export class RetailerEntity extends BaseEntity {
     storefrontToken: string | null;
 
     @Property({ type: types.array, default: [] })
-    scopes!: string[];
+    scopes: string[];
 
     @Property({ type: types.datetime, nullable: true })
     lastSafetySyncRequested: Date | null;

@@ -89,9 +89,9 @@ export class ToolsResolver {
         }
 
         if (partial) {
-            await ProductJobUtils.scheduleTriggerJob(retailer, false, 10);
+            await ProductJobUtils.scheduleTriggerJob(retailer, false, 10, 'forceViaGql');
         } else {
-            await ProductJobUtils.scheduleTriggerJob(retailer, true);
+            await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'forceViaGql');
         }
         return 'Scheduled a sync';
     }
@@ -145,7 +145,7 @@ export class ToolsResolver {
         if (bulkOperation.type === BulkOperationType.ProductSync) {
             await ProductJobUtils.scheduleConsumerJob(retailer, bulkOperation);
         } else if (bulkOperation.type === BulkOperationType.ProductGroupSync) {
-            await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOperation);
+            await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOperation, 'reprocessViaGql');
         }
         return true;
     }

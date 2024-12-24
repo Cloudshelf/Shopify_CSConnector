@@ -12,7 +12,7 @@ import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { app } from '../../main';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
-import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
+import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
@@ -100,23 +100,8 @@ export class RetailerUtils {
         return em.findOne(RetailerEntity, { domain });
     }
 
-    static async updateLastProductSyncTime(em: EntityManager, retailer: RetailerEntity) {
-        retailer.lastProductSync = new Date();
-        await em.persistAndFlush(retailer);
-    }
-
-    static async updateLastProductGroupSyncTime(em: EntityManager, retailer: RetailerEntity) {
-        retailer.lastProductGroupSync = new Date();
-        await em.persistAndFlush(retailer);
-    }
-
     static async updateLastSafetyRequestedTime(em: EntityManager, retailer: RetailerEntity) {
         retailer.lastSafetySyncRequested = new Date();
-        await em.persistAndFlush(retailer);
-    }
-
-    static async updateLastSafetyCompletedTime(em: EntityManager, retailer: RetailerEntity) {
-        retailer.lastSafetySyncCompleted = new Date();
         await em.persistAndFlush(retailer);
     }
 

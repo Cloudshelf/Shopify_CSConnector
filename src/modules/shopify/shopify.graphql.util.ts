@@ -1,6 +1,6 @@
 import { ApolloClient, InMemoryCache, NormalizedCacheObject, createHttpLink, from } from '@apollo/client/core';
 import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
-import { LogsInterface } from '../cloudshelf/cloudshelf.api.util';
+import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { createShopifyRetryLink } from './throttling/shopify.throttling.error.link';
 
