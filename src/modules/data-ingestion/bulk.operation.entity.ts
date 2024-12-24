@@ -2,7 +2,7 @@ import { Entity, Enum, Index, Property, types } from '@mikro-orm/core';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
 import { BulkOperationType } from './bulk.operation.type';
 
-@Entity()
+@Entity({ tableName: 'bulk_operation' })
 export class BulkOperation extends BaseEntity {
     constructor() {
         super();
