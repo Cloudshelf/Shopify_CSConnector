@@ -100,10 +100,6 @@ export class RetailerUtils {
         return em.findOne(RetailerEntity, { domain });
     }
 
-    static async updateLastSafetyRequestedTime(em: EntityManager, retailer: RetailerEntity) {
-        retailer.lastSafetySyncRequested = new Date();
-        await em.persistAndFlush(retailer);
-    }
 
     static async updateShopInformationFromShopifyOnlineSession(
         em: EntityManager,
