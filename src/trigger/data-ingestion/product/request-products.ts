@@ -120,9 +120,7 @@ export const RequestProductsTask = task({
         }
         logger.info(`Requesting products for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`);
         if (payload.fullSync) {
-            logger.info(`payload.fullSync is true, registering webhooks`);
-            const topics = ['1'];
-            logger.info(`test`, { topics });
+            logger.info(`payload.fullSync is true, registering webhooks for host`, { connectorHost });
             //If its a full sync we register all the webhooks first, just to be safe.
             await registerAllWebhooksForRetailer(retailer, connectorHost, {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),

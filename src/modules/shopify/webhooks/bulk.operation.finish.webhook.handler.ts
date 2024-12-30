@@ -67,10 +67,18 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
 
             if (bulkOp.type === BulkOperationType.ProductSync) {
                 //create the product consumer
-                await ProductJobUtils.scheduleConsumerJob(retailer, bulkOp);
+                await ProductJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
+                    info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+                });
             } else if (bulkOp.type === BulkOperationType.ProductGroupSync) {
                 //create the product group consumer
-                await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOp);
+                await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
+                    info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+                });
             } else {
                 this.logger.error('Unknown bulk operation type ' + bulkOp.type);
             }
