@@ -100,7 +100,6 @@ export class RetailerUtils {
         return em.findOne(RetailerEntity, { domain });
     }
 
-
     static async updateShopInformationFromShopifyOnlineSession(
         em: EntityManager,
         shopifyApiInstance: Shopify,

@@ -42,7 +42,11 @@ export const ProcessProductsTask = task({
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
             if (retailer) {
                 retailer.lastProductSync = new Date();
-                await CollectionJobUtils.scheduleTriggerJob(retailer, payload.fullSync);
+                await CollectionJobUtils.scheduleTriggerJob(retailer, payload.fullSync, undefined, {
+                    info: logger.info,
+                    warn: logger.warn,
+                    error: logger.error,
+                });
             }
             logger.info(`Handle Complete: ${msg}`);
             await em.flush();

@@ -2,7 +2,7 @@ import { FlushMode } from '@mikro-orm/core';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { ToolsUtils } from '../../../modules/tools/tools.utils';
+import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/registerAllWebhooksForRetailer';
 import { AppDataSource } from '../..//reuseables/orm';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { logger, task } from '@trigger.dev/sdk/v3';
@@ -122,12 +122,11 @@ export const RequestProductsTask = task({
         if (payload.fullSync) {
             logger.info(`payload.fullSync is true, registering webhooks`);
             //If its a full sync we register all the webhooks first, just to be safe.
-            //TODO: Trigger
-            // await ToolsUtils.registerAllWebhooksForRetailer(retailer, connectorHost, {
-            //     info: logger.info,
-            //     error: logger.error,
-            //     warn: logger.warn,
-            // });
+            await registerAllWebhooksForRetailer(retailer, connectorHost, {
+                info: logger.info,
+                error: logger.error,
+                warn: logger.warn,
+            });
         }
         await TriggerWaitForNobleReschedule(retailer);
         let changesSince: Date | undefined = undefined;

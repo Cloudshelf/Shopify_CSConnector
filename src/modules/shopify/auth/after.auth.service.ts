@@ -3,9 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
+import { SlackUtils } from '../../../utils/SlackUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
+import { slackSchema } from '../../configuration/schemas/slack.schema';
 import { LocationJobUtils } from '../../data-ingestion/location.job.utils';
 import { ProductJobUtils } from '../../data-ingestion/product.job.utils';
 import { RetailerService } from '../../retailer/retailer.service';
@@ -17,8 +19,6 @@ import { InjectShopify } from '@nestjs-shopify/core';
 import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
 import { Shopify } from '@shopify/shopify-api';
 import { Request, Response } from 'express';
-import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
-import { SlackUtils } from 'src/utils/SlackUtils';
 
 @Injectable()
 export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
