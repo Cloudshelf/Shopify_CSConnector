@@ -39,7 +39,11 @@ export const ProcessProductGroupsTask = task({
                 if (payload.fullSync) {
                     retailer.lastSafetySyncCompleted = new Date();
                 }
-                await ProductJobUtils.scheduleTriggerJob(retailer, false);
+                await ProductJobUtils.scheduleTriggerJob(retailer, false, undefined, undefined, {
+                    info: logger.info,
+                    warn: logger.warn,
+                    error: logger.error,
+                });
             }
             logger.info(`Handle Complete: ${msg}`);
             await em.flush();

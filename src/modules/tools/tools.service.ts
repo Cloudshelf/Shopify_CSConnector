@@ -2,13 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WebhookSubscriptionTopic } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { CloudshelfApiService } from '../cloudshelf/cloudshelf.api.service';
+import { internalScheduleTriggerJobs } from '../../trigger/scheduled/safety_sync';
 import { cloudshelfSchema } from '../configuration/schemas/cloudshelf.schema';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { RetailerService } from '../retailer/retailer.service';
-import { ToolsUtils } from './tools.utils';
-import { internalScheduleTriggerJobs } from 'src/trigger/scheduled/safety_sync';
+import { deleteAllWebhooksForAllStores } from './utils/deleteAllWebhooksForAllStores';
+import { deleteAllWebhooksForRetailer } from './utils/deleteAllWebhooksForRetailer';
+import { deleteWebhookForStore } from './utils/deleteWebhookForStore';
+import { getWebhooks } from './utils/getWebhooks';
+import { registerAllWebhooksForAllRetailers } from './utils/registerAllWebhooksForAllRetailers';
+import { registerAllWebhooksForRetailer } from './utils/registerAllWebhooksForRetailer';
+import { registerWebhookForRetailer } from './utils/registerWebhookForRetailer';
+import { sendAllRetailersToCloudshelf } from './utils/sendAllRetailersToCloudshelf';
+import { updateRetailerInfoWhereNull } from './utils/updateRetailerInfoWhereNull';
 
 @Injectable()
 export class ToolsService {
@@ -25,7 +31,7 @@ export class ToolsService {
     }
 
     async getWebhooks(retailer: RetailerEntity) {
-        return ToolsUtils.getWebhooks(retailer, {
+        return getWebhooks(retailer, {
             info: this.logger.log,
             error: this.logger.error,
             warn: this.logger.warn,
@@ -33,7 +39,7 @@ export class ToolsService {
     }
 
     async registerAllWebhooksForRetailer(retailer: RetailerEntity) {
-        return ToolsUtils.registerAllWebhooksForRetailer(retailer, process.env.HOST!, {
+        return registerAllWebhooksForRetailer(retailer, process.env.HOST!, {
             info: this.logger.log,
             error: this.logger.error,
             warn: this.logger.warn,
@@ -41,7 +47,7 @@ export class ToolsService {
     }
 
     async registerWebhookForRetailer(retailer: RetailerEntity, topic: WebhookSubscriptionTopic, url: string) {
-        return ToolsUtils.registerWebhookForRetailer(retailer, topic, url, {
+        return registerWebhookForRetailer(retailer, topic, url, {
             info: this.logger.log,
             error: this.logger.error,
             warn: this.logger.warn,
@@ -55,7 +61,7 @@ export class ToolsService {
         success: string[];
         failed: string[];
     }> {
-        return ToolsUtils.registerAllWebhooksForAllRetailers(
+        return registerAllWebhooksForAllRetailers(
             this.entityManager,
             this.runtimeConfigService.get('HOST')!,
             from,
@@ -69,7 +75,7 @@ export class ToolsService {
     }
 
     async deleteWebhookForStore(retailer: RetailerEntity, webhookId: string) {
-        return ToolsUtils.deleteWebhookForStore(retailer, webhookId, {
+        return deleteWebhookForStore(retailer, webhookId, {
             info: this.logger.log,
             error: this.logger.error,
             warn: this.logger.warn,
@@ -77,7 +83,7 @@ export class ToolsService {
     }
 
     async deleteAllWebhooksForRetailer(retailer: RetailerEntity) {
-        return ToolsUtils.deleteAllWebhooksForRetailer(retailer, {
+        return deleteAllWebhooksForRetailer(retailer, {
             info: this.logger.log,
             error: this.logger.error,
             warn: this.logger.warn,
@@ -91,7 +97,7 @@ export class ToolsService {
         success: string[];
         failed: string[];
     }> {
-        return ToolsUtils.deleteAllWebhooksForAllStores(this.entityManager, from, limit, {
+        return deleteAllWebhooksForAllStores(this.entityManager, from, limit, {
             info: this.logger.log,
             error: this.logger.error,
             warn: this.logger.warn,
@@ -99,26 +105,18 @@ export class ToolsService {
     }
 
     async updateRetailerInfoWhereNull() {
-        return ToolsUtils.updateRetailerInfoWhereNull(
-            this.configService.get('CLOUDSHELF_API_URL')!,
-            this.entityManager,
-            {
-                info: this.logger.log,
-                error: this.logger.error,
-                warn: this.logger.warn,
-            },
-        );
+        return updateRetailerInfoWhereNull(this.configService.get('CLOUDSHELF_API_URL')!, this.entityManager, {
+            info: this.logger.log,
+            error: this.logger.error,
+            warn: this.logger.warn,
+        });
     }
 
     async sendAllRetailersToCloudshelf() {
-        return ToolsUtils.sendAllRetailersToCloudshelf(
-            this.configService.get('CLOUDSHELF_API_URL')!,
-            this.entityManager,
-            {
-                info: this.logger.log,
-                error: this.logger.error,
-                warn: this.logger.warn,
-            },
-        );
+        return sendAllRetailersToCloudshelf(this.configService.get('CLOUDSHELF_API_URL')!, this.entityManager, {
+            info: this.logger.log,
+            error: this.logger.error,
+            warn: this.logger.warn,
+        });
     }
 }

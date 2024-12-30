@@ -1,9 +1,9 @@
 import { FlushMode } from '@mikro-orm/core';
+import { RetailerEntity } from '../../modules/retailer/retailer.entity';
+import { NotificationUtils } from '../../utils/NotificationUtils';
+import { SlackUtils } from '../../utils/SlackUtils';
 import { AppDataSource } from '../reuseables/orm';
 import { logger, schedules } from '@trigger.dev/sdk/v3';
-import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { NotificationUtils } from 'src/utils/NotificationUtils';
-import { SlackUtils } from 'src/utils/SlackUtils';
 
 export const ReportSyncIssues = schedules.task({
     id: 'report-sync-issues',

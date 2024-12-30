@@ -1,14 +1,14 @@
 import { ConfigService } from '@nestjs/config';
+import { slackSchema } from '../../../modules/configuration/schemas/slack.schema';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
+import { SlackUtils } from '../../../utils/SlackUtils';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
-import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
-import { SlackUtils } from 'src/utils/SlackUtils';
 
 @WebhookHandler('APP_UNINSTALLED')
 export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {

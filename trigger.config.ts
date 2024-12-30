@@ -21,10 +21,7 @@ export default defineConfig({
             'fsevents',
         ],
 
-        extensions: [
-            emitDecoratorMetadata(),
-            additionalFiles({ files: ['./src/modules/cloudshelf/logs.interface.ts'] }),
-        ],
+        extensions: [emitDecoratorMetadata()],
     },
     logLevel: 'log',
     retries: {

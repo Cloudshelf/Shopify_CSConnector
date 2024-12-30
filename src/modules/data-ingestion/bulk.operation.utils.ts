@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import {
     BulkOperationByShopifyIdDocument,
     BulkOperationByShopifyIdQuery,

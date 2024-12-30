@@ -1,10 +1,16 @@
 import { ProcessProductGroupsTask } from '../../trigger/data-ingestion/product-groups/process-product-groups';
 import { RequestProductGroupsTask } from '../../trigger/data-ingestion/product-groups/request-product-groups';
+import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
 
 export class CollectionJobUtils {
-    static async scheduleTriggerJob(retailer: RetailerEntity, fullSync?: boolean, reason?: string) {
+    static async scheduleTriggerJob(
+        retailer: RetailerEntity,
+        fullSync?: boolean,
+        reason?: string,
+        logs?: LogsInterface,
+    ) {
         const tags: string[] = [`retailer_${retailer.id}`, fullSync ? 'type_full' : 'type_partial'];
         if (reason) {
             tags.push(`reason_${reason}`);
@@ -28,7 +34,12 @@ export class CollectionJobUtils {
         );
     }
 
-    static async scheduleConsumerJob(retailer: RetailerEntity, bulkOp: BulkOperation, reason?: string) {
+    static async scheduleConsumerJob(
+        retailer: RetailerEntity,
+        bulkOp: BulkOperation,
+        reason?: string,
+        logs?: LogsInterface,
+    ) {
         const delay = '1s';
         const tags: string[] = [`retailer_${retailer.id}`, bulkOp.installSync ? 'type_full' : 'type_partial'];
         if (reason) {
@@ -47,8 +58,8 @@ export class CollectionJobUtils {
                     concurrencyLimit: 1,
                 },
                 tags,
-
                 concurrencyKey: retailer.id,
+                idempotencyKey: bulkOp.shopifyBulkOpId,
             },
         );
     }
