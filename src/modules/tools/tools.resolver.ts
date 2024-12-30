@@ -87,9 +87,17 @@ export class ToolsResolver {
         }
 
         if (partial) {
-            await ProductJobUtils.scheduleTriggerJob(retailer, false, 10, 'forceViaGql');
+            await ProductJobUtils.scheduleTriggerJob(retailer, false, 10, 'forceViaGql', {
+                info: (s, o) => console.info(s, o),
+                warn: (s, o) => console.warn(s, o),
+                error: (s, o) => console.error(s, o),
+            });
         } else {
-            await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'forceViaGql');
+            await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'forceViaGql', {
+                info: (s, o) => console.info(s, o),
+                warn: (s, o) => console.warn(s, o),
+                error: (s, o) => console.error(s, o),
+            });
         }
         return 'Scheduled a sync';
     }

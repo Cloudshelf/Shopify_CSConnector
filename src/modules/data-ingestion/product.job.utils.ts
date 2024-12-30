@@ -41,8 +41,12 @@ export class ProductJobUtils {
             taskIdentifier: [RequestProductsTask.id],
             tag: searchTags,
         })) {
-            console.log(run);
-            pendingRuns.push({ id: run.id, type: run.tags.includes('type_full') ? 'type_full' : 'type_partial' });
+            const i: { id: string; type: 'type_full' | 'type_partial' } = {
+                id: run.id,
+                type: run.tags.includes('type_full') ? 'type_full' : 'type_partial',
+            };
+            pendingRuns.push(i);
+            console.log(`pushing pending run`, i);
         }
         logs?.info(`Found ${pendingRuns.length} existing jobs...`);
 
