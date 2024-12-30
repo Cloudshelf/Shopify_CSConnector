@@ -8,7 +8,6 @@ import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { LocationJobUtils } from '../../data-ingestion/location.job.utils';
 import { ProductJobUtils } from '../../data-ingestion/product.job.utils';
-import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
@@ -18,6 +17,8 @@ import { InjectShopify } from '@nestjs-shopify/core';
 import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
 import { Shopify } from '@shopify/shopify-api';
 import { Request, Response } from 'express';
+import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
+import { SlackUtils } from 'src/utils/SlackUtils';
 
 @Injectable()
 export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
@@ -26,12 +27,12 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
     constructor(
         private readonly retailerService: RetailerService,
         private readonly webhookService: ShopifyWebhooksService,
-        private readonly slackService: SlackService,
         private readonly storefrontService: StorefrontService,
         private readonly customTokenService: CustomTokenService,
         private readonly configService: ConfigService<typeof shopifySchema>,
         private readonly cloudshelfApiService: CloudshelfApiService,
         @InjectShopify() private readonly shopifyApiService: Shopify,
+        private readonly slackConfigService: ConfigService<typeof slackSchema>,
     ) {}
 
     @SentryInstrument('AfterAuthHandlerService')
@@ -105,9 +106,15 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
             await this.retailerService.save(entity);
 
             //Send the installation notification to the Cloudshelf Slack
-            await this.slackService.sendGeneralNotification(
-                NotificationUtils.buildInstallAttachments(entity.displayName!, session.shop, entity.email!),
-            );
+            const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
+            const slackNotificationChannel = this.slackConfigService.get<string>('SLACK_GENERAL_NOTIFICATION_CHANNEL');
+            if (slackToken && slackNotificationChannel) {
+                await SlackUtils.SendNotification(
+                    slackToken,
+                    slackNotificationChannel,
+                    NotificationUtils.buildInstallAttachments(entity.displayName!, session.shop, entity.email!),
+                );
+            }
         }
 
         //report store to Cloudshelf API

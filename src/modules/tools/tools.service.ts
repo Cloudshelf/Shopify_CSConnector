@@ -8,6 +8,7 @@ import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsUtils } from './tools.utils';
+import { internalScheduleTriggerJobs } from 'src/trigger/scheduled/safety_sync';
 
 @Injectable()
 export class ToolsService {
@@ -17,9 +18,11 @@ export class ToolsService {
         private readonly configService: ConfigService<typeof cloudshelfSchema>,
         private readonly runtimeConfigService: ConfigService<typeof runtimeSchema>,
         private readonly entityManager: EntityManager,
-        private readonly retailerService: RetailerService,
-        private readonly cloudshelfApiService: CloudshelfApiService,
     ) {}
+
+    async forceASafetySyncNow() {
+        await internalScheduleTriggerJobs(this.entityManager);
+    }
 
     async getWebhooks(retailer: RetailerEntity) {
         return ToolsUtils.getWebhooks(retailer, {
