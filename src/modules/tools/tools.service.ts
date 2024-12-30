@@ -32,25 +32,25 @@ export class ToolsService {
 
     async getWebhooks(retailer: RetailerEntity) {
         return getWebhooks(retailer, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
     async registerAllWebhooksForRetailer(retailer: RetailerEntity) {
         return registerAllWebhooksForRetailer(retailer, process.env.HOST!, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
     async registerWebhookForRetailer(retailer: RetailerEntity, topic: WebhookSubscriptionTopic, url: string) {
         return registerWebhookForRetailer(retailer, topic, url, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
@@ -67,26 +67,26 @@ export class ToolsService {
             from,
             limit,
             {
-                info: this.logger.log,
-                error: this.logger.error,
-                warn: this.logger.warn,
+                info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
             },
         );
     }
 
     async deleteWebhookForStore(retailer: RetailerEntity, webhookId: string) {
         return deleteWebhookForStore(retailer, webhookId, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
     async deleteAllWebhooksForRetailer(retailer: RetailerEntity) {
         return deleteAllWebhooksForRetailer(retailer, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
@@ -98,25 +98,25 @@ export class ToolsService {
         failed: string[];
     }> {
         return deleteAllWebhooksForAllStores(this.entityManager, from, limit, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
     async updateRetailerInfoWhereNull() {
         return updateRetailerInfoWhereNull(this.configService.get('CLOUDSHELF_API_URL')!, this.entityManager, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 
     async sendAllRetailersToCloudshelf() {
         return sendAllRetailersToCloudshelf(this.configService.get('CLOUDSHELF_API_URL')!, this.entityManager, {
-            info: this.logger.log,
-            error: this.logger.error,
-            warn: this.logger.warn,
+            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
 }

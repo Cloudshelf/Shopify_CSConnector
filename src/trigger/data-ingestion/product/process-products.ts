@@ -43,9 +43,9 @@ export const ProcessProductsTask = task({
             if (retailer) {
                 retailer.lastProductSync = new Date();
                 await CollectionJobUtils.scheduleTriggerJob(retailer, payload.fullSync, undefined, {
-                    info: logger.info,
-                    warn: logger.warn,
-                    error: logger.error,
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
                 });
             }
             logger.info(`Handle Complete: ${msg}`);
@@ -239,9 +239,9 @@ export const ProcessProductsTask = task({
         for (const chunk of chunkedProductInputs) {
             logger.info(`Upserting ${chunk.length} products to cloudshelf for current file`);
             await CloudshelfApiUtils.upsertProducts(cloudshelfAPI, bulkOperationRecord.domain, chunk, {
-                info: logger.info,
-                error: logger.error,
-                warn: logger.warn,
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             });
         }
         logger.info(

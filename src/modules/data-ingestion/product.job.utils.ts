@@ -103,6 +103,10 @@ export class ProductJobUtils {
         if (reason) {
             tags.push(`reason_${reason}`);
         }
+
+        logs?.info(
+            `Asking trigger to schhedule product consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
+        );
         await ProcessProductsTask.trigger(
             {
                 remoteBulkOperationId: bulkOp.shopifyBulkOpId,

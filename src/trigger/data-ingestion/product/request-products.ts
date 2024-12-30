@@ -120,12 +120,12 @@ export const RequestProductsTask = task({
         }
         logger.info(`Requesting products for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`);
         if (payload.fullSync) {
-            logger.info(`payload.fullSync is true, registering webhooks`);
+            logger.info(`payload.fullSync is true, registering webhooks for host`, { connectorHost });
             //If its a full sync we register all the webhooks first, just to be safe.
             await registerAllWebhooksForRetailer(retailer, connectorHost, {
-                info: logger.info,
-                error: logger.error,
-                warn: logger.warn,
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             });
         }
         await TriggerWaitForNobleReschedule(retailer);
@@ -149,9 +149,9 @@ export const RequestProductsTask = task({
             queryPayload,
             payload.fullSync,
             {
-                info: logger.info,
-                error: logger.error,
-                warn: logger.warn,
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             },
         );
         retailer.nextPartialSyncRequestTime = subMinutes(new Date(), 1);

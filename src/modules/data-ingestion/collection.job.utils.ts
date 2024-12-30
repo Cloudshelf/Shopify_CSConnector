@@ -45,7 +45,9 @@ export class CollectionJobUtils {
         if (reason) {
             tags.push(`reason_${reason}`);
         }
-
+        logs?.info(
+            `Asking trigger to schhedule productgroup consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
+        );
         await ProcessProductGroupsTask.trigger(
             {
                 remoteBulkOperationId: bulkOp.shopifyBulkOpId,

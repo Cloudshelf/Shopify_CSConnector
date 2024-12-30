@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
@@ -10,6 +11,8 @@ import { ToolsService } from './tools.service';
 
 @Resolver()
 export class ToolsResolver {
+    private readonly logger = new Logger('ToolsResolver');
+
     constructor(
         private readonly toolsService: ToolsService,
         private readonly retailerService: RetailerService,
@@ -88,15 +91,15 @@ export class ToolsResolver {
 
         if (partial) {
             await ProductJobUtils.scheduleTriggerJob(retailer, false, 10, 'forceViaGql', {
-                info: (s, o) => console.info(s, o),
-                warn: (s, o) => console.warn(s, o),
-                error: (s, o) => console.error(s, o),
+                info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
             });
         } else {
             await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'forceViaGql', {
-                info: (s, o) => console.info(s, o),
-                warn: (s, o) => console.warn(s, o),
-                error: (s, o) => console.error(s, o),
+                info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
             });
         }
         return 'Scheduled a sync';

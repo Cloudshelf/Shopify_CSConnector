@@ -116,9 +116,9 @@ export const RequestProductGroupsTask = task({
             queryPayload,
             payload.fullSync,
             {
-                info: logger.info,
-                error: logger.error,
-                warn: logger.warn,
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             },
         );
 
