@@ -40,9 +40,9 @@ export const ProcessProductGroupsTask = task({
                     retailer.lastSafetySyncCompleted = new Date();
                 }
                 await ProductJobUtils.scheduleTriggerJob(retailer, false, undefined, undefined, {
-                    info: logger.info,
-                    warn: logger.warn,
-                    error: logger.error,
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
                 });
             }
             logger.info(`Handle Complete: ${msg}`);
@@ -159,9 +159,9 @@ export const ProcessProductGroupsTask = task({
         }
         logger.info(`Upserting collections to cloudshelf`, { productGroupInputs });
         await CloudshelfApiUtils.updateProductGroups(cloudshelfAPI, retailer.domain, productGroupInputs, {
-            info: logger.info,
-            error: logger.error,
-            warn: logger.warn,
+            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
         logger.info(`Updating products in product groups on cloudshelf`);
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
@@ -173,9 +173,9 @@ export const ProcessProductGroupsTask = task({
                 productGroupId,
                 reversedProductIds,
                 {
-                    info: logger.info,
-                    error: logger.error,
-                    warn: logger.warn,
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
                 },
             );
         }
@@ -183,9 +183,9 @@ export const ProcessProductGroupsTask = task({
         logger.info(`Finished reporting all products in all groups`);
         logger.info(`Creating first cloud shelf if required`);
         await CloudshelfApiUtils.createFirstCloudshelfIfRequired(cloudshelfAPI, em, retailer, {
-            info: logger.info,
-            error: logger.error,
-            warn: logger.warn,
+            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
         if (payload.fullSync) {
             const groupContentToSave: { id: string }[] = [];

@@ -6,11 +6,14 @@ import { registerWebhookForRetailer } from './registerWebhookForRetailer';
 
 export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, host: string, logs?: LogsInterface) {
     const allWebhooks = await getWebhooks(retailer);
+    const topics = allWebhooks.map(w => w.node.topic.toString());
+    logs?.info(`existing webhooks`, { topics });
     if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.OrdersUpdated)) {
         const r1 = await registerWebhookForRetailer(
             retailer,
             WebhookSubscriptionTopic.OrdersUpdated,
             `https://${host}/shopify/webhooks`,
+            logs,
         );
         if (!r1) {
             logs?.error(

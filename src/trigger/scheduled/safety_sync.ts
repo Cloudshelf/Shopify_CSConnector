@@ -37,9 +37,9 @@ export async function internalScheduleTriggerJobs(em: EntityManager) {
     for (const retailer of retailers) {
         logger.debug('Creating safety sync for retailer ' + retailer.domain);
         await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'safetySync', {
-            info: logger.info,
-            warn: logger.warn,
-            error: logger.error,
+            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
         retailer.lastSafetySyncRequested = new Date();
     }

@@ -17,6 +17,7 @@ export async function registerWebhookForRetailer(
     logs?: LogsInterface,
 ) {
     try {
+        logs?.info(`Creating webook ${topic} to host ${url}`);
         const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
 
         const subscription: WebhookSubscriptionInput = {
@@ -35,6 +36,7 @@ export async function registerWebhookForRetailer(
         });
 
         if (!resp.data || resp.errors) {
+            logs?.error(`Error creating webhook`, resp.errors);
             return false;
         }
 
