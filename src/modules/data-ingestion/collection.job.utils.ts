@@ -3,6 +3,7 @@ import { RequestProductGroupsTask } from '../../trigger/data-ingestion/product-g
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
+import { idempotencyKeys } from '@trigger.dev/sdk/v3';
 
 export class CollectionJobUtils {
     static async scheduleTriggerJob(
@@ -61,7 +62,7 @@ export class CollectionJobUtils {
                 },
                 tags,
                 concurrencyKey: retailer.id,
-                idempotencyKey: bulkOp.shopifyBulkOpId,
+                idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
             },
         );
     }

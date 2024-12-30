@@ -3,7 +3,7 @@ import { RequestProductsTask } from '../../trigger/data-ingestion/product/reques
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
-import { runs } from '@trigger.dev/sdk/v3';
+import { idempotencyKeys, runs } from '@trigger.dev/sdk/v3';
 
 export class ProductJobUtils {
     static async scheduleTriggerJob(
@@ -105,9 +105,9 @@ export class ProductJobUtils {
         }
 
         logs?.info(
-            `Asking trigger to schhedule product consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
+            `Asking trigger to schedule product consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
         );
-        await ProcessProductsTask.trigger(
+        const newTaskID = await ProcessProductsTask.trigger(
             {
                 remoteBulkOperationId: bulkOp.shopifyBulkOpId,
                 fullSync: bulkOp.installSync,
@@ -120,8 +120,10 @@ export class ProductJobUtils {
                 },
                 tags,
                 concurrencyKey: retailer.id,
-                idempotencyKey: bulkOp.shopifyBulkOpId,
+                idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
             },
         );
+
+        logs?.info(`product consumer id: ${newTaskID.id}`);
     }
 }
