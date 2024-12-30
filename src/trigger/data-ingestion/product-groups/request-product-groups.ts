@@ -55,6 +55,7 @@ export const RequestProductGroupsTask = task({
         concurrencyLimit: 1,
     },
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
+        logger.info('Payload', payload);
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

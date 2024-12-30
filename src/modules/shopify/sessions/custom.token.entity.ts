@@ -1,5 +1,4 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
-import { OnlineAccessInfo, Session } from '@shopify/shopify-api';
 
 @Entity({
     tableName: 'custom_token',

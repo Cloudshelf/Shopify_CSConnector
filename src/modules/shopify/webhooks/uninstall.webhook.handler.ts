@@ -1,22 +1,24 @@
+import { ConfigService } from '@nestjs/config';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
-import { SlackService } from '../../integrations/slack.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
+import { SlackUtils } from 'src/utils/SlackUtils';
 
 @WebhookHandler('APP_UNINSTALLED')
 export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
     private readonly logger = new ExtendedLogger('UninstalledWebhookHandler');
 
     constructor(
-        private readonly slackService: SlackService,
         private readonly retailerService: RetailerService,
         private readonly databaseSessionStorage: DatabaseSessionStorage,
         private readonly cloudshelfApiService: CloudshelfApiService,
+        private readonly slackConfigService: ConfigService<typeof slackSchema>,
     ) {
         super();
     }
@@ -31,9 +33,16 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
             username: domain,
         });
 
-        await this.slackService.sendGeneralNotification(
-            NotificationUtils.buildUninstallAttachments(domain, 'uninstall'),
-        );
+        const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
+        const slackNotificationChannel = this.slackConfigService.get<string>('SLACK_GENERAL_NOTIFICATION_CHANNEL');
+
+        if (slackToken && slackNotificationChannel) {
+            await SlackUtils.SendNotification(
+                slackToken,
+                slackNotificationChannel,
+                NotificationUtils.buildUninstallAttachments(domain, 'uninstall'),
+            );
+        }
 
         await this.retailerService.deleteByDomain(domain);
         await this.databaseSessionStorage.deleteSessionsByDomain(domain);

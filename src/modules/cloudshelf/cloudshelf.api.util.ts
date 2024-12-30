@@ -318,7 +318,7 @@ export class CloudshelfApiUtils {
             logs?.info?.(`Upserted cloudshelf: ${upsertedCloudshelf}`);
             retailer.generatedCloudshelfId = upsertedCloudshelf.id;
             em.persist(retailer);
-            em.flush();
+            await em.flush();
         }
     }
 

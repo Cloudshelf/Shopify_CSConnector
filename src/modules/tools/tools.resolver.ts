@@ -4,7 +4,6 @@ import { GraphQLString } from 'graphql/type';
 import { BulkOperationService } from '../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../data-ingestion/bulk.operation.type';
 import { CollectionJobUtils } from '../data-ingestion/collection.job.utils';
-import { DataIngestionService } from '../data-ingestion/data.ingestion.service';
 import { ProductJobUtils } from '../data-ingestion/product.job.utils';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
@@ -14,7 +13,6 @@ export class ToolsResolver {
     constructor(
         private readonly toolsService: ToolsService,
         private readonly retailerService: RetailerService,
-        private readonly dataIngestionService: DataIngestionService,
         private readonly bulkOperationService: BulkOperationService,
     ) {}
 
@@ -65,7 +63,7 @@ export class ToolsResolver {
         if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
             throw new Error('Unauthorized access to tools graphql');
         }
-        await this.dataIngestionService.createSafetySyncs();
+        await this.toolsService.forceASafetySyncNow();
 
         return 'OK';
     }

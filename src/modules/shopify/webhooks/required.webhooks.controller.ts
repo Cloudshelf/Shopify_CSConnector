@@ -1,15 +1,11 @@
 import { Controller, Headers, HttpCode, Post } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
-import { SlackService } from '../../integrations/slack.service';
-import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyHmac, ShopifyHmacType } from '@nestjs-shopify/core';
 
 @Controller('/shopify/required_webhooks')
 export class RequiredWebhooksController {
     private readonly logger = new ExtendedLogger('RequiredWebhooksController');
-    constructor(private readonly slackService: SlackService) {}
 
     @Post('/shop_redact')
     @HttpCode(200)

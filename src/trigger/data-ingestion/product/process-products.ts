@@ -38,13 +38,14 @@ export const ProcessProductsTask = task({
         concurrencyLimit: 1,
     },
     run: async (payload: { remoteBulkOperationId: string; fullSync: boolean }, { ctx }) => {
+        logger.info('Payload', payload);
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
             if (retailer) {
                 retailer.lastProductSync = new Date();
                 await CollectionJobUtils.scheduleTriggerJob(retailer, payload.fullSync);
             }
             logger.info(`Handle Complete: ${msg}`);
-            em.flush();
+            await em.flush();
         };
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
@@ -76,7 +77,7 @@ export const ProcessProductsTask = task({
         logger.info(`Consuming products for bulk operation "${payload.remoteBulkOperationId}"`, {
             bulkOperationRecord,
         });
-        const retailer = await em.findOne(RetailerEntity, { displayName: bulkOperationRecord.domain });
+        const retailer = await em.findOne(RetailerEntity, { domain: bulkOperationRecord.domain });
         if (!retailer) {
             logger.error(`Retailer does not exist for domain "${bulkOperationRecord.domain}"`);
             throw new Error(`Retailer does not exist for domain "${bulkOperationRecord.domain}"`);

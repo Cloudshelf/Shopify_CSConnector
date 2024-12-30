@@ -1,11 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
-import { CreateRequestContext, EntityManager, MikroORM } from '@mikro-orm/core';
-import { NotificationUtils } from '../../utils/NotificationUtils';
+import { EntityManager } from '@mikro-orm/core';
 import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
-import { SlackService } from '../integrations/slack.service';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { RetailerUtils } from './retailer.utils';
@@ -15,45 +12,7 @@ import { Shopify } from '@shopify/shopify-api';
 export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
-    constructor(
-        //orm is required by CreateRequestContext
-        private readonly orm: MikroORM,
-        private readonly entityManager: EntityManager,
-        private readonly slackService: SlackService,
-    ) {}
-
-    @Cron('0 6 * * *', { name: 'retailer-sync-check', timeZone: 'Europe/London' })
-    async syncCheckCron() {
-        await this.checkAndReportSyncIssues();
-    }
-
-    @CreateRequestContext()
-    async checkAndReportSyncIssues() {
-        //find any retailers where the lastSafetySyncCompleted was more than 48 hours ago (or its null) AND there is not a sync error code
-        const retailers = await this.entityManager.find(RetailerEntity, {
-            $or: [
-                {
-                    lastSafetySyncCompleted: {
-                        $lt: new Date(Date.now() - 48 * 60 * 60 * 1000),
-                    },
-                },
-                {
-                    lastSafetySyncCompleted: {
-                        $eq: null,
-                    },
-                },
-            ],
-            syncErrorCode: { $eq: null },
-        });
-
-        const data = retailers.map(r => {
-            return { displayName: r.displayName ?? r.domain, url: r.domain };
-        });
-
-        if (data.length > 0) {
-            await this.slackService.sendHealthNotification(NotificationUtils.buildSyncIssueNotifications(data));
-        }
-    }
+    constructor(private readonly entityManager: EntityManager) {}
 
     @SentryInstrument('RetailerService')
     async updateOrCreate(
