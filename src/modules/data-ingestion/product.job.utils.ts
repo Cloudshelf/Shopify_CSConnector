@@ -130,6 +130,7 @@ export class ProductJobUtils {
         } catch (err: any) {
             logs?.error(`Error in product consumer scheduler.`);
             logs?.error(`err`, err);
+            throw err;
         }
     }
 }

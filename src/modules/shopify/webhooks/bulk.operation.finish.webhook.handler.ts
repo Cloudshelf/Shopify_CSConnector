@@ -52,12 +52,16 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         if (!bulkOp) {
             this.logger.log('bulkOpComplete webhook referenced unknown bulkOp');
             return;
+        } else {
+            this.logger.debug(`Loaded bulkop from database`, bulkOp);
         }
 
         const retailer = await this.retailerService.getByDomain(domain);
         if (!retailer) {
             this.logger.debug('Cannot get retailer for domain ' + domain);
             return;
+        } else {
+            this.logger.debug(`Loaded retailer from database`, retailer);
         }
 
         bulkOp = await this.bulkOperationService.updateFromShopify(retailer, bulkOp);
