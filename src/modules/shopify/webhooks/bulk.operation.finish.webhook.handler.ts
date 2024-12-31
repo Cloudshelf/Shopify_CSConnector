@@ -39,55 +39,55 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
 
         throw Error('forced error');
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
-            id: domain,
-            username: domain,
-        });
+        // SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
+        //     id: domain,
+        //     username: domain,
+        // });
 
-        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
-        if (shouldIgnore) {
-            this.logger.debug('Ignoring webhook due to environment configuration');
-            return;
-        }
+        // const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        // if (shouldIgnore) {
+        //     this.logger.debug('Ignoring webhook due to environment configuration');
+        //     return;
+        // }
 
-        let bulkOp = await this.bulkOperationService.getOneByThirdPartyId(data.admin_graphql_api_id);
-        if (!bulkOp) {
-            this.logger.log('bulkOpComplete webhook referenced unknown bulkOp');
-            return;
-        } else {
-            this.logger.debug(`Loaded bulkop from database`, JSON.stringify(bulkOp));
-        }
+        // let bulkOp = await this.bulkOperationService.getOneByThirdPartyId(data.admin_graphql_api_id);
+        // if (!bulkOp) {
+        //     this.logger.log('bulkOpComplete webhook referenced unknown bulkOp');
+        //     return;
+        // } else {
+        //     this.logger.debug(`Loaded bulkop from database`, JSON.stringify(bulkOp));
+        // }
 
-        const retailer = await this.retailerService.getByDomain(domain);
-        if (!retailer) {
-            this.logger.debug('Cannot get retailer for domain ' + domain);
-            return;
-        } else {
-            this.logger.debug(`Loaded retailer from database`, JSON.stringify(retailer));
-        }
+        // const retailer = await this.retailerService.getByDomain(domain);
+        // if (!retailer) {
+        //     this.logger.debug('Cannot get retailer for domain ' + domain);
+        //     return;
+        // } else {
+        //     this.logger.debug(`Loaded retailer from database`, JSON.stringify(retailer));
+        // }
 
-        bulkOp = await this.bulkOperationService.updateFromShopify(retailer, bulkOp);
+        // bulkOp = await this.bulkOperationService.updateFromShopify(retailer, bulkOp);
 
-        if (bulkOp?.status === BulkOperationStatus.Completed) {
-            this.logger.debug('Bulk operation completed successfully');
+        // if (bulkOp?.status === BulkOperationStatus.Completed) {
+        //     this.logger.debug('Bulk operation completed successfully');
 
-            if (bulkOp.type === BulkOperationType.ProductSync) {
-                //create the product consumer
-                await ProductJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
-                    info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-                    warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-                    error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-                });
-            } else if (bulkOp.type === BulkOperationType.ProductGroupSync) {
-                //create the product group consumer
-                await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
-                    info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-                    warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-                    error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-                });
-            } else {
-                this.logger.error('Unknown bulk operation type ' + bulkOp.type);
-            }
-        }
+        //     if (bulkOp.type === BulkOperationType.ProductSync) {
+        //         //create the product consumer
+        //         await ProductJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
+        //             info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+        //             warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+        //             error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+        //         });
+        //     } else if (bulkOp.type === BulkOperationType.ProductGroupSync) {
+        //         //create the product group consumer
+        //         await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
+        //             info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+        //             warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+        //             error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+        //         });
+        //     } else {
+        //         this.logger.error('Unknown bulk operation type ' + bulkOp.type);
+        //     }
+        // }
     }
 }
