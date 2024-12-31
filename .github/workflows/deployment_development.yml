@@ -13,12 +13,12 @@ jobs:
         steps:
             # Checkout branch
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             # Enforce node version
             - uses: actions/setup-node@v4
               with:
-                  node-version: 20.17.0
+                  node-version: 20
 
             # Versioning
             - name: Perform Versioning
@@ -43,12 +43,12 @@ jobs:
             contents: read
         steps:
             - name: Checkout
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
             # Enforce node version
             - uses: actions/setup-node@v4
               with:
-                  node-version: 20.17.0
+                  node-version: 20
 
             # Create the first message on slack
             - name: Update status on slack
