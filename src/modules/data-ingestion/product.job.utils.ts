@@ -107,23 +107,29 @@ export class ProductJobUtils {
         logs?.info(
             `Asking trigger to schedule product consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
         );
-        const newTaskID = await ProcessProductsTask.trigger(
-            {
-                remoteBulkOperationId: bulkOp.shopifyBulkOpId,
-                fullSync: bulkOp.installSync,
-            },
-            {
-                delay,
-                queue: {
-                    name: `ingestion`,
-                    concurrencyLimit: 1,
+        try {
+            const idempotencyKey = await idempotencyKeys.create(bulkOp.shopifyBulkOpId);
+            const newTaskID = await ProcessProductsTask.trigger(
+                {
+                    remoteBulkOperationId: bulkOp.shopifyBulkOpId,
+                    fullSync: bulkOp.installSync,
                 },
-                tags,
-                concurrencyKey: retailer.id,
-                idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
-            },
-        );
+                {
+                    delay,
+                    queue: {
+                        name: `ingestion`,
+                        concurrencyLimit: 1,
+                    },
+                    tags,
+                    concurrencyKey: retailer.id,
+                    idempotencyKey: idempotencyKey,
+                },
+            );
 
-        logs?.info(`product consumer id: ${newTaskID.id}`);
+            logs?.info(`product consumer id: ${newTaskID.id}. idempotencyKey: ${idempotencyKey}`);
+        } catch (err: any) {
+            logs?.error(`Error in product consumer scheduler.`);
+            logs?.error(`err`, err);
+        }
     }
 }
