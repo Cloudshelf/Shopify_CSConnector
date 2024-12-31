@@ -37,6 +37,8 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         this.logger.debug('Received BULK_OPERATIONS_FINISH webhook for domain ' + domain);
         this.logger.debug(data);
 
+        throw Error('forced error');
+
         SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
             id: domain,
             username: domain,
