@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { HtmlUtils } from '../../../utils/HtmlUtils';
 import { Request, Response } from 'express';
@@ -30,6 +30,7 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
             return;
         }
 
+        this.logger.debug(`rethorwing`);
         throw exception;
     }
 }

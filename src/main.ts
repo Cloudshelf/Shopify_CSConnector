@@ -33,6 +33,7 @@ async function bootstrap() {
         maxValueLength: 1250,
         async beforeSend(event: SentryEvent, hint?: EventHint): Promise<SentryEvent | null> {
             //Do some filtering here
+            console.log('Sentry before send', event);
             return event;
         },
     });
