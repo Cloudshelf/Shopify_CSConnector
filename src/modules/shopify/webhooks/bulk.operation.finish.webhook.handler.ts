@@ -53,7 +53,7 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
             this.logger.log('bulkOpComplete webhook referenced unknown bulkOp');
             return;
         } else {
-            this.logger.debug(`Loaded bulkop from database`, bulkOp);
+            this.logger.debug(`Loaded bulkop from database`, JSON.stringify(bulkOp));
         }
 
         const retailer = await this.retailerService.getByDomain(domain);
@@ -61,7 +61,7 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
             this.logger.debug('Cannot get retailer for domain ' + domain);
             return;
         } else {
-            this.logger.debug(`Loaded retailer from database`, retailer);
+            this.logger.debug(`Loaded retailer from database`, JSON.stringify(retailer));
         }
 
         bulkOp = await this.bulkOperationService.updateFromShopify(retailer, bulkOp);
