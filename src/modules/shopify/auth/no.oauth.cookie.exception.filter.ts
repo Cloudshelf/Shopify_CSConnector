@@ -9,6 +9,8 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost) {
         this.logger.debug(`In NoOAuthCookieExceptionFilter`);
         const ctx = host.switchToHttp();
+        this.logger.debug('ctx type', (ctx as any).contextType ?? 'unknown');
+        this.logger.debug('exception being filtered', exception);
         if ((ctx as any).contextType && (ctx as any).contextType === 'graphql') {
             //do nothing as we want to see the GQL errors in the manager, so we rethrow
             this.logger.debug(`graphql context, skipping`);
