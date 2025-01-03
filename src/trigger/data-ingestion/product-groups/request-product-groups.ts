@@ -1,4 +1,5 @@
 import { FlushMode } from '@mikro-orm/core';
+import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
@@ -85,44 +86,65 @@ export const RequestProductGroupsTask = task({
             logger.error(`Retailer does not exist for id "${payload.organisationId}"`);
             throw new Error(`Retailer does not exist for id "${payload.organisationId}"`);
         }
+        try {
+            logger.info(
+                `Requesting product groups for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
+            );
 
-        logger.info(
-            `Requesting product groups for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
-        );
+            await TriggerWaitForNobleReschedule(retailer);
 
-        await TriggerWaitForNobleReschedule(retailer);
+            let changesSince: Date | undefined = undefined;
+            if (!payload.fullSync) {
+                changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
 
-        let changesSince: Date | undefined = undefined;
-        if (!payload.fullSync) {
-            changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
+                if (changesSince === undefined) {
+                    //If we have never don't a partial sync, lets just get the last days worth of changes...
+                    //This is just so we get something.
+                    changesSince = subDays(new Date(), 1);
+                }
 
-            if (changesSince === undefined) {
-                //If we have never don't a partial sync, lets just get the last days worth of changes...
-                //This is just so we get something.
-                changesSince = subDays(new Date(), 1);
+                retailer.lastPartialSyncRequestTime = changesSince;
             }
 
-            retailer.lastPartialSyncRequestTime = changesSince;
+            logger.info(`Building query payload`);
+            const queryPayload = await buildCollectionTriggerQueryPayload(retailer, changesSince);
+
+            logger.info(`Requesting bulk operation with payload`, { queryPayload });
+            await BulkOperationUtils.requestBulkOperation(
+                em,
+                retailer,
+                BulkOperationType.ProductGroupSync,
+                queryPayload,
+                payload.fullSync,
+                {
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                },
+            );
+        } catch (err) {
+            if (typeof err.message === 'string' && err.message.includes('status code 402')) {
+                logger.warn('Ignoring ApolloError with status code 402 (Retailer has outstanding shopify bill)');
+                retailer.syncErrorCode = '402';
+                const input = {
+                    storeClosed: true,
+                };
+                logger.info(`Reporting retailer closed.`, { input });
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+            } else if (typeof err.message === 'string' && err.message.includes('status code 404')) {
+                logger.warn('Ignoring ApolloError with status code 404 (Retailer Closed)');
+                retailer.syncErrorCode = '404';
+                const input = {
+                    storeClosed: true,
+                };
+                logger.info(`Reporting retailer closed.`, { input });
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+            } else {
+                throw err;
+            }
+        } finally {
+            logger.info(`Flushing changes to database`);
+            await em.flush();
         }
-
-        logger.info(`Building query payload`);
-        const queryPayload = await buildCollectionTriggerQueryPayload(retailer, changesSince);
-
-        logger.info(`Requesting bulk operation with payload`, { queryPayload });
-        await BulkOperationUtils.requestBulkOperation(
-            em,
-            retailer,
-            BulkOperationType.ProductGroupSync,
-            queryPayload,
-            payload.fullSync,
-            {
-                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
-                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
-                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
-            },
-        );
-
-        logger.info(`Flushing changes to database`);
-        await em.flush();
     },
 });

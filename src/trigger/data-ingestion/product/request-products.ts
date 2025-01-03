@@ -161,7 +161,7 @@ export const RequestProductsTask = task({
             );
             retailer.nextPartialSyncRequestTime = subMinutes(new Date(), 1);
         } catch (err) {
-            if (err instanceof ApolloError && err.extensions?.code === '402') {
+            if (typeof err.message === 'string' && err.message.includes('status code 402')) {
                 logger.warn('Ignoring ApolloError with status code 402 (Retailer has outstanding shopify bill)');
                 retailer.syncErrorCode = '402';
                 const input = {
@@ -169,7 +169,7 @@ export const RequestProductsTask = task({
                 };
                 logger.info(`Reporting retailer closed.`, { input });
                 await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
-            } else if (err instanceof ApolloError && err.extensions?.code === '404') {
+            } else if (typeof err.message === 'string' && err.message.includes('status code 404')) {
                 logger.warn('Ignoring ApolloError with status code 404 (Retailer Closed)');
                 retailer.syncErrorCode = '404';
                 const input = {
