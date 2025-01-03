@@ -1,4 +1,5 @@
 import { FlushMode } from '@mikro-orm/core';
+import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
@@ -6,6 +7,7 @@ import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/reg
 import { AppDataSource } from '../..//reuseables/orm';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { logger, task } from '@trigger.dev/sdk/v3';
+import { ApolloError } from 'apollo-server-errors';
 import { subDays, subMinutes } from 'date-fns';
 
 async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
@@ -118,44 +120,69 @@ export const RequestProductsTask = task({
             logger.error(`Retailer does not exist for id "${payload.organisationId}"`);
             throw new Error(`Retailer does not exist for id "${payload.organisationId}"`);
         }
-        logger.info(`Requesting products for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`);
-        if (payload.fullSync) {
-            logger.info(`payload.fullSync is true, registering webhooks for host`, { connectorHost });
-            //If its a full sync we register all the webhooks first, just to be safe.
-            await registerAllWebhooksForRetailer(retailer, connectorHost, {
-                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
-                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
-                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
-            });
-        }
-        await TriggerWaitForNobleReschedule(retailer);
-        let changesSince: Date | undefined = undefined;
-        if (!payload.fullSync) {
-            changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
-            if (changesSince === undefined) {
-                //If we have never don't a partial sync, lets just get the last days worth of changes...
-                //This is just so we get something.
-                changesSince = subDays(new Date(), 1);
+        try {
+            logger.info(
+                `Requesting products for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
+            );
+            if (payload.fullSync) {
+                logger.info(`payload.fullSync is true, registering webhooks for host`, { connectorHost });
+                //If its a full sync we register all the webhooks first, just to be safe.
+                await registerAllWebhooksForRetailer(retailer, connectorHost, {
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                });
             }
-            retailer.lastPartialSyncRequestTime = changesSince;
+            await TriggerWaitForNobleReschedule(retailer);
+            let changesSince: Date | undefined = undefined;
+            if (!payload.fullSync) {
+                changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
+                if (changesSince === undefined) {
+                    //If we have never don't a partial sync, lets just get the last days worth of changes...
+                    //This is just so we get something.
+                    changesSince = subDays(new Date(), 1);
+                }
+                retailer.lastPartialSyncRequestTime = changesSince;
+            }
+            logger.info(`Building query payload`);
+            const queryPayload = await buildProductTriggerQueryPayload(retailer, changesSince);
+            logger.info(`Requesting bulk operation with payload`, { queryPayload });
+            await BulkOperationUtils.requestBulkOperation(
+                em,
+                retailer,
+                BulkOperationType.ProductSync,
+                queryPayload,
+                payload.fullSync,
+                {
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                },
+            );
+            retailer.nextPartialSyncRequestTime = subMinutes(new Date(), 1);
+        } catch (err) {
+            if (err instanceof ApolloError && err.extensions?.code === '402') {
+                logger.warn('Ignoring ApolloError with status code 402 (Retailer has outstanding shopify bill)');
+                retailer.syncErrorCode = '402';
+                const input = {
+                    storeClosed: true,
+                };
+                logger.info(`Reporting retailer closed.`, { input });
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+            } else if (err instanceof ApolloError && err.extensions?.code === '404') {
+                logger.warn('Ignoring ApolloError with status code 404 (Retailer Closed)');
+                retailer.syncErrorCode = '404';
+                const input = {
+                    storeClosed: true,
+                };
+                logger.info(`Reporting retailer closed.`, { input });
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+            } else {
+                throw err;
+            }
+        } finally {
+            logger.info(`Flushing changes to database`);
+            await em.flush();
         }
-        logger.info(`Building query payload`);
-        const queryPayload = await buildProductTriggerQueryPayload(retailer, changesSince);
-        logger.info(`Requesting bulk operation with payload`, { queryPayload });
-        await BulkOperationUtils.requestBulkOperation(
-            em,
-            retailer,
-            BulkOperationType.ProductSync,
-            queryPayload,
-            payload.fullSync,
-            {
-                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
-                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
-                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
-            },
-        );
-        retailer.nextPartialSyncRequestTime = subMinutes(new Date(), 1);
-        logger.info(`Flushing changes to database`);
-        await em.flush();
     },
 });
