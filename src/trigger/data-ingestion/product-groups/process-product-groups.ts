@@ -7,11 +7,11 @@ import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.u
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { ProductJobUtils } from '../../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { RetailerUtils } from '../../../modules/retailer/retailer.utils';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
 import { AppDataSource } from '../../reuseables/orm';
+import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk/v3';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -119,6 +119,7 @@ export const ProcessProductGroupsTask = task({
         const productsInGroups: { [productGroupId: string]: string[] } = {};
         const productGroupIdsToExplicitlyEnsureDeleted: string[] = [];
         for await (const collectionObj of JsonLUtils.readJsonl(tempFile)) {
+            await sleep(1);
             const collectionId = GlobalIDUtils.gidConverter(collectionObj.id, 'ShopifyCollection')!;
             allProductGroupShopifyIdsFromThisFile.push(collectionId);
             if (!collectionObj.publishedOnCurrentPublication) {
@@ -179,6 +180,7 @@ export const ProcessProductGroupsTask = task({
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
                 },
             );
+            await sleep(1);
         }
         //
         logger.info(`Finished reporting all products in all groups`);

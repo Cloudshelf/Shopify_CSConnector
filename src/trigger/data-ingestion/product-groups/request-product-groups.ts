@@ -123,7 +123,15 @@ export const RequestProductGroupsTask = task({
                 },
             );
         } catch (err) {
-            if (typeof err.message === 'string' && err.message.includes('status code 402')) {
+            if (typeof err.message === 'string' && err.message.includes('status code 401')) {
+                logger.warn('Ignoring ApolloError with status code 401 (Retailer uninstalled?)');
+                retailer.syncErrorCode = '401';
+                const input = {
+                    storeClosed: true,
+                };
+                logger.info(`Reporting retailer closed.`, { input });
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+            } else if (typeof err.message === 'string' && err.message.includes('status code 402')) {
                 logger.warn('Ignoring ApolloError with status code 402 (Retailer has outstanding shopify bill)');
                 retailer.syncErrorCode = '402';
                 const input = {

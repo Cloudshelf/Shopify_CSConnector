@@ -14,11 +14,11 @@ import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.u
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { CollectionJobUtils } from '../../../modules/data-ingestion/collection.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { RetailerUtils } from '../../../modules/retailer/retailer.utils';
 import { AppDataSource } from '../../../trigger/reuseables/orm';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
+import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk/v3';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -120,6 +120,7 @@ export const ProcessProductsTask = task({
         const variantInputs: UpsertVariantsInput[] = [];
         let imageCount = 0;
         for await (const productsInJsonLChunk of JsonLUtils.readJsonlChunked(tempFile, chunkSize)) {
+            await sleep(1);
             logger.info(`--- Chunk Started ---`);
             for (const productInJsonL of productsInJsonLChunk) {
                 const product = productInJsonL as any;
@@ -244,6 +245,7 @@ export const ProcessProductsTask = task({
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             });
+            await sleep(1);
         }
         logger.info(
             `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of ${VARIANT_CHUNK_UPLOAD_SIZE}`,
@@ -252,6 +254,7 @@ export const ProcessProductsTask = task({
         for (const variantInput of chunkedVariantInputs) {
             logger.info(`Upserting ${variantInput.length} variants to cloudshelf for current file`);
             await CloudshelfApiUtils.upsertProductVariants(cloudshelfAPI, bulkOperationRecord.domain, variantInput);
+            await sleep(1);
         }
         logger.info(`allProductShopifyIdsFromThisFile`, { allProductShopifyIdsFromThisFile });
         if (payload.fullSync) {
