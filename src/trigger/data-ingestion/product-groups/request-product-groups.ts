@@ -55,6 +55,9 @@ export const RequestProductGroupsTask = task({
         name: `ingestion`,
         concurrencyLimit: 1,
     },
+    machine: {
+        preset: 'micro',
+    },
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
         if (!AppDataSource) {
