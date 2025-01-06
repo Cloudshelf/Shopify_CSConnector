@@ -49,7 +49,6 @@ export class CollectionJobUtils {
         const tags: string[] = [
             `retailer_${retailer.id}`,
             `domain_${retailer.domain.toLowerCase()}`,
-
             bulkOp.installSync ? 'type_full' : 'type_partial',
         ];
         if (reason) {
