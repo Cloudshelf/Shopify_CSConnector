@@ -56,7 +56,7 @@ export const RequestProductGroupsTask = task({
         concurrencyLimit: 1,
     },
     machine: {
-        preset: 'micro',
+        preset: 'small-1x',
     },
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
