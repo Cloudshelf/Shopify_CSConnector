@@ -8,6 +8,7 @@ import { CollectionJobUtils } from '../data-ingestion/collection.job.utils';
 import { ProductJobUtils } from '../data-ingestion/product.job.utils';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
+import { auth } from '@trigger.dev/sdk/v3';
 
 @Resolver()
 export class ToolsResolver {
@@ -197,5 +198,36 @@ export class ToolsResolver {
         const result = await this.toolsService.registerAllWebhooksForAllRetailers(from, limit);
 
         return `OK (${process.env.HOST}): ` + JSON.stringify(result);
+    }
+
+    @Query(() => GraphQLString)
+    async getTriggerPublicToken(
+        @Args({ name: 'token', type: () => GraphQLString })
+        token: string,
+    ) {
+        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
+            throw new Error('Unauthorized access to tools graphql');
+        }
+
+        try {
+            const publicToken = await auth.createPublicToken({
+                scopes: {
+                    read: {
+                        tasks: [
+                            `request-products`,
+                            `process-products`,
+                            `request-product-groups`,
+                            `process-product-groups`,
+                        ],
+                        runs: true,
+                    },
+                },
+                expirationTime: '10y',
+            });
+
+            return publicToken;
+        } catch (err) {
+            return 'ERR: ' + err.message;
+        }
     }
 }
