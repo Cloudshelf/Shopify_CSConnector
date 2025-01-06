@@ -35,7 +35,7 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
     @SentryInstrument('BulkOperationFinishedWebhookHandler')
     async handle(domain: string, data: BulkOperationWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received BULK_OPERATIONS_FINISH webhook for domain ' + domain);
-        this.logger.debug(data);
+        this.logger.debug('payload', data);
 
         SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
             id: domain,
