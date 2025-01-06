@@ -67,7 +67,7 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         bulkOp = await this.bulkOperationService.updateFromShopify(retailer, bulkOp);
 
         if (bulkOp?.status === BulkOperationStatus.Completed) {
-            this.logger.debug('Bulk operation completed successfully');
+            this.logger.debug('Bulk operation completed successfully', { bulkOp });
 
             if (bulkOp.type === BulkOperationType.ProductSync) {
                 //create the product consumer
