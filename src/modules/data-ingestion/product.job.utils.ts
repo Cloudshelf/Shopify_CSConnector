@@ -15,7 +15,7 @@ export class ProductJobUtils {
     ) {
         const retailerTag = `retailer_${retailer.id}`;
         const syncTypeTag = fullSync ? 'type_full' : 'type_partial';
-        const tags: string[] = [retailerTag, syncTypeTag];
+        const tags: string[] = [retailerTag, `domain_${retailer.domain.toLowerCase()}`, syncTypeTag];
         if (reason) {
             tags.push(`reason_${reason}`);
         }
@@ -99,7 +99,11 @@ export class ProductJobUtils {
         logs?: LogsInterface,
     ) {
         const delay = '1s';
-        const tags: string[] = [`retailer_${retailer.id}`, bulkOp.installSync ? 'type_full' : 'type_partial'];
+        const tags: string[] = [
+            `retailer_${retailer.id}`,
+            `domain_${retailer.domain.toLowerCase()}`,
+            bulkOp.installSync ? 'type_full' : 'type_partial',
+        ];
         if (reason) {
             tags.push(`reason_${reason}`);
         }

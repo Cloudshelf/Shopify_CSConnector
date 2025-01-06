@@ -4,7 +4,7 @@ import { RetailerEntity } from '../retailer/retailer.entity';
 
 export class LocationJobUtils {
     static async schedule(retailer: RetailerEntity, reason?: string, logs?: LogsInterface) {
-        const tags: string[] = [`retailer_${retailer.id}`];
+        const tags: string[] = [`retailer_${retailer.id}`, `domain_${retailer.domain.toLowerCase()}`];
         if (reason) {
             tags.push(`reason_${reason}`);
         }

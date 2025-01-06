@@ -12,7 +12,11 @@ export class CollectionJobUtils {
         reason?: string,
         logs?: LogsInterface,
     ) {
-        const tags: string[] = [`retailer_${retailer.id}`, fullSync ? 'type_full' : 'type_partial'];
+        const tags: string[] = [
+            `retailer_${retailer.id}`,
+            `domain_${retailer.domain.toLowerCase()}`,
+            fullSync ? 'type_full' : 'type_partial',
+        ];
         if (reason) {
             tags.push(`reason_${reason}`);
         }
@@ -42,7 +46,12 @@ export class CollectionJobUtils {
         logs?: LogsInterface,
     ) {
         const delay = '1s';
-        const tags: string[] = [`retailer_${retailer.id}`, bulkOp.installSync ? 'type_full' : 'type_partial'];
+        const tags: string[] = [
+            `retailer_${retailer.id}`,
+            `domain_${retailer.domain.toLowerCase()}`,
+
+            bulkOp.installSync ? 'type_full' : 'type_partial',
+        ];
         if (reason) {
             tags.push(`reason_${reason}`);
         }
