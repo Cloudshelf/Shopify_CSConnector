@@ -30,7 +30,7 @@ export const ProcessProductGroupsTask = task({
         name: `ingestion`,
         concurrencyLimit: 1,
     },
-    machine: { preset: `small-2x` },
+    machine: { preset: `medium-1x` },
     run: async (payload: { remoteBulkOperationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
