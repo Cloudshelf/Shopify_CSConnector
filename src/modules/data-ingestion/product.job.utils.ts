@@ -127,6 +127,7 @@ export class ProductJobUtils {
                     tags,
                     concurrencyKey: retailer.id,
                     idempotencyKey: idempotencyKey,
+                    machine: retailer.triggerMachineSizeProducts ?? undefined,
                 },
             );
 

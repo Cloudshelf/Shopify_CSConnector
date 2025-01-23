@@ -1,4 +1,5 @@
 import { Entity, Index, Property, types } from '@mikro-orm/core';
+import { MachineSize } from '../../trigger/reuseables/machines_size';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
 
 @Entity({ tableName: 'retailer_entity' })
@@ -54,6 +55,12 @@ export class RetailerEntity extends BaseEntity {
 
     @Property({ type: 'text', nullable: true })
     syncErrorCode: string | null;
+
+    @Property({ type: 'text', nullable: true })
+    triggerMachineSizeProducts: MachineSize | null;
+
+    @Property({ type: 'text', nullable: true })
+    triggerMachineSizeProductGroups: MachineSize | null;
 
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');
