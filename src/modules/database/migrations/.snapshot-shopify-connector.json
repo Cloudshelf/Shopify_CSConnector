@@ -421,6 +421,24 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "trigger_machine_size_products": {
+          "name": "trigger_machine_size_products",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "trigger_machine_size_product_groups": {
+          "name": "trigger_machine_size_product_groups",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "text"
         }
       },
       "name": "retailer_entity",

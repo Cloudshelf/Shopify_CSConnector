@@ -71,6 +71,7 @@ export class CollectionJobUtils {
                 tags,
                 concurrencyKey: retailer.id,
                 idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
+                machine: retailer.triggerMachineSizeProductGroups ?? undefined,
             },
         );
     }
