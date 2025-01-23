@@ -55,7 +55,7 @@ import { LoggerModule } from 'nestjs-pino';
                             target: '@axiomhq/pino',
                             options: {
                                 dataset: 'cloudshelf',
-                                token: 'xaat-6d28dae3-35a2-4618-8ab9-78c4cec74316',
+                                token: '', //todo: add token from env
                             },
                         },
                     ],

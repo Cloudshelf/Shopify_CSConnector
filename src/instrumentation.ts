@@ -10,7 +10,7 @@ import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 const traceExporter = new OTLPTraceExporter({
     url: 'https://api.axiom.co/v1/traces',
     headers: {
-        Authorization: 'Bearer xaat-6d28dae3-35a2-4618-8ab9-78c4cec74316',
+        Authorization: 'Bearer ', //todo: add token from env
         'X-Axiom-Dataset': 'cloudshelf',
     },
 });
