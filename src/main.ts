@@ -1,3 +1,4 @@
+import './instrumentation';
 import { INestApplication, RawBodyRequest } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { SentryGqlInterceptor } from './modules/apm/sentry.graphql.interceptor';
@@ -9,8 +10,10 @@ import { AppModule } from './app.module';
 import { SentryFilter } from './modules/apm/sentry.exception.filter';
 import { NoOAuthCookieExceptionFilter } from './modules/shopify/auth/no.oauth.cookie.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
+import { trace } from '@opentelemetry/api';
 import * as bodyParser from 'body-parser';
 import { NextFunction, Request, Response, json } from 'express';
+import { Logger } from 'nestjs-pino';
 import { ulid } from 'ulid';
 
 export let app: INestApplication | undefined = undefined;
@@ -18,6 +21,10 @@ export let app: INestApplication | undefined = undefined;
 async function bootstrap() {
     const logger = new ExtendedLogger('Main');
     Error.stackTraceLimit = 100;
+
+    const tracer = trace.getTracer('Connector_Shopify');
+
+    const span = tracer.startSpan('Application Startup').end();
 
     //Setup Sentry
     Sentry.init({
@@ -45,9 +52,11 @@ async function bootstrap() {
 
     app = await NestFactory.create(AppModule, {
         bodyParser: false,
+        bufferLogs: true,
         logger: ['log', 'error', 'warn', 'debug', 'verbose'],
     });
     app = app!;
+    app.useLogger(app.get(Logger));
     app.enableCors();
     app.enableShutdownHooks();
 

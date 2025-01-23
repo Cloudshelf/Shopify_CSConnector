@@ -15,5 +15,6 @@ type Query {
   forceSync(domain: String!, partial: Boolean, token: String!): String!
   getTriggerPublicToken(token: String!): String!
   getWebhooksForRetailer(domain: String!, token: String!): String!
+  testAxiomLogging: String!
   viewConfig(token: String!): String!
 }

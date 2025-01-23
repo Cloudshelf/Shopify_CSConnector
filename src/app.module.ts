@@ -18,20 +18,64 @@ import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.mod
 import { AllDatabaseEntities } from './modules/database/entities';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { ToolsModule } from './modules/tools/tools.module';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
     imports: [
+        LoggerModule.forRoot({
+            pinoHttp: {
+                genReqId: req => {
+                    let id = req.headers['X-Request-Id'];
+                    if (Array.isArray(id) || !id) {
+                        id = ulid();
+                    }
+
+                    req.headers['X-Request-Id'] = id;
+
+                    return id;
+                },
+                customProps: (req, res) => {
+                    return { ATTR_SERVICE_NAME: 'Connector_Shopify' };
+                },
+                level: 'debug',
+                autoLogging: false,
+                transport: {
+                    targets: [
+                        {
+                            target: 'pino-pretty',
+                            options: {
+                                colorize: true,
+                                singleLine: true,
+                                levelFirst: false,
+                                translateTime: "yyyy-mm-dd'T'HH:MM:ss.l'Z'",
+                                messageFormat: `{if req.id}({req.id}){end} {if context}[{context}]{end} {msg}`,
+                            },
+                        },
+                        {
+                            target: '@axiomhq/pino',
+                            options: {
+                                dataset: 'cloudshelf',
+                                token: 'xaat-6d28dae3-35a2-4618-8ab9-78c4cec74316',
+                            },
+                        },
+                    ],
+                },
+            },
+        }),
         ClsModule.forRoot({
             global: true,
             middleware: {
                 mount: true,
                 generateId: true,
                 idGenerator: (req: Request) => {
-                    const existingId = req.headers['X-Request-Id'];
-                    if (Array.isArray(existingId) || !existingId) {
-                        return ulid();
+                    let id = req.headers['X-Request-Id'];
+                    if (Array.isArray(id) || !id) {
+                        id = ulid();
                     }
-                    return existingId;
+
+                    req.headers['X-Request-Id'] = id;
+
+                    return id;
                 },
             },
         }),

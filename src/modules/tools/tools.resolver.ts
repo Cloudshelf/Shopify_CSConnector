@@ -9,10 +9,11 @@ import { ProductJobUtils } from '../data-ingestion/product.job.utils';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
 import { auth } from '@trigger.dev/sdk/v3';
+import { ExtendedLogger } from 'src/utils/ExtendedLogger';
 
 @Resolver()
 export class ToolsResolver {
-    private readonly logger = new Logger('ToolsResolver');
+    private readonly logger = new ExtendedLogger('ToolsResolver');
 
     constructor(
         private readonly toolsService: ToolsService,
@@ -198,6 +199,19 @@ export class ToolsResolver {
         const result = await this.toolsService.registerAllWebhooksForAllRetailers(from, limit);
 
         return `OK (${process.env.HOST}): ` + JSON.stringify(result);
+    }
+
+    @Query(() => GraphQLString)
+    async testAxiomLogging() {
+        this.logger.log(`This is a test log for Axiom! Type: Log`);
+        this.logger.warn(`This is a test log for Axiom! Type: Warn`);
+        this.logger.debug(`This is a test log for Axiom! Type: Debug`);
+        this.logger.verbose(`This is a test log for Axiom! Type: Verbose`);
+        this.logger.error(`This is a test log for Axiom! Type: Error`);
+        this.logger.fatal(`This is a test log for Axiom! Type: Fatal`);
+
+        await this.toolsService.fakeLongRunningTask();
+        this.logger.log(`fakeLongRunningTask complete`);
     }
 
     @Query(() => GraphQLString)

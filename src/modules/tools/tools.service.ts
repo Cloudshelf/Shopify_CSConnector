@@ -119,4 +119,12 @@ export class ToolsService {
             error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
         });
     }
+
+    async fakeLongRunningTask(): Promise<string> {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve('Task completed');
+            }, 1250);
+        });
+    }
 }
