@@ -21,6 +21,7 @@ export class ManagerProxyModule implements NestModule {
                 { path: '/static/(.*)', method: RequestMethod.ALL },
                 { path: '/api-health(.*)', method: RequestMethod.ALL },
                 { path: '/favicon.ico', method: RequestMethod.ALL },
+                { path: '/stock-levels', method: RequestMethod.ALL },
             )
             .forRoutes({ path: '/**', method: RequestMethod.ALL });
 
@@ -30,6 +31,7 @@ export class ManagerProxyModule implements NestModule {
                 { path: '/shopify/(.*)', method: RequestMethod.ALL },
                 { path: '/graphql', method: RequestMethod.ALL },
                 { path: '/api-health(.*)', method: RequestMethod.ALL },
+                { path: '/stock-levels', method: RequestMethod.ALL },
             )
             .forRoutes({ path: '/**', method: RequestMethod.ALL });
     }

@@ -1,0 +1,27 @@
+query stockViaProductVariantAllLocations($variantId: ID!) {
+    productVariant(id: $variantId) {
+        id
+        displayName
+        product {
+            id
+        }
+        inventoryQuantity
+        inventoryItem {
+            id
+            inventoryLevels(first: 100) {
+                nodes {
+                    id
+                    location {
+                        id
+                        name
+                    }
+                    quantities(names: ["available"]) {
+                        id
+                        name
+                        quantity
+                    }
+                }
+            }
+        }
+    }
+}

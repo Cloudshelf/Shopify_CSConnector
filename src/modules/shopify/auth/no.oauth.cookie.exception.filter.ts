@@ -20,6 +20,11 @@ export class NoOAuthCookieExceptionFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
         const request = ctx.getRequest<Request>();
 
+        if ((request as any).isEngineRequest && (request as any).authCode === 401) {
+            response.status(401).json({ error: 'Unauthenticated' });
+            return;
+        }
+
         if (
             (exception as any).message &&
             (exception as any).message.toLowerCase().includes('cannot complete oauth process') &&

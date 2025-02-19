@@ -16,6 +16,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { CloudshelfModule } from './modules/cloudshelf/cloudshelf.module';
 import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.module';
 import { AllDatabaseEntities } from './modules/database/entities';
+import { EngineModule } from './modules/engine/engine.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { ToolsModule } from './modules/tools/tools.module';
 
@@ -45,6 +46,7 @@ import { ToolsModule } from './modules/tools/tools.module';
         ManagerProxyModule,
         CloudshelfModule,
         ToolsModule,
+        EngineModule,
         ScheduleModule.forRoot(),
         MikroOrmModule.forFeature(AllDatabaseEntities),
     ],
