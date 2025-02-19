@@ -13,6 +13,10 @@ export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
     constructor(private readonly entityManager: EntityManager) {}
+    @SentryInstrument('RetailerService')
+    findOneByStorefrontToken(authToken: string) {
+        return this.entityManager.findOne(RetailerEntity, { storefrontToken: authToken }, { filters: false });
+    }
 
     @SentryInstrument('RetailerService')
     async updateOrCreate(
