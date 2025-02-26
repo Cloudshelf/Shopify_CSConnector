@@ -65,6 +65,16 @@
           "nullable": true,
           "mappedType": "text"
         },
+        "object_count": {
+          "name": "object_count",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "0",
+          "mappedType": "integer"
+        },
         "started_at": {
           "name": "started_at",
           "type": "timestamptz",
@@ -104,7 +114,8 @@
           "nullable": false,
           "enumItems": [
             "ProductGroupSync",
-            "ProductSync"
+            "ProductSync",
+            "ProductGroupDeleteSync"
           ],
           "mappedType": "enum"
         },

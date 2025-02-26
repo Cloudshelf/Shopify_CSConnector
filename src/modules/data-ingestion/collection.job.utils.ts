@@ -4,8 +4,65 @@ import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
 import { idempotencyKeys } from '@trigger.dev/sdk/v3';
+import { ProcessProductGroupsForDeletionTask } from 'src/trigger/data-ingestion/tests/process-product-groups-for-deletion';
+import { RequestProductGroupsForDeletionTask } from 'src/trigger/data-ingestion/tests/request-product-groups-for-deletion';
 
 export class CollectionJobUtils {
+    static async scheduleDELETETriggerJob(retailer: RetailerEntity, reason?: string, logs?: LogsInterface) {
+        const tags: string[] = [`retailer_${retailer.id}`, `domain_${retailer.domain.toLowerCase()}`, `test_DELETE`];
+        if (reason) {
+            tags.push(`reason_${reason}`);
+        }
+        const delay = '20m';
+
+        await RequestProductGroupsForDeletionTask.trigger(
+            {
+                organisationId: retailer.id,
+            },
+            {
+                delay,
+                queue: {
+                    name: `ingestion`,
+                    concurrencyLimit: 1,
+                },
+                tags,
+                concurrencyKey: retailer.id,
+            },
+        );
+    }
+
+    static async scheduleDELETEConsumerJob(
+        retailer: RetailerEntity,
+        bulkOp: BulkOperation,
+        reason?: string,
+        logs?: LogsInterface,
+    ) {
+        const delay = '1s';
+        const tags: string[] = [`retailer_${retailer.id}`, `domain_${retailer.domain.toLowerCase()}`, `test_DELETE`];
+        if (reason) {
+            tags.push(`reason_${reason}`);
+        }
+        logs?.info(
+            `Asking trigger to schhedule productgroup delete consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
+        );
+        await ProcessProductGroupsForDeletionTask.trigger(
+            {
+                remoteBulkOperationId: bulkOp.shopifyBulkOpId,
+            },
+            {
+                delay,
+                queue: {
+                    name: `ingestion`,
+                    concurrencyLimit: 1,
+                },
+                tags,
+                concurrencyKey: retailer.id,
+                idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
+                machine: retailer.triggerMachineSizeProductGroups ?? undefined,
+            },
+        );
+    }
+
     static async scheduleTriggerJob(
         retailer: RetailerEntity,
         fullSync?: boolean,

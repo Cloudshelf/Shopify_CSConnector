@@ -31,6 +31,7 @@ export class BulkOperationUtils {
             domain: retailerDomain,
             shopifyBulkOpId: thirdPartyId,
             status: BulkOperationStatus.Created,
+            objectCount: 0,
             type,
             createdAt: now,
             updatedAt: now,
@@ -155,6 +156,7 @@ export class BulkOperationUtils {
             return bulkOp;
         }
 
+        bulkOp.objectCount = query.data.node.objectCount;
         bulkOp.dataUrl = query.data.node.url;
         bulkOp.startedAt = query.data.node.createdAt ? new Date(query.data.node.createdAt) : null;
         bulkOp.endedAt = query.data.node.completedAt ? new Date(query.data.node.completedAt) : null;
