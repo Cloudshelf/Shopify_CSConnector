@@ -146,8 +146,18 @@ export const RequestProductsTask = task({
                     changesSince = subDays(new Date(), 1);
                 }
                 retailer.lastPartialSyncRequestTime = changesSince;
+                logger.info('Setting lastPartialSyncRequestTime', {
+                    lastPartialSyncRequestTime: retailer.lastPartialSyncRequestTime,
+                });
             }
             logger.info(`Building query payload`);
+            if (!payload.fullSync) {
+                logger.info(
+                    `PARTIAL SYNC -> Payload will only request data since ${
+                        changesSince ? changesSince.toISOString() : 'UNDEFINED'
+                    }`,
+                );
+            }
             const queryPayload = await buildProductTriggerQueryPayload(retailer, changesSince);
             logger.info(`Requesting bulk operation with payload`, { queryPayload });
             await BulkOperationUtils.requestBulkOperation(
@@ -163,6 +173,9 @@ export const RequestProductsTask = task({
                 },
             );
             retailer.nextPartialSyncRequestTime = subMinutes(new Date(), 1);
+            logger.info('Setting nextPartialSyncRequestTime', {
+                lastPartialSyncRequestTime: retailer.nextPartialSyncRequestTime,
+            });
         } catch (err) {
             if (typeof err.message === 'string' && err.message.includes('status code 401')) {
                 logger.warn('Ignoring ApolloError with status code 401 (Retailer uninstalled?)');
