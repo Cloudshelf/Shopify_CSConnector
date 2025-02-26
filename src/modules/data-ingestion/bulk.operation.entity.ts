@@ -22,6 +22,9 @@ export class BulkOperation extends BaseEntity {
     @Property({ type: 'text', nullable: true })
     dataUrl: string | null;
 
+    @Property({ type: types.integer, default: 0 })
+    objectCount: number;
+
     @Property({ type: types.datetime, nullable: true })
     startedAt: Date | null;
 

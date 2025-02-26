@@ -1,6 +1,44 @@
 import { MessageAttachment } from '@slack/web-api';
 
 export class NotificationUtils {
+    static buildDeleteTestNotifications(retailerData: {
+        displayName: string;
+        ourCount: number;
+        shopifyCount: number;
+    }): MessageAttachment[] {
+        const markdownContent = `• ${retailerData.displayName}\n  Our Count: ${
+            retailerData.ourCount
+        }\n  Shopify Count: ${retailerData.shopifyCount}\n  Difference: ${
+            retailerData.ourCount - retailerData.shopifyCount
+        }`;
+
+        const attachments: MessageAttachment[] = [
+            {
+                color: retailerData.ourCount !== retailerData.shopifyCount ? '#FF0000' : '#00FF00',
+                blocks: [
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: 'Product Group Deletion Test',
+                        },
+                    },
+                    {
+                        type: 'section',
+                        text: {
+                            type: 'mrkdwn',
+                            text: `*Retailers:* 
+${markdownContent}
+`,
+                        },
+                    },
+                ],
+            },
+        ];
+
+        return attachments;
+    }
+
     static buildSyncIssueNotifications(retailerData: { displayName: string; url: string }[]): MessageAttachment[] {
         let markdownContent = '';
 
