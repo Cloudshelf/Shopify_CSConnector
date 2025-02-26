@@ -98,18 +98,24 @@ export const RequestProductGroupsTask = task({
 
             let changesSince: Date | undefined = undefined;
             if (!payload.fullSync) {
-                changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
+                //Yes LAST is right becuase groups always come after prodycts
+                changesSince = retailer.lastPartialSyncRequestTime ?? undefined;
 
                 if (changesSince === undefined) {
                     //If we have never don't a partial sync, lets just get the last days worth of changes...
                     //This is just so we get something.
                     changesSince = subDays(new Date(), 1);
                 }
-
-                retailer.lastPartialSyncRequestTime = changesSince;
             }
 
             logger.info(`Building query payload`);
+            if (!payload.fullSync) {
+                logger.info(
+                    `PARTIAL SYNC -> Payload will only request data since ${
+                        changesSince ? changesSince.toISOString() : 'UNDEFINED'
+                    }`,
+                );
+            }
             const queryPayload = await buildCollectionTriggerQueryPayload(retailer, changesSince);
 
             logger.info(`Requesting bulk operation with payload`, { queryPayload });
