@@ -5,18 +5,24 @@ import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operati
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { AppDataSource } from '../../reuseables/orm';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
 import { subDays } from 'date-fns';
+import { IngestionQueue } from 'src/trigger/queues';
 
 async function buildCollectionTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
     let queryString = '';
+    const queryParts: string[] = [];
+
+    //Status does not exist on collections
+    // queryParts.push('status:ACTIVE');
 
     if (changesSince !== undefined) {
-        //we want to build an explicit query string
-        queryString = `updated_at:>'${changesSince.toISOString()}'`;
+        queryParts.push(`updated_at:>'${changesSince.toISOString()}'`);
+    }
 
-        queryString = `(query: \"${queryString}\")`;
+    if (queryParts.length > 0) {
+        queryString = `(query: \"${queryParts.join(' AND ')}\")`;
     }
 
     return `{
@@ -51,10 +57,7 @@ async function buildCollectionTriggerQueryPayload(retailer: RetailerEntity, chan
 
 export const RequestProductGroupsTask = task({
     id: 'request-product-groups',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: {
         preset: 'small-1x',
     },

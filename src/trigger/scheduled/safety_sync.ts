@@ -2,8 +2,9 @@ import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { ProductJobUtils } from '../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
+import { CreateSafetySyncsQueue } from '../queues';
 import { AppDataSource } from '../reuseables/orm';
-import { logger, schedules } from '@trigger.dev/sdk/v3';
+import { logger, schedules } from '@trigger.dev/sdk';
 
 export const CreateSafetySyncs = schedules.task({
     id: 'create-safety-syncs',
@@ -14,9 +15,7 @@ export const CreateSafetySyncs = schedules.task({
     machine: {
         preset: 'small-1x',
     },
-    queue: {
-        concurrencyLimit: 1,
-    },
+    queue: CreateSafetySyncsQueue,
     run: async () => {
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);

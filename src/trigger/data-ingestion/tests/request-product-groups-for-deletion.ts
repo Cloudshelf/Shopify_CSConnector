@@ -5,8 +5,8 @@ import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operati
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { AppDataSource } from '../../reuseables/orm';
-import { logger, task } from '@trigger.dev/sdk/v3';
-import { subDays } from 'date-fns';
+import { logger, task } from '@trigger.dev/sdk';
+import { IngestionQueue } from 'src/trigger/queues';
 
 async function buildCollectionDeletionTriggerQueryPayload(): Promise<string> {
     return `{
@@ -22,10 +22,7 @@ async function buildCollectionDeletionTriggerQueryPayload(): Promise<string> {
 
 export const RequestProductGroupsForDeletionTask = task({
     id: 'request-product-groups-for-deletion',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: {
         preset: 'small-1x',
     },

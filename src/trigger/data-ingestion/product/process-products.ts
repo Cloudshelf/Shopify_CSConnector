@@ -19,9 +19,10 @@ import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
 import { sleep } from '../../reuseables/sleep';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
+import { IngestionQueue } from 'src/trigger/queues';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
 import { promisify } from 'util';
@@ -33,10 +34,7 @@ export const VARIANT_CHUNK_UPLOAD_SIZE = 500;
 
 export const ProcessProductsTask = task({
     id: 'process-products',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: { preset: `medium-1x` },
     run: async (payload: { remoteBulkOperationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
@@ -126,9 +124,16 @@ export const ProcessProductsTask = task({
                 const product = productInJsonL as any;
                 const productId = GlobalIDUtils.gidConverter(product.id, 'ShopifyProduct')!;
                 allProductShopifyIdsFromThisFile.push(productId);
-                if (product.status.toLowerCase() !== 'active' || !product.publishedOnCurrentPublication) {
+                // if (product.status.toLowerCase() !== 'active' || !product.publishedOnCurrentPublication) {
+                //     logger.info(
+                //         `Product is inactive or not published. Skipping. Prod: ${product.handle}, status: ${product.status}, publishedOnCurrentPublication: ${product.publishedOnCurrentPublication}`,
+                //     );
+                //     productIdsToExplicitlyEnsureDeleted.push(productId);
+                //     continue;
+                // }
+                if (!product.publishedOnCurrentPublication) {
                     logger.info(
-                        `Product is inactive or not published. Skipping. Prod: ${product.handle}, status: ${product.status}, publishedOnCurrentPublication: ${product.publishedOnCurrentPublication}`,
+                        `Product is not published. Skipping. Prod: ${product.handle}, publishedOnCurrentPublication: ${product.publishedOnCurrentPublication}`,
                     );
                     productIdsToExplicitlyEnsureDeleted.push(productId);
                     continue;

@@ -6,19 +6,23 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/registerAllWebhooksForRetailer';
 import { AppDataSource } from '../..//reuseables/orm';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
-import { logger, task } from '@trigger.dev/sdk/v3';
-import { ApolloError } from 'apollo-server-errors';
+import { logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
+import { IngestionQueue } from 'src/trigger/queues';
 
 async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
     let queryString = '';
+    const queryParts: string[] = [];
+
+    queryParts.push('status:ACTIVE');
 
     if (changesSince !== undefined) {
-        //we want to build an explicit query string
-        queryString = `updated_at:>'${changesSince.toISOString()}'`;
+        queryParts.push(`updated_at:>'${changesSince.toISOString()}'`);
+    }
 
-        queryString = `(query: \"${queryString}\")`;
+    if (queryParts.length > 0) {
+        queryString = `(query: \"${queryParts.join(' AND ')}\")`;
     }
 
     return `{
@@ -92,10 +96,7 @@ async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changes
 
 export const RequestProductsTask = task({
     id: 'request-products',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: {
         preset: 'small-1x',
     },

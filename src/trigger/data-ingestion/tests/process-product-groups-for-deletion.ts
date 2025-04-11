@@ -1,21 +1,17 @@
-import { ProductGroupInput } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import _ from 'lodash';
-import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
-import { ProductJobUtils } from '../../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
-import { S3Utils } from '../../../utils/S3Utils';
 import { AppDataSource } from '../../reuseables/orm';
 import { sleep } from '../../reuseables/sleep';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import { CollectionJobUtils } from 'src/modules/data-ingestion/collection.job.utils';
+import { IngestionQueue } from 'src/trigger/queues';
 import { NotificationUtils } from 'src/utils/NotificationUtils';
 import { SlackUtils } from 'src/utils/SlackUtils';
 import * as stream from 'stream';
@@ -26,10 +22,7 @@ const finished = promisify(stream.finished);
 
 export const ProcessProductGroupsForDeletionTask = task({
     id: 'process-product-groups-for-deletion',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: { preset: `medium-1x` },
     run: async (payload: { remoteBulkOperationId: string }, { ctx }) => {
         logger.info('Payload', payload);

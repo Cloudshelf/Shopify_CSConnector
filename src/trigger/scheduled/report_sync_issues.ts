@@ -2,8 +2,9 @@ import { FlushMode } from '@mikro-orm/core';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { NotificationUtils } from '../../utils/NotificationUtils';
 import { SlackUtils } from '../../utils/SlackUtils';
+import { ReportSyncIssuesQueue } from '../queues';
 import { AppDataSource } from '../reuseables/orm';
-import { logger, schedules } from '@trigger.dev/sdk/v3';
+import { logger, schedules } from '@trigger.dev/sdk';
 
 export const ReportSyncIssues = schedules.task({
     id: 'report-sync-issues',
@@ -14,9 +15,7 @@ export const ReportSyncIssues = schedules.task({
     machine: {
         preset: 'small-1x',
     },
-    queue: {
-        concurrencyLimit: 1,
-    },
+    queue: ReportSyncIssuesQueue,
     run: async () => {
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);

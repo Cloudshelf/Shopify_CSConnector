@@ -12,9 +12,10 @@ import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
 import { AppDataSource } from '../../reuseables/orm';
 import { sleep } from '../../reuseables/sleep';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
+import { IngestionQueue } from 'src/trigger/queues';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
 import { promisify } from 'util';
@@ -26,10 +27,7 @@ export const VARIANT_CHUNK_UPLOAD_SIZE = 500;
 
 export const ProcessProductGroupsTask = task({
     id: 'process-product-groups',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: { preset: `medium-1x` },
     run: async (payload: { remoteBulkOperationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
@@ -118,14 +116,18 @@ export const ProcessProductGroupsTask = task({
         const allProductGroupShopifyIdsFromThisFile: string[] = [];
         const productsInGroups: { [productGroupId: string]: string[] } = {};
         const productGroupIdsToExplicitlyEnsureDeleted: string[] = [];
+        let counter = 0;
         for await (const collectionObj of JsonLUtils.readJsonl(tempFile)) {
-            await sleep(1);
             const collectionId = GlobalIDUtils.gidConverter(collectionObj.id, 'ShopifyCollection')!;
             allProductGroupShopifyIdsFromThisFile.push(collectionId);
             if (!collectionObj.publishedOnCurrentPublication) {
                 logger.info(`Skipping collection ${collectionId} as it is not published on current publication`);
                 productGroupIdsToExplicitlyEnsureDeleted.push(collectionId);
                 continue;
+            }
+            counter++;
+            if (counter % 100 === 0) {
+                await sleep(1);
             }
             let image: string | undefined = undefined;
             if (collectionObj.image?.url) {
