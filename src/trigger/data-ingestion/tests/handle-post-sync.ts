@@ -52,6 +52,13 @@ async function buildProductIdsQuery(retailer: RetailerEntity): Promise<string> {
             node {
               id
               ${withPublicationStatus ? 'publishedOnCurrentPublication' : ''}
+              variants {
+                  edges {
+                    node {
+                      id
+                    }
+                }
+              }
             }
           }
         }
@@ -91,7 +98,12 @@ async function handleCollections(
         //Wait for the operation to complete
         await wait.for({ seconds: 10 });
 
-        collectionBuildOperation = await BulkOperationUtils.updateFromShopify(em, retailer, collectionBuildOperation);
+        collectionBuildOperation = await BulkOperationUtils.updateFromShopify(em, retailer, collectionBuildOperation, {
+            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+        });
+        logger.info('Updated Bulk Op From Shopify', { op: collectionBuildOperation });
     } while (collectionBuildOperation.status === BulkOperationStatus.Running);
 
     if (!collectionBuildOperation.dataUrl || collectionBuildOperation.status !== BulkOperationStatus.Completed) {
@@ -191,7 +203,8 @@ async function handleProducts(
     cloudshelfAPI: string,
 ): Promise<{
     earlyCompleteMessage?: string;
-    total?: number;
+    productTotal?: number;
+    variantTotal?: number;
 }> {
     //todo
     logger.warn(`STARTING handleProducts`);
@@ -217,7 +230,12 @@ async function handleProducts(
         //Wait for the operation to complete
         await wait.for({ seconds: 10 });
 
-        productBulkOperation = await BulkOperationUtils.updateFromShopify(em, retailer, productBulkOperation);
+        productBulkOperation = await BulkOperationUtils.updateFromShopify(em, retailer, productBulkOperation, {
+            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+        });
+        logger.info('Updated Bulk Op From Shopify', { op: productBulkOperation });
     } while (productBulkOperation.status === BulkOperationStatus.Running);
 
     if (!productBulkOperation.dataUrl || productBulkOperation.status !== BulkOperationStatus.Completed) {
@@ -239,8 +257,10 @@ async function handleProducts(
     });
 
     logger.info(`Reading data file`);
+    const seenVariantIds: string[] = [];
     const seenProductIds: string[] = [];
-    const idsToRemoveAtTheEnd: string[] = [];
+    const prodIdsToRemoveAtTheEnd: string[] = [];
+    const varIdsToRemoveAtTheEnd: string[] = [];
     for await (const productObj of JsonLUtils.readJsonl(tempFile)) {
         await sleep(1);
         const productId = GlobalIDUtils.gidConverter(productObj.id, 'ShopifyProduct')!;
@@ -250,25 +270,41 @@ async function handleProducts(
         }
 
         if (productObj.publishedOnCurrentPublication !== undefined && !productObj.publishedOnCurrentPublication) {
-            idsToRemoveAtTheEnd.push(productId);
+            prodIdsToRemoveAtTheEnd.push(productId);
         }
+
+        (productObj.ProductVariant ?? []).map((variant: any, variantIndex: number) => {
+            const variantId = GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant')!;
+
+            if (!seenVariantIds.includes(variantId)) {
+                seenVariantIds.push(variantId);
+            }
+
+            //Then if the variant is from a product we dont want add it to teh removal list
+            if (productObj.publishedOnCurrentPublication !== undefined && !productObj.publishedOnCurrentPublication) {
+                varIdsToRemoveAtTheEnd.push(variantId);
+            }
+        });
     }
 
     logger.info(`Deleting downloaded data file: ${tempFile}`);
     await fsPromises.unlink(tempFile);
 
+    const totalSeenObjectLength = seenProductIds.length + seenVariantIds.length;
     const objectCount =
         typeof productBulkOperation.objectCount === 'string'
             ? parseInt(productBulkOperation.objectCount, 10)
             : productBulkOperation.objectCount;
 
-    if (seenProductIds.length !== objectCount) {
+    if (totalSeenObjectLength !== objectCount) {
         logger.error('Seen ID length != Obejct Count in Bulk operation', {
+            totalSeen: totalSeenObjectLength,
             seenProductIds: seenProductIds.length,
+            seenVariantIds: seenVariantIds.length,
             objectCount: objectCount,
         });
         return {
-            earlyCompleteMessage: `Seen ID length !== Object Count in Bulk operation (seen:${seenProductIds.length},objectCount: ${objectCount})`,
+            earlyCompleteMessage: `Seen ID length !== Object Count in Bulk operation (seen:${totalSeenObjectLength},objectCount: ${objectCount})`,
         };
     } else {
         logger.log(`Seen Id & Object count MATCH!`);
@@ -277,7 +313,7 @@ async function handleProducts(
     //now we should call the cloushelf API to keep known data
     const productContentToSave: { id: string }[] = [];
     for (const id of seenProductIds) {
-        if (!idsToRemoveAtTheEnd.includes(id)) {
+        if (!prodIdsToRemoveAtTheEnd.includes(id)) {
             productContentToSave.push({ id });
         }
     }
@@ -300,12 +336,41 @@ async function handleProducts(
             logger.info(`Finished delete products via file`);
         }
     } catch (err) {
-        logger.error('Something went wrong while reporting known data', { error: err });
+        logger.error('Something went wrong while reporting known product data', { error: err });
+    }
+
+    const variantContentToSave: { id: string }[] = [];
+    for (const id of seenVariantIds) {
+        if (!varIdsToRemoveAtTheEnd.includes(id)) {
+            variantContentToSave.push({ id });
+        }
+    }
+    try {
+        const variantFileName = `${filePrefix}_${retailer.domain}_variants_${ulid()}.json`;
+        let variantUrl = cloudflarePublicEndpoint;
+        if (!variantUrl.endsWith('/')) {
+            variantUrl += '/';
+        }
+        variantUrl += `${variantFileName}`;
+        const didVarFileUpload = await S3Utils.UploadJsonFile(
+            JSON.stringify(variantContentToSave),
+            'product-deletion-payloads',
+            variantFileName,
+        );
+        logger.info(`${variantContentToSave.length} Variants Uploaded?: ${didVarFileUpload}. URL: ${variantUrl}`);
+        if (didVarFileUpload) {
+            logger.info(`Starting delete variants via file`);
+            await CloudshelfApiUtils.keepKnownVariantsViaFile(cloudshelfAPI, retailer.domain, variantUrl);
+            logger.info(`Finished delete variants via file`);
+        }
+    } catch (err) {
+        logger.error('Something went wrong while reporting known variant data', { error: err });
     }
 
     logger.warn(`FINISHED handleProducts`);
     return {
-        total: productContentToSave.length,
+        productTotal: productContentToSave.length,
+        variantTotal: variantContentToSave.length,
     };
 }
 
@@ -399,8 +464,8 @@ export const HandlePostSync = task({
 
             const input = {
                 knownNumberOfProductGroups: collectionResult.total,
-                knownNumberOfProducts: productResult.total,
-                knownNumberOfProductVariants: undefined,
+                knownNumberOfProducts: productResult.productTotal,
+                knownNumberOfProductVariants: productResult.variantTotal,
                 knownNumberOfImages: undefined,
             };
             logger.info(`Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`);
