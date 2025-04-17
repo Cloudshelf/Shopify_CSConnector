@@ -1,5 +1,6 @@
 export enum BulkOperationType {
     ProductGroupSync = 'ProductGroupSync',
     ProductSync = 'ProductSync',
-    ProductGroupDeleteSync = 'ProductGroupDeleteSync',
+    PostSync = 'PostSync',
+    ProductGroupDeleteSync = 'ProductGroupDeleteSync', //No longer used, just here for historical data purposes
 }
