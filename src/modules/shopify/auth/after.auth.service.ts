@@ -112,7 +112,12 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
                 await SlackUtils.SendNotification(
                     slackToken,
                     slackNotificationChannel,
-                    NotificationUtils.buildInstallAttachments(entity.displayName!, session.shop, entity.email!),
+                    NotificationUtils.buildInstallAttachments(
+                        entity.displayName!,
+                        session.shop,
+                        entity.email!,
+                        entity.currencyCode,
+                    ),
                 );
             }
         }

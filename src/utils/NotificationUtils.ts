@@ -73,7 +73,12 @@ ${markdownContent}
         return attachments;
     }
 
-    static buildInstallAttachments(retailerName: string, domain: string, email: string): MessageAttachment[] {
+    static buildInstallAttachments(
+        retailerName: string,
+        domain: string,
+        email: string,
+        cur: string | null,
+    ): MessageAttachment[] {
         const attachments: MessageAttachment[] = [
             {
                 color: '00FF00',
@@ -103,6 +108,14 @@ ${email}
                             type: 'mrkdwn',
                             text: `*Domain:*
 ${domain}`,
+                        },
+                    },
+                    {
+                        type: 'section',
+                        text: {
+                            type: 'mrkdwn',
+                            text: `*Currency:*
+${cur ? cur : 'Unknown'}`,
                         },
                     },
                 ],
