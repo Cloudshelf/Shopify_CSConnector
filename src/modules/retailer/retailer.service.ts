@@ -19,6 +19,11 @@ export class RetailerService {
     }
 
     @SentryInstrument('RetailerService')
+    findOneByDomain(domain: string) {
+        return this.entityManager.findOne(RetailerEntity, { domain: domain }, { filters: false });
+    }
+
+    @SentryInstrument('RetailerService')
     async updateOrCreate(
         domain: string,
         accessToken: string,
