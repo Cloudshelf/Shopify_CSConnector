@@ -70,7 +70,8 @@ export class POSService {
 
             const ord: CloudshelfDraftOrder = {
                 id: edge.node.id,
-                identifier: edge.node.name,
+                shopifyDraftOrderCode: edge.node.name,
+                identifier: edge.node.email ?? edge.node.name,
                 email: edge.node.email ?? null,
                 items: edge.node.lineItems.nodes.map(lineItemNode => {
                     const variantGid = lineItemNode.variant?.id;
