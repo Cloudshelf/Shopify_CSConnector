@@ -5,9 +5,6 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
-  "engines": {
-    "node": "22"
-  },
   "scripts": {
     "--- dev options ---": "",
     "start:dev:env=local": "ENV_FILE_PATH=environment-variables/.local nest start --debug --watch",
