@@ -18,6 +18,7 @@ import { DataIngestionModule } from './modules/data-ingestion/data.ingestion.mod
 import { AllDatabaseEntities } from './modules/database/entities';
 import { EngineModule } from './modules/engine/engine.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
+import { POSModule } from './modules/pos/pos.module';
 import { ToolsModule } from './modules/tools/tools.module';
 
 @Module({
@@ -47,6 +48,7 @@ import { ToolsModule } from './modules/tools/tools.module';
         CloudshelfModule,
         ToolsModule,
         EngineModule,
+        POSModule,
         ScheduleModule.forRoot(),
         MikroOrmModule.forFeature(AllDatabaseEntities),
     ],

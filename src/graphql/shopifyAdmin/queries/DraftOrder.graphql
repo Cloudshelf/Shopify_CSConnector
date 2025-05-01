@@ -1,0 +1,31 @@
+query GetDraftOrders($after: String, $query: String) {
+    draftOrders(first: 10, after: $after, query: $query) {
+        edges {
+            cursor
+            node {
+                id
+                tags
+                email
+                name
+                status
+                customAttributes {
+                    key
+                    value
+                }
+                lineItems(first: 100) {
+                    nodes {
+                        id
+                        variant {
+                            id
+                        }
+                        quantity
+                    }
+                }
+            }
+        }
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+    }
+}
