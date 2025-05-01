@@ -68,6 +68,9 @@ export class POSService {
                 }
             });
 
+            ordProps['CLOUDSHELF_DRAFT_ORDER_ID'] = edge.node.id;
+            ordProps['CLOUDSHELF_KIOSK_POS_TRANSFER'] = 'Yes';
+
             const ord: CloudshelfDraftOrder = {
                 id: edge.node.id,
                 shopifyDraftOrderCode: edge.node.name,
