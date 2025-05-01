@@ -57,12 +57,12 @@ export class POSService {
         result.pageInfo.hasMore = responseFromShopify.data.draftOrders.pageInfo.hasNextPage;
         result.pageInfo.nextPageCursor = responseFromShopify.data.draftOrders.pageInfo.endCursor ?? undefined;
 
-        responseFromShopify.data.draftOrders.edges.map(edge => {
+        responseFromShopify.data.draftOrders.edges.forEach(edge => {
             const ordProps: {
                 [key: string]: string;
             } = {};
 
-            edge.node.customAttributes.map(custAtt => {
+            edge.node.customAttributes.forEach(custAtt => {
                 if (custAtt.key && custAtt.value) {
                     ordProps[custAtt.key] = custAtt.value;
                 }

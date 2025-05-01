@@ -60,7 +60,14 @@ export class AuthenticatedPOSRequestGuard implements CanActivate {
             }
 
             // Check if token is expired
-            const expirationTime = (decodedToken as any).exp * 1000; // Convert to milliseconds
+            const exp = (decodedToken as any).exp;
+            if (!exp) {
+                this.logger.debug('Token missing exp claim');
+                request.authCode = 401;
+                return false;
+            }
+            const expirationTime = exp * 1000;
+
             const currentTime = Date.now();
 
             if (currentTime >= expirationTime) {
