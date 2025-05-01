@@ -11,6 +11,7 @@ export interface CloudshelfDraftOrdersPayload {
 
 export interface CloudshelfDraftOrder {
     id: string;
+    shopifyDraftOrderCode: string;
     identifier: string;
     email: string | null;
     items: {
