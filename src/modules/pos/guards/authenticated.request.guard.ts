@@ -8,7 +8,9 @@ import {
     createParamDecorator,
     forwardRef,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { verify } from 'jsonwebtoken';
+import { shopifySchema } from 'src/modules/configuration/schemas/shopify.schema';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerService } from 'src/modules/retailer/retailer.service';
 
@@ -17,7 +19,10 @@ export const AUTH_REQUEST_HEADER_NAME = 'authorization';
 export class AuthenticatedPOSRequestGuard implements CanActivate {
     private readonly logger = new Logger(AuthenticatedPOSRequestGuard.name);
 
-    constructor(@Inject(forwardRef(() => RetailerService)) private readonly retailerService: RetailerService) {}
+    constructor(
+        @Inject(forwardRef(() => RetailerService)) private readonly retailerService: RetailerService,
+        private readonly configService: ConfigService<typeof shopifySchema>,
+    ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
@@ -40,7 +45,15 @@ export class AuthenticatedPOSRequestGuard implements CanActivate {
         let authTokenForDomain: string | undefined = undefined;
 
         try {
-            const decodedToken = verify(authToken, 'todo'); //shpss_
+            const shopifySecret = this.configService.get<string>('SHOPIFY_API_SECRET_KEY');
+
+            if (!shopifySecret) {
+                this.logger.error('Shopify Secret not found');
+                request.authCode = 500;
+                return false;
+            }
+
+            const decodedToken = verify(authToken, shopifySecret);
             if (!decodedToken) {
                 request.authCode = 401;
                 return false;
@@ -67,7 +80,7 @@ export class AuthenticatedPOSRequestGuard implements CanActivate {
             // Strip http:// or https:// from destination if present
             authTokenForDomain = authTokenForDomain?.replace(/^https?:\/\//, '');
         } catch (error) {
-            this.logger.error('JWT verification failed:', error.message);
+            this.logger.debug('JWT verification failed:', error.message);
             request.authCode = 401;
             return false;
         }
