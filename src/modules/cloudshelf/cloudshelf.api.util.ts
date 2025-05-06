@@ -1,3 +1,4 @@
+import { BooleanSchema } from 'joi';
 import {
     ApolloClient,
     ApolloLink,
@@ -529,6 +530,8 @@ export class CloudshelfApiUtils {
         shopifyCartId: string,
         status: OrderStatus,
         shopifyOrderId: string,
+        fromPos: boolean,
+        sessionId?: string,
         lines?: OrderLineInput[],
         logs?: LogsInterface,
     ) {
@@ -543,6 +546,8 @@ export class CloudshelfApiUtils {
                         thirdPartyId: shopifyCartId,
                         status: status,
                         lines: lines,
+                        fromPOS: fromPos,
+                        sessionId: sessionId,
                     },
                 ],
             },

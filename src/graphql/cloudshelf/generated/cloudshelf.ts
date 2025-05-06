@@ -287,6 +287,7 @@ export type CheckoutFlowInput = {
   paymentQRCodeDestinationTransferBasketURL?: InputMaybe<Scalars['String']['input']>;
   paymentViaCardsAvailableForAcquisitionTypes?: InputMaybe<Array<AcquisitionType>>;
   paymentViaQRCodeAvailableForAcquisitionTypes?: InputMaybe<Array<AcquisitionType>>;
+  paymentViaShopifyPOS?: InputMaybe<Scalars['Boolean']['input']>;
   purchaseReceiptPrinterBlocks?: InputMaybe<Array<PrinterBlockInput>>;
 };
 
@@ -316,6 +317,7 @@ export type CheckoutFlowOptions = {
   paymentViaCardsAvailableForAcquisitionTypes: Array<AcquisitionType>;
   /** The types of acquisitions that are available for the QR code checkout. */
   paymentViaQRCodeAvailableForAcquisitionTypes: Array<AcquisitionType>;
+  paymentViaShopifyPOS: Scalars['Boolean']['output'];
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   purchaseReceiptPrinterBlocks: Array<PrinterBlocksUnion>;
@@ -2198,6 +2200,7 @@ export type Mutation = {
   startPaymentRequest: PaymentGenericPayload;
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
+  transferToShopifyPOS: TransferedOrderPayload;
   /** Unregister a webhook for a given subject. If an array of ids is supplied, only the webhooks corresponding to the supplied ids will be unregistered, if they exists. If no array is supplied, all webhooks for the given subject will be unregistered. */
   unregisterWebhooks: WebhookRegisterPayload;
   unsubscribe: Scalars['Boolean']['output'];
@@ -2501,6 +2504,11 @@ export type MutationSubscribeArgs = {
 };
 
 
+export type MutationTransferToShopifyPosArgs = {
+  input: TransferToPosInput;
+};
+
+
 export type MutationUnregisterWebhooksArgs = {
   inputs: Array<WebhookUnregisterInput>;
 };
@@ -2653,6 +2661,7 @@ export type OrderEdge = {
 export type OrderInput = {
   /** The discount code that was used on this order */
   discountCode?: InputMaybe<Scalars['String']['input']>;
+  fromPOS?: InputMaybe<Scalars['Boolean']['input']>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   /** An array of lines that make up this order */
@@ -2802,6 +2811,7 @@ export type Organisation = {
   paymentProviderAlmaIsTestMode: Scalars['Boolean']['output'];
   paymentProviderCustomEnable: Scalars['Boolean']['output'];
   paymentProviderCustomUrl?: Maybe<Scalars['String']['output']>;
+  paymentProviderShopifyPOSEnable: Scalars['Boolean']['output'];
   paymentProviderStripeApiKey?: Maybe<Scalars['String']['output']>;
   paymentProviderStripeEnable: Scalars['Boolean']['output'];
   paymentProviderVivaWalletClientId?: Maybe<Scalars['String']['output']>;
@@ -2881,6 +2891,7 @@ export type OrganisationPaymentProviderInput = {
   paymentProviderAlmaIsTestMode?: InputMaybe<Scalars['Boolean']['input']>;
   paymentProviderCustomEnable?: InputMaybe<Scalars['Boolean']['input']>;
   paymentProviderCustomUrl?: InputMaybe<Scalars['String']['input']>;
+  paymentProviderShopifyPOSEnable?: InputMaybe<Scalars['Boolean']['input']>;
   paymentProviderStripeApiKey?: InputMaybe<Scalars['String']['input']>;
   paymentProviderStripeEnable?: InputMaybe<Scalars['Boolean']['input']>;
   paymentProviderVivaWalletClientId?: InputMaybe<Scalars['String']['input']>;
@@ -4499,6 +4510,25 @@ export enum TrackedUrlStatus {
   Opened = 'OPENED',
   Unopened = 'UNOPENED'
 }
+
+export type TransferToPosInput = {
+  attributes?: InputMaybe<Array<TransferToPosInputAttributeInput>>;
+  basketId: Scalars['GlobalId']['input'];
+  emailAddress: Scalars['String']['input'];
+  sessionId: Scalars['GlobalId']['input'];
+};
+
+export type TransferToPosInputAttributeInput = {
+  key: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type TransferedOrderPayload = {
+  __typename?: 'TransferedOrderPayload';
+  message?: Maybe<Scalars['String']['output']>;
+  orderRef?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
 
 export type UpsertUserInput = {
   /** The email address of the user */

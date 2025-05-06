@@ -1,18 +1,28 @@
 import { OrderLineInput, OrderStatus } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { OrderFinancialStatus } from '../../../graphql/shopifyStorefront/generated/shopifyStorefront';
+import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.util';
+import {
+    DraftOrderDeleteDocument,
+    DraftOrderDeleteMutation,
+    DraftOrderDeleteMutationVariables,
+    OrderUpdateDocument,
+    OrderUpdateMutation,
+    OrderUpdateMutationVariables,
+} from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { AppDataSource } from '../../../trigger/reuseables/orm';
-import { logger, task } from '@trigger.dev/sdk/v3';
 import {
     CLOUDSHELF_DEVICE_ATTRIBUTE,
+    CLOUDSHELF_DRAFT_ORDER_ID,
     CLOUDSHELF_ORDER_ATTRIBUTE,
     CLOUDSHELF_ORIGINATING_STORE_ATTRIBUTE,
     CLOUDSHELF_SALES_ASSISTANT_ATTRIBUTE,
     CLOUDSHELF_SESSION_ATTRIBUTE,
     OrderUpdateWebhookPayload,
-} from 'src/modules/shopify/webhooks/attrs.cosnts';
+} from '../../../modules/shopify/webhooks/attrs.cosnts';
+import { AppDataSource } from '../../../trigger/reuseables/orm';
+import { logger, task } from '@trigger.dev/sdk/v3';
 
 export const ProcessOrderTask = task({
     id: 'process-order',
@@ -55,9 +65,9 @@ export const ProcessOrderTask = task({
         const sessionAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_SESSION_ATTRIBUTE);
         const shopifyCartGid = `gid://shopify/Cart/${payload.data.cart_token}`;
 
-        logger.debug('Order ID: ' + payload.data.admin_graphql_api_id);
-        logger.debug('Order for cartID: ' + shopifyCartGid);
-        logger.debug('payload data', { data: payload.data });
+        logger.info('Order ID: ' + payload.data.admin_graphql_api_id);
+        logger.info('Order for cartID: ' + shopifyCartGid);
+        logger.info('payload data', { data: payload.data });
 
         let cloudshelfStatus: OrderStatus = OrderStatus.DraftBasket;
 
@@ -77,12 +87,14 @@ export const ProcessOrderTask = task({
         }
 
         if (cloudshelfStatus === OrderStatus.DraftBasket) {
-            logger.debug(
+            logger.warn(
                 'Order is in DraftBasket status, which it cannot be at this stage. Shopify Status: ' +
                     payload.data.financial_status,
             );
             return;
         }
+
+        logger.info('cloudshelfStatus', { status: cloudshelfStatus });
 
         const orderLines: OrderLineInput[] = [];
 
@@ -97,7 +109,8 @@ export const ProcessOrderTask = task({
             });
         }
 
-        logger.debug(`Order Lines: ${JSON.stringify(orderLines)}`);
+        const draftorderNoteAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_DRAFT_ORDER_ID);
+        logger.info(`Order Lines: ${orderLines.length}`, { lines: orderLines });
         //Possible todo: move this to a trigger task and.
         //Possible todo: have the connector create an order if it doesnt already exist (offline cloudshelves)
         await CloudshelfApiUtils.reportOrderStatus(
@@ -106,7 +119,59 @@ export const ProcessOrderTask = task({
             shopifyCartGid,
             cloudshelfStatus,
             payload.data.admin_graphql_api_id,
+            draftorderNoteAttribute !== undefined,
+            sessionAttribute?.value ?? undefined,
             orderLines.length > 0 ? orderLines : undefined,
         );
+
+        //Now delete the draft order from shopify (if it exists in the notes)
+        if (draftorderNoteAttribute) {
+            logger.info(
+                'Order was creafted by POS, and has a draft order id attached. We have to delete the draft order.',
+                { draftOrderId: draftorderNoteAttribute.value },
+            );
+            const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+            const result = await graphqlClient.mutate<DraftOrderDeleteMutation, DraftOrderDeleteMutationVariables>({
+                mutation: DraftOrderDeleteDocument,
+                variables: {
+                    input: {
+                        id: draftorderNoteAttribute.value,
+                    },
+                },
+            });
+
+            if (result.errors) {
+                logger.error('Failed to delete draft order', {
+                    errors: result.errors,
+                    draftOrderId: draftorderNoteAttribute.value,
+                });
+            } else if (result.data?.draftOrderDelete?.deletedId) {
+                logger.info('Successfully deleted draft order', {
+                    deletedId: result.data.draftOrderDelete.deletedId,
+                });
+            }
+
+            // Update the order note to indicate it originated from Cloudshelf
+            // const orderUpdateResult = await graphqlClient.mutate<OrderUpdateMutation, OrderUpdateMutationVariables>({
+            //     mutation: OrderUpdateDocument,
+            //     variables: {
+            //         input: {
+            //             id: payload.data.admin_graphql_api_id,
+            //             note: 'This order originated on a Cloudshelf Kiosk, and was transfered to POS for completion',
+            //         },
+            //     },
+            // });
+
+            // if (orderUpdateResult.errors) {
+            //     logger.error('Failed to update order note', {
+            //         errors: orderUpdateResult.errors,
+            //         orderId: payload.data.admin_graphql_api_id,
+            //     });
+            // } else if (orderUpdateResult.data?.orderUpdate?.order) {
+            //     logger.info('Successfully updated order note', {
+            //         orderId: orderUpdateResult.data.orderUpdate.order.id,
+            //     });
+            // }
+        }
     },
 });
