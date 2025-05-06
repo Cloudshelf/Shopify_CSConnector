@@ -5,6 +5,7 @@ export const CLOUDSHELF_DEVICE_ATTRIBUTE = 'CS_Device';
 export const CLOUDSHELF_ORIGINATING_STORE_ATTRIBUTE = 'CS_OriginatingStore';
 export const CLOUDSHELF_SALES_ASSISTANT_ATTRIBUTE = 'CS_SalesAssistant';
 export const CLOUDSHELF_SESSION_ATTRIBUTE = 'CS_Session';
+export const CLOUDSHELF_DRAFT_ORDER_ID = 'CS_DRAFT_ORDER_ID';
 
 export interface OrderUpdateWebhookPayload {
     id: number;

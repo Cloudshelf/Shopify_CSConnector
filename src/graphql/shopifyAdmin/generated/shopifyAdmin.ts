@@ -1431,10 +1431,18 @@ export enum AppUsageRecordSortKeys {
   Relevance = 'RELEVANCE'
 }
 
-/** Represents a generic custom attribute, such as whether an order is a customer's first. */
+/**
+ * A custom property. Attributes are used to store additional information about a Shopify resource, such as
+ * products, customers, or orders. Attributes are stored as key-value pairs.
+ *
+ * For example, a list of attributes might include whether a customer is a first-time buyer (`"customer_first_order": "true"`),
+ * whether an order is gift-wrapped (`"gift_wrapped": "true"`), a preferred delivery date
+ * (`"preferred_delivery_date": "2025-10-01"`), the discount applied (`"loyalty_discount_applied": "10%"`), and any
+ * notes provided by the customer (`"customer_notes": "Please leave at the front door"`).
+ */
 export type Attribute = {
   __typename?: 'Attribute';
-  /** The key or name of the attribute. For example, `"customersFirstOrder"`. */
+  /** The key or name of the attribute. For example, `"customer_first_order"`. */
   key: Scalars['String']['output'];
   /** The value of the attribute. For example, `"true"`. */
   value?: Maybe<Scalars['String']['output']>;
@@ -7344,8 +7352,8 @@ export enum CropRegion {
 }
 
 /**
- * The three-letter currency codes that represent the world currencies used in stores. These include standard ISO 4217 codes, legacy codes,
- * and non-standard codes.
+ * The three-letter currency codes that represent the world currencies used in stores. Currency codes include
+ * [standard ISO 4217 codes](https://en.wikipedia.org/wiki/ISO_4217), legacy codes, and non-standard codes.
  */
 export enum CurrencyCode {
   /** United Arab Emirates Dirham (AED). */
@@ -8518,6 +8526,8 @@ export enum CustomerMergeErrorFieldType {
   MergeInProgress = 'MERGE_IN_PROGRESS',
   /** The customer has a multipass identifier. */
   MultipassIdentifier = 'MULTIPASS_IDENTIFIER',
+  /** The override fields are invalid. */
+  OverrideFields = 'OVERRIDE_FIELDS',
   /** The customer has a pending data request. */
   PendingDataRequest = 'PENDING_DATA_REQUEST',
   /** The customer has a pending or completed redaction. */
@@ -11202,10 +11212,14 @@ export type DeliveryZone = Node & {
 
 /** Digital wallet, such as Apple Pay, which can be used for accelerated checkouts. */
 export enum DigitalWallet {
+  /** Amazon Pay. */
+  AmazonPay = 'AMAZON_PAY',
   /** Android Pay. */
   AndroidPay = 'ANDROID_PAY',
   /** Apple Pay. */
   ApplePay = 'APPLE_PAY',
+  /** Facebook Pay. */
+  FacebookPay = 'FACEBOOK_PAY',
   /** Google Pay. */
   GooglePay = 'GOOGLE_PAY',
   /** Shopify Pay. */
@@ -26018,12 +26032,19 @@ export type MoneyInput = {
   currencyCode: CurrencyCode;
 };
 
-/** A monetary value with currency. */
+/** A precise monetary value and its associated currency. For example, 12.99 USD. */
 export type MoneyV2 = {
   __typename?: 'MoneyV2';
-  /** Decimal money amount. */
+  /**
+   * A monetary value in decimal format, allowing for precise representation of cents or fractional
+   * currency. For example, 12.99.
+   */
   amount: Scalars['Decimal']['output'];
-  /** Currency of the money. */
+  /**
+   * The three-letter currency code that represents a world currency used in a store. Currency codes
+   * include standard [standard ISO 4217 codes](https://en.wikipedia.org/wiki/ISO_4217), legacy codes,
+   * and non-standard codes. For example, USD.
+   */
   currencyCode: CurrencyCode;
 };
 
@@ -46177,6 +46198,8 @@ export type ShopResourceFeedbackCreateUserError = DisplayableError & {
 export enum ShopResourceFeedbackCreateUserErrorCode {
   /** The input value is blank. */
   Blank = 'BLANK',
+  /** The feedback date cannot be set in the future. */
+  FeedbackDateInFuture = 'FEEDBACK_DATE_IN_FUTURE',
   /** The input value is invalid. */
   Invalid = 'INVALID',
   /** The feedback for a later version of the resource was already accepted. */
@@ -52127,6 +52150,34 @@ export const CreateShopifyBulkOperationDocument = gql`
   }
 }
     `;
+export const DraftOrderDeleteDocument = gql`
+    mutation draftOrderDelete($input: DraftOrderDeleteInput!) {
+  draftOrderDelete(input: $input) {
+    deletedId
+  }
+}
+    `;
+export const OrderUpdateDocument = gql`
+    mutation OrderUpdate($input: OrderInput!) {
+  orderUpdate(input: $input) {
+    order {
+      id
+      note
+      shippingAddress {
+        address1
+        city
+        province
+        zip
+        country
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+    `;
 export const CreateStorefrontAccessTokenDocument = gql`
     mutation CreateStorefrontAccessToken($input: StorefrontAccessTokenInput!) {
   storefrontAccessTokenCreate(input: $input) {
@@ -52326,6 +52377,20 @@ export type CreateShopifyBulkOperationMutationVariables = Exact<{
 
 
 export type CreateShopifyBulkOperationMutation = { __typename?: 'Mutation', bulkOperationRunQuery?: { __typename?: 'BulkOperationRunQueryPayload', bulkOperation?: { __typename?: 'BulkOperation', id: string, status: BulkOperationStatus } | null, userErrors: Array<{ __typename?: 'UserError', field?: Array<string> | null, message: string }> } | null };
+
+export type DraftOrderDeleteMutationVariables = Exact<{
+  input: DraftOrderDeleteInput;
+}>;
+
+
+export type DraftOrderDeleteMutation = { __typename?: 'Mutation', draftOrderDelete?: { __typename?: 'DraftOrderDeletePayload', deletedId?: string | null } | null };
+
+export type OrderUpdateMutationVariables = Exact<{
+  input: OrderInput;
+}>;
+
+
+export type OrderUpdateMutation = { __typename?: 'Mutation', orderUpdate?: { __typename?: 'OrderUpdatePayload', order?: { __typename?: 'Order', id: string, note?: string | null, shippingAddress?: { __typename?: 'MailingAddress', address1?: string | null, city?: string | null, province?: string | null, zip?: string | null, country?: string | null } | null } | null, userErrors: Array<{ __typename?: 'UserError', field?: Array<string> | null, message: string }> } | null };
 
 export type CreateStorefrontAccessTokenMutationVariables = Exact<{
   input: StorefrontAccessTokenInput;

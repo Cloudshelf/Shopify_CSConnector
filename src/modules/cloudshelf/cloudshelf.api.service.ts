@@ -13,6 +13,7 @@ import { cloudshelfSchema } from '../configuration/schemas/cloudshelf.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfApiUtils } from './cloudshelf.api.util';
 import { LogsInterface } from './logs.interface';
+import { from } from 'rxjs';
 
 @Injectable()
 export class CloudshelfApiService {
@@ -176,6 +177,8 @@ export class CloudshelfApiService {
         shopifyCartId: string,
         status: OrderStatus,
         shopifyOrderId: string,
+        fromPos: boolean,
+        sessionId?: string,
         lines?: OrderLineInput[],
         logs?: LogsInterface,
     ) {
@@ -185,6 +188,8 @@ export class CloudshelfApiService {
             shopifyCartId,
             status,
             shopifyOrderId,
+            fromPos,
+            sessionId,
             lines,
             logs,
         );
