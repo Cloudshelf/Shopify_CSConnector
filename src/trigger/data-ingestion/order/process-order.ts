@@ -1,7 +1,10 @@
 import { OrderLineInput, OrderStatus } from '../../../graphql/cloudshelf/generated/cloudshelf';
 import { OrderFinancialStatus } from '../../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { FlushMode } from '@mikro-orm/core';
+import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
+import { AppDataSource } from '../../../trigger/reuseables/orm';
+import { logger, task } from '@trigger.dev/sdk/v3';
 import {
     CLOUDSHELF_DEVICE_ATTRIBUTE,
     CLOUDSHELF_ORDER_ATTRIBUTE,
@@ -9,10 +12,7 @@ import {
     CLOUDSHELF_SALES_ASSISTANT_ATTRIBUTE,
     CLOUDSHELF_SESSION_ATTRIBUTE,
     OrderUpdateWebhookPayload,
-} from '../../../modules/shopify/webhooks/order.update.webhook.handler';
-import { AppDataSource } from '../../../trigger/reuseables/orm';
-import { logger, task } from '@trigger.dev/sdk/v3';
-import { CloudshelfApiUtils } from 'src/modules/cloudshelf/cloudshelf.api.util';
+} from 'src/modules/shopify/webhooks/attrs.cosnts';
 
 export const ProcessOrderTask = task({
     id: 'process-order',
@@ -92,6 +92,7 @@ export const ProcessOrderTask = task({
                 productID: `gid://external/ShopifyProduct/${line.product_id.toString()}`,
                 productVariantID: `gid://external/ShopifyProductVariant/${line.variant_id.toString()}`,
                 price: parseFloat(line.price),
+                // @ts-ignore
                 currencyCode: payload.data.currency,
             });
         }
