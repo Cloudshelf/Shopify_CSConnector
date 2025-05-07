@@ -7,6 +7,7 @@ export const CLOUDSHELF_SALES_ASSISTANT_ATTRIBUTE = 'CS_SalesAssistant';
 export const CLOUDSHELF_SESSION_ATTRIBUTE = 'CS_SessionId';
 export const CLOUDSHELF_DRAFT_ORDER_ID = 'CS_DRAFT_ORDER_ID';
 export const CLOUDSHELF_EMAIL = 'CS_EMAIL';
+export const CLOUDSHELF_CUSTOMER = 'CS_CUSTOMER';
 
 export interface OrderUpdateWebhookPayload {
     id: number;
