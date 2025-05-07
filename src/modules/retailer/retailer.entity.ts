@@ -65,4 +65,8 @@ export class RetailerEntity extends BaseEntity {
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');
     }
+
+    async supportsWriteOrders(): Promise<boolean> {
+        return this.scopes.includes('write_orders');
+    }
 }

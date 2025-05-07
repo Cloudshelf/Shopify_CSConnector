@@ -7,7 +7,6 @@ import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/reg
 import { AppDataSource } from '../..//reuseables/orm';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { logger, task } from '@trigger.dev/sdk/v3';
-import { ApolloError } from 'apollo-server-errors';
 import { subDays, subMinutes } from 'date-fns';
 
 async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {

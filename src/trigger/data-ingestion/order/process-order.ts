@@ -5,6 +5,9 @@ import {
     DraftOrderDeleteDocument,
     DraftOrderDeleteMutation,
     DraftOrderDeleteMutationVariables,
+    GetOrderBasicsDocument,
+    GetOrderBasicsQuery,
+    GetOrderBasicsQueryVariables,
     OrderUpdateDocument,
     OrderUpdateMutation,
     OrderUpdateMutationVariables,
@@ -15,6 +18,7 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import {
     CLOUDSHELF_DEVICE_ATTRIBUTE,
     CLOUDSHELF_DRAFT_ORDER_ID,
+    CLOUDSHELF_EMAIL,
     CLOUDSHELF_ORDER_ATTRIBUTE,
     CLOUDSHELF_ORIGINATING_STORE_ATTRIBUTE,
     CLOUDSHELF_SALES_ASSISTANT_ATTRIBUTE,
@@ -63,7 +67,8 @@ export const ProcessOrderTask = task({
             x => x.name === CLOUDSHELF_SALES_ASSISTANT_ATTRIBUTE,
         );
         const sessionAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_SESSION_ATTRIBUTE);
-        const shopifyCartGid = `gid://shopify/Cart/${payload.data.cart_token}`;
+        const shopifyCartGid = payload.data.cart_token ? `gid://shopify/Cart/${payload.data.cart_token}` : undefined;
+        const emailAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_EMAIL);
 
         logger.info('Order ID: ' + payload.data.admin_graphql_api_id);
         logger.info('Order for cartID: ' + shopifyCartGid);
@@ -111,6 +116,18 @@ export const ProcessOrderTask = task({
 
         const draftorderNoteAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_DRAFT_ORDER_ID);
         logger.info(`Order Lines: ${orderLines.length}`, { lines: orderLines });
+
+        logger.info('reportOrderStatus payloads', {
+            api: cloudshelfAPI,
+            retailerDomain: retailer.domain,
+            shopifyCartGid: shopifyCartGid,
+            cloudshelfStatus: cloudshelfStatus,
+            admin_graphql_api_id: payload.data.admin_graphql_api_id,
+            fromPOS: draftorderNoteAttribute !== undefined,
+            sessionId: sessionAttribute?.value ?? undefined,
+            orderLines: orderLines,
+        });
+
         //Possible todo: move this to a trigger task and.
         //Possible todo: have the connector create an order if it doesnt already exist (offline cloudshelves)
         await CloudshelfApiUtils.reportOrderStatus(
@@ -124,13 +141,14 @@ export const ProcessOrderTask = task({
             orderLines.length > 0 ? orderLines : undefined,
         );
 
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
         //Now delete the draft order from shopify (if it exists in the notes)
         if (draftorderNoteAttribute) {
             logger.info(
                 'Order was creafted by POS, and has a draft order id attached. We have to delete the draft order.',
                 { draftOrderId: draftorderNoteAttribute.value },
             );
-            const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+
             const result = await graphqlClient.mutate<DraftOrderDeleteMutation, DraftOrderDeleteMutationVariables>({
                 mutation: DraftOrderDeleteDocument,
                 variables: {
@@ -150,28 +168,76 @@ export const ProcessOrderTask = task({
                     deletedId: result.data.draftOrderDelete.deletedId,
                 });
             }
+        }
 
-            // Update the order note to indicate it originated from Cloudshelf
-            // const orderUpdateResult = await graphqlClient.mutate<OrderUpdateMutation, OrderUpdateMutationVariables>({
-            //     mutation: OrderUpdateDocument,
-            //     variables: {
-            //         input: {
-            //             id: payload.data.admin_graphql_api_id,
-            //             note: 'This order originated on a Cloudshelf Kiosk, and was transfered to POS for completion',
-            //         },
-            //     },
-            // });
+        if (sessionAttribute) {
+            //If theres a session, we can assume it came from cloudshelf
+            const canUseWriteOrders = await retailer.supportsWriteOrders();
+            if (canUseWriteOrders) {
+                //First get the current order tags
+                const orderResult = await graphqlClient.query<GetOrderBasicsQuery, GetOrderBasicsQueryVariables>({
+                    query: GetOrderBasicsDocument,
+                    variables: {
+                        id: payload.data.admin_graphql_api_id,
+                    },
+                });
 
-            // if (orderUpdateResult.errors) {
-            //     logger.error('Failed to update order note', {
-            //         errors: orderUpdateResult.errors,
-            //         orderId: payload.data.admin_graphql_api_id,
-            //     });
-            // } else if (orderUpdateResult.data?.orderUpdate?.order) {
-            //     logger.info('Successfully updated order note', {
-            //         orderId: orderUpdateResult.data.orderUpdate.order.id,
-            //     });
-            // }
+                if (orderResult.errors) {
+                    logger.error('Failed to get order tags', {
+                        errors: orderResult.errors,
+                        orderId: payload.data.admin_graphql_api_id,
+                    });
+                }
+
+                let existingNote = orderResult.data?.order?.note ?? '';
+
+                if (
+                    !existingNote
+                        .toLowerCase()
+                        .startsWith(
+                            'this order originated on a cloudshelf kiosk, and was transfered to pos for completion.',
+                        )
+                ) {
+                    existingNote =
+                        'This order originated on a Cloudshelf Kiosk, and was transfered to POS for completion.' +
+                        (existingNote ? '\n\n' + existingNote : '');
+                }
+
+                const existingTags = orderResult.data?.order?.tags ?? [];
+
+                //Add Cloudshelf tag if it doesn't already exist
+                const tags = [...existingTags];
+                if (!tags.includes('Cloudshelf')) {
+                    tags.push('Cloudshelf');
+                }
+                const hasEmail = orderResult.data?.order?.email != null;
+
+                //Update the order with the note to say it came from cloudshelf, the customer email (IF it was not already on the order, and add "Cloudshelf" as a tag)
+                const orderUpdateResult = await graphqlClient.mutate<OrderUpdateMutation, OrderUpdateMutationVariables>(
+                    {
+                        mutation: OrderUpdateDocument,
+                        variables: {
+                            input: {
+                                id: payload.data.admin_graphql_api_id,
+                                note: existingNote,
+                                tags: tags,
+                                email: !hasEmail && emailAttribute ? emailAttribute.value : undefined,
+                            },
+                        },
+                    },
+                );
+
+                if (orderUpdateResult.errors) {
+                    logger.error('Failed to update order note', {
+                        errors: orderUpdateResult.errors,
+                        orderId: payload.data.admin_graphql_api_id,
+                    });
+                } else if (orderUpdateResult.data?.orderUpdate?.order) {
+                    logger.info('Successfully updated order note', {
+                        orderId: orderUpdateResult.data.orderUpdate.order.id,
+                    });
+                }
+            }
         }
     },
 });

@@ -23,3 +23,12 @@ mutation OrderUpdate($input: OrderInput!) {
         }
     }
 }
+
+query GetOrderBasics($id: ID!) {
+    order(id: $id) {
+        id
+        note
+        email
+        tags
+    }
+}

@@ -527,7 +527,7 @@ export class CloudshelfApiUtils {
     static async reportOrderStatus(
         apiURL: string,
         domain: string,
-        shopifyCartId: string,
+        shopifyCartId: string | undefined,
         status: OrderStatus,
         shopifyOrderId: string,
         fromPos: boolean,
