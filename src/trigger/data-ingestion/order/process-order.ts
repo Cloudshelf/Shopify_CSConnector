@@ -8,6 +8,7 @@ import {
     GetOrderBasicsDocument,
     GetOrderBasicsQuery,
     GetOrderBasicsQueryVariables,
+    OrderInput,
     OrderUpdateDocument,
     OrderUpdateMutation,
     OrderUpdateMutationVariables,
@@ -212,29 +213,31 @@ export const ProcessOrderTask = task({
                 }
                 const hasEmail = orderResult.data?.order?.email != null;
 
+                const orderInput: OrderInput = {
+                    id: payload.data.admin_graphql_api_id,
+                    note: existingNote,
+                    tags: tags,
+                    email: !hasEmail && emailAttribute ? emailAttribute.value : undefined,
+                };
                 //Update the order with the note to say it came from cloudshelf, the customer email (IF it was not already on the order, and add "Cloudshelf" as a tag)
                 const orderUpdateResult = await graphqlClient.mutate<OrderUpdateMutation, OrderUpdateMutationVariables>(
                     {
                         mutation: OrderUpdateDocument,
                         variables: {
-                            input: {
-                                id: payload.data.admin_graphql_api_id,
-                                note: existingNote,
-                                tags: tags,
-                                email: !hasEmail && emailAttribute ? emailAttribute.value : undefined,
-                            },
+                            input: orderInput,
                         },
                     },
                 );
 
                 if (orderUpdateResult.errors) {
-                    logger.error('Failed to update order note', {
+                    logger.error('Failed to update order', {
                         errors: orderUpdateResult.errors,
-                        orderId: payload.data.admin_graphql_api_id,
+                        payload: orderInput,
                     });
                 } else if (orderUpdateResult.data?.orderUpdate?.order) {
                     logger.info('Successfully updated order note', {
                         orderId: orderUpdateResult.data.orderUpdate.order.id,
+                        payload: orderInput,
                     });
                 }
             }
