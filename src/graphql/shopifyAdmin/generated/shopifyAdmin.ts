@@ -52178,6 +52178,16 @@ export const OrderUpdateDocument = gql`
   }
 }
     `;
+export const GetOrderBasicsDocument = gql`
+    query GetOrderBasics($id: ID!) {
+  order(id: $id) {
+    id
+    note
+    email
+    tags
+  }
+}
+    `;
 export const CreateStorefrontAccessTokenDocument = gql`
     mutation CreateStorefrontAccessToken($input: StorefrontAccessTokenInput!) {
   storefrontAccessTokenCreate(input: $input) {
@@ -52391,6 +52401,13 @@ export type OrderUpdateMutationVariables = Exact<{
 
 
 export type OrderUpdateMutation = { __typename?: 'Mutation', orderUpdate?: { __typename?: 'OrderUpdatePayload', order?: { __typename?: 'Order', id: string, note?: string | null, shippingAddress?: { __typename?: 'MailingAddress', address1?: string | null, city?: string | null, province?: string | null, zip?: string | null, country?: string | null } | null } | null, userErrors: Array<{ __typename?: 'UserError', field?: Array<string> | null, message: string }> } | null };
+
+export type GetOrderBasicsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetOrderBasicsQuery = { __typename?: 'QueryRoot', order?: { __typename?: 'Order', id: string, note?: string | null, email?: string | null, tags: Array<string> } | null };
 
 export type CreateStorefrontAccessTokenMutationVariables = Exact<{
   input: StorefrontAccessTokenInput;
