@@ -105,14 +105,26 @@ export const ProcessOrderTask = task({
         const orderLines: OrderLineInput[] = [];
 
         for (const line of payload.data.line_items) {
-            orderLines.push({
-                quantity: line.quantity,
-                productID: `gid://external/ShopifyProduct/${line.product_id.toString()}`,
-                productVariantID: `gid://external/ShopifyProductVariant/${line.variant_id.toString()}`,
-                price: parseFloat(line.price),
-                // @ts-ignore
-                currencyCode: payload.data.currency,
-            });
+            logger.info('line of line_items', { line: line });
+
+            if (!line.product_exists && !line.product_id && !line.variant_id && line.name) {
+                //we can assume its a shipping line
+                orderLines.push({
+                    quantity: line.quantity,
+                    price: parseFloat(line.price),
+                    // @ts-ignore
+                    currencyCode: payload.data.currency,
+                });
+            } else {
+                orderLines.push({
+                    quantity: line.quantity,
+                    productID: `gid://external/ShopifyProduct/${line.product_id.toString()}`,
+                    productVariantID: `gid://external/ShopifyProductVariant/${line.variant_id.toString()}`,
+                    price: parseFloat(line.price),
+                    // @ts-ignore
+                    currencyCode: payload.data.currency,
+                });
+            }
         }
 
         const draftorderNoteAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_DRAFT_ORDER_ID);

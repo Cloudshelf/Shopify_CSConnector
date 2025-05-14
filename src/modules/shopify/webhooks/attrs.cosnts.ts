@@ -22,6 +22,8 @@ export interface OrderUpdateWebhookPayload {
         value: string;
     }[];
     line_items: {
+        name: string;
+        product_exists: boolean;
         quantity: number;
         product_id: number;
         variant_id: number;
