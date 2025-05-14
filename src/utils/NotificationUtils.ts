@@ -125,7 +125,11 @@ ${cur ? cur : 'Unknown'}`,
         return attachments;
     }
 
-    static buildUninstallAttachments(domain: string, type: 'uninstall' | 'redact'): MessageAttachment[] {
+    static buildUninstallAttachments(
+        domain: string,
+        type: 'uninstall' | 'redact',
+        installedDate?: Date,
+    ): MessageAttachment[] {
         let colour = '#000000';
         if (type === 'uninstall') {
             colour = '#880808';
@@ -144,10 +148,7 @@ ${cur ? cur : 'Unknown'}`,
 
         if (type === 'uninstall') {
             markdown = `*Domain:* 
-${domain}
-                  
-*Note:* 
-The store has been removed from the Cloudshelf Connector. Store data will not be removed from Cloudshelf until Shopify requests us to do so; this allows retailers to reinstall without losing their data.`;
+${domain}`;
         } else if (type === 'redact') {
             markdown = `*Domain:* 
 ${domain}
@@ -174,6 +175,18 @@ Store data will shortly be removed from Cloudshelf.`;
                             text: markdown,
                         },
                     },
+                    ...(installedDate
+                        ? [
+                              {
+                                  type: 'section',
+                                  // @ts-ignore
+                                  text: {
+                                      type: 'mrkdwn',
+                                      text: `*Installed Date:*\n${installedDate.toLocaleDateString('en-GB')}`,
+                                  },
+                              },
+                          ]
+                        : []),
                 ],
             },
         ];
