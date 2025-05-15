@@ -125,7 +125,7 @@ ${cur ? cur : 'Unknown'}`,
         return attachments;
     }
 
-    static buildOrderNotice(domain: string, webhookid: string, payload: string): MessageAttachment[] {
+    static buildOrderNotice(domain: string, webhookid: string, payload: string, type: string): MessageAttachment[] {
         const attachments: MessageAttachment[] = [
             {
                 color: '#000000',
@@ -134,7 +134,7 @@ ${cur ? cur : 'Unknown'}`,
                         type: 'header',
                         text: {
                             type: 'plain_text',
-                            text: 'order webhook debug',
+                            text: `order webhook debug: ${type}`,
                         },
                     },
                     {

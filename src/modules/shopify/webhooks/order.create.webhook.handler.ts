@@ -11,9 +11,9 @@ import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
 import { NotificationUtils } from 'src/utils/NotificationUtils';
 import { SlackUtils } from 'src/utils/SlackUtils';
 
-@WebhookHandler('ORDERS_UPDATED')
-export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
-    private readonly logger = new ExtendedLogger('OrderUpdateWebhookHandler');
+@WebhookHandler('ORDERS_CREATE')
+export class OrdersCreateWebhookHandler extends ShopifyWebhookHandler<unknown> {
+    private readonly logger = new ExtendedLogger('OrdersCreateWebhookHandler');
 
     constructor(
         private readonly retailerService: RetailerService,
@@ -24,13 +24,12 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         super();
     }
 
-    @SentryInstrument('OrdersUpdatedWebhookHandler')
+    @SentryInstrument('OrdersCreateWebhookHandler')
     async handle(domain: string, data: OrderUpdateWebhookPayload, webhookId: string): Promise<void> {
-        this.logger.debug('Received ORDERS_UPDATED webhook for domain ' + domain);
-        this.logger.debug('data: ' + JSON.stringify(data));
-
+        //Just do nothing
+        // this.logger.debug('Received ORDERS_CREATE webhook for domain ' + domain);
+        // this.logger.debug('data: ' + JSON.stringify(data));
         // const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
-
         // await SlackUtils.SendNotification(
         //     slackToken!,
         //     '#test-area',
@@ -38,37 +37,30 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         //         domain,
         //         webhookId,
         //         `admin_graphql_api_id: ${data.admin_graphql_api_id}`,
-        //         'update',
+        //         'create',
         //     ),
         // );
-
-        //
-
-        const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
-        if (shouldIgnore) {
-            this.logger.debug('Ignoring webhook due to environment configuration');
-            return;
-        }
-
-        const retailer = await this.retailerService.getByDomain(domain);
-
-        if (!retailer) {
-            this.logger.debug('Cannot get retailer for domain ' + domain);
-            return;
-        }
-
-        const tags: string[] = [`retailer_${retailer.id}`, `domain_${retailer.domain.toLowerCase()}`];
-
-        await ProcessOrderTask.trigger(
-            { data, organisationId: retailer.id },
-            {
-                queue: {
-                    name: `order-processing`,
-                    concurrencyLimit: 1,
-                },
-                concurrencyKey: domain,
-                tags,
-            },
-        );
+        // const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
+        // if (shouldIgnore) {
+        //     this.logger.debug('Ignoring webhook due to environment configuration');
+        //     return;
+        // }
+        // const retailer = await this.retailerService.getByDomain(domain);
+        // if (!retailer) {
+        //     this.logger.debug('Cannot get retailer for domain ' + domain);
+        //     return;
+        // }
+        // const tags: string[] = [`retailer_${retailer.id}`, `domain_${retailer.domain.toLowerCase()}`];
+        // await ProcessOrderTask.trigger(
+        //     { data, organisationId: retailer.id },
+        //     {
+        //         queue: {
+        //             name: `order-processing`,
+        //             concurrencyLimit: 1,
+        //         },
+        //         concurrencyKey: domain,
+        //         tags,
+        //     },
+        // );
     }
 }

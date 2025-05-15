@@ -24,6 +24,22 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
             );
         }
     }
+    if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.OrdersCreate)) {
+        const r1 = await registerWebhookForRetailer(
+            retailer,
+            WebhookSubscriptionTopic.OrdersCreate,
+            `https://${host}/shopify/webhooks`,
+            logs,
+        );
+        if (!r1) {
+            logs?.error(
+                `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.OrdersCreate}`,
+            );
+            throw new Error(
+                `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.OrdersCreate}`,
+            );
+        }
+    }
     if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.BulkOperationsFinish)) {
         const r2 = await registerWebhookForRetailer(
             retailer,
