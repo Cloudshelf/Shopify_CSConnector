@@ -14,6 +14,7 @@ import { SessionModule } from './sessions/session.module';
 import { StorefrontService } from './storefront/storefront.service';
 import { BulkOperationFinishedWebhookHandler } from './webhooks/bulk.operation.finish.webhook.handler';
 import { CollectionDeleteWebhookHandler } from './webhooks/collection.delete.webhook.handler';
+import { OrdersCreateWebhookHandler } from './webhooks/order.create.webhook.handler';
 import { OrdersUpdatedWebhookHandler } from './webhooks/order.update.webhook.handler';
 import { ProductsDeleteWebhookHandler } from './webhooks/product.delete.webhook.handler';
 import { RequiredWebhooksController } from './webhooks/required.webhooks.controller';
@@ -143,6 +144,7 @@ export class ShopifyModule {
                 CollectionDeleteWebhookHandler,
                 SubscriptionUpdateWebhookHandler,
                 OrdersUpdatedWebhookHandler,
+                OrdersCreateWebhookHandler,
                 DatabaseSessionStorage,
                 StorefrontService,
             ],
