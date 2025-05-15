@@ -42,6 +42,8 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         //     ),
         // );
 
+        //
+
         const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
         if (shouldIgnore) {
             this.logger.debug('Ignoring webhook due to environment configuration');
