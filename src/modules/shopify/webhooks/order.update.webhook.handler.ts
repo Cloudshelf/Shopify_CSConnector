@@ -34,7 +34,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         await SlackUtils.SendNotification(
             slackToken!,
             '#test-area',
-            NotificationUtils.buildOrderNotice(domain, webhookId, JSON.stringify(data)),
+            NotificationUtils.buildOrderNotice(domain, webhookId, `admin_graphql_api_id: ${data.admin_graphql_api_id}`),
         );
 
         const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
