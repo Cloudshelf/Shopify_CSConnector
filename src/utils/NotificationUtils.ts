@@ -125,6 +125,46 @@ ${cur ? cur : 'Unknown'}`,
         return attachments;
     }
 
+    static buildOrderNotice(domain: string, webhookid: string, payload: string): MessageAttachment[] {
+        const attachments: MessageAttachment[] = [
+            {
+                color: '#000000',
+                blocks: [
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: 'order webhook debug',
+                        },
+                    },
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `Domain: ${domain}`,
+                        },
+                    },
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `Webhook ID: ${webhookid}`,
+                        },
+                    },
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `Payload: ${payload}`,
+                        },
+                    },
+                ],
+            },
+        ];
+
+        return attachments;
+    }
+
     static buildUninstallAttachments(
         domain: string,
         type: 'uninstall' | 'redact',
