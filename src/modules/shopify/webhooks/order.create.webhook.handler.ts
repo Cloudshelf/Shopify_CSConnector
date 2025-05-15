@@ -11,9 +11,9 @@ import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
 import { NotificationUtils } from 'src/utils/NotificationUtils';
 import { SlackUtils } from 'src/utils/SlackUtils';
 
-@WebhookHandler('ORDERS_UPDATED')
-export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
-    private readonly logger = new ExtendedLogger('OrderUpdateWebhookHandler');
+@WebhookHandler('ORDERS_CREATE')
+export class OrdersCreateWebhookHandler extends ShopifyWebhookHandler<unknown> {
+    private readonly logger = new ExtendedLogger('OrdersCreateWebhookHandler');
 
     constructor(
         private readonly retailerService: RetailerService,
@@ -24,9 +24,9 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         super();
     }
 
-    @SentryInstrument('OrdersUpdatedWebhookHandler')
+    @SentryInstrument('OrdersCreateWebhookHandler')
     async handle(domain: string, data: OrderUpdateWebhookPayload, webhookId: string): Promise<void> {
-        this.logger.debug('Received ORDERS_UPDATED webhook for domain ' + domain);
+        this.logger.debug('Received ORDERS_CREATE webhook for domain ' + domain);
         this.logger.debug('data: ' + JSON.stringify(data));
 
         const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
@@ -38,7 +38,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
                 domain,
                 webhookId,
                 `admin_graphql_api_id: ${data.admin_graphql_api_id}`,
-                'update',
+                'create',
             ),
         );
 
