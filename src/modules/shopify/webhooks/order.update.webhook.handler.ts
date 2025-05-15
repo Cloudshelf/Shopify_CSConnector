@@ -29,18 +29,18 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         this.logger.debug('Received ORDERS_UPDATED webhook for domain ' + domain);
         this.logger.debug('data: ' + JSON.stringify(data));
 
-        const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
+        // const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
 
-        await SlackUtils.SendNotification(
-            slackToken!,
-            '#test-area',
-            NotificationUtils.buildOrderNotice(
-                domain,
-                webhookId,
-                `admin_graphql_api_id: ${data.admin_graphql_api_id}`,
-                'update',
-            ),
-        );
+        // await SlackUtils.SendNotification(
+        //     slackToken!,
+        //     '#test-area',
+        //     NotificationUtils.buildOrderNotice(
+        //         domain,
+        //         webhookId,
+        //         `admin_graphql_api_id: ${data.admin_graphql_api_id}`,
+        //         'update',
+        //     ),
+        // );
 
         const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
         if (shouldIgnore) {
