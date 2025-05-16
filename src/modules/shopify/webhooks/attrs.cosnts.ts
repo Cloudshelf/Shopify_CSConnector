@@ -15,6 +15,7 @@ export interface OrderUpdateWebhookPayload {
     checkout_id: number;
     cart_token: string;
     financial_status: OrderFinancialStatus;
+    source_name: string;
     note: string;
     currency: CurrencyCode;
     note_attributes: {

@@ -59,6 +59,10 @@ export const ProcessOrderTask = task({
             throw new Error(`Retailer does not exist for id "${payload.organisationId}"`);
         }
 
+        // if(payload.data.source_name === 'pos') {
+        //     //100% from pos
+        // }
+
         const cloudshelfAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_ORDER_ATTRIBUTE);
         const deviceAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_DEVICE_ATTRIBUTE);
         const originatingStoreAttribute = payload.data.note_attributes.find(
@@ -141,7 +145,6 @@ export const ProcessOrderTask = task({
             orderLines: orderLines,
         });
 
-        //Possible todo: move this to a trigger task and.
         //Possible todo: have the connector create an order if it doesnt already exist (offline cloudshelves)
         await CloudshelfApiUtils.reportOrderStatus(
             cloudshelfAPI,
@@ -204,16 +207,18 @@ export const ProcessOrderTask = task({
 
                 let existingNote = orderResult.data?.order?.note ?? '';
 
-                if (
-                    !existingNote
-                        .toLowerCase()
-                        .startsWith(
-                            'this order originated on a cloudshelf kiosk, and was transfered to pos for completion.',
-                        )
-                ) {
-                    existingNote =
-                        'This order originated on a Cloudshelf Kiosk, and was transfered to POS for completion.' +
-                        (existingNote ? '\n\n' + existingNote : '');
+                if (payload.data.source_name === 'pos') {
+                    if (
+                        !existingNote
+                            .toLowerCase()
+                            .startsWith(
+                                'this order originated on a cloudshelf kiosk, and was transfered to pos for completion.',
+                            )
+                    ) {
+                        existingNote =
+                            'This order originated on a Cloudshelf Kiosk, and was transfered to POS for completion.' +
+                            (existingNote ? '\n\n' + existingNote : '');
+                    }
                 }
 
                 const existingTags = orderResult.data?.order?.tags ?? [];
