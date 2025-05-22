@@ -13,14 +13,12 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { AppDataSource } from '../../../trigger/reuseables/orm';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
+import { IngestionQueue } from 'src/trigger/queues';
 
 export const SyncLocationsTask = task({
     id: 'sync-locations',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     run: async (payload: { organisationId: string }, { ctx }) => {
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);

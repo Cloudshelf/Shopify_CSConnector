@@ -3,7 +3,7 @@ import { RequestProductsTask } from '../../trigger/data-ingestion/product/reques
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
-import { idempotencyKeys, runs } from '@trigger.dev/sdk/v3';
+import { idempotencyKeys, runs } from '@trigger.dev/sdk';
 
 export class ProductJobUtils {
     static async scheduleTriggerJob(
@@ -82,10 +82,7 @@ export class ProductJobUtils {
             },
             {
                 delay,
-                queue: {
-                    name: `ingestion`,
-                    concurrencyLimit: 1,
-                },
+                queue: `ingestion`,
                 tags,
                 concurrencyKey: retailer.id,
             },
@@ -120,10 +117,7 @@ export class ProductJobUtils {
                 },
                 {
                     delay,
-                    queue: {
-                        name: `ingestion`,
-                        concurrencyLimit: 1,
-                    },
+                    queue: `ingestion`,
                     tags,
                     concurrencyKey: retailer.id,
                     idempotencyKey: idempotencyKey,

@@ -6,8 +6,9 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/registerAllWebhooksForRetailer';
 import { AppDataSource } from '../..//reuseables/orm';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
+import { IngestionQueue } from 'src/trigger/queues';
 
 async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
@@ -95,10 +96,7 @@ async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changes
 
 export const RequestProductsTask = task({
     id: 'request-products',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: {
         preset: 'small-1x',
     },

@@ -12,10 +12,7 @@ export class LocationJobUtils {
         SyncLocationsTask.trigger(
             { organisationId: retailer.id },
             {
-                queue: {
-                    name: `ingestion`,
-                    concurrencyLimit: 1,
-                },
+                queue: `ingestion`,
                 concurrencyKey: retailer.id,
                 tags,
             },

@@ -8,7 +8,7 @@ import { CollectionJobUtils } from '../data-ingestion/collection.job.utils';
 import { ProductJobUtils } from '../data-ingestion/product.job.utils';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
-import { auth } from '@trigger.dev/sdk/v3';
+import { auth } from '@trigger.dev/sdk';
 
 @Resolver()
 export class ToolsResolver {
