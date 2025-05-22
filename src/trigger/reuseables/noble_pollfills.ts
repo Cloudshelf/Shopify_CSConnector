@@ -17,9 +17,12 @@ export const TriggerWaitForNobleReschedule = async (retailer: RetailerEntity) =>
         });
 
         if (currentBulkOperation) {
-            if (currentBulkOperation.status === BulkOperationStatus.Running) {
+            if (
+                currentBulkOperation.status === BulkOperationStatus.Running ||
+                currentBulkOperation.status === BulkOperationStatus.Created
+            ) {
                 logger.warn(
-                    `Shopify is already running a bulk operation for this store. ${JSON.stringify(
+                    `Shopify is already running or starting up a bulk operation for this store. ${JSON.stringify(
                         currentBulkOperation,
                     )}`,
                 );
