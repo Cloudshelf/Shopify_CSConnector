@@ -155,7 +155,7 @@ async function handleCollections(
             objectCount: objectCount,
         });
         return {
-            earlyCompleteMessage: `Seen Collection ID length != Object Count in Bulk operation (seen:${seenCollectionIds.length}, objectCount: ${objectCount})`,
+            earlyCompleteMessage: `Seen Collection ID length != Object Count in Bulk operation (seen:${seenCollectionIds.size}, objectCount: ${objectCount})`,
         };
     } else {
         logger.log(`Seen Collection Id & Object count MATCH!`);
