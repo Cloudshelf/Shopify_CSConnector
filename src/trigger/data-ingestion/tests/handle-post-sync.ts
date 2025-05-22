@@ -16,7 +16,7 @@ import { createWriteStream, promises as fsPromises } from 'fs';
 import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
 import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
 import { IngestionQueue } from 'src/trigger/queues';
-import { TriggerWaitForNobleReschedule } from 'src/trigger/reuseables/noble_pollfills';
+import { TriggerWaitForNobleReschedule, setDifference } from 'src/trigger/reuseables/noble_pollfills';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
 import { promisify } from 'util';
@@ -126,18 +126,18 @@ async function handleCollections(
     });
 
     logger.info(`Reading data file`);
-    const seenCollectionIds: string[] = [];
-    const idsToRemoveAtTheEnd: string[] = [];
+    const seenCollectionIds = new Set<string>();
+    const idsToRemoveAtTheEnd = new Set<string>();
     for await (const collectionObj of JsonLUtils.readJsonl(tempFile)) {
-        await sleep(1);
         const collectionId = GlobalIDUtils.gidConverter(collectionObj.id, 'ShopifyCollection')!;
 
-        if (!seenCollectionIds.includes(collectionId)) {
-            seenCollectionIds.push(collectionId);
-        }
+        seenCollectionIds.add(collectionId);
 
-        if (collectionObj.publishedOnCurrentPublication !== undefined && !collectionObj.publishedOnCurrentPublication) {
-            idsToRemoveAtTheEnd.push(collectionId);
+        const shouldRemove =
+            collectionObj.publishedOnCurrentPublication !== undefined && !collectionObj.publishedOnCurrentPublication;
+
+        if (shouldRemove) {
+            idsToRemoveAtTheEnd.add(collectionId);
         }
     }
 
@@ -149,9 +149,9 @@ async function handleCollections(
             ? parseInt(collectionBuildOperation.objectCount, 10)
             : collectionBuildOperation.objectCount;
 
-    if (seenCollectionIds.length !== objectCount) {
+    if (seenCollectionIds.size !== objectCount) {
         logger.error('Seen Collection ID length != Obejct Count in Bulk operation', {
-            seenCollectionIds: seenCollectionIds.length,
+            seenCollectionIds: seenCollectionIds.size,
             objectCount: objectCount,
         });
         return {
@@ -160,13 +160,10 @@ async function handleCollections(
     } else {
         logger.log(`Seen Collection Id & Object count MATCH!`);
     }
+
     //now we should call the cloushelf API to keep known data
-    const groupContentToSave: { id: string }[] = [];
-    for (const id of seenCollectionIds) {
-        if (!idsToRemoveAtTheEnd.includes(id)) {
-            groupContentToSave.push({ id });
-        }
-    }
+    const colsIdsToKeep = setDifference(seenCollectionIds, idsToRemoveAtTheEnd);
+    const groupContentToSave: { id: string }[] = Array.from(colsIdsToKeep, id => ({ id }));
 
     try {
         const groupFileName = `${filePrefix}_${retailer.domain}_product_groups_${ulid()}.json`;
@@ -258,40 +255,44 @@ async function handleProducts(
     });
 
     logger.info(`Reading data file`);
-    const seenVariantIds: string[] = [];
-    const seenProductIds: string[] = [];
-    const prodIdsToRemoveAtTheEnd: string[] = [];
-    const varIdsToRemoveAtTheEnd: string[] = [];
+    const seenVariantIds = new Set<string>();
+    const seenProductIds = new Set<string>();
+    const prodIdsToRemoveAtTheEnd = new Set<string>();
+    const varIdsToRemoveAtTheEnd = new Set<string>();
+
     for await (const productObj of JsonLUtils.readJsonl(tempFile)) {
-        await sleep(1);
-        const productId = GlobalIDUtils.gidConverter(productObj.id, 'ShopifyProduct')!;
-
-        if (!seenProductIds.includes(productId)) {
-            seenProductIds.push(productId);
+        const productId = GlobalIDUtils.gidConverter(productObj.id, 'ShopifyProduct');
+        if (!productId) {
+            continue; // Skip invalid product IDs
         }
 
-        if (productObj.publishedOnCurrentPublication !== undefined && !productObj.publishedOnCurrentPublication) {
-            prodIdsToRemoveAtTheEnd.push(productId);
+        seenProductIds.add(productId);
+
+        const shouldRemove =
+            productObj.publishedOnCurrentPublication !== undefined && !productObj.publishedOnCurrentPublication;
+
+        if (shouldRemove) {
+            prodIdsToRemoveAtTheEnd.add(productId);
         }
 
-        (productObj.ProductVariant ?? []).map((variant: any, variantIndex: number) => {
-            const variantId = GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant')!;
-
-            if (!seenVariantIds.includes(variantId)) {
-                seenVariantIds.push(variantId);
+        for (const variant of productObj.ProductVariant ?? []) {
+            const variantId = GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant');
+            if (!variantId) {
+                continue; // Skip invalid variant IDs
             }
 
-            //Then if the variant is from a product we dont want add it to teh removal list
-            if (productObj.publishedOnCurrentPublication !== undefined && !productObj.publishedOnCurrentPublication) {
-                varIdsToRemoveAtTheEnd.push(variantId);
+            seenVariantIds.add(variantId);
+
+            if (shouldRemove) {
+                varIdsToRemoveAtTheEnd.add(variantId);
             }
-        });
+        }
     }
 
     logger.info(`Deleting downloaded data file: ${tempFile}`);
     await fsPromises.unlink(tempFile);
 
-    const totalSeenObjectLength = seenProductIds.length + seenVariantIds.length;
+    const totalSeenObjectLength = seenProductIds.size + seenVariantIds.size;
     const objectCount =
         typeof productBulkOperation.objectCount === 'string'
             ? parseInt(productBulkOperation.objectCount, 10)
@@ -300,8 +301,8 @@ async function handleProducts(
     if (totalSeenObjectLength !== objectCount) {
         logger.error('Seen ID length != Obejct Count in Bulk operation', {
             totalSeen: totalSeenObjectLength,
-            seenProductIds: seenProductIds.length,
-            seenVariantIds: seenVariantIds.length,
+            seenProductIds: seenProductIds.size,
+            seenVariantIds: seenVariantIds.size,
             objectCount: objectCount,
         });
         return {
@@ -312,12 +313,9 @@ async function handleProducts(
     }
 
     //now we should call the cloushelf API to keep known data
-    const productContentToSave: { id: string }[] = [];
-    for (const id of seenProductIds) {
-        if (!prodIdsToRemoveAtTheEnd.includes(id)) {
-            productContentToSave.push({ id });
-        }
-    }
+    const prodIdsToKeep = setDifference(seenProductIds, prodIdsToRemoveAtTheEnd);
+    const productContentToSave: { id: string }[] = Array.from(prodIdsToKeep, id => ({ id }));
+
     try {
         const prodFileName = `${filePrefix}_${retailer.domain}_products_${ulid()}.json`;
         let prodUrl = cloudflarePublicEndpoint;
@@ -340,12 +338,9 @@ async function handleProducts(
         logger.error('Something went wrong while reporting known product data', { error: err });
     }
 
-    const variantContentToSave: { id: string }[] = [];
-    for (const id of seenVariantIds) {
-        if (!varIdsToRemoveAtTheEnd.includes(id)) {
-            variantContentToSave.push({ id });
-        }
-    }
+    const variantIdsToKeep = setDifference(seenVariantIds, varIdsToRemoveAtTheEnd);
+    const variantContentToSave: { id: string }[] = Array.from(variantIdsToKeep, id => ({ id }));
+
     try {
         const variantFileName = `${filePrefix}_${retailer.domain}_variants_${ulid()}.json`;
         let variantUrl = cloudflarePublicEndpoint;
