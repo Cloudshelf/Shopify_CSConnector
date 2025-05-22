@@ -1,7 +1,7 @@
 import { queue } from '@trigger.dev/sdk';
 
 export const CreateSafetySyncsQueue = queue({
-    name: 'create-saftey-sync-queue',
+    name: 'create-safety-sync-queue',
     concurrencyLimit: 1,
 });
 

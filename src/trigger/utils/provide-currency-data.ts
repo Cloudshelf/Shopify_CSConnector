@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { CloudshelfApiUtils } from '../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { AppDataSource } from '../reuseables/orm';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
 
 export const ProvideCurrencyData = task({
     id: 'provideCurrencyData',

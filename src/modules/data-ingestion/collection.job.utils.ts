@@ -3,7 +3,7 @@ import { RequestProductGroupsTask } from '../../trigger/data-ingestion/product-g
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
-import { idempotencyKeys } from '@trigger.dev/sdk/v3';
+import { idempotencyKeys } from '@trigger.dev/sdk';
 
 export class CollectionJobUtils {
     static async scheduleTriggerJob(

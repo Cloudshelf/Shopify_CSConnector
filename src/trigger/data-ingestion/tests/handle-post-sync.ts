@@ -10,7 +10,7 @@ import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
 import { AppDataSource } from '../../reuseables/orm';
 import { sleep } from '../../reuseables/sleep';
-import { logger, task, wait } from '@trigger.dev/sdk/v3';
+import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
