@@ -39,3 +39,11 @@ export const TriggerWaitForNobleReschedule = async (retailer: RetailerEntity) =>
         }
     } while (shouldBeWaitingForQueue);
 };
+
+export const setDifference = (a: Set<string>, b: Set<string>): Set<string> => {
+    const result = new Set<string>();
+    for (const item of a) {
+        if (!b.has(item)) result.add(item);
+    }
+    return result;
+};
