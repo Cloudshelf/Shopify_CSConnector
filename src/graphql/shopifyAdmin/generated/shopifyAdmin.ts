@@ -619,6 +619,7 @@ export type AppDiscountType = {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: DiscountClass;
   /**
@@ -632,6 +633,7 @@ export type AppDiscountType = {
    * The type of line item on an order that the
    * [discount type](https://help.shopify.com/manual/discounts/discount-types) applies to.
    * Valid values: `SHIPPING_LINE` and `LINE_ITEM`.
+   * @deprecated Use `discountClasses` instead.
    */
   targetType: DiscountApplicationTargetType;
   /**
@@ -1429,10 +1431,18 @@ export enum AppUsageRecordSortKeys {
   Relevance = 'RELEVANCE'
 }
 
-/** Represents a generic custom attribute, such as whether an order is a customer's first. */
+/**
+ * A custom property. Attributes are used to store additional information about a Shopify resource, such as
+ * products, customers, or orders. Attributes are stored as key-value pairs.
+ *
+ * For example, a list of attributes might include whether a customer is a first-time buyer (`"customer_first_order": "true"`),
+ * whether an order is gift-wrapped (`"gift_wrapped": "true"`), a preferred delivery date
+ * (`"preferred_delivery_date": "2025-10-01"`), the discount applied (`"loyalty_discount_applied": "10%"`), and any
+ * notes provided by the customer (`"customer_notes": "Please leave at the front door"`).
+ */
 export type Attribute = {
   __typename?: 'Attribute';
-  /** The key or name of the attribute. For example, `"customersFirstOrder"`. */
+  /** The key or name of the attribute. For example, `"customer_first_order"`. */
   key: Scalars['String']['output'];
   /** The value of the attribute. For example, `"true"`. */
   value?: Maybe<Scalars['String']['output']>;
@@ -1492,6 +1502,8 @@ export type AvailableChannelDefinitionsByChannel = {
 export enum BadgeType {
   /** This badge has type `attention`. */
   Attention = 'ATTENTION',
+  /** This badge has type `critical`. */
+  Critical = 'CRITICAL',
   /** This badge has type `default`. */
   Default = 'DEFAULT',
   /** This badge has type `info`. */
@@ -2515,7 +2527,9 @@ export enum CartTransformCreateUserErrorCode {
   /** No Shopify Function found for provided function_id. */
   FunctionNotFound = 'FUNCTION_NOT_FOUND',
   /** Failed to create cart transform due to invalid input. */
-  InputInvalid = 'INPUT_INVALID'
+  InputInvalid = 'INPUT_INVALID',
+  /** Could not create or update metafields. */
+  InvalidMetafields = 'INVALID_METAFIELDS'
 }
 
 /** Return type for `cartTransformDelete` mutation. */
@@ -2897,9 +2911,9 @@ export enum CatalogUserErrorCode {
   CannotModifyAppCatalog = 'CANNOT_MODIFY_APP_CATALOG',
   /** Cannot modify a catalog for a market. */
   CannotModifyMarketCatalog = 'CANNOT_MODIFY_MARKET_CATALOG',
-  /** Quantity price breaks can be associated only with company location catalogs. */
+  /** Quantity price breaks can be associated only with company location catalogs or catalogs associated with compatible markets. */
   CatalogContextDoesNotSupportQuantityPriceBreaks = 'CATALOG_CONTEXT_DOES_NOT_SUPPORT_QUANTITY_PRICE_BREAKS',
-  /** Quantity rules can be associated only with company location catalogs. */
+  /** Quantity rules can be associated only with company location catalogs or catalogs associated with compatible markets. */
   CatalogContextDoesNotSupportQuantityRules = 'CATALOG_CONTEXT_DOES_NOT_SUPPORT_QUANTITY_RULES',
   /** Catalog failed to save. */
   CatalogFailedToSave = 'CATALOG_FAILED_TO_SAVE',
@@ -2915,12 +2929,18 @@ export enum CatalogUserErrorCode {
   ContextCatalogLimitReached = 'CONTEXT_CATALOG_LIMIT_REACHED',
   /** The arguments `contextsToAdd` and `contextsToRemove` must match existing catalog context type. */
   ContextDriverMismatch = 'CONTEXT_DRIVER_MISMATCH',
+  /** A country catalog cannot be assigned to a price list. */
+  CountryCatalogPriceListAssignment = 'COUNTRY_CATALOG_PRICE_LIST_ASSIGNMENT',
   /** A country price list cannot be assigned to a catalog. */
   CountryPriceListAssignment = 'COUNTRY_PRICE_LIST_ASSIGNMENT',
   /** The input value is invalid. */
   Invalid = 'INVALID',
   /** The catalog context type is invalid. */
   InvalidCatalogContextType = 'INVALID_CATALOG_CONTEXT_TYPE',
+  /** Cannot change context to specified type. */
+  InvalidContextChange = 'INVALID_CONTEXT_CHANGE',
+  /** The managed country belongs to another catalog. */
+  ManagedCountryBelongsToAnotherCatalog = 'MANAGED_COUNTRY_BELONGS_TO_ANOTHER_CATALOG',
   /** The catalog's market and price list currencies do not match. */
   MarketAndPriceListCurrencyMismatch = 'MARKET_AND_PRICE_LIST_CURRENCY_MISMATCH',
   /** A market catalog must have an active status. */
@@ -2949,6 +2969,8 @@ export enum CatalogUserErrorCode {
   TooLong = 'TOO_LONG',
   /** The input value is too short. */
   TooShort = 'TOO_SHORT',
+  /** Managing this catalog is not supported by your plan. */
+  UnpermittedEntitlementsMarketCatalogs = 'UNPERMITTED_ENTITLEMENTS_MARKET_CATALOGS',
   /** Can't perform this action on a catalog of this type. */
   UnsupportedCatalogAction = 'UNSUPPORTED_CATALOG_ACTION'
 }
@@ -5261,6 +5283,12 @@ export enum CollectionRuleColumn {
    * With `is_not_set` relation, the rule matches matches products with at least one variant with `compare_at_price` not set.
    */
   IsPriceReduced = 'IS_PRICE_REDUCED',
+  /**
+   * This rule type is designed to dynamically include products in a smart collection based on their category id.
+   * When a specific product category is set as a condition, this rule will not only match products that are
+   * directly assigned to the specified category but also include any products categorized under any descendant of that category.
+   */
+  ProductCategoryIdWithDescendants = 'PRODUCT_CATEGORY_ID_WITH_DESCENDANTS',
   /** This category includes metafield definitions that have the `useAsCollectionCondition` flag set to true. */
   ProductMetafieldDefinition = 'PRODUCT_METAFIELD_DEFINITION',
   /** The [`product_taxonomy_node_id`](https://shopify.dev/api/admin-graphql/latest/objects/Product#field-product-productcategory) attribute. */
@@ -7324,8 +7352,8 @@ export enum CropRegion {
 }
 
 /**
- * The three-letter currency codes that represent the world currencies used in stores. These include standard ISO 4217 codes, legacy codes,
- * and non-standard codes.
+ * The three-letter currency codes that represent the world currencies used in stores. Currency codes include
+ * [standard ISO 4217 codes](https://en.wikipedia.org/wiki/ISO_4217), legacy codes, and non-standard codes.
  */
 export enum CurrencyCode {
   /** United Arab Emirates Dirham (AED). */
@@ -7751,11 +7779,15 @@ export type Customer = CommentEventSubject & HasEvents & HasMetafieldDefinitions
    * last_name are not available, then this falls back to the customer's email address, and if that is not available, the customer's phone number.
    */
   displayName: Scalars['String']['output'];
-  /** The customer's email address. */
+  /**
+   * The customer's email address.
+   * @deprecated Use `defaultEmailAddress.emailAddress` instead.
+   */
   email?: Maybe<Scalars['String']['output']>;
   /**
    * The current email marketing state for the customer.
    * If the customer doesn't have an email address, then this property is `null`.
+   * @deprecated Use `defaultEmailAddress.marketingState`, `defaultEmailAddress.marketingOptInLevel`, `defaultEmailAddress.marketingUpdatedAt`, and `defaultEmailAddress.sourceLocation` instead.
    */
   emailMarketingConsent?: Maybe<CustomerEmailMarketingConsentState>;
   /** A list of events associated with the customer. */
@@ -7815,7 +7847,10 @@ export type Customer = CommentEventSubject & HasEvents & HasMetafieldDefinitions
   orders: OrderConnection;
   /** A list of the customer's payment methods. */
   paymentMethods: CustomerPaymentMethodConnection;
-  /** The customer's phone number. */
+  /**
+   * The customer's phone number.
+   * @deprecated Use `defaultPhoneNumber.phoneNumber` instead.
+   */
   phone?: Maybe<Scalars['String']['output']>;
   /**
    * Returns a private metafield by namespace and key that belongs to the resource.
@@ -7837,6 +7872,7 @@ export type Customer = CommentEventSubject & HasEvents & HasMetafieldDefinitions
    * The current SMS marketing state for the customer's phone number.
    *
    * If the customer does not have a phone number, then this property is `null`.
+   * @deprecated Use `defaultPhoneNumber.marketingState`, `defaultPhoneNumber.marketingOptInLevel`, `defaultPhoneNumber.marketingUpdatedAt`, `defaultPhoneNumber.marketingCollectedFrom`, and `defaultPhoneNumber.sourceLocation` instead.
    */
   smsMarketingConsent?: Maybe<CustomerSmsMarketingConsentState>;
   /**
@@ -7855,7 +7891,10 @@ export type Customer = CommentEventSubject & HasEvents & HasMetafieldDefinitions
   taxExempt: Scalars['Boolean']['output'];
   /** The list of tax exemptions applied to the customer. */
   taxExemptions: Array<TaxExemption>;
-  /** The URL to unsubscribe the customer from the mailing list. */
+  /**
+   * The URL to unsubscribe the customer from the mailing list.
+   * @deprecated Use `defaultEmailAddress.marketingUnsubscribeUrl` instead.
+   */
   unsubscribeUrl: Scalars['URL']['output'];
   /** The date and time when the customer was last updated. */
   updatedAt: Scalars['DateTime']['output'];
@@ -7865,6 +7904,7 @@ export type Customer = CommentEventSubject & HasEvents & HasMetafieldDefinitions
    * Returns `true` when the email is formatted correctly and
    * belongs to an existing domain. This doesn't guarantee that
    * the email address actually exists.
+   * @deprecated Use `defaultEmailAddress.validFormat` instead.
    */
   validEmailAddress: Scalars['Boolean']['output'];
   /** Whether the customer has verified their email address. Defaults to `true` if the customer is created through the Shopify admin or API. */
@@ -8486,6 +8526,8 @@ export enum CustomerMergeErrorFieldType {
   MergeInProgress = 'MERGE_IN_PROGRESS',
   /** The customer has a multipass identifier. */
   MultipassIdentifier = 'MULTIPASS_IDENTIFIER',
+  /** The override fields are invalid. */
+  OverrideFields = 'OVERRIDE_FIELDS',
   /** The customer has a pending data request. */
   PendingDataRequest = 'PENDING_DATA_REQUEST',
   /** The customer has a pending or completed redaction. */
@@ -8950,7 +8992,7 @@ export type CustomerPaymentMethodPaypalBillingAgreementUpdatePayload = {
 /** Return type for `customerPaymentMethodRemoteCreate` mutation. */
 export type CustomerPaymentMethodRemoteCreatePayload = {
   __typename?: 'CustomerPaymentMethodRemoteCreatePayload';
-  /** The customer payment method. */
+  /** The customer payment method. Note that the returned payment method may initially be in an incomplete state. Developers should poll this payment method using the customerPaymentMethod query until all required payment details have been processed. */
   customerPaymentMethod?: Maybe<CustomerPaymentMethod>;
   /** The list of errors that occurred from executing the mutation. */
   userErrors: Array<CustomerPaymentMethodRemoteUserError>;
@@ -8971,7 +9013,7 @@ export type CustomerPaymentMethodRemoteInput = {
   authorizeNetCustomerPaymentProfile?: InputMaybe<RemoteAuthorizeNetCustomerPaymentProfileInput>;
   /** The input fields for a remote Braintree customer profile. */
   braintreePaymentMethod?: InputMaybe<RemoteBraintreePaymentMethodInput>;
-  /** Input containing the fields for a remote stripe payment method. */
+  /** Input containing the fields for a remote stripe credit card. */
   stripePaymentMethod?: InputMaybe<RemoteStripePaymentMethodInput>;
 };
 
@@ -10477,6 +10519,11 @@ export type DeliveryLocalPickupSettings = {
 
 /** Possible pickup time values that a location enabled for local pickup can have. */
 export enum DeliveryLocalPickupTime {
+  /**
+   * Custom pickup time. Unrecognized pickup time enum value.
+   * @deprecated Custom pickup time is no longer supported.
+   */
+  Custom = 'CUSTOM',
   /** Usually ready in 5+ days. */
   FiveOrMoreDays = 'FIVE_OR_MORE_DAYS',
   /** Usually ready in 4 hours. */
@@ -10605,6 +10652,8 @@ export type DeliveryLocationLocalPickupSettingsError = DisplayableError & {
 export enum DeliveryLocationLocalPickupSettingsErrorCode {
   /** Provided locationId is not for an active location belonging to this store. */
   ActiveLocationNotFound = 'ACTIVE_LOCATION_NOT_FOUND',
+  /** Custom pickup time is not allowed for local pickup settings. */
+  CustomPickupTimeNotAllowed = 'CUSTOM_PICKUP_TIME_NOT_ALLOWED',
   /** An error occurred while changing the local pickup settings. */
   GenericError = 'GENERIC_ERROR'
 }
@@ -11163,10 +11212,14 @@ export type DeliveryZone = Node & {
 
 /** Digital wallet, such as Apple Pay, which can be used for accelerated checkouts. */
 export enum DigitalWallet {
+  /** Amazon Pay. */
+  AmazonPay = 'AMAZON_PAY',
   /** Android Pay. */
   AndroidPay = 'ANDROID_PAY',
   /** Apple Pay. */
   ApplePay = 'APPLE_PAY',
+  /** Facebook Pay. */
+  FacebookPay = 'FACEBOOK_PAY',
   /** Google Pay. */
   GooglePay = 'GOOGLE_PAY',
   /** Shopify Pay. */
@@ -11498,6 +11551,7 @@ export type DiscountAutomaticBasic = {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: MerchandiseDiscountClass;
   /**
@@ -11653,6 +11707,7 @@ export type DiscountAutomaticBxgy = HasEvents & Node & {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: MerchandiseDiscountClass;
   /**
@@ -11874,6 +11929,7 @@ export type DiscountAutomaticFreeShipping = {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: ShippingDiscountClass;
   /**
@@ -12460,6 +12516,7 @@ export type DiscountCodeBasic = {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: MerchandiseDiscountClass;
   /**
@@ -12685,6 +12742,7 @@ export type DiscountCodeBxgy = {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: MerchandiseDiscountClass;
   /**
@@ -12911,6 +12969,7 @@ export type DiscountCodeFreeShipping = {
   /**
    * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
    * that's used to control how discounts can be combined.
+   * @deprecated Use `discountClasses` instead.
    */
   discountClass: ShippingDiscountClass;
   /**
@@ -13436,10 +13495,10 @@ export type DiscountCustomerGetsValueInput = {
   percentage?: InputMaybe<Scalars['Float']['input']>;
 };
 
-/** A list of customer segments that contain the customers that the discount applies to. */
+/** A list of customer segments who are eligible for the discount. */
 export type DiscountCustomerSegments = {
   __typename?: 'DiscountCustomerSegments';
-  /** A list of customer segments that contain the customers who can use the discount. */
+  /** The list of customer segments who are eligible for the discount. */
   segments: Array<Segment>;
 };
 
@@ -13464,10 +13523,10 @@ export type DiscountCustomerSelectionInput = {
   customers?: InputMaybe<DiscountCustomersInput>;
 };
 
-/** A list of customers eligible for the discount. */
+/** A list of individual customers eligible for the discount. */
 export type DiscountCustomers = {
   __typename?: 'DiscountCustomers';
-  /** The list of customers eligible for the discount. */
+  /** The list of individual customers eligible for the discount. */
   customers: Array<Customer>;
 };
 
@@ -13494,12 +13553,16 @@ export type DiscountEffectInput = {
 export enum DiscountErrorCode {
   /** The active period overlaps with other automatic discounts. At any given time, only 25 automatic discounts can be active. */
   ActivePeriodOverlap = 'ACTIVE_PERIOD_OVERLAP',
+  /** A discount cannot have both appliesOnOneTimePurchase and appliesOnSubscription set to false. */
+  AppliesOnNothing = 'APPLIES_ON_NOTHING',
   /** The input value is blank. */
   Blank = 'BLANK',
   /** The attribute selection contains conflicting settings. */
   Conflict = 'CONFLICT',
   /** The input value is already present. */
   Duplicate = 'DUPLICATE',
+  /** The end date should be after the start date. */
+  EndDateBeforeStartDate = 'END_DATE_BEFORE_START_DATE',
   /** The input value should be equal to the value allowed. */
   EqualTo = 'EQUAL_TO',
   /** The value exceeded the maximum allowed value. */
@@ -13530,8 +13593,12 @@ export enum DiscountErrorCode {
   MinimumSubtotalAndQuantityRangeBothPresent = 'MINIMUM_SUBTOTAL_AND_QUANTITY_RANGE_BOTH_PRESENT',
   /** Missing a required argument. */
   MissingArgument = 'MISSING_ARGUMENT',
+  /** Recurring cycle limit must be 1 when discount does not apply to subscription items. */
+  MultipleRecurringCycleLimitForNonSubscriptionItems = 'MULTIPLE_RECURRING_CYCLE_LIMIT_FOR_NON_SUBSCRIPTION_ITEMS',
   /** The input value needs to be blank. */
   Present = 'PRESENT',
+  /** Recurring cycle limit must be a valid integer greater than or equal to 0. */
+  RecurringCycleLimitNotAValidInteger = 'RECURRING_CYCLE_LIMIT_NOT_A_VALID_INTEGER',
   /** The input value is already taken. */
   Taken = 'TAKEN',
   /** The input value is too long. */
@@ -14124,6 +14191,8 @@ export enum DisputeEvidenceUpdateUserErrorCode {
   EvidencePastDueDate = 'EVIDENCE_PAST_DUE_DATE',
   /** Combined files size is too large. */
   FilesSizeExceededLimit = 'FILES_SIZE_EXCEEDED_LIMIT',
+  /** File upload failed. Please try again. */
+  FileNotFound = 'FILE_NOT_FOUND',
   /** The input value is invalid. */
   Invalid = 'INVALID',
   /** Individual file size is too large. */
@@ -14194,6 +14263,8 @@ export type DomainLocalization = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrder = CommentEventSubject & HasEvents & HasLocalizationExtensions & HasMetafields & LegacyInteroperability & Navigable & Node & {
   __typename?: 'DraftOrder';
@@ -14380,6 +14451,8 @@ export type DraftOrder = CommentEventSubject & HasEvents & HasLocalizationExtens
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderEventsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -14406,6 +14479,8 @@ export type DraftOrderEventsArgs = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderLineItemsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -14430,6 +14505,8 @@ export type DraftOrderLineItemsArgs = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderLocalizationExtensionsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -14456,6 +14533,8 @@ export type DraftOrderLocalizationExtensionsArgs = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderMetafieldArgs = {
   key: Scalars['String']['input'];
@@ -14477,6 +14556,8 @@ export type DraftOrderMetafieldArgs = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderMetafieldsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -14503,6 +14584,8 @@ export type DraftOrderMetafieldsArgs = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderPrivateMetafieldArgs = {
   key: Scalars['String']['input'];
@@ -14524,6 +14607,8 @@ export type DraftOrderPrivateMetafieldArgs = {
  * For draft orders in multiple currencies `presentment_money` is the source of truth for what a customer is going to be charged and `shop_money` is an estimate of what the merchant might receive in their shop currency.
  *
  * **Caution:** Only use this data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/api/usage/access-scopes) for apps that don't have a legitimate use for the associated data.
+ *
+ * Draft orders created on or after April 1, 2025 will be automatically purged after one year of inactivity.
  */
 export type DraftOrderPrivateMetafieldsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
@@ -15099,17 +15184,27 @@ export type ErrorsWebPixelUserError = DisplayableError & {
 export enum ErrorsWebPixelUserErrorCode {
   /** The input value is blank. */
   Blank = 'BLANK',
+  /** The provided settings is not a valid JSON. */
+  InvalidConfigurationJson = 'INVALID_CONFIGURATION_JSON',
+  /** The provided runtime context is invalid. */
+  InvalidRuntimeContext = 'INVALID_RUNTIME_CONTEXT',
   /** The provided settings does not match the expected settings definition on the app. */
   InvalidSettings = 'INVALID_SETTINGS',
+  /** The settings definition of the web pixel extension is in an invalid state on the app. */
+  InvalidSettingsDefinition = 'INVALID_SETTINGS_DEFINITION',
   /** The record with the ID used as the input value couldn't be found. */
   NotFound = 'NOT_FOUND',
+  /** No extension found. */
+  NoExtension = 'NO_EXTENSION',
   /** The input value is already taken. */
   Taken = 'TAKEN',
   /**
    * An error occurred and the web pixel couldnt be deleted.
    * @deprecated `UNABLE_TO_DELETE` is deprecated. Use `UNEXPECTED_ERROR` instead.
    */
-  UnableToDelete = 'UNABLE_TO_DELETE'
+  UnableToDelete = 'UNABLE_TO_DELETE',
+  /** An unexpected error occurred. */
+  UnexpectedError = 'UNEXPECTED_ERROR'
 }
 
 /**
@@ -15733,14 +15828,22 @@ export enum FilesErrorCode {
   NonReadyState = 'NON_READY_STATE',
   /** Exceeded the limit of media per product. */
   ProductMediaLimitExceeded = 'PRODUCT_MEDIA_LIMIT_EXCEEDED',
+  /** One or more associated products are suspended. */
+  ProductSuspended = 'PRODUCT_SUSPENDED',
+  /** The target resource does not exist. */
+  ReferenceTargetDoesNotExist = 'REFERENCE_TARGET_DOES_NOT_EXIST',
   /** Specify one argument: search, IDs, or deleteAll. */
   TooManyArguments = 'TOO_MANY_ARGUMENTS',
+  /** Cannot add more than 10000 references to a file. */
+  TooManyFileReference = 'TOO_MANY_FILE_REFERENCE',
   /** The file type is not supported. */
   UnacceptableAsset = 'UNACCEPTABLE_ASSET',
   /** The file is not supported on trial accounts. Select a plan to upload this file. */
   UnacceptableTrialAsset = 'UNACCEPTABLE_TRIAL_ASSET',
   /** The file is not supported on trial accounts that have not validated their email. Either select a plan or verify the shop owner email to upload this file. */
   UnacceptableUnverifiedTrialAsset = 'UNACCEPTABLE_UNVERIFIED_TRIAL_ASSET',
+  /** The file type is not supported for referencing. */
+  UnsupportedFileReference = 'UNSUPPORTED_FILE_REFERENCE',
   /** Filename update is only supported on Image and GenericFile. */
   UnsupportedMediaTypeForFilenameUpdate = 'UNSUPPORTED_MEDIA_TYPE_FOR_FILENAME_UPDATE'
 }
@@ -16047,7 +16150,9 @@ export enum FulfillmentConstraintRuleCreateUserErrorCode {
   /** Function is pending deletion and cannot have new rules created against it. */
   FunctionPendingDeletion = 'FUNCTION_PENDING_DELETION',
   /** Failed to create fulfillment constraint rule due to invalid input. */
-  InputInvalid = 'INPUT_INVALID'
+  InputInvalid = 'INPUT_INVALID',
+  /** Maximum number of fulfillment constraint rules reached. Limit is 10. */
+  MaximumFulfillmentConstraintRulesReached = 'MAXIMUM_FULFILLMENT_CONSTRAINT_RULES_REACHED'
 }
 
 /** Return type for `fulfillmentConstraintRuleDelete` mutation. */
@@ -17672,8 +17777,16 @@ export type FulfillmentOrderHoldUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `FulfillmentOrderHoldUserError`. */
 export enum FulfillmentOrderHoldUserErrorCode {
+  /** The fulfillment order line items are not unique. */
+  DuplicatedFulfillmentOrderLineItems = 'DUPLICATED_FULFILLMENT_ORDER_LINE_ITEMS',
+  /** The handle provided for the fulfillment hold is already in use by this app for another hold on this fulfillment order. */
+  DuplicateFulfillmentHoldHandle = 'DUPLICATE_FULFILLMENT_HOLD_HANDLE',
+  /** The maximum number of fulfillment holds for this fulfillment order has been reached for this app. An app can only have up to 10 holds on a single fulfillment order at any one time. */
+  FulfillmentOrderHoldLimitReached = 'FULFILLMENT_ORDER_HOLD_LIMIT_REACHED',
   /** The fulfillment order could not be found. */
   FulfillmentOrderNotFound = 'FULFILLMENT_ORDER_NOT_FOUND',
+  /** The fulfillment order is not in a splittable state. */
+  FulfillmentOrderNotSplittable = 'FULFILLMENT_ORDER_NOT_SPLITTABLE',
   /** The fulfillment order line item quantity must be greater than 0. */
   GreaterThanZero = 'GREATER_THAN_ZERO',
   /** The fulfillment order line item quantity is invalid. */
@@ -18386,20 +18499,20 @@ export type FulfillmentOriginAddressInput = {
  *
  *   For more information, refer to
  *   [Receive fulfillment requests and cancellations](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#step-2-receive-fulfillment-requests-and-cancellations).
- * - Shopify sends GET requests to the `<callbackUrl>/fetch_tracking_numbers` endpoint to retrieve tracking numbers for orders,
+ * - Shopify sends GET requests to the `<callbackUrl>/fetch_tracking_numbers` endpoint to retrieve tracking numbers for orders
  *   if `trackingSupport` is set to `true`.
  *
  *   For more information, refer to
  *   [Enable tracking support](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#step-8-enable-tracking-support-optional).
  *
- *   Fulfillment services can also update tracking information with the
- *   [fulfillmentTrackingInfoUpdate](https://shopify.dev/api/admin-graphql/unstable/mutations/fulfillmentTrackingInfoUpdate) mutation,
+ *   Fulfillment services can also update tracking information using the
+ *   [fulfillmentTrackingInfoUpdate](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentTrackingInfoUpdate) mutation,
  *   rather than waiting for Shopify to ask for tracking numbers.
- * - Shopify sends GET requests to the `<callbackUrl>/fetch_stock` endpoint to retrieve inventory levels,
- *   if `inventoryManagement` is set to `true`.
+ * - Shopify sends GET requests to the `<callbackUrl>/fetch_stock` endpoint to retrieve
+ *   on hand inventory levels for the fulfillment service location if `inventoryManagement` is set to `true`.
  *
  *   For more information, refer to
- *   [Sharing inventory levels with Shopify](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#step-9-share-inventory-levels-with-shopify-optional).
+ *   [Sharing inventory levels with Shopify](https://shopify.dev/apps/build/orders-fulfillment/fulfillment-service-apps/build-for-fulfillment-services#step-10-optional-share-inventory-levels-with-shopify).
  *
  * To make sure you have everything set up correctly, you can test the `callbackUrl`-prefixed endpoints
  * in your development store.
@@ -18428,9 +18541,7 @@ export type FulfillmentService = {
    * - Shopify queries the `<callbackUrl>/fetch_stock` endpoint to retrieve inventory levels,
    *     if `inventoryManagement` is set to `true`.
    * - Shopify uses the `<callbackUrl>/fulfillment_order_notification` endpoint to send
-   *     [fulfillment and cancellation requests](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#step-2-receive-fulfillment-requests-and-cancellations),
-   *     if the fulfillment service has opted in to the fulfillment order based workflow for managing fulfillments
-   *     (`fulfillmentOrdersOptIn` is set to `true`).
+   *     [fulfillment and cancellation requests](https://shopify.dev/apps/build/orders-fulfillment/fulfillment-service-apps/build-for-fulfillment-services#step-9-optional-enable-tracking-support).
    */
   callbackUrl?: Maybe<Scalars['URL']['output']>;
   /**
@@ -19693,7 +19804,7 @@ export type InventoryItem = LegacyInteroperability & Node & {
   createdAt: Scalars['DateTime']['output'];
   /** The number of inventory items that share the same SKU with this item. */
   duplicateSkuCount: Scalars['Int']['output'];
-  /** The harmonized system code of the item. */
+  /** The harmonized system code of the item. This must be a number between 6 and 13 digits. */
   harmonizedSystemCode?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
@@ -19790,7 +19901,7 @@ export type InventoryItemEdge = {
 export type InventoryItemInput = {
   /** Unit cost associated with the inventory item, the currency is the shop's default currency. */
   cost?: InputMaybe<Scalars['Decimal']['input']>;
-  /** The harmonized system code of the inventory item. */
+  /** The harmonized system code of the inventory item. This must be a number between 6 and 13 digits. */
   harmonizedSystemCode?: InputMaybe<Scalars['String']['input']>;
   /** The measurements of an inventory item. */
   measurement?: InputMaybe<InventoryItemMeasurementInput>;
@@ -20272,6 +20383,8 @@ export enum InventorySetScheduledChangesUserErrorCode {
   InventoryStateNotFound = 'INVENTORY_STATE_NOT_FOUND',
   /** At least 1 item must be provided. */
   ItemsEmpty = 'ITEMS_EMPTY',
+  /** The ledger document URI is invalid. */
+  LedgerDocumentInvalid = 'LEDGER_DOCUMENT_INVALID',
   /** The location couldn't be found. */
   LocationNotFound = 'LOCATION_NOT_FOUND',
   /** The from_name and to_name can't be the same. */
@@ -22535,6 +22648,8 @@ export type MarketUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MarketUserError`. */
 export enum MarketUserErrorCode {
+  /** B2B markets must be merchant managed. */
+  B2BMarketMustBeMerchantManaged = 'B2B_MARKET_MUST_BE_MERCHANT_MANAGED',
   /** The input value is blank. */
   Blank = 'BLANK',
   /** Can't add customer account domain to a market. */
@@ -22559,20 +22674,72 @@ export enum MarketUserErrorCode {
   CannotHaveSubfolderAndDomain = 'CANNOT_HAVE_SUBFOLDER_AND_DOMAIN',
   /** Can't set default locale to null. */
   CannotSetDefaultLocaleToNull = 'CANNOT_SET_DEFAULT_LOCALE_TO_NULL',
+  /** Catalogs with volume pricing or quantity rules are not supported for the specified condition types. */
+  CatalogsWithVolumePricingOrQuantityRulesNotSupported = 'CATALOGS_WITH_VOLUME_PRICING_OR_QUANTITY_RULES_NOT_SUPPORTED',
+  /** Catalog condition types must be the same for all conditions on a catalog. */
+  CatalogConditionTypesMustBeTheSame = 'CATALOG_CONDITION_TYPES_MUST_BE_THE_SAME',
+  /** Catalogs and condition types are not compatible with each other. */
+  CatalogNotCompatibleWithConditionTypes = 'CATALOG_NOT_COMPATIBLE_WITH_CONDITION_TYPES',
+  /** A market can only have market catalogs. */
+  CatalogTypeNotSupported = 'CATALOG_TYPE_NOT_SUPPORTED',
+  /** One or more condition IDs were not found. */
+  ConditionsNotFound = 'CONDITIONS_NOT_FOUND',
+  /** Contains regions that cannot be managed. */
+  ContainsRegionsThatCannotBeManaged = 'CONTAINS_REGIONS_THAT_CANNOT_BE_MANAGED',
+  /** One or more customizations were not found. */
+  CustomizationsNotFound = 'CUSTOMIZATIONS_NOT_FOUND',
   /** The language isn't enabled on the store. */
   DisabledLanguage = 'DISABLED_LANGUAGE',
   /** Domain was not found. */
   DomainNotFound = 'DOMAIN_NOT_FOUND',
   /** Duplicates found in languages. */
   DuplicateLanguages = 'DUPLICATE_LANGUAGES',
+  /** Duplicate region market. */
+  DuplicateRegionMarket = 'DUPLICATE_REGION_MARKET',
+  /** Duplicate unique market. */
+  DuplicateUniqueMarket = 'DUPLICATE_UNIQUE_MARKET',
+  /** Exceeds max multi-context markets. */
+  ExceedsMaxMultiContextMarkets = 'EXCEEDS_MAX_MULTI_CONTEXT_MARKETS',
+  /** An error occurred. See the message for details. */
+  GenericError = 'GENERIC_ERROR',
+  /** The input value isn't included in the list. */
+  Inclusion = 'INCLUSION',
+  /** Inclusive pricing cannot be added to a market with the specified condition types. */
+  InclusivePricingNotCompatibleWithConditionTypes = 'INCLUSIVE_PRICING_NOT_COMPATIBLE_WITH_CONDITION_TYPES',
+  /** The specified conditions are not compatible with each other. */
+  IncompatibleConditions = 'INCOMPATIBLE_CONDITIONS',
   /** The input value is invalid. */
   Invalid = 'INVALID',
+  /** Invalid combination of status and enabled. */
+  InvalidStatusAndEnabledCombination = 'INVALID_STATUS_AND_ENABLED_COMBINATION',
+  /** Location match all is only valid with one non-match all region. */
+  LocationMatchAllRequiresOneSpecificRegion = 'LOCATION_MATCH_ALL_REQUIRES_ONE_SPECIFIC_REGION',
+  /** A location's country does not match the region's country. */
+  LocationRegionCountryMismatch = 'LOCATION_REGION_COUNTRY_MISMATCH',
+  /** The currency settings of the given market cannot be changed because the market manager has exclusive control of pricing. */
+  ManagedMarket = 'MANAGED_MARKET',
+  /** Catalogs created by Managed Markets cannot be added to a market. */
+  ManagedMarketsCatalogNotAllowed = 'MANAGED_MARKETS_CATALOG_NOT_ALLOWED',
+  /** A direct connection catalog can't be attached to a market. */
+  MarketCantHaveDirectConnectionCatalog = 'MARKET_CANT_HAVE_DIRECT_CONNECTION_CATALOG',
   /** The market wasn't found. */
   MarketNotFound = 'MARKET_NOT_FOUND',
   /** Can't add another web presence to the market. */
   MarketReachedWebPresenceLimit = 'MARKET_REACHED_WEB_PRESENCE_LIMIT',
+  /** All retail locations in a market must be in the same country. */
+  MixedCountryLocationsNotAllowed = 'MIXED_COUNTRY_LOCATIONS_NOT_ALLOWED',
+  /** The shop's payment gateway does not support enabling more than one currency. */
+  MultipleCurrenciesNotSupported = 'MULTIPLE_CURRENCIES_NOT_SUPPORTED',
+  /** Can’t delete, disable, or change the type of the last region market. */
+  MustHaveAtLeastOneActiveRegionMarket = 'MUST_HAVE_AT_LEAST_ONE_ACTIVE_REGION_MARKET',
   /** No languages selected. */
   NoLanguages = 'NO_LANGUAGES',
+  /** Can't enable or disable local currencies on a single country market. */
+  NoLocalCurrenciesOnSingleCountryMarket = 'NO_LOCAL_CURRENCIES_ON_SINGLE_COUNTRY_MARKET',
+  /** Rounding is not supported if unified markets are not enabled. */
+  NoRoundingOnLegacyMarket = 'NO_ROUNDING_ON_LEGACY_MARKET',
+  /** POS location markets must be merchant managed. */
+  PosLocationMarketMustBeMerchantManaged = 'POS_LOCATION_MARKET_MUST_BE_MERCHANT_MANAGED',
   /** The primary market must use the primary domain. */
   PrimaryMarketMustUsePrimaryDomain = 'PRIMARY_MARKET_MUST_USE_PRIMARY_DOMAIN',
   /** The market region wasn't found. */
@@ -22583,8 +22750,16 @@ export enum MarketUserErrorCode {
   RequiresDomainOrSubfolder = 'REQUIRES_DOMAIN_OR_SUBFOLDER',
   /** Exactly one input option is required. */
   RequiresExactlyOneOption = 'REQUIRES_EXACTLY_ONE_OPTION',
+  /** Retail location currency must be local. */
+  RetailLocationCurrencyMustBeLocal = 'RETAIL_LOCATION_CURRENCY_MUST_BE_LOCAL',
+  /** The shop must have a web presence that uses the primary domain. */
+  ShopMustHavePrimaryDomainWebPresence = 'SHOP_MUST_HAVE_PRIMARY_DOMAIN_WEB_PRESENCE',
   /** Can't have more than 50 markets. */
   ShopReachedMarketsLimit = 'SHOP_REACHED_MARKETS_LIMIT',
+  /** Specified conditions cannot be empty. */
+  SpecifiedConditionsCannotBeEmpty = 'SPECIFIED_CONDITIONS_CANNOT_BE_EMPTY',
+  /** With an ID list in input, SPECIFIED is not needed. */
+  SpecifiedNotValidForInput = 'SPECIFIED_NOT_VALID_FOR_INPUT',
   /** The subfolder suffix is invalid, please provide a different value. */
   SubfolderSuffixCannotBeScriptCode = 'SUBFOLDER_SUFFIX_CANNOT_BE_SCRIPT_CODE',
   /** The subfolder suffix must contain only letters. */
@@ -22595,12 +22770,24 @@ export enum MarketUserErrorCode {
   TooLong = 'TOO_LONG',
   /** The input value is too short. */
   TooShort = 'TOO_SHORT',
+  /** Unified markets are not enabled. */
+  UnifiedMarketsNotEnabled = 'UNIFIED_MARKETS_NOT_ENABLED',
   /** The language isn't published to the store. */
   UnpublishedLanguage = 'UNPUBLISHED_LANGUAGE',
   /** Can't add unsupported country or region. */
   UnsupportedCountryRegion = 'UNSUPPORTED_COUNTRY_REGION',
+  /** The specified currency is not supported. */
+  UnsupportedCurrency = 'UNSUPPORTED_CURRENCY',
+  /** The user doesn't have permission access to create or edit markets. */
+  UserLacksPermission = 'USER_LACKS_PERMISSION',
+  /** Web presences and condition types are not compatible with each other. */
+  WebPresenceNotCompatibleWithConditionTypes = 'WEB_PRESENCE_NOT_COMPATIBLE_WITH_CONDITION_TYPES',
   /** The market web presence wasn't found. */
-  WebPresenceNotFound = 'WEB_PRESENCE_NOT_FOUND'
+  WebPresenceNotFound = 'WEB_PRESENCE_NOT_FOUND',
+  /** Can't add web presence to the another market. */
+  WebPresenceReachedMarketsLimit = 'WEB_PRESENCE_REACHED_MARKETS_LIMIT',
+  /** Matching ALL or NONE isn't supported for this driver type. */
+  WildcardNotSupported = 'WILDCARD_NOT_SUPPORTED'
 }
 
 /**
@@ -22866,7 +23053,7 @@ export type MarketingActivityCreateExternalInput = {
   parentRemoteId?: InputMaybe<Scalars['String']['input']>;
   /** The domain from which ad clicks are forwarded to the shop. */
   referringDomain?: InputMaybe<Scalars['String']['input']>;
-  /** The ID of an activity that's hosted outside of Shopify. */
+  /** A custom unique identifier for the marketing activity, which can be used to manage the activity and send engagement metrics without having to store our marketing activity ID in your systems. */
   remoteId?: InputMaybe<Scalars['String']['input']>;
   /** The URL for a preview image that's used for the marketing activity. */
   remotePreviewImageUrl?: InputMaybe<Scalars['URL']['input']>;
@@ -23045,6 +23232,8 @@ export enum MarketingActivityStatus {
 export enum MarketingActivityStatusBadgeType {
   /** This status badge has type attention. */
   Attention = 'ATTENTION',
+  /** This status badge has type critical. */
+  Critical = 'CRITICAL',
   /** This status badge has type default. */
   Default = 'DEFAULT',
   /** This status badge has type info. */
@@ -23166,7 +23355,7 @@ export type MarketingActivityUpsertExternalInput = {
   parentRemoteId?: InputMaybe<Scalars['String']['input']>;
   /** The domain from which ad clicks are forwarded to the shop. */
   referringDomain?: InputMaybe<Scalars['String']['input']>;
-  /** The ID of an activity that's hosted outside of Shopify. */
+  /** A custom unique identifier for the marketing activity, which can be used to manage the activity and send engagement metrics without having to store our marketing activity ID in your systems. */
   remoteId: Scalars['String']['input'];
   /** The URL for a preview image that's used for the marketing activity. */
   remotePreviewImageUrl?: InputMaybe<Scalars['URL']['input']>;
@@ -23256,6 +23445,12 @@ export enum MarketingActivityUserErrorCode {
   MarketingActivityCurrencyCodeMismatch = 'MARKETING_ACTIVITY_CURRENCY_CODE_MISMATCH',
   /** Marketing activity does not exist. */
   MarketingActivityDoesNotExist = 'MARKETING_ACTIVITY_DOES_NOT_EXIST',
+  /** A marketing activity with the same remote ID already exists. */
+  MarketingActivityWithRemoteIdAlreadyExists = 'MARKETING_ACTIVITY_WITH_REMOTE_ID_ALREADY_EXISTS',
+  /** A marketing activity with the same URL parameter value already exists. */
+  MarketingActivityWithUrlParameterValueAlreadyExists = 'MARKETING_ACTIVITY_WITH_URL_PARAMETER_VALUE_ALREADY_EXISTS',
+  /** A marketing activity with the same UTM campaign, medium, and source already exists. */
+  MarketingActivityWithUtmCampaignAlreadyExists = 'MARKETING_ACTIVITY_WITH_UTM_CAMPAIGN_ALREADY_EXISTS',
   /** Marketing activity is not valid, the associated marketing event does not exist. */
   MarketingEventDoesNotExist = 'MARKETING_EVENT_DOES_NOT_EXIST',
   /** Non-hierarchical marketing activities must have UTM parameters or a URL parameter value. */
@@ -23695,11 +23890,13 @@ export type MediaImage = File & HasMetafields & Media & Node & {
    * A [custom field](https://shopify.dev/docs/apps/build/custom-data),
    * including its `namespace` and `key`, that's associated with a Shopify resource
    * for the purposes of adding and storing additional information.
+   * @deprecated No longer supported. Use metaobjects instead.
    */
   metafield?: Maybe<Metafield>;
   /**
    * A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
    * that a merchant associates with a Shopify resource.
+   * @deprecated No longer supported. Use metaobjects instead.
    */
   metafields: MetafieldConnection;
   /** The MIME type of the image. */
@@ -23882,6 +24079,8 @@ export type MediaWarning = {
 export enum MediaWarningCode {
   /** 3D model physical size might be invalid. The dimensions of your model are very large. Consider reviewing your model to ensure they are correct. */
   ModelLargePhysicalSize = 'MODEL_LARGE_PHYSICAL_SIZE',
+  /** The thumbnail failed to regenerate.Try applying the changes again to regenerate the thumbnail. */
+  ModelPreviewImageFail = 'MODEL_PREVIEW_IMAGE_FAIL',
   /** 3D model physical size might be invalid. The dimensions of your model are very small. Consider reviewing your model to ensure they are correct. */
   ModelSmallPhysicalSize = 'MODEL_SMALL_PHYSICAL_SIZE'
 }
@@ -23928,7 +24127,11 @@ export type Metafield = LegacyInteroperability & Node & {
   createdAt: Scalars['DateTime']['output'];
   /** The metafield definition that the metafield belongs to, if any. */
   definition?: Maybe<MetafieldDefinition>;
-  /** The description of the metafield. */
+  /**
+   * The description of the metafield.
+   * @deprecated This field will be removed in a future release. Use the `description` on the metafield definition instead.
+   *
+   */
   description?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
@@ -23971,10 +24174,10 @@ export type MetafieldReferencesArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
 };
 
-/** The access settings for this metafield definition. */
+/** Access permissions for the definition's metafields. */
 export type MetafieldAccess = {
   __typename?: 'MetafieldAccess';
-  /** The default admin access setting used for the metafields under this definition. */
+  /** The access permitted on the Admin API. */
   admin?: Maybe<MetafieldAdminAccess>;
   /**
    * The explicit grants for this metafield definition, superseding the default admin access
@@ -23983,7 +24186,7 @@ export type MetafieldAccess = {
    *
    */
   grants: Array<MetafieldAccessGrant>;
-  /** The storefront access setting used for the metafields under this definition. */
+  /** The access permitted on the Storefront API. */
   storefront?: Maybe<MetafieldStorefrontAccess>;
 };
 
@@ -24040,11 +24243,11 @@ export type MetafieldAccessGrantOperationInput = {
   update?: InputMaybe<MetafieldAccessGrantInput>;
 };
 
-/** The input fields for the access settings for the metafields under the definition. */
+/** The input fields that set access permissions for the definition's metafields. */
 export type MetafieldAccessInput = {
-  /** The admin access setting to use for the metafields under this definition. */
+  /** The access permitted on the Admin API. */
   admin: MetafieldAdminAccess;
-  /** The storefront access setting to use for the metafields under this definition. */
+  /** The access permitted on the Storefront API. */
   storefront?: InputMaybe<MetafieldStorefrontAccess>;
 };
 
@@ -24056,15 +24259,15 @@ export type MetafieldAccessUpdateInput = {
   storefront?: InputMaybe<MetafieldStorefrontAccess>;
 };
 
-/** Possible admin access settings for metafields. */
+/** Metafield access permissions for the Admin API. */
 export enum MetafieldAdminAccess {
-  /** Owner gets full access. The merchant has read-only access. No one else has access rights. */
+  /** The merchant has read-only access. No other apps have access. */
   MerchantRead = 'MERCHANT_READ',
-  /** Owner gets full access. The merchant has read and write access. No one else has access rights. */
+  /** The merchant has read and write access. No other apps have access. */
   MerchantReadWrite = 'MERCHANT_READ_WRITE',
-  /** Owner gets full access. No one else has access rights. */
+  /** The merchant and other apps have no access. */
   Private = 'PRIVATE',
-  /** Owner gets full access. All applications and the merchant have read-only access. */
+  /** The merchant and other apps have read-only access. */
   PublicRead = 'PUBLIC_READ'
 }
 
@@ -24186,6 +24389,8 @@ export type MetafieldDefinitionCreateUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MetafieldDefinitionCreateUserError`. */
 export enum MetafieldDefinitionCreateUserErrorCode {
+  /** The input value is blank. */
+  Blank = 'BLANK',
   /** A duplicate option. */
   DuplicateOption = 'DUPLICATE_OPTION',
   /** The maximum limit of grants per definition type has been exceeded. */
@@ -24246,8 +24451,12 @@ export type MetafieldDefinitionDeleteUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MetafieldDefinitionDeleteUserError`. */
 export enum MetafieldDefinitionDeleteUserErrorCode {
+  /** Definition is managed by app configuration and cannot be modified through the API. */
+  AppConfigManaged = 'APP_CONFIG_MANAGED',
   /** Owner type can't be used in this mutation. */
   DisallowedOwnerType = 'DISALLOWED_OWNER_TYPE',
+  /** Deleting an id type metafield definition requires deletion of its associated metafields. */
+  IdTypeDeletionError = 'ID_TYPE_DELETION_ERROR',
   /** An internal error occurred. */
   InternalError = 'INTERNAL_ERROR',
   /** Action cannot proceed. Definition is currently in use. */
@@ -24257,7 +24466,9 @@ export enum MetafieldDefinitionDeleteUserErrorCode {
   /** The input value needs to be blank. */
   Present = 'PRESENT',
   /** Deleting a reference type metafield definition requires deletion of its associated metafields. */
-  ReferenceTypeDeletionError = 'REFERENCE_TYPE_DELETION_ERROR'
+  ReferenceTypeDeletionError = 'REFERENCE_TYPE_DELETION_ERROR',
+  /** Deleting a definition in a reserved namespace requires deletion of its associated metafields. */
+  ReservedNamespaceOrphanedMetafields = 'RESERVED_NAMESPACE_ORPHANED_METAFIELDS'
 }
 
 /** An auto-generated type which holds one MetafieldDefinition and a cursor during pagination. */
@@ -24427,6 +24638,8 @@ export type MetafieldDefinitionUnpinUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MetafieldDefinitionUnpinUserError`. */
 export enum MetafieldDefinitionUnpinUserErrorCode {
+  /** Definition is managed by app configuration and cannot be modified through the API. */
+  AppConfigManaged = 'APP_CONFIG_MANAGED',
   /** Owner type can't be used in this mutation. */
   DisallowedOwnerType = 'DISALLOWED_OWNER_TYPE',
   /** An internal error occurred. */
@@ -24495,14 +24708,34 @@ export type MetafieldDefinitionUpdateUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MetafieldDefinitionUpdateUserError`. */
 export enum MetafieldDefinitionUpdateUserErrorCode {
+  /** Admin access can only be specified for app-owned metafield definitions. */
+  AdminAccessInputNotAllowed = 'ADMIN_ACCESS_INPUT_NOT_ALLOWED',
+  /** Definition is managed by app configuration and cannot be modified through the API. */
+  AppConfigManaged = 'APP_CONFIG_MANAGED',
+  /** The input value is blank. */
+  Blank = 'BLANK',
+  /** The metafield definition capability cannot be disabled. */
+  CapabilityCannotBeDisabled = 'CAPABILITY_CANNOT_BE_DISABLED',
+  /** A capability is required for the definition type but is disabled. */
+  CapabilityRequiredButDisabled = 'CAPABILITY_REQUIRED_BUT_DISABLED',
+  /** Owner type can't be used in this mutation. */
+  DisallowedOwnerType = 'DISALLOWED_OWNER_TYPE',
+  /** A duplicate option. */
+  DuplicateOption = 'DUPLICATE_OPTION',
   /** The maximum limit of grants per definition type has been exceeded. */
   GrantLimitExceeded = 'GRANT_LIMIT_EXCEEDED',
   /** An internal error occurred. */
   InternalError = 'INTERNAL_ERROR',
+  /** The metafield definition capability is invalid. */
+  InvalidCapability = 'INVALID_CAPABILITY',
+  /** The metafield definition constraints are invalid. */
+  InvalidConstraints = 'INVALID_CONSTRAINTS',
   /** An invalid input. */
   InvalidInput = 'INVALID_INPUT',
   /** The input combination is invalid. */
   InvalidInputCombination = 'INVALID_INPUT_COMBINATION',
+  /** An invalid option. */
+  InvalidOption = 'INVALID_OPTION',
   /** Action cannot proceed. Definition is currently in use. */
   MetafieldDefinitionInUse = 'METAFIELD_DEFINITION_IN_USE',
   /** You cannot change the metaobject definition pointed to by a metaobject reference metafield definition. */
@@ -24518,7 +24751,9 @@ export enum MetafieldDefinitionUpdateUserErrorCode {
   /** The input value is too long. */
   TooLong = 'TOO_LONG',
   /** The definition type is not eligible to be used as collection condition. */
-  TypeNotAllowedForConditions = 'TYPE_NOT_ALLOWED_FOR_CONDITIONS'
+  TypeNotAllowedForConditions = 'TYPE_NOT_ALLOWED_FOR_CONDITIONS',
+  /** The metafield definition does not support pinning. */
+  UnsupportedPinning = 'UNSUPPORTED_PINNING'
 }
 
 /**
@@ -24754,7 +24989,10 @@ export type MetafieldRelation = {
   namespace: Scalars['String']['output'];
   /** The resource making the reference. */
   referencer: MetafieldReferencer;
-  /** The referenced resource. */
+  /**
+   * The referenced resource.
+   * @deprecated No longer supported. Access the object directly instead.
+   */
   target: MetafieldReference;
 };
 
@@ -24778,11 +25016,11 @@ export type MetafieldRelationEdge = {
   node: MetafieldRelation;
 };
 
-/** Defines how the metafields of a definition can be accessed in Storefront API surface areas, including Liquid and the GraphQL Storefront API. */
+/** Metafield access permissions for the Storefront API. */
 export enum MetafieldStorefrontAccess {
-  /** Metafields are not accessible in any Storefront API surface area. */
+  /** No access. */
   None = 'NONE',
-  /** Metafields are accessible in the GraphQL Storefront API and online store Liquid templates. */
+  /** Read-only access. */
   PublicRead = 'PUBLIC_READ'
 }
 
@@ -25029,43 +25267,37 @@ export type MetaobjectReferencedByArgs = {
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-/** Provides metaobject definition's access configuration. */
+/** Access permissions for the definition's metaobjects. */
 export type MetaobjectAccess = {
   __typename?: 'MetaobjectAccess';
-  /** Access configuration for Admin API surface areas, including the GraphQL Admin API. */
+  /** The access permitted on the Admin API. */
   admin: MetaobjectAdminAccess;
-  /** Access configuration for Storefront surface areas, including the GraphQL Storefront API and Liquid. */
+  /** The access permitted on the Storefront API. */
   storefront: MetaobjectStorefrontAccess;
 };
 
-/** The input fields for configuring metaobject access controls. */
+/** The input fields that set access permissions for the definition's metaobjects. */
 export type MetaobjectAccessInput = {
-  /** Access configuration for Admin API surface areas, including the GraphQL Admin API. */
+  /** The access permitted on the Admin API. */
   admin?: InputMaybe<MetaobjectAdminAccess>;
-  /** Access configuration for Storefront API surface areas, including the GraphQL Storefront API and Liquid. */
+  /** The access permitted on the Storefront API. */
   storefront?: InputMaybe<MetaobjectStorefrontAccess>;
 };
 
-/** Defines how the metaobjects of a definition can be accessed in admin API surface areas. */
+/**
+ * Metaobject access permissions for the Admin API. When the metaobject is app-owned, the owning app always has
+ * full access.
+ */
 export enum MetaobjectAdminAccess {
-  /**
-   * Applications that act on behalf of merchants can read metaobjects.
-   * Only the owning application can write metaobjects.
-   */
+  /** The merchant has read-only access. No other apps have access. */
   MerchantRead = 'MERCHANT_READ',
-  /**
-   * The owning application, as well as applications that act on behalf of merchants can read and write metaobjects.
-   * No other applications can read or write metaobjects.
-   */
+  /** The merchant has read and write access. No other apps have access. */
   MerchantReadWrite = 'MERCHANT_READ_WRITE',
-  /** Only the application that owns a metaobject can read and write to it. */
+  /** The merchant and other apps have no access. */
   Private = 'PRIVATE',
-  /**
-   * All applications with the `metaobjects` access scope can read metaobjects.
-   * Only the owning application can write metaobjects.
-   */
+  /** The merchant and other apps have read-only access. */
   PublicRead = 'PUBLIC_READ',
-  /** All applications with the `metaobjects` access scope can read and write metaobjects. */
+  /** The merchant and other apps have read and write access. */
   PublicReadWrite = 'PUBLIC_READ_WRITE'
 }
 
@@ -25570,14 +25802,11 @@ export enum MetaobjectStatus {
   Draft = 'DRAFT'
 }
 
-/** Defines how the metaobjects of a definition can be accessed in Storefront API surface areas, including Liquid and the GraphQL Storefront API. */
+/** Metaobject access permissions for the Storefront API. */
 export enum MetaobjectStorefrontAccess {
-  /** Metaobjects are not accessible in any Storefront API surface area. */
+  /** No access. */
   None = 'NONE',
-  /**
-   * Metaobjects are accessible in the GraphQL Storefront API by any application with the `unauthenticated_read_metaobjects` access scope.
-   * Metaobjects are accessible in online store Liquid templates.
-   */
+  /** Read-only access. */
   PublicRead = 'PUBLIC_READ'
 }
 
@@ -25647,10 +25876,16 @@ export type MetaobjectUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MetaobjectUserError`. */
 export enum MetaobjectUserErrorCode {
+  /** Admin access can only be specified on metaobject definitions that have an app-reserved type. */
+  AdminAccessInputNotAllowed = 'ADMIN_ACCESS_INPUT_NOT_ALLOWED',
+  /** Definition is managed by app configuration and cannot be modified through the API. */
+  AppConfigManaged = 'APP_CONFIG_MANAGED',
   /** The input value is blank. */
   Blank = 'BLANK',
   /** The capability you are using is not enabled. */
   CapabilityNotEnabled = 'CAPABILITY_NOT_ENABLED',
+  /** The display name cannot be the same when using the metaobject as a product option. */
+  DisplayNameConflict = 'DISPLAY_NAME_CONFLICT',
   /** Duplicate inputs were provided for this field key. */
   DuplicateFieldInput = 'DUPLICATE_FIELD_INPUT',
   /** Renderable data input is referencing an invalid field. */
@@ -25659,6 +25894,8 @@ export enum MetaobjectUserErrorCode {
   Immutable = 'IMMUTABLE',
   /** The input value isn't included in the list. */
   Inclusion = 'INCLUSION',
+  /** The maximum number of input metaobjects has been exceeded. */
+  InputLimitExceeded = 'INPUT_LIMIT_EXCEEDED',
   /** An unexpected error occurred. */
   InternalError = 'INTERNAL_ERROR',
   /** The input value is invalid. */
@@ -25685,6 +25922,8 @@ export enum MetaobjectUserErrorCode {
   Present = 'PRESENT',
   /** The requested record couldn't be found. */
   RecordNotFound = 'RECORD_NOT_FOUND',
+  /** The action cannot be completed because associated metaobjects are referenced by another resource. */
+  ReferenceExistsError = 'REFERENCE_EXISTS_ERROR',
   /** The provided name is reserved for system use. */
   ReservedName = 'RESERVED_NAME',
   /** The input value is already taken. */
@@ -25793,12 +26032,19 @@ export type MoneyInput = {
   currencyCode: CurrencyCode;
 };
 
-/** A monetary value with currency. */
+/** A precise monetary value and its associated currency. For example, 12.99 USD. */
 export type MoneyV2 = {
   __typename?: 'MoneyV2';
-  /** Decimal money amount. */
+  /**
+   * A monetary value in decimal format, allowing for precise representation of cents or fractional
+   * currency. For example, 12.99.
+   */
   amount: Scalars['Decimal']['output'];
-  /** Currency of the money. */
+  /**
+   * The three-letter currency code that represents a world currency used in a store. Currency codes
+   * include standard [standard ISO 4217 codes](https://en.wikipedia.org/wiki/ISO_4217), legacy codes,
+   * and non-standard codes. For example, USD.
+   */
   currencyCode: CurrencyCode;
 };
 
@@ -25921,7 +26167,7 @@ export type Mutation = {
   companyContactAssignRole?: Maybe<CompanyContactAssignRolePayload>;
   /** Assigns roles on a company contact. */
   companyContactAssignRoles?: Maybe<CompanyContactAssignRolesPayload>;
-  /** Creates a company contact. */
+  /** Creates a company contact and the associated customer. */
   companyContactCreate?: Maybe<CompanyContactCreatePayload>;
   /** Deletes a company contact. */
   companyContactDelete?: Maybe<CompanyContactDeletePayload>;
@@ -26029,7 +26275,7 @@ export type Mutation = {
   customerPaymentMethodPaypalBillingAgreementCreate?: Maybe<CustomerPaymentMethodPaypalBillingAgreementCreatePayload>;
   /** Updates a PayPal billing agreement for a customer. */
   customerPaymentMethodPaypalBillingAgreementUpdate?: Maybe<CustomerPaymentMethodPaypalBillingAgreementUpdatePayload>;
-  /** Create a payment method from remote gateway identifiers. */
+  /** Create a payment method from remote gateway identifiers. NOTE: This operation processes payment methods asynchronously. The returned payment method will initially have incomplete details. Developers must poll this payment method using customerPaymentMethod query until all payment method details are available, or the payment method is revoked (usually within seconds). */
   customerPaymentMethodRemoteCreate?: Maybe<CustomerPaymentMethodRemoteCreatePayload>;
   /**
    * Create a payment method from a credit card stored by Stripe.
@@ -26336,7 +26582,10 @@ export type Mutation = {
   draftOrderCreate?: Maybe<DraftOrderCreatePayload>;
   /** Creates a draft order from order. */
   draftOrderCreateFromOrder?: Maybe<DraftOrderCreateFromOrderPayload>;
-  /** Creates a merchant checkout for the given draft order. */
+  /**
+   * Creates a merchant checkout for the given draft order.
+   * @deprecated This mutation is no longer supported.
+   */
   draftOrderCreateMerchantCheckout?: Maybe<DraftOrderCreateMerchantCheckoutPayload>;
   /** Deletes a draft order. */
   draftOrderDelete?: Maybe<DraftOrderDeletePayload>;
@@ -26776,7 +27025,7 @@ export type Mutation = {
   orderEditAddLineItemDiscount?: Maybe<OrderEditAddLineItemDiscountPayload>;
   /** Adds a shipping line to an existing order. For more information on how to use the GraphQL Admin API to edit an existing order, refer to [Edit existing orders](https://shopify.dev/apps/fulfillment/order-management-apps/order-editing). */
   orderEditAddShippingLine?: Maybe<OrderEditAddShippingLinePayload>;
-  /** Adds a line item from an existing product variant. */
+  /** Adds a line item from an existing product variant. As of API version 2025-04, the [orderEditAddVariant](https://shopify.dev/api/admin-graphql/latest/mutations/ordereditaddvariant) API will respect the contextual pricing of the variant. */
   orderEditAddVariant?: Maybe<OrderEditAddVariantPayload>;
   /**
    * Starts editing an order. Mutations are operating on `OrderEdit`.
@@ -26811,7 +27060,20 @@ export type Mutation = {
   orderOpen?: Maybe<OrderOpenPayload>;
   /** Create a risk assessment for an order. */
   orderRiskAssessmentCreate?: Maybe<OrderRiskAssessmentCreatePayload>;
-  /** Updates the fields of an order. */
+  /**
+   * Updates the attributes of an order, such as the customer's email, the shipping address for the order,
+   * tags, and [metafields](https://shopify.dev/docs/apps/build/custom-data) associated with the order.
+   *
+   * If you need to make significant updates to an order, such as adding or removing line items, changing
+   * quantities, or modifying discounts, then use
+   * the [`orderEditBegin`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/orderEditBegin)
+   * mutation instead. The `orderEditBegin` mutation initiates an order editing session,
+   * allowing you to make multiple changes before finalizing them. Learn more about using the `orderEditBegin`
+   * mutation to [edit existing orders](https://shopify.dev/docs/apps/build/orders-fulfillment/order-management-apps/edit-orders).
+   *
+   * Learn how to build apps that integrate with
+   * [order management and fulfillment processes](https://shopify.dev/docs/apps/build/orders-fulfillment).
+   */
   orderUpdate?: Maybe<OrderUpdatePayload>;
   /** Activates and deactivates payment customizations. */
   paymentCustomizationActivation?: Maybe<PaymentCustomizationActivationPayload>;
@@ -27636,6 +27898,7 @@ export type MutationBulkProductResourceFeedbackCreateArgs = {
 export type MutationCartTransformCreateArgs = {
   blockOnFailure?: InputMaybe<Scalars['Boolean']['input']>;
   functionId: Scalars['String']['input'];
+  metafields?: InputMaybe<Array<MetafieldInput>>;
 };
 
 
@@ -30031,7 +30294,6 @@ export type MutationStandardMetafieldDefinitionEnableArgs = {
   namespace?: InputMaybe<Scalars['String']['input']>;
   ownerType: MetafieldOwnerType;
   pin?: Scalars['Boolean']['input'];
-  useAsCollectionCondition?: InputMaybe<Scalars['Boolean']['input']>;
   visibleToStorefrontApi?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
@@ -30778,7 +31040,10 @@ export type Order = CommentEventSubject & HasEvents & HasLocalizationExtensions 
   estimatedTaxes: Scalars['Boolean']['output'];
   /** A list of events associated with the order. */
   events: EventConnection;
-  /** A list of ExchangeV2s for the order. */
+  /**
+   * A list of ExchangeV2s for the order.
+   * @deprecated Use `returns` instead.
+   */
   exchangeV2s: ExchangeV2Connection;
   /**
    * Whether there are line items that can be fulfilled.
@@ -30975,12 +31240,12 @@ export type Order = CommentEventSubject & HasEvents & HasLocalizationExtensions 
   risk: OrderRiskSummary;
   /**
    * The fraud risk level of the order.
-   * @deprecated This field is deprecated in version 2024-04. Please use OrderRiskAssessment.riskLevel
+   * @deprecated This field is deprecated in favor of OrderRiskAssessment.riskLevel which allows for more granular risk levels, including PENDING and NONE.
    */
   riskLevel: OrderRiskLevel;
   /**
    * A list of risks associated with the order.
-   * @deprecated This field is deprecated in version 2024-04. Please use OrderRiskAssessment
+   * @deprecated This field is deprecated in favor of OrderRiskAssessment, which provides enhanced capabilities such as distinguishing risks from their provider.
    */
   risks: Array<OrderRisk>;
   /** The mailing address of the customer. */
@@ -32236,28 +32501,22 @@ export enum OrderReturnStatus {
   ReturnRequested = 'RETURN_REQUESTED'
 }
 
-/**
- * Represents a fraud check on an order.
- * As of version 2024-04 this resource is deprecated. Risk Assessments can be queried via the
- * [OrderRisk Assessments API](https://shopify.dev/api/admin-graphql/2024-04/objects/OrderRiskAssessment).
- */
+/** Represents a fraud check on an order. This object is deprecated in favor of [OrderRiskAssessment](https://shopify.dev/api/admin-graphql/latest/objects/OrderRiskAssessment) and its enhanced capabilities. */
 export type OrderRisk = {
   __typename?: 'OrderRisk';
   /**
    * Whether the risk level is shown in the Shopify admin. If false, then this order risk is ignored when Shopify determines the overall risk level for the order.
-   * @deprecated This field is deprecated in version 2024-04
+   * @deprecated This field is deprecated in favor of OrderRiskAssessment.facts.
    */
   display: Scalars['Boolean']['output'];
   /**
-   * The likelihood that an order is fraudulent, based on this order risk.
-   *
-   * The level can be set by Shopify risk analysis or by an app.
-   * @deprecated This field is deprecated in version 2024-04. Please use OrderRiskAssessment.riskLevel
+   * The likelihood that an order is fraudulent, based on this order risk. The level can be set by Shopify risk analysis or by an app.
+   * @deprecated This field is deprecated in favor of OrderRiskAssessment.riskLevel which allows for more granular risk levels, including PENDING and NONE.
    */
   level?: Maybe<OrderRiskLevel>;
   /**
    * The risk message that's shown to the merchant in the Shopify admin.
-   * @deprecated This field is deprecated in version 2024-04
+   * @deprecated This field is deprecated in favor of OrderRiskAssessment.facts.
    */
   message?: Maybe<Scalars['String']['output']>;
 };
@@ -32330,7 +32589,12 @@ export type OrderRiskAssessmentFactInput = {
   sentiment: RiskFactSentiment;
 };
 
-/** The likelihood that an order is fraudulent. */
+/**
+ * The likelihood that an order is fraudulent.
+ * This enum is deprecated in favor of
+ * [RiskAssessmentResult](https://shopify.dev/api/admin-graphql/latest/enums/RiskAssessmentResult)
+ * which allows for more granular risk levels, including PENDING and NONE.
+ */
 export enum OrderRiskLevel {
   /** There is a high level of risk that this order is fraudulent. */
   High = 'HIGH',
@@ -32371,7 +32635,7 @@ export enum OrderSortKeys {
   CreatedAt = 'CREATED_AT',
   /** Sort by the `customer_name` value. */
   CustomerName = 'CUSTOMER_NAME',
-  /** Sort orders by their shipping address country and city. */
+  /** Sort by shipping address to analyze regional sales patterns or plan logistics. */
   Destination = 'DESTINATION',
   /** Sort by the `financial_status` value. */
   FinancialStatus = 'FINANCIAL_STATUS',
@@ -32381,7 +32645,7 @@ export enum OrderSortKeys {
   Id = 'ID',
   /** Sort by the `order_number` value. */
   OrderNumber = 'ORDER_NUMBER',
-  /** Sort orders by their purchase order number. */
+  /** Sort by the purchase order number to match external procurement systems or track recent orders. */
   PoNumber = 'PO_NUMBER',
   /** Sort by the `processed_at` value. */
   ProcessedAt = 'PROCESSED_AT',
@@ -32390,7 +32654,7 @@ export enum OrderSortKeys {
    * Don't use this sort key when no search query is specified.
    */
   Relevance = 'RELEVANCE',
-  /** Sort orders by the total quantity of all line items. */
+  /** Sort by the total quantity of all line items to identify large purchases or analyze inventory demand patterns. */
   TotalItemsQuantity = 'TOTAL_ITEMS_QUANTITY',
   /** Sort by the `total_price` value. */
   TotalPrice = 'TOTAL_PRICE',
@@ -35942,26 +36206,23 @@ export type ProductClaimOwnershipInput = {
   bundles?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
-/** The set of valid sort keys for the ProductCollection query. */
+/** The set of valid sort keys for products belonging to a collection. */
 export enum ProductCollectionSortKeys {
-  /** Sort by the `best-selling` value. */
+  /** Sort by best selling. */
   BestSelling = 'BEST_SELLING',
-  /** Sort by the `collection-default` value. */
+  /** Sort by collection default order. */
   CollectionDefault = 'COLLECTION_DEFAULT',
-  /** Sort by the `created` value. */
+  /** Sort by creation time. */
   Created = 'CREATED',
-  /** Sort by the `id` value. */
+  /** Sort by id. */
   Id = 'ID',
-  /** Sort by the `manual` value. */
+  /** Sort by manual order. */
   Manual = 'MANUAL',
-  /** Sort by the `price` value. */
+  /** Sort by price. */
   Price = 'PRICE',
-  /**
-   * Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-   * Don't use this sort key when no search query is specified.
-   */
+  /** Sort by relevance. */
   Relevance = 'RELEVANCE',
-  /** Sort by the `title` value. */
+  /** Sort by title. */
   Title = 'TITLE'
 }
 
@@ -36349,7 +36610,7 @@ export type ProductInput = {
    * For example, you can specify
    * [`bundles: true`](https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductClaimOwnershipInput#field-bundles)
    * in the `claimOwnership` field to let an app add a
-   * [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-merchant-config-ui).
+   * [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/product-configuration-extension/add-merchant-config-ui).
    */
   claimOwnership?: InputMaybe<ProductClaimOwnershipInput>;
   /** A list of collection IDs to associate with the product. */
@@ -36708,6 +36969,8 @@ export enum ProductOptionsCreateUserErrorCode {
   InvalidName = 'INVALID_NAME',
   /** No valid metafield definition found for linked option. */
   LinkedMetafieldDefinitionNotFound = 'LINKED_METAFIELD_DEFINITION_NOT_FOUND',
+  /** Cannot specify 'linkedMetafieldValue' for an option that is not linked to a metafield. */
+  LinkedMetafieldValueWithoutLinkedOption = 'LINKED_METAFIELD_VALUE_WITHOUT_LINKED_OPTION',
   /** Linked options are currently not supported for this shop. */
   LinkedOptionsNotSupportedForShop = 'LINKED_OPTIONS_NOT_SUPPORTED_FOR_SHOP',
   /** Missing metafield values for linked option. */
@@ -36722,18 +36985,26 @@ export enum ProductOptionsCreateUserErrorCode {
   OptionLinkedMetafieldAlreadyTaken = 'OPTION_LINKED_METAFIELD_ALREADY_TAKEN',
   /** Each option must have a name specified. */
   OptionNameMissing = 'OPTION_NAME_MISSING',
+  /** Option name is too long. */
+  OptionNameTooLong = 'OPTION_NAME_TOO_LONG',
   /** If specified, position field must be present in all option inputs. */
   OptionPositionMissing = 'OPTION_POSITION_MISSING',
   /** Each option must have at least one option value specified. */
   OptionValuesMissing = 'OPTION_VALUES_MISSING',
   /** Option values count is over the allowed limit. */
   OptionValuesOverLimit = 'OPTION_VALUES_OVER_LIMIT',
+  /** Option value name is too long. */
+  OptionValueNameTooLong = 'OPTION_VALUE_NAME_TOO_LONG',
   /** Position must be between 1 and the maximum number of options per product. */
   PositionOutOfBounds = 'POSITION_OUT_OF_BOUNDS',
   /** Product does not exist. */
   ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST',
   /** Product is suspended. */
-  ProductSuspended = 'PRODUCT_SUSPENDED'
+  ProductSuspended = 'PRODUCT_SUSPENDED',
+  /** The number of option values created with the CREATE strategy would exceed the variant limit. */
+  TooManyVariantsCreated = 'TOO_MANY_VARIANTS_CREATED',
+  /** Operation is not supported for a combined listing parent product. */
+  UnsupportedCombinedListingParentOperation = 'UNSUPPORTED_COMBINED_LISTING_PARENT_OPERATION'
 }
 
 /** Return type for `productOptionsDelete` mutation. */
@@ -36775,7 +37046,9 @@ export enum ProductOptionsDeleteUserErrorCode {
   /** Product does not exist. */
   ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST',
   /** Product is suspended. */
-  ProductSuspended = 'PRODUCT_SUSPENDED'
+  ProductSuspended = 'PRODUCT_SUSPENDED',
+  /** Operation is not supported for a combined listing parent product. */
+  UnsupportedCombinedListingParentOperation = 'UNSUPPORTED_COMBINED_LISTING_PARENT_OPERATION'
 }
 
 /** Return type for `productOptionsReorder` mutation. */
@@ -36823,7 +37096,9 @@ export enum ProductOptionsReorderUserErrorCode {
   /** Option value id does not exist. */
   OptionValueIdDoesNotExist = 'OPTION_VALUE_ID_DOES_NOT_EXIST',
   /** Product does not exist. */
-  ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST'
+  ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST',
+  /** Product is suspended. */
+  ProductSuspended = 'PRODUCT_SUSPENDED'
 }
 
 /** The price range of the product. */
@@ -37006,7 +37281,7 @@ export type ProductSetInput = {
    * For example, you can specify
    * [`bundles: true`](https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductClaimOwnershipInput#field-bundles)
    * in the `claimOwnership` field to let an app add a
-   * [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-merchant-config-ui).
+   * [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/product-configuration-extension/add-merchant-config-ui).
    */
   claimOwnership?: InputMaybe<ProductClaimOwnershipInput>;
   /** The IDs of collections that this product will be a member of. */
@@ -37140,28 +37415,50 @@ export type ProductSetUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `ProductSetUserError`. */
 export enum ProductSetUserErrorCode {
+  /** An option cannot have both metafield linked and nonlinked option values. */
+  CannotCombineLinkedAndNonlinkedOptionValues = 'CANNOT_COMBINE_LINKED_AND_NONLINKED_OPTION_VALUES',
   /** The metafield violates a capability restriction. */
   CapabilityViolation = 'CAPABILITY_VIOLATION',
   /** Duplicated option name. */
   DuplicatedOptionName = 'DUPLICATED_OPTION_NAME',
   /** Duplicated option value. */
   DuplicatedOptionValue = 'DUPLICATED_OPTION_VALUE',
+  /** Duplicated value. */
+  DuplicatedValue = 'DUPLICATED_VALUE',
+  /** Cannot link multiple options to the same metafield. */
+  DuplicateLinkedOption = 'DUPLICATE_LINKED_OPTION',
   /** Something went wrong, please try again. */
   GenericError = 'GENERIC_ERROR',
   /** Gift card products can only be created after they have been activated. */
   GiftCardsNotActivated = 'GIFT_CARDS_NOT_ACTIVATED',
   /** The product gift_card attribute cannot be changed after creation. */
   GiftCardAttributeCannotBeChanged = 'GIFT_CARD_ATTRIBUTE_CANNOT_BE_CHANGED',
+  /** Handle already in use. Please provide a new handle. */
+  HandleNotUnique = 'HANDLE_NOT_UNIQUE',
+  /** The id field is not allowed if identifier is provided. */
+  IdNotAllowed = 'ID_NOT_ALLOWED',
+  /** The identifier value does not match the value of the corresponding field in the input. */
+  InputMismatch = 'INPUT_MISMATCH',
   /** Input is not valid. */
   InvalidInput = 'INVALID_INPUT',
   /** Metafield is not valid. */
   InvalidMetafield = 'INVALID_METAFIELD',
+  /** Invalid metafield value for linked option. */
+  InvalidMetafieldValueForLinkedOption = 'INVALID_METAFIELD_VALUE_FOR_LINKED_OPTION',
   /** Product is not valid. */
   InvalidProduct = 'INVALID_PRODUCT',
   /** Product variant is not valid. */
   InvalidVariant = 'INVALID_VARIANT',
   /** Error processing request in the background job. */
   JobError = 'JOB_ERROR',
+  /** No valid metafield definition found for linked option. */
+  LinkedMetafieldDefinitionNotFound = 'LINKED_METAFIELD_DEFINITION_NOT_FOUND',
+  /** Linked options are currently not supported for this shop. */
+  LinkedOptionsNotSupportedForShop = 'LINKED_OPTIONS_NOT_SUPPORTED_FOR_SHOP',
+  /** The input field corresponding to the identifier is required. */
+  MissingFieldRequired = 'MISSING_FIELD_REQUIRED',
+  /** Resource matching the identifier was not found. */
+  NotFound = 'NOT_FOUND',
   /** Options over limit. */
   OptionsOverLimit = 'OPTIONS_OVER_LIMIT',
   /** Option does not exist. */
@@ -37176,6 +37473,8 @@ export enum ProductSetUserErrorCode {
   ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST',
   /** Must specify product options when updating variants. */
   ProductOptionsInputMissing = 'PRODUCT_OPTIONS_INPUT_MISSING',
+  /** Product is suspended. */
+  ProductSuspended = 'PRODUCT_SUSPENDED',
   /** Product variant does not exist. */
   ProductVariantDoesNotExist = 'PRODUCT_VARIANT_DOES_NOT_EXIST',
   /** Must specify variants when updating options. */
@@ -37840,6 +38139,8 @@ export type ProductVariantRelationshipBulkUpdateUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `ProductVariantRelationshipBulkUpdateUserError`. */
 export enum ProductVariantRelationshipBulkUpdateUserErrorCode {
+  /** Combined listing cannot be child product variants. */
+  ChildProductVariantCannotBeCombinedListing = 'CHILD_PRODUCT_VARIANT_CANNOT_BE_COMBINED_LISTING',
   /** A parent product variant cannot contain itself as a component. */
   CircularReference = 'CIRCULAR_REFERENCE',
   /** A parent product variant must not contain duplicate product variant relationships. */
@@ -37860,6 +38161,8 @@ export enum ProductVariantRelationshipBulkUpdateUserErrorCode {
   MustSpecifyComponents = 'MUST_SPECIFY_COMPONENTS',
   /** Nested parent product variants aren't supported. */
   NestedParentProductVariant = 'NESTED_PARENT_PRODUCT_VARIANT',
+  /** Combined listing cannot be parent product variants. */
+  ParentProductVariantCannotBeCombinedListing = 'PARENT_PRODUCT_VARIANT_CANNOT_BE_COMBINED_LISTING',
   /** Gift cards cannot be parent product variants. */
   ParentProductVariantCannotBeGiftCard = 'PARENT_PRODUCT_VARIANT_CANNOT_BE_GIFT_CARD',
   /** Parent product variants cannot require a selling plan. */
@@ -38074,7 +38377,9 @@ export enum ProductVariantsBulkDeleteUserErrorCode {
   /** Cannot delete default variant. */
   CannotDeleteLastVariant = 'CANNOT_DELETE_LAST_VARIANT',
   /** Product does not exist. */
-  ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST'
+  ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST',
+  /** Product is suspended. */
+  ProductSuspended = 'PRODUCT_SUSPENDED'
 }
 
 /** The input fields for specifying a product variant to create as part of a variant bulk mutation. */
@@ -38135,6 +38440,8 @@ export type ProductVariantsBulkReorderUserError = DisplayableError & {
 export enum ProductVariantsBulkReorderUserErrorCode {
   /** Product variant IDs must be unique. */
   DuplicatedVariantId = 'DUPLICATED_VARIANT_ID',
+  /** Something went wrong, please try again. */
+  GenericError = 'GENERIC_ERROR',
   /** Product variant position cannot be zero or negative number. */
   InvalidPosition = 'INVALID_POSITION',
   /** Product variant does not exist. */
@@ -38167,6 +38474,8 @@ export type ProductVariantsBulkUpdateUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `ProductVariantsBulkUpdateUserError`. */
 export enum ProductVariantsBulkUpdateUserErrorCode {
+  /** The input value is blank. */
+  Blank = 'BLANK',
   /** Inventory management cannot currently be changed because there is at least one incoming transfer. */
   CannotCurrentlyBeChanged = 'CANNOT_CURRENTLY_BE_CHANGED',
   /** Cannot set name for an option value linked to a metafield. */
@@ -38177,6 +38486,8 @@ export enum ProductVariantsBulkUpdateUserErrorCode {
   GreaterThanOrEqualTo = 'GREATER_THAN_OR_EQUAL_TO',
   /** Input is invalid. */
   InvalidInput = 'INVALID_INPUT',
+  /** Metafield value is invalid. */
+  InvalidValue = 'INVALID_VALUE',
   /** Input must be for this product. */
   MustBeForThisProduct = 'MUST_BE_FOR_THIS_PRODUCT',
   /** Mandatory field input field missing. */
@@ -38197,6 +38508,8 @@ export enum ProductVariantsBulkUpdateUserErrorCode {
   OptionValuesForNumberOfUnknownOptions = 'OPTION_VALUES_FOR_NUMBER_OF_UNKNOWN_OPTIONS',
   /** Option value does not exist. */
   OptionValueDoesNotExist = 'OPTION_VALUE_DOES_NOT_EXIST',
+  /** Option value name is too long. */
+  OptionValueNameTooLong = 'OPTION_VALUE_NAME_TOO_LONG',
   /** Product does not exist. */
   ProductDoesNotExist = 'PRODUCT_DOES_NOT_EXIST',
   /** Product is suspended. */
@@ -38207,6 +38520,12 @@ export enum ProductVariantsBulkUpdateUserErrorCode {
   ProductVariantIdMissing = 'PRODUCT_VARIANT_ID_MISSING',
   /** You reached the limit of available SKUs in your current plan. */
   SubscriptionViolation = 'SUBSCRIPTION_VIOLATION',
+  /** The input value is too long. */
+  TooLong = 'TOO_LONG',
+  /** The input value is too short. */
+  TooShort = 'TOO_SHORT',
+  /** Operation is not supported for a combined listing parent product. */
+  UnsupportedCombinedListingParentOperation = 'UNSUPPORTED_COMBINED_LISTING_PARENT_OPERATION',
   /** The variant already exists. */
   VariantAlreadyExists = 'VARIANT_ALREADY_EXISTS'
 }
@@ -38918,6 +39237,8 @@ export enum QuantityPricingByVariantUserErrorCode {
   QuantityPriceBreakAddPriceListPriceNotFound = 'QUANTITY_PRICE_BREAK_ADD_PRICE_LIST_PRICE_NOT_FOUND',
   /** Quantity price break variant not found. */
   QuantityPriceBreakAddVariantNotFound = 'QUANTITY_PRICE_BREAK_ADD_VARIANT_NOT_FOUND',
+  /** Variant to delete by is not found. */
+  QuantityPriceBreakDeleteByVariantIdVariantNotFound = 'QUANTITY_PRICE_BREAK_DELETE_BY_VARIANT_ID_VARIANT_NOT_FOUND',
   /** Failed to delete quantity price break. */
   QuantityPriceBreakDeleteFailed = 'QUANTITY_PRICE_BREAK_DELETE_FAILED',
   /** Quantity price break not found. */
@@ -39232,7 +39553,11 @@ export type QueryRoot = {
   customerSegmentMembersQuery?: Maybe<CustomerSegmentMembersQuery>;
   /** Whether a member, which is a customer, belongs to a segment. */
   customerSegmentMembership: SegmentMembershipResponse;
-  /** Returns a list of customers. */
+  /**
+   * Returns a list of [customers](https://shopify.dev/api/admin-graphql/latest/objects/Customer) in your Shopify store, including key information such as name, email, location, and purchase history.
+   * Use this query to segment your audience, personalize marketing campaigns, or analyze customer behavior by applying filters based on location, order history, marketing preferences and tags.
+   * The `customers` query supports [pagination](https://shopify.dev/api/usage/pagination-graphql) and [sorting](https://shopify.dev/api/admin-graphql/latest/enums/CustomerSortKeys).
+   */
   customers: CustomerConnection;
   /**
    * The paginated list of deletion events.
@@ -39413,7 +39738,11 @@ export type QueryRoot = {
   orderPaymentStatus?: Maybe<OrderPaymentStatus>;
   /** List of the shop's order saved searches. */
   orderSavedSearches: SavedSearchConnection;
-  /** Returns a list of orders placed in the store. */
+  /**
+   * Returns a list of [orders](https://shopify.dev/api/admin-graphql/latest/objects/Order) placed in the store, including data such as order status, customer, and line item details.
+   * Use the `orders` query to build reports, analyze sales performance, or automate fulfillment workflows. The `orders` query supports [pagination](https://shopify.dev/docs/api/usage/pagination-graphql),
+   * [sorting](https://shopify.dev/docs/api/admin-graphql/latest/queries/orders#argument-sortkey), and [filtering](https://shopify.dev/docs/api/admin-graphql/latest/queries/orders#argument-query).
+   */
   orders: OrderConnection;
   /** The payment customization. */
   paymentCustomization?: Maybe<PaymentCustomization>;
@@ -44174,6 +44503,8 @@ export enum SellingPlanGroupUserErrorCode {
   Inclusion = 'INCLUSION',
   /** The input value is invalid. */
   Invalid = 'INVALID',
+  /** The input submitted is invalid. */
+  InvalidInput = 'INVALID_INPUT',
   /** The input value should be less than the maximum value allowed. */
   LessThan = 'LESS_THAN',
   /** The input value should be less than or equal to the maximum value allowed. */
@@ -45756,7 +46087,10 @@ export type ShopPayInstallmentsPaymentDetails = BasePaymentDetails & {
 /** The billing plan of the shop. */
 export type ShopPlan = {
   __typename?: 'ShopPlan';
-  /** The name of the shop's billing plan. */
+  /**
+   * The name of the shop's billing plan.
+   * @deprecated Use `publicDisplayName` instead.
+   */
   displayName: Scalars['String']['output'];
   /** Whether the shop is a partner development shop for testing purposes. */
   partnerDevelopment: Scalars['Boolean']['output'];
@@ -45864,6 +46198,8 @@ export type ShopResourceFeedbackCreateUserError = DisplayableError & {
 export enum ShopResourceFeedbackCreateUserErrorCode {
   /** The input value is blank. */
   Blank = 'BLANK',
+  /** The feedback date cannot be set in the future. */
+  FeedbackDateInFuture = 'FEEDBACK_DATE_IN_FUTURE',
   /** The input value is invalid. */
   Invalid = 'INVALID',
   /** The feedback for a later version of the resource was already accepted. */
@@ -47205,8 +47541,16 @@ export type StandardMetafieldDefinitionEnableUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `StandardMetafieldDefinitionEnableUserError`. */
 export enum StandardMetafieldDefinitionEnableUserErrorCode {
+  /** Admin access can only be specified for app-owned metafield definitions. */
+  AdminAccessInputNotAllowed = 'ADMIN_ACCESS_INPUT_NOT_ALLOWED',
+  /** The metafield definition capability cannot be disabled. */
+  CapabilityCannotBeDisabled = 'CAPABILITY_CANNOT_BE_DISABLED',
   /** The input value is invalid. */
   Invalid = 'INVALID',
+  /** The metafield definition capability is invalid. */
+  InvalidCapability = 'INVALID_CAPABILITY',
+  /** The input combination is invalid. */
+  InvalidInputCombination = 'INVALID_INPUT_COMBINATION',
   /** The maximum number of definitions per owner type has been exceeded. */
   LimitExceeded = 'LIMIT_EXCEEDED',
   /** The input value is already taken. */
@@ -47216,7 +47560,9 @@ export enum StandardMetafieldDefinitionEnableUserErrorCode {
   /** The definition type is not eligible to be used as collection condition. */
   TypeNotAllowedForConditions = 'TYPE_NOT_ALLOWED_FOR_CONDITIONS',
   /** The namespace and key is already in use for a set of your metafields. */
-  UnstructuredAlreadyExists = 'UNSTRUCTURED_ALREADY_EXISTS'
+  UnstructuredAlreadyExists = 'UNSTRUCTURED_ALREADY_EXISTS',
+  /** The metafield definition does not support pinning. */
+  UnsupportedPinning = 'UNSUPPORTED_PINNING'
 }
 
 /**
@@ -48910,6 +49256,8 @@ export enum SubscriptionDraftErrorCode {
   Committed = 'COMMITTED',
   /** Contract draft must be a billing cycle contract draft for contract concatenation. */
   ConcatenationBillingCycleContractDraftRequired = 'CONCATENATION_BILLING_CYCLE_CONTRACT_DRAFT_REQUIRED',
+  /** Cannot concatenate a contract draft from subscriptionContractCreate mutation. */
+  ConcatenationUncommittedContractDraft = 'CONCATENATION_UNCOMMITTED_CONTRACT_DRAFT',
   /** Currency is not enabled. */
   CurrencyNotEnabled = 'CURRENCY_NOT_ENABLED',
   /** The customer doesn't exist. */
@@ -48956,6 +49304,8 @@ export enum SubscriptionDraftErrorCode {
   LessThan = 'LESS_THAN',
   /** The input value should be less than or equal to the maximum value allowed. */
   LessThanOrEqualTo = 'LESS_THAN_OR_EQUAL_TO',
+  /** Customer payment method is required. */
+  MissingCustomerPaymentMethod = 'MISSING_CUSTOMER_PAYMENT_METHOD',
   /** The local delivery options must be set for local delivery. */
   MissingLocalDeliveryOptions = 'MISSING_LOCAL_DELIVERY_OPTIONS',
   /** The value is not an integer. */
@@ -49704,7 +50054,7 @@ export enum TaxExemption {
   CaSkSubContractorExemption = 'CA_SK_SUB_CONTRACTOR_EXEMPTION',
   /** This customer is exempt from specific taxes for holding a valid STATUS_CARD_EXEMPTION in Canada. */
   CaStatusCardExemption = 'CA_STATUS_CARD_EXEMPTION',
-  /** This customer is exempt from VAT for purchases within the EU that is shipping from outside of customer's country. */
+  /** This customer is exempt from VAT for purchases within the EU that is shipping from outside of customer's country, as well as purchases from the EU to the UK. */
   EuReverseChargeExemptionRule = 'EU_REVERSE_CHARGE_EXEMPTION_RULE',
   /** This customer is exempt from specific taxes for holding a valid RESELLER_EXEMPTION in Alaska. */
   UsAkResellerExemption = 'US_AK_RESELLER_EXEMPTION',
@@ -51502,11 +51852,11 @@ export enum WebhookSubscriptionTopic {
   FulfillmentOrdersScheduledFulfillmentOrderReady = 'FULFILLMENT_ORDERS_SCHEDULED_FULFILLMENT_ORDER_READY',
   /** The webhook topic for `fulfillment_orders/split` events. Occurs when a fulfillment order is split into multiple fulfillment orders. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders. */
   FulfillmentOrdersSplit = 'FULFILLMENT_ORDERS_SPLIT',
-  /** The webhook topic for `inventory_items/create` events. Occurs whenever an inventory item is created. Requires the `read_inventory` scope. */
+  /** The webhook topic for `inventory_items/create` events. Occurs whenever an inventory item is created. Requires at least one of the following scopes: read_inventory, read_products. */
   InventoryItemsCreate = 'INVENTORY_ITEMS_CREATE',
-  /** The webhook topic for `inventory_items/delete` events. Occurs whenever an inventory item is deleted. Requires the `read_inventory` scope. */
+  /** The webhook topic for `inventory_items/delete` events. Occurs whenever an inventory item is deleted. Requires at least one of the following scopes: read_inventory, read_products. */
   InventoryItemsDelete = 'INVENTORY_ITEMS_DELETE',
-  /** The webhook topic for `inventory_items/update` events. Occurs whenever an inventory item is updated. Requires the `read_inventory` scope. */
+  /** The webhook topic for `inventory_items/update` events. Occurs whenever an inventory item is updated. Requires at least one of the following scopes: read_inventory, read_products. */
   InventoryItemsUpdate = 'INVENTORY_ITEMS_UPDATE',
   /** The webhook topic for `inventory_levels/connect` events. Occurs whenever an inventory level is connected. Requires the `read_inventory` scope. */
   InventoryLevelsConnect = 'INVENTORY_LEVELS_CONNECT',
@@ -51559,6 +51909,7 @@ export enum WebhookSubscriptionTopic {
    * This can be the first or a subsequent risk assessment.
    * New risk assessments can be provided until the order is marked as fulfilled.
    * Includes the risk level, risk facts, the provider and the order ID.
+   * When the provider is Shopify, that field is null.
    * Does not include the risk recommendation for the order.
    * The Shop ID is available in the headers.
    *  Requires the `read_orders` scope.
@@ -51711,9 +52062,9 @@ export enum WebhookSubscriptionTopic {
   ThemesPublish = 'THEMES_PUBLISH',
   /** The webhook topic for `themes/update` events. Occurs whenever a theme is updated. Does not occur when theme files are updated. Requires the `read_themes` scope. */
   ThemesUpdate = 'THEMES_UPDATE',
-  /** The webhook topic for `variants/in_stock` events. Occurs whenever a variant becomes in stock. Requires the `read_products` scope. */
+  /** The webhook topic for `variants/in_stock` events. Occurs whenever a variant becomes in stock. Online channels receive this webhook only when the variant becomes in stock online. Requires the `read_products` scope. */
   VariantsInStock = 'VARIANTS_IN_STOCK',
-  /** The webhook topic for `variants/out_of_stock` events. Occurs whenever a variant becomes out of stock. Requires the `read_products` scope. */
+  /** The webhook topic for `variants/out_of_stock` events. Occurs whenever a variant becomes out of stock. Online channels receive this webhook only when the variant becomes out of stock online. Requires the `read_products` scope. */
   VariantsOutOfStock = 'VARIANTS_OUT_OF_STOCK'
 }
 
@@ -51799,6 +52150,44 @@ export const CreateShopifyBulkOperationDocument = gql`
   }
 }
     `;
+export const DraftOrderDeleteDocument = gql`
+    mutation draftOrderDelete($input: DraftOrderDeleteInput!) {
+  draftOrderDelete(input: $input) {
+    deletedId
+  }
+}
+    `;
+export const OrderUpdateDocument = gql`
+    mutation OrderUpdate($input: OrderInput!) {
+  orderUpdate(input: $input) {
+    order {
+      id
+      note
+      shippingAddress {
+        address1
+        city
+        province
+        zip
+        country
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+    `;
+export const GetOrderBasicsDocument = gql`
+    query GetOrderBasics($id: ID!) {
+  order(id: $id) {
+    id
+    note
+    email
+    tags
+  }
+}
+    `;
 export const CreateStorefrontAccessTokenDocument = gql`
     mutation CreateStorefrontAccessToken($input: StorefrontAccessTokenInput!) {
   storefrontAccessTokenCreate(input: $input) {
@@ -51859,6 +52248,39 @@ export const CurrentBulkOperationDocument = gql`
   currentBulkOperation {
     id
     status
+  }
+}
+    `;
+export const GetDraftOrdersDocument = gql`
+    query GetDraftOrders($after: String, $query: String) {
+  draftOrders(first: 10, after: $after, query: $query) {
+    edges {
+      cursor
+      node {
+        id
+        tags
+        email
+        name
+        status
+        customAttributes {
+          key
+          value
+        }
+        lineItems(first: 100) {
+          nodes {
+            id
+            variant {
+              id
+            }
+            quantity
+          }
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
   }
 }
     `;
@@ -51966,6 +52388,27 @@ export type CreateShopifyBulkOperationMutationVariables = Exact<{
 
 export type CreateShopifyBulkOperationMutation = { __typename?: 'Mutation', bulkOperationRunQuery?: { __typename?: 'BulkOperationRunQueryPayload', bulkOperation?: { __typename?: 'BulkOperation', id: string, status: BulkOperationStatus } | null, userErrors: Array<{ __typename?: 'UserError', field?: Array<string> | null, message: string }> } | null };
 
+export type DraftOrderDeleteMutationVariables = Exact<{
+  input: DraftOrderDeleteInput;
+}>;
+
+
+export type DraftOrderDeleteMutation = { __typename?: 'Mutation', draftOrderDelete?: { __typename?: 'DraftOrderDeletePayload', deletedId?: string | null } | null };
+
+export type OrderUpdateMutationVariables = Exact<{
+  input: OrderInput;
+}>;
+
+
+export type OrderUpdateMutation = { __typename?: 'Mutation', orderUpdate?: { __typename?: 'OrderUpdatePayload', order?: { __typename?: 'Order', id: string, note?: string | null, shippingAddress?: { __typename?: 'MailingAddress', address1?: string | null, city?: string | null, province?: string | null, zip?: string | null, country?: string | null } | null } | null, userErrors: Array<{ __typename?: 'UserError', field?: Array<string> | null, message: string }> } | null };
+
+export type GetOrderBasicsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetOrderBasicsQuery = { __typename?: 'QueryRoot', order?: { __typename?: 'Order', id: string, note?: string | null, email?: string | null, tags: Array<string> } | null };
+
 export type CreateStorefrontAccessTokenMutationVariables = Exact<{
   input: StorefrontAccessTokenInput;
 }>;
@@ -51999,6 +52442,14 @@ export type CurrentBulkOperationQueryVariables = Exact<{ [key: string]: never; }
 
 
 export type CurrentBulkOperationQuery = { __typename?: 'QueryRoot', currentBulkOperation?: { __typename?: 'BulkOperation', id: string, status: BulkOperationStatus } | null };
+
+export type GetDraftOrdersQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['String']['input']>;
+  query?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetDraftOrdersQuery = { __typename?: 'QueryRoot', draftOrders: { __typename?: 'DraftOrderConnection', edges: Array<{ __typename?: 'DraftOrderEdge', cursor: string, node: { __typename?: 'DraftOrder', id: string, tags: Array<string>, email?: string | null, name: string, status: DraftOrderStatus, customAttributes: Array<{ __typename?: 'Attribute', key: string, value?: string | null }>, lineItems: { __typename?: 'DraftOrderLineItemConnection', nodes: Array<{ __typename?: 'DraftOrderLineItem', id: string, quantity: number, variant?: { __typename?: 'ProductVariant', id: string } | null }> } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
 
 export type LocationAddressDetailsFragment = { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null };
 

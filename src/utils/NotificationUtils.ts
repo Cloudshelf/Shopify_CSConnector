@@ -73,7 +73,12 @@ ${markdownContent}
         return attachments;
     }
 
-    static buildInstallAttachments(retailerName: string, domain: string, email: string): MessageAttachment[] {
+    static buildInstallAttachments(
+        retailerName: string,
+        domain: string,
+        email: string,
+        cur: string | null,
+    ): MessageAttachment[] {
         const attachments: MessageAttachment[] = [
             {
                 color: '00FF00',
@@ -105,6 +110,14 @@ ${email}
 ${domain}`,
                         },
                     },
+                    {
+                        type: 'section',
+                        text: {
+                            type: 'mrkdwn',
+                            text: `*Currency:*
+${cur ? cur : 'Unknown'}`,
+                        },
+                    },
                 ],
             },
         ];
@@ -112,7 +125,51 @@ ${domain}`,
         return attachments;
     }
 
-    static buildUninstallAttachments(domain: string, type: 'uninstall' | 'redact'): MessageAttachment[] {
+    static buildOrderNotice(domain: string, webhookid: string, payload: string, type: string): MessageAttachment[] {
+        const attachments: MessageAttachment[] = [
+            {
+                color: '#000000',
+                blocks: [
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `order webhook debug: ${type}`,
+                        },
+                    },
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `Domain: ${domain}`,
+                        },
+                    },
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `Webhook ID: ${webhookid}`,
+                        },
+                    },
+                    {
+                        type: 'header',
+                        text: {
+                            type: 'plain_text',
+                            text: `Payload: ${payload}`,
+                        },
+                    },
+                ],
+            },
+        ];
+
+        return attachments;
+    }
+
+    static buildUninstallAttachments(
+        domain: string,
+        type: 'uninstall' | 'redact',
+        installedDate?: Date,
+    ): MessageAttachment[] {
         let colour = '#000000';
         if (type === 'uninstall') {
             colour = '#880808';
@@ -131,10 +188,7 @@ ${domain}`,
 
         if (type === 'uninstall') {
             markdown = `*Domain:* 
-${domain}
-                  
-*Note:* 
-The store has been removed from the Cloudshelf Connector. Store data will not be removed from Cloudshelf until Shopify requests us to do so; this allows retailers to reinstall without losing their data.`;
+${domain}`;
         } else if (type === 'redact') {
             markdown = `*Domain:* 
 ${domain}
@@ -161,6 +215,18 @@ Store data will shortly be removed from Cloudshelf.`;
                             text: markdown,
                         },
                     },
+                    ...(installedDate
+                        ? [
+                              {
+                                  type: 'section',
+                                  // @ts-ignore
+                                  text: {
+                                      type: 'mrkdwn',
+                                      text: `*Installed Date:*\n${installedDate.toLocaleDateString('en-GB')}`,
+                                  },
+                              },
+                          ]
+                        : []),
                 ],
             },
         ];

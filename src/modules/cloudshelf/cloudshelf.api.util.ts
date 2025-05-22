@@ -1,3 +1,4 @@
+import { BooleanSchema } from 'joi';
 import {
     ApolloClient,
     ApolloLink,
@@ -8,6 +9,7 @@ import {
 } from '@apollo/client/core';
 import {
     CloudshelfInput,
+    CurrencyCode,
     DeleteProductGroupsDocument,
     DeleteProductGroupsMutation,
     DeleteProductGroupsMutationVariables,
@@ -149,6 +151,10 @@ export class CloudshelfApiUtils {
             storeName = `${storeName} (${retailer.domain})`;
         }
 
+        let curCodeToUse = CurrencyCode.Unknown;
+        if (retailer.currencyCode !== null) {
+            curCodeToUse = retailer.currencyCode as CurrencyCode;
+        }
         const upsertStoreMutation = await authedClient.mutate<UpsertStoreMutation, UpsertStoreMutationVariables>({
             mutation: UpsertStoreDocument,
             variables: {
@@ -158,6 +164,7 @@ export class CloudshelfApiUtils {
                     accessToken: retailer.accessToken,
                     scopes: retailer.scopes,
                     storefrontAccessToken: retailer.storefrontToken,
+                    defaultCurrencyCode: curCodeToUse,
                 },
                 hmac: CryptographyUtils.createHmac(retailer.accessToken, timestamp),
                 nonce: timestamp,
@@ -520,9 +527,11 @@ export class CloudshelfApiUtils {
     static async reportOrderStatus(
         apiURL: string,
         domain: string,
-        shopifyCartId: string,
+        shopifyCartId: string | undefined,
         status: OrderStatus,
         shopifyOrderId: string,
+        fromPos: boolean,
+        sessionId?: string,
         lines?: OrderLineInput[],
         logs?: LogsInterface,
     ) {
@@ -537,6 +546,8 @@ export class CloudshelfApiUtils {
                         thirdPartyId: shopifyCartId,
                         status: status,
                         lines: lines,
+                        fromPOS: fromPos,
+                        sessionId: sessionId,
                     },
                 ],
             },

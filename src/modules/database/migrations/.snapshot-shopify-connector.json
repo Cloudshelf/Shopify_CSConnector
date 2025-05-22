@@ -115,6 +115,7 @@
           "enumItems": [
             "ProductGroupSync",
             "ProductSync",
+            "PostSync",
             "ProductGroupDeleteSync"
           ],
           "mappedType": "enum"

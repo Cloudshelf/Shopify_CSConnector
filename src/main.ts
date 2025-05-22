@@ -28,7 +28,9 @@ async function bootstrap() {
         environment: process.env.RELEASE_TYPE ?? 'local',
         release: process.env.PACKAGE_VERSION ?? 'local',
         ignoreErrors: [],
-        integrations: [new ProfilingIntegration()],
+        integrations: [
+            // new ProfilingIntegration()
+        ],
         normalizeDepth: 5,
         maxValueLength: 1250,
         async beforeSend(event: SentryEvent, hint?: EventHint): Promise<SentryEvent | null> {

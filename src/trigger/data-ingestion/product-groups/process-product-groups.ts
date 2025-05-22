@@ -5,16 +5,15 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import _ from 'lodash';
 import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
-import { ProductJobUtils } from '../../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
-import { S3Utils } from '../../../utils/S3Utils';
 import { AppDataSource } from '../../reuseables/orm';
 import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
+import { PostSyncJobUtils } from 'src/modules/data-ingestion/sync.job.utils';
 import { IngestionQueue } from 'src/trigger/queues';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
@@ -38,7 +37,7 @@ export const ProcessProductGroupsTask = task({
                 if (payload.fullSync) {
                     retailer.lastSafetySyncCompleted = new Date();
                 }
-                await ProductJobUtils.scheduleTriggerJob(retailer, false, undefined, undefined, {
+                await PostSyncJobUtils.scheduleJob(retailer, undefined, {
                     info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                     warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -192,30 +191,6 @@ export const ProcessProductGroupsTask = task({
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
-        if (payload.fullSync) {
-            const groupContentToSave: { id: string }[] = [];
-            for (const id of allProductGroupShopifyIdsFromThisFile) {
-                if (!productGroupIdsToExplicitlyEnsureDeleted.includes(id)) {
-                    groupContentToSave.push({ id });
-                }
-            }
-            const groupFileName = `${filePrefix}_${retailer.domain}_product_groups_${ulid()}.json`;
-            let groupUrl = cloudflarePublicEndpoint;
-            if (!groupUrl.endsWith('/')) {
-                groupUrl += '/';
-            }
-            groupUrl += `${groupFileName}`;
-            const didGroupFileUpload = await S3Utils.UploadJsonFile(
-                JSON.stringify(groupContentToSave),
-                'product-deletion-payloads',
-                groupFileName,
-            );
-            if (didGroupFileUpload) {
-                logger.info(`Starting delete product groups via file`);
-                await CloudshelfApiUtils.keepKnownProductGroupsViaFile(cloudshelfAPI, retailer.domain, groupUrl);
-                logger.info(`Finished delete product groups via file`);
-            }
-        }
         logger.info(`Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
         if (payload.fullSync) {

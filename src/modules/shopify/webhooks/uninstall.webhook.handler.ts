@@ -37,10 +37,11 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         const slackNotificationChannel = this.slackConfigService.get<string>('SLACK_GENERAL_NOTIFICATION_CHANNEL');
 
         if (slackToken && slackNotificationChannel) {
+            const foundRetailer = await this.retailerService.findOneByDomain(domain);
             await SlackUtils.SendNotification(
                 slackToken,
                 slackNotificationChannel,
-                NotificationUtils.buildUninstallAttachments(domain, 'uninstall'),
+                NotificationUtils.buildUninstallAttachments(domain, 'uninstall', foundRetailer?.createdAt),
             );
         }
 

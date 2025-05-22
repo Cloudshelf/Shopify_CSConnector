@@ -2,10 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
-import { RetailerEntity } from '../../retailer/retailer.entity';
 import { CustomTokenEntity } from './custom.token.entity';
-import { ShopifySessionEntity } from './shopify.session.entity';
-import { SessionStorage } from '@nestjs-shopify/core';
 import { ulid } from 'ulid';
 
 @Injectable()

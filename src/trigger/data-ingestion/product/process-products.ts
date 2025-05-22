@@ -261,63 +261,6 @@ export const ProcessProductsTask = task({
             await CloudshelfApiUtils.upsertProductVariants(cloudshelfAPI, bulkOperationRecord.domain, variantInput);
             await sleep(1);
         }
-        logger.info(`allProductShopifyIdsFromThisFile`, { allProductShopifyIdsFromThisFile });
-        if (payload.fullSync) {
-            //For a full sync, we know we should have seen all the ids, so we can call the keepKnownProductsViaFile mutation, which will delete any products that were not in the file
-            const productContentToSave: { id: string }[] = [];
-            //all the IDS that exist in allProductShopifyIdsFromThisFile and do not exist in productIdsToExplicitlyEnsureDeleted should added to contentToSave
-            for (const id of allProductShopifyIdsFromThisFile) {
-                if (!productIdsToExplicitlyEnsureDeleted.includes(id)) {
-                    productContentToSave.push({ id: id });
-                }
-            }
-            const productFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_products_${ulid()}.json`;
-            let productUrl = cloudflarePublicEndpoint;
-            if (!productUrl.endsWith('/')) {
-                productUrl += '/';
-            }
-            productUrl += `${productFileName}`;
-            const fileContent = JSON.stringify(productContentToSave);
-            const didProductFileUpload = await S3Utils.UploadJsonFile(
-                fileContent,
-                'product-deletion-payloads',
-                productFileName,
-            );
-            logger.info(`Product deletion file uploaded: ${fileContent}`);
-            if (didProductFileUpload) {
-                logger.info(`Starting delete products via file`);
-                await CloudshelfApiUtils.keepKnownProductsViaFile(
-                    cloudshelfAPI,
-                    bulkOperationRecord.domain,
-                    productUrl,
-                );
-                logger.info(`Finished delete products via file`);
-            }
-            const variantContentToSave: { id: string }[] = [];
-            for (const id of allVariantShopifyIdsFromThisFile) {
-                variantContentToSave.push({ id: id });
-            }
-            const variantFileName = `${process.env.RELEASE_TYPE}_${retailer.domain}_variants_${ulid()}.json`;
-            let variantUrl = cloudflarePublicEndpoint;
-            if (!variantUrl.endsWith('/')) {
-                variantUrl += '/';
-            }
-            variantUrl += `${variantFileName}`;
-            const didVariantFileUpload = await S3Utils.UploadJsonFile(
-                JSON.stringify(variantContentToSave),
-                'product-deletion-payloads',
-                variantFileName,
-            );
-            if (didVariantFileUpload) {
-                logger.info(`Starting delete variants via file`);
-                await CloudshelfApiUtils.keepKnownVariantsViaFile(
-                    cloudshelfAPI,
-                    bulkOperationRecord.domain,
-                    variantUrl,
-                );
-                logger.info(`Finished delete variants via file`);
-            }
-        }
         logger.info(`Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
         if (payload.fullSync) {

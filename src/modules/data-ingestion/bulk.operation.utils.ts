@@ -141,7 +141,12 @@ export class BulkOperationUtils {
         return em.findOne(BulkOperation, { shopifyBulkOpId: remoteBulkOperationId });
     }
 
-    static async updateFromShopify(em: EntityManager, retailer: RetailerEntity, bulkOp: BulkOperation) {
+    static async updateFromShopify(
+        em: EntityManager,
+        retailer: RetailerEntity,
+        bulkOp: BulkOperation,
+        logs?: LogsInterface,
+    ) {
         const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
 
         const query = await graphqlClient.query<BulkOperationByShopifyIdQuery, BulkOperationByShopifyIdQueryVariables>({
@@ -154,6 +159,10 @@ export class BulkOperationUtils {
         if (query.data.node?.__typename !== 'BulkOperation') {
             // the bulk operation was deleted on shopify
             return bulkOp;
+        }
+
+        if (logs?.info) {
+            logs.info('Bulk Op Data:', { data: query });
         }
 
         bulkOp.objectCount = query.data.node.objectCount;
