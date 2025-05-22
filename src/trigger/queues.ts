@@ -14,3 +14,8 @@ export const IngestionQueue = queue({
     name: 'ingestion',
     concurrencyLimit: 1,
 });
+
+export const OrderProcessingQueue = queue({
+    name: 'order-processing',
+    concurrencyLimit: 1,
+});

@@ -18,8 +18,6 @@ export const StartMikroORMForTrigger = async () => {
             undefined,
         );
 
-        console.log(`db config`, builtConfig);
-
         AppDataSource = await MikroORM.init({
             ...builtConfig,
             entities: AllDatabaseEntities,

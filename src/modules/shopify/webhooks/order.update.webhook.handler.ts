@@ -62,10 +62,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         await ProcessOrderTask.trigger(
             { data, organisationId: retailer.id },
             {
-                queue: {
-                    name: `order-processing`,
-                    concurrencyLimit: 1,
-                },
+                queue: `order-processing`,
                 concurrencyKey: domain,
                 tags,
             },

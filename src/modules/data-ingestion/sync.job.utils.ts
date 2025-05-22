@@ -17,10 +17,7 @@ export class PostSyncJobUtils {
             },
             {
                 delay,
-                queue: {
-                    name: `ingestion`,
-                    concurrencyLimit: 1,
-                },
+                queue: `ingestion`,
                 tags,
                 concurrencyKey: retailer.id,
             },

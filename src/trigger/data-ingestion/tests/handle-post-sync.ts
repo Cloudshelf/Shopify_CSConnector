@@ -15,6 +15,7 @@ import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
 import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
 import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
+import { IngestionQueue } from 'src/trigger/queues';
 import { TriggerWaitForNobleReschedule } from 'src/trigger/reuseables/noble_pollfills';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
@@ -376,10 +377,7 @@ async function handleProducts(
 
 export const HandlePostSync = task({
     id: 'handle-post-sync',
-    queue: {
-        name: `ingestion`,
-        concurrencyLimit: 1,
-    },
+    queue: IngestionQueue,
     machine: { preset: `medium-1x` },
     run: async (payload: { organisationId: string }, { ctx }) => {
         logger.info('Payload', payload);

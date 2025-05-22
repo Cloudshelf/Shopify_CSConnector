@@ -27,14 +27,12 @@ import {
     OrderUpdateWebhookPayload,
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
 import { AppDataSource } from '../../../trigger/reuseables/orm';
-import { logger, task } from '@trigger.dev/sdk/v3';
+import { logger, task } from '@trigger.dev/sdk';
+import { OrderProcessingQueue } from 'src/trigger/queues';
 
 export const ProcessOrderTask = task({
     id: 'process-order',
-    queue: {
-        name: `order-processing`,
-        concurrencyLimit: 1,
-    },
+    queue: OrderProcessingQueue,
     run: async (payload: { organisationId: string; data: OrderUpdateWebhookPayload }, { ctx }) => {
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
