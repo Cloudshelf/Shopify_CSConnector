@@ -2,7 +2,8 @@ import { FlushMode } from '@mikro-orm/core';
 import _ from 'lodash';
 import { CloudshelfApiUtils } from '../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
-import { AppDataSource } from '../reuseables/orm';
+import { getDbForTrigger } from '../reuseables/orm';
+import { ApiClient } from '@trigger.dev/core/v3';
 import { logger, task } from '@trigger.dev/sdk';
 
 export const ProvideCurrencyData = task({
@@ -15,6 +16,7 @@ export const ProvideCurrencyData = task({
     run: async (payload: Record<string, never>, { ctx }) => {
         logger.info('Payload', payload);
 
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

@@ -1,10 +1,7 @@
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
-import { MikroORM } from '@mikro-orm/postgresql';
 import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { logger, wait } from '@trigger.dev/sdk';
-
-export let AppDataSource: MikroORM | undefined;
 
 export const TriggerWaitForNobleReschedule = async (retailer: RetailerEntity) => {
     let shouldBeWaitingForQueue = true;

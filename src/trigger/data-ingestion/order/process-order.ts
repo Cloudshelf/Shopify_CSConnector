@@ -26,7 +26,7 @@ import {
     CLOUDSHELF_SESSION_ATTRIBUTE,
     OrderUpdateWebhookPayload,
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
-import { AppDataSource } from '../../../trigger/reuseables/orm';
+import { getDbForTrigger } from '../../../trigger/reuseables/orm';
 import { logger, task } from '@trigger.dev/sdk';
 import { OrderProcessingQueue } from 'src/trigger/queues';
 
@@ -34,6 +34,7 @@ export const ProcessOrderTask = task({
     id: 'process-order',
     queue: OrderProcessingQueue,
     run: async (payload: { organisationId: string; data: OrderUpdateWebhookPayload }, { ctx }) => {
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

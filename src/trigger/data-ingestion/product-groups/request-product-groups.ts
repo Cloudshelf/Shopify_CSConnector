@@ -4,7 +4,7 @@ import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operatio
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
-import { AppDataSource } from '../../reuseables/orm';
+import { getDbForTrigger } from '../../reuseables/orm';
 import { logger, task } from '@trigger.dev/sdk';
 import { subDays } from 'date-fns';
 import { IngestionQueue } from 'src/trigger/queues';
@@ -63,6 +63,7 @@ export const RequestProductGroupsTask = task({
     },
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);
