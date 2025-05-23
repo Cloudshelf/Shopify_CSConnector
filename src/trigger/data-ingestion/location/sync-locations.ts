@@ -10,7 +10,7 @@ import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.uti
 import { FlushMode } from '@mikro-orm/core';
 import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { AppDataSource } from '../../../trigger/reuseables/orm';
+import { getDbForTrigger } from '../../../trigger/reuseables/orm';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
 import { logger, task } from '@trigger.dev/sdk';
@@ -20,6 +20,7 @@ export const SyncLocationsTask = task({
     id: 'sync-locations',
     queue: IngestionQueue,
     run: async (payload: { organisationId: string }, { ctx }) => {
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

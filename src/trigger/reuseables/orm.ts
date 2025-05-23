@@ -1,8 +1,13 @@
 import { LoadStrategy, MikroORM } from '@mikro-orm/postgresql';
 import { AllDatabaseEntities } from '../../modules/database/entities';
 import { buildDatabaseConfig } from '../../modules/database/mikro-orm.config';
+import { locals } from '@trigger.dev/sdk';
 
-export let AppDataSource: MikroORM | undefined;
+const DbLocal = locals.create<MikroORM | undefined>('db');
+
+export function getDbForTrigger() {
+    return locals.getOrThrow(DbLocal);
+}
 
 export const StartMikroORMForTrigger = async () => {
     try {
@@ -18,12 +23,14 @@ export const StartMikroORMForTrigger = async () => {
             undefined,
         );
 
-        AppDataSource = await MikroORM.init({
+        const mikro = await MikroORM.init({
             ...builtConfig,
             entities: AllDatabaseEntities,
             loadStrategy: LoadStrategy.SELECT_IN, //Joined was causing lots of slowness
             autoJoinRefsForFilters: false,
         });
+
+        locals.set(DbLocal, mikro);
 
         console.log('db inited');
     } catch (e: any) {

@@ -7,7 +7,7 @@ import { defineConfig } from '@trigger.dev/sdk';
 
 export default defineConfig({
     project: 'proj_pnqbfgxmeuaytlevhxap',
-    maxDuration: 7200, // 2 hours
+    maxDuration: 1800, // 30 minutes
     build: {
         external: [
             '@as-integrations/fastify',

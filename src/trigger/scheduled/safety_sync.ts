@@ -3,7 +3,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { ProductJobUtils } from '../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { CreateSafetySyncsQueue } from '../queues';
-import { AppDataSource } from '../reuseables/orm';
+import { getDbForTrigger } from '../reuseables/orm';
 import { logger, schedules } from '@trigger.dev/sdk';
 
 export const CreateSafetySyncs = schedules.task({
@@ -17,6 +17,7 @@ export const CreateSafetySyncs = schedules.task({
     },
     queue: CreateSafetySyncsQueue,
     run: async () => {
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

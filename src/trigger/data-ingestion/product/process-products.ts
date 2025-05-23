@@ -14,10 +14,9 @@ import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.u
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { CollectionJobUtils } from '../../../modules/data-ingestion/collection.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { AppDataSource } from '../../../trigger/reuseables/orm';
+import { getDbForTrigger } from '../../../trigger/reuseables/orm';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
-import { S3Utils } from '../../../utils/S3Utils';
 import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
@@ -50,6 +49,8 @@ export const ProcessProductsTask = task({
             logger.info(`Handle Complete: ${msg}`);
             await em.flush();
         };
+
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

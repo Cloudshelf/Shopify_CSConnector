@@ -8,7 +8,7 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
-import { AppDataSource } from '../../reuseables/orm';
+import { getDbForTrigger } from '../../reuseables/orm';
 import { sleep } from '../../reuseables/sleep';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
@@ -388,6 +388,7 @@ export const HandlePostSync = task({
             logger.info(`Handle Complete: ${msg}`);
             await em.flush();
         };
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);

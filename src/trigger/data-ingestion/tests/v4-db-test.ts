@@ -2,7 +2,7 @@ import { FlushMode } from '@mikro-orm/core';
 import { logger, task } from '@trigger.dev/sdk';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { IngestionQueue } from 'src/trigger/queues';
-import { AppDataSource } from 'src/trigger/reuseables/orm';
+import { getDbForTrigger } from 'src/trigger/reuseables/orm';
 
 export const V4DBTest = task({
     id: 'v4-db-test',
@@ -11,6 +11,7 @@ export const V4DBTest = task({
     run: async (payload: Record<string, never>, { ctx }) => {
         logger.info('Payload');
 
+        const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
             throw new Error(`AppDataSource is not set`);
