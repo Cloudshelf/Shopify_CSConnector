@@ -2,7 +2,7 @@ import { FlushMode } from '@mikro-orm/core';
 import { logger, task } from '@trigger.dev/sdk';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { IngestionQueue } from 'src/trigger/queues';
-import { getDbForTrigger } from 'src/trigger/reuseables/orm';
+import { getDbForTrigger } from 'src/trigger/reuseables/db';
 
 export const V4DBTest = task({
     id: 'v4-db-test',

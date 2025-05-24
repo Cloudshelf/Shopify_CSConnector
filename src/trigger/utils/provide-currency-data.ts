@@ -2,7 +2,7 @@ import { FlushMode } from '@mikro-orm/core';
 import _ from 'lodash';
 import { CloudshelfApiUtils } from '../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
-import { getDbForTrigger } from '../reuseables/orm';
+import { getDbForTrigger } from '../reuseables/db';
 import { ApiClient } from '@trigger.dev/core/v3';
 import { logger, task } from '@trigger.dev/sdk';
 

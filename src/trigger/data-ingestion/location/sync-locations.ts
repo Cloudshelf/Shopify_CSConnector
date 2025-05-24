@@ -10,9 +10,9 @@ import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.uti
 import { FlushMode } from '@mikro-orm/core';
 import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { getDbForTrigger } from '../../../trigger/reuseables/orm';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
+import { getDbForTrigger } from '../../reuseables/db';
 import { logger, task } from '@trigger.dev/sdk';
 import { IngestionQueue } from 'src/trigger/queues';
 

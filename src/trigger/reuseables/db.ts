@@ -1,13 +1,22 @@
 import { LoadStrategy, MikroORM } from '@mikro-orm/postgresql';
 import { AllDatabaseEntities } from '../../modules/database/entities';
 import { buildDatabaseConfig } from '../../modules/database/mikro-orm.config';
-import { locals } from '@trigger.dev/sdk';
+import { locals, tasks } from '@trigger.dev/sdk';
 
 const DbLocal = locals.create<MikroORM | undefined>('db');
 
 export function getDbForTrigger() {
     return locals.getOrThrow(DbLocal);
 }
+
+tasks.middleware('db', async ({ ctx, payload, next, task }) => {
+    if (locals.get(DbLocal) === undefined) {
+        const mikro = await StartMikroORMForTrigger();
+        const db = locals.set(DbLocal, mikro);
+    }
+
+    await next();
+});
 
 export const StartMikroORMForTrigger = async () => {
     try {
@@ -30,9 +39,7 @@ export const StartMikroORMForTrigger = async () => {
             autoJoinRefsForFilters: false,
         });
 
-        locals.set(DbLocal, mikro);
-
-        console.log('db inited');
+        return mikro;
     } catch (e: any) {
         console.error('Unable to build data source', e);
         throw new Error('Unable to build data source');

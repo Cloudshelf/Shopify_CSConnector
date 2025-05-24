@@ -26,7 +26,7 @@ import {
     CLOUDSHELF_SESSION_ATTRIBUTE,
     OrderUpdateWebhookPayload,
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
-import { getDbForTrigger } from '../../../trigger/reuseables/orm';
+import { getDbForTrigger } from '../../reuseables/db';
 import { logger, task } from '@trigger.dev/sdk';
 import { OrderProcessingQueue } from 'src/trigger/queues';
 

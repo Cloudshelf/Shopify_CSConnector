@@ -1,10 +1,8 @@
-import { StartMikroORMForTrigger } from './reuseables/orm';
 import { logger, tasks, usage } from '@trigger.dev/sdk';
 
 tasks.onStart(async ({ ctx, payload, task }) => {
     console.log('onstart');
     logger.info(`Starting on machine "${ctx.machine?.name ?? 'Unknown'}"`, { ctx });
-    await StartMikroORMForTrigger();
 });
 
 tasks.onSuccess(({ ctx, output }) => {

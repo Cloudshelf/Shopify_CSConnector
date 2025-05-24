@@ -8,7 +8,7 @@ import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operati
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
-import { getDbForTrigger } from '../../reuseables/orm';
+import { getDbForTrigger } from '../../reuseables/db';
 import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';

@@ -8,7 +8,7 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { S3Utils } from '../../../utils/S3Utils';
-import { getDbForTrigger } from '../../reuseables/orm';
+import { getDbForTrigger } from '../../reuseables/db';
 import { sleep } from '../../reuseables/sleep';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
