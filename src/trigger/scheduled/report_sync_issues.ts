@@ -3,7 +3,7 @@ import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { NotificationUtils } from '../../utils/NotificationUtils';
 import { SlackUtils } from '../../utils/SlackUtils';
 import { ReportSyncIssuesQueue } from '../queues';
-import { getDbForTrigger } from '../reuseables/orm';
+import { getDbForTrigger } from '../reuseables/db';
 import { logger, schedules } from '@trigger.dev/sdk';
 
 export const ReportSyncIssues = schedules.task({

@@ -14,9 +14,9 @@ import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.u
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { CollectionJobUtils } from '../../../modules/data-ingestion/collection.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { getDbForTrigger } from '../../../trigger/reuseables/orm';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
+import { getDbForTrigger } from '../../reuseables/db';
 import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';

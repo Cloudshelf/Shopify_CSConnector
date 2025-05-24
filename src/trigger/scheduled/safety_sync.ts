@@ -3,7 +3,7 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { ProductJobUtils } from '../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { CreateSafetySyncsQueue } from '../queues';
-import { getDbForTrigger } from '../reuseables/orm';
+import { getDbForTrigger } from '../reuseables/db';
 import { logger, schedules } from '@trigger.dev/sdk';
 
 export const CreateSafetySyncs = schedules.task({

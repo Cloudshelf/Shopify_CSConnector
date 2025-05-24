@@ -3,8 +3,8 @@ import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.u
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
+import { getDbForTrigger } from '../../reuseables/db';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
-import { getDbForTrigger } from '../../reuseables/orm';
 import { logger, task } from '@trigger.dev/sdk';
 import { subDays } from 'date-fns';
 import { IngestionQueue } from 'src/trigger/queues';
