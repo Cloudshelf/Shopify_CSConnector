@@ -2,14 +2,12 @@ import { ProductGroupInput } from '../../../graphql/cloudshelf/generated/cloudsh
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import _ from 'lodash';
 import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { getDbForTrigger } from '../../reuseables/db';
-import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -21,13 +19,10 @@ import { promisify } from 'util';
 
 const finished = promisify(stream.finished);
 
-export const PRODUCT_CHUNK_UPLOAD_SIZE = 1000;
-export const VARIANT_CHUNK_UPLOAD_SIZE = 500;
-
 export const ProcessProductGroupsTask = task({
     id: 'process-product-groups',
     queue: IngestionQueue,
-    machine: { preset: `medium-1x` },
+    machine: { preset: `small-2x` },
     run: async (payload: { remoteBulkOperationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
@@ -99,6 +94,7 @@ export const ProcessProductGroupsTask = task({
             //if shopify didn't return any data... there is nothing we can do here
             return;
         }
+
         const tempFileId = ulid();
         const tempFile = `/tmp/${tempFileId}.jsonl`;
         logger.info(`Downloading data url: ${bulkOperationRecord.dataUrl} to ${tempFile}`);
@@ -112,41 +108,35 @@ export const ProcessProductGroupsTask = task({
         } else {
             logger.info(`Partial collection update`);
         }
+
         logger.info(`Reading data file`);
         const productGroupInputs: ProductGroupInput[] = [];
-        const allProductGroupShopifyIdsFromThisFile: string[] = [];
         const productsInGroups: { [productGroupId: string]: string[] } = {};
-        const productGroupIdsToExplicitlyEnsureDeleted: string[] = [];
-        let counter = 0;
         for await (const collectionObj of JsonLUtils.readJsonl(tempFile)) {
             const collectionId = GlobalIDUtils.gidConverter(collectionObj.id, 'ShopifyCollection')!;
-            allProductGroupShopifyIdsFromThisFile.push(collectionId);
             if (!collectionObj.publishedOnCurrentPublication) {
                 logger.info(`Skipping collection ${collectionId} as it is not published on current publication`);
-                productGroupIdsToExplicitlyEnsureDeleted.push(collectionId);
                 continue;
-            }
-            counter++;
-            if (counter % 100 === 0) {
-                await sleep(1);
             }
             let image: string | undefined = undefined;
             if (collectionObj.image?.url) {
                 image = collectionObj.image.url;
             }
-            (collectionObj.Product ?? []).map((p: any) => {
-                const productId = GlobalIDUtils.gidConverter(p.id, 'ShopifyProduct')!;
-                if (p.featuredImage?.url) {
-                    if (image === undefined || image === '') {
-                        image = p.featuredImage.url;
+            if (collectionObj.Product) {
+                for (const p of collectionObj.Product) {
+                    const productId = GlobalIDUtils.gidConverter(p.id, 'ShopifyProduct')!;
+                    if (p.featuredImage?.url) {
+                        if (image === undefined || image === '') {
+                            image = p.featuredImage.url;
+                        }
+                    }
+                    if (productsInGroups[collectionId] === undefined) {
+                        productsInGroups[collectionId] = [productId];
+                    } else {
+                        productsInGroups[collectionId].push(productId);
                     }
                 }
-                if (productsInGroups[collectionId] === undefined) {
-                    productsInGroups[collectionId] = [productId];
-                } else {
-                    productsInGroups[collectionId].push(productId);
-                }
-            });
+            }
             const productGroupInput: ProductGroupInput = {
                 id: collectionId,
                 displayName: collectionObj.title,
@@ -162,13 +152,15 @@ export const ProcessProductGroupsTask = task({
             };
             productGroupInputs.push(productGroupInput);
         }
+
         logger.info(`Upserting collections to cloudshelf`, { productGroupInputs });
         await CloudshelfApiUtils.updateProductGroups(cloudshelfAPI, retailer.domain, productGroupInputs, {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
-        logger.info(`Updating products in product groups on cloudshelf`);
+
+        logger.info(`Updating products in ${productsInGroups.length} product groups on cloudshelf`);
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
             const reversedProductIds = productIds.slice().reverse();
             logger.info(`Product Group: ${productGroupId}, products`, { reversedProductIds });
@@ -183,9 +175,8 @@ export const ProcessProductGroupsTask = task({
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
                 },
             );
-            await sleep(1);
         }
-        //
+
         logger.info(`Finished reporting all products in all groups`);
         logger.info(`Creating first cloud shelf if required`);
         await CloudshelfApiUtils.createFirstCloudshelfIfRequired(cloudshelfAPI, em, retailer, {

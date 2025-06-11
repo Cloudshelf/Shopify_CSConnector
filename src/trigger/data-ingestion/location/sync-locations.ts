@@ -19,6 +19,7 @@ import { IngestionQueue } from 'src/trigger/queues';
 export const SyncLocationsTask = task({
     id: 'sync-locations',
     queue: IngestionQueue,
+    machine: 'small-1x',
     run: async (payload: { organisationId: string }, { ctx }) => {
         const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {

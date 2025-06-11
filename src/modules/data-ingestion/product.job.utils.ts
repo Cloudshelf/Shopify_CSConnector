@@ -122,6 +122,7 @@ export class ProductJobUtils {
                     concurrencyKey: retailer.id,
                     idempotencyKey: idempotencyKey,
                     machine: retailer.triggerMachineSizeProducts ?? undefined,
+                    maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
                 },
             );
 

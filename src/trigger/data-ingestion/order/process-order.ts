@@ -33,6 +33,7 @@ import { OrderProcessingQueue } from 'src/trigger/queues';
 export const ProcessOrderTask = task({
     id: 'process-order',
     queue: OrderProcessingQueue,
+    machine: 'small-1x',
     run: async (payload: { organisationId: string; data: OrderUpdateWebhookPayload }, { ctx }) => {
         const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
