@@ -451,6 +451,24 @@
           "primary": false,
           "nullable": true,
           "mappedType": "text"
+        },
+        "trigger_max_duration_products": {
+          "name": "trigger_max_duration_products",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
+        },
+        "trigger_max_duration_product_groups": {
+          "name": "trigger_max_duration_product_groups",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "integer"
         }
       },
       "name": "retailer_entity",

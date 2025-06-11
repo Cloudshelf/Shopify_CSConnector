@@ -62,6 +62,12 @@ export class RetailerEntity extends BaseEntity {
     @Property({ type: 'text', nullable: true })
     triggerMachineSizeProductGroups: MachineSize | null;
 
+    @Property({ type: types.integer, nullable: true })
+    triggerMaxDurationProducts: number | null;
+
+    @Property({ type: types.integer, nullable: true })
+    triggerMaxDurationProductGroups: number | null;
+
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');
     }

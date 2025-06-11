@@ -1,6 +1,6 @@
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { HandlePostSync } from 'src/trigger/data-ingestion/tests/handle-post-sync';
+import { HandlePostSync } from 'src/trigger/data-ingestion/handle-post-sync';
 
 export class PostSyncJobUtils {
     static async scheduleJob(retailer: RetailerEntity, reason?: string, logs?: LogsInterface) {
