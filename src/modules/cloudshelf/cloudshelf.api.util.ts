@@ -80,11 +80,24 @@ import { LogsInterface } from './logs.interface';
 import { createResponseLoggingLink } from './response.logging.link';
 
 export class CloudshelfApiUtils {
+    private static clientCache: Map<string, ApolloClient<NormalizedCacheObject>> = new Map();
+
+    private static getCacheKey(apiURL: string, domain?: string): string {
+        return `${apiURL}:${domain || 'no-domain'}`;
+    }
+
     static async getCloudshelfAPIApolloClient(
         apiURL: string,
         domain?: string,
         logs?: LogsInterface,
     ): Promise<ApolloClient<NormalizedCacheObject>> {
+        const cacheKey = this.getCacheKey(apiURL, domain);
+        const cachedClient = this.clientCache.get(cacheKey);
+
+        if (cachedClient) {
+            return cachedClient;
+        }
+
         const httpLink = createHttpLink({
             uri: apiURL,
         });
@@ -126,11 +139,14 @@ export class CloudshelfApiUtils {
             },
         });
 
-        return new ApolloClient({
+        const client = new ApolloClient({
             cache: new InMemoryCache(),
             link: from([authLink, retryLink, responseLoggingLink, httpLink]),
             defaultOptions: graphqlDefaultOptions,
         });
+
+        this.clientCache.set(cacheKey, client);
+        return client;
     }
 
     static async getCloudshelfAuthToken(
@@ -210,6 +226,9 @@ export class CloudshelfApiUtils {
             logs?.error?.(`Failed to report uninstall ${domain}`);
             return;
         }
+
+        // Remove client from cache on uninstall
+        this.clientCache.delete(this.getCacheKey(apiUrl, domain));
     }
 
     static async upsertProducts(apiUrl: string, domain: string, input: ProductInput[], logs?: LogsInterface) {
