@@ -1,4 +1,3 @@
-import { BooleanSchema } from 'joi';
 import {
     ApolloClient,
     ApolloLink,
@@ -7,6 +6,7 @@ import {
     createHttpLink,
     from,
 } from '@apollo/client/core';
+import { RetryLink } from '@apollo/client/link/retry';
 import {
     CloudshelfInput,
     CurrencyCode,
@@ -78,7 +78,6 @@ import { CryptographyUtils } from '../../utils/CryptographyUtils';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { LogsInterface } from './logs.interface';
 import { createResponseLoggingLink } from './response.logging.link';
-import { createRetryLink } from './retry.link';
 
 export class CloudshelfApiUtils {
     static async getCloudshelfAPIApolloClient(
@@ -112,7 +111,20 @@ export class CloudshelfApiUtils {
         });
 
         const responseLoggingLink = createResponseLoggingLink(logs);
-        const retryLink = createRetryLink(3, 5000, logs);
+        const retryLink = new RetryLink({
+            delay: {
+                initial: 2000,
+                max: Infinity,
+                jitter: false,
+            },
+            attempts: {
+                max: 3,
+                retryIf: (error, _operation) => {
+                    if (!error || !error.statusCode) return false;
+                    return error.statusCode === 502;
+                },
+            },
+        });
 
         return new ApolloClient({
             cache: new InMemoryCache(),
