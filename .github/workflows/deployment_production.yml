@@ -8,7 +8,7 @@ on:
 jobs:
     version:
         environment: ${{ github.head_ref || github.ref_name }}
-        runs-on: self-hosted
+        runs-on: blacksmith-8vcpu-ubuntu-2204
 
         steps:
             # Checkout branch
@@ -37,7 +37,7 @@ jobs:
     build-and-deploy:
         needs: version
         environment: ${{ github.head_ref || github.ref_name }}
-        runs-on: self-hosted
+        runs-on: blacksmith-8vcpu-ubuntu-2204
         permissions:
             id-token: write
             contents: read
