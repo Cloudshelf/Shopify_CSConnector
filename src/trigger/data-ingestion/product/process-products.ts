@@ -274,9 +274,8 @@ export const ProcessProductsTask = task({
                     }
                     totalVariantCount += chunkVariantInputs.reduce((acc, val) => acc + val.variants.length, 0);
                 }
-
-                logger.info(`--- Chunk finished ---`);
             }
+            logger.info(`--- Chunk finished ---`);
         }
 
         logger.info(
