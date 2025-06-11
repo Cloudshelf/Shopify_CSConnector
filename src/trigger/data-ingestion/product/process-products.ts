@@ -180,7 +180,7 @@ export const ProcessProductsTask = task({
                                     url: image.url,
                                     preferredImage: false,
                                 });
-                                imageUrls.add(product.featuredImage.url);
+                                imageUrls.add(image.url);
                             }
                         });
                     }
