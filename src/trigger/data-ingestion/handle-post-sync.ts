@@ -1,15 +1,13 @@
-import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import _ from 'lodash';
-import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
-import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
-import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
-import { JsonLUtils } from '../../../utils/JsonLUtils';
-import { S3Utils } from '../../../utils/S3Utils';
-import { getDbForTrigger } from '../../reuseables/db';
-import { sleep } from '../../reuseables/sleep';
+import { CloudshelfApiUtils } from '../../modules/cloudshelf/cloudshelf.api.util';
+import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
+import { RetailerEntity } from '../../modules/retailer/retailer.entity';
+import { GlobalIDUtils } from '../../utils/GlobalIDUtils';
+import { JsonLUtils } from '../../utils/JsonLUtils';
+import { S3Utils } from '../../utils/S3Utils';
+import { getDbForTrigger } from '../reuseables/db';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -97,7 +95,7 @@ async function handleCollections(
 
     do {
         //Wait for the operation to complete
-        await wait.for({ seconds: 10 });
+        await wait.for({ seconds: 20 });
 
         collectionBuildOperation = await BulkOperationUtils.updateFromShopify(em, retailer, collectionBuildOperation, {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
@@ -154,6 +152,8 @@ async function handleCollections(
             seenCollectionIds: seenCollectionIds.size,
             objectCount: objectCount,
         });
+        seenCollectionIds.clear();
+        idsToRemoveAtTheEnd.clear();
         return {
             earlyCompleteMessage: `Seen Collection ID length != Object Count in Bulk operation (seen:${seenCollectionIds.size}, objectCount: ${objectCount})`,
         };
@@ -180,11 +180,18 @@ async function handleCollections(
         logger.info(`${groupContentToSave.length} Collections Uploaded?: ${didGroupFileUpload}. URL: ${groupUrl}`);
         if (didGroupFileUpload) {
             logger.info(`Starting delete product groups via file`);
-            await CloudshelfApiUtils.keepKnownProductGroupsViaFile(cloudshelfAPI, retailer.domain, groupUrl);
+            await CloudshelfApiUtils.keepKnownProductGroupsViaFile(cloudshelfAPI, retailer.domain, groupUrl, {
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+            });
             logger.info(`Finished delete product groups via file`);
         }
     } catch (err) {
         logger.error('Something went wrong while reporting known data', { error: err });
+    } finally {
+        seenCollectionIds.clear();
+        idsToRemoveAtTheEnd.clear();
     }
 
     logger.warn(`FINISHED HandleCollections`);
@@ -226,7 +233,7 @@ async function handleProducts(
 
     do {
         //Wait for the operation to complete
-        await wait.for({ seconds: 10 });
+        await wait.for({ seconds: 20 });
 
         productBulkOperation = await BulkOperationUtils.updateFromShopify(em, retailer, productBulkOperation, {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
@@ -305,6 +312,10 @@ async function handleProducts(
             seenVariantIds: seenVariantIds.size,
             objectCount: objectCount,
         });
+        seenProductIds.clear();
+        seenVariantIds.clear();
+        prodIdsToRemoveAtTheEnd.clear();
+        varIdsToRemoveAtTheEnd.clear();
         return {
             earlyCompleteMessage: `Seen ID length !== Object Count in Bulk operation (seen:${totalSeenObjectLength},objectCount: ${objectCount})`,
         };
@@ -331,11 +342,18 @@ async function handleProducts(
         logger.info(`${productContentToSave.length} Prods Uploaded?: ${didProdFileUpload}. URL: ${prodUrl}`);
         if (didProdFileUpload) {
             logger.info(`Starting delete products via file`);
-            await CloudshelfApiUtils.keepKnownProductsViaFile(cloudshelfAPI, retailer.domain, prodUrl);
+            await CloudshelfApiUtils.keepKnownProductsViaFile(cloudshelfAPI, retailer.domain, prodUrl, {
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+            });
             logger.info(`Finished delete products via file`);
         }
     } catch (err) {
         logger.error('Something went wrong while reporting known product data', { error: err });
+    } finally {
+        seenProductIds.clear();
+        prodIdsToRemoveAtTheEnd.clear();
     }
 
     const variantIdsToKeep = setDifference(seenVariantIds, varIdsToRemoveAtTheEnd);
@@ -356,11 +374,18 @@ async function handleProducts(
         logger.info(`${variantContentToSave.length} Variants Uploaded?: ${didVarFileUpload}. URL: ${variantUrl}`);
         if (didVarFileUpload) {
             logger.info(`Starting delete variants via file`);
-            await CloudshelfApiUtils.keepKnownVariantsViaFile(cloudshelfAPI, retailer.domain, variantUrl);
+            await CloudshelfApiUtils.keepKnownVariantsViaFile(cloudshelfAPI, retailer.domain, variantUrl, {
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+            });
             logger.info(`Finished delete variants via file`);
         }
     } catch (err) {
         logger.error('Something went wrong while reporting known variant data', { error: err });
+    } finally {
+        seenVariantIds.clear();
+        varIdsToRemoveAtTheEnd.clear();
     }
 
     logger.warn(`FINISHED handleProducts`);
@@ -373,7 +398,7 @@ async function handleProducts(
 export const HandlePostSync = task({
     id: 'handle-post-sync',
     queue: IngestionQueue,
-    machine: { preset: `medium-1x` },
+    machine: { preset: `small-2x` },
     run: async (payload: { organisationId: string }, { ctx }) => {
         logger.info('Payload', payload);
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
@@ -463,7 +488,11 @@ export const HandlePostSync = task({
                 knownNumberOfImages: undefined,
             };
             logger.info(`Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`);
-            await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+            await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+            });
         } catch (err) {
             if (typeof err.message === 'string' && err.message.includes('status code 401')) {
                 logger.warn('Ignoring ApolloError with status code 401 (Retailer uninstalled?)');
@@ -472,7 +501,11 @@ export const HandlePostSync = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                });
             } else if (typeof err.message === 'string' && err.message.includes('status code 402')) {
                 logger.warn('Ignoring ApolloError with status code 402 (Retailer has outstanding shopify bill)');
                 retailer.syncErrorCode = '402';
@@ -480,7 +513,11 @@ export const HandlePostSync = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                });
             } else if (typeof err.message === 'string' && err.message.includes('status code 404')) {
                 logger.warn('Ignoring ApolloError with status code 404 (Retailer Closed)');
                 retailer.syncErrorCode = '404';
@@ -488,7 +525,11 @@ export const HandlePostSync = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                    info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                });
             } else {
                 throw err;
             }

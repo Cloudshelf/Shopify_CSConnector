@@ -77,6 +77,8 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { CryptographyUtils } from '../../utils/CryptographyUtils';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { LogsInterface } from './logs.interface';
+import { createResponseLoggingLink } from './response.logging.link';
+import { createRetryLink } from './retry.link';
 
 export class CloudshelfApiUtils {
     static async getCloudshelfAPIApolloClient(
@@ -106,17 +108,15 @@ export class CloudshelfApiUtils {
                 },
             }));
 
-            logs?.info?.('HMAC: ' + hmac);
-            logs?.info?.('Nonce: ' + timestamp);
-            logs?.info?.('Domain: ' + domain);
-            logs?.info?.('Variables: ' + variables);
-
             return forward(operation);
         });
 
+        const responseLoggingLink = createResponseLoggingLink(logs);
+        const retryLink = createRetryLink(3, 5000, logs);
+
         return new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([authLink, httpLink]),
+            link: from([authLink, retryLink, responseLoggingLink, httpLink]),
             defaultOptions: graphqlDefaultOptions,
         });
     }
@@ -144,7 +144,7 @@ export class CloudshelfApiUtils {
 
     static async upsertStore(apiUrl: string, retailer: RetailerEntity, logs?: LogsInterface): Promise<void> {
         const timestamp = new Date().getTime().toString();
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
 
         let storeName = retailer.displayName ?? retailer.domain;
         if (storeName.toLowerCase().trim() === 'my store') {
@@ -179,7 +179,7 @@ export class CloudshelfApiUtils {
 
     static async reportUninstall(apiUrl: string, domain: string, logs?: LogsInterface): Promise<void> {
         const timestamp = new Date().getTime().toString();
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain, logs);
         const reportUninstallMutation = await authedClient.mutate<
             MarkUninstalledMutation,
             MarkUninstalledMutationVariables
@@ -201,7 +201,7 @@ export class CloudshelfApiUtils {
     }
 
     static async upsertProducts(apiUrl: string, domain: string, input: ProductInput[], logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain, logs);
 
         const mutationTuple = await authedClient.mutate<UpsertProductsMutation, UpsertProductsMutationVariables>({
             mutation: UpsertProductsDocument,
@@ -222,7 +222,7 @@ export class CloudshelfApiUtils {
         inputs: UpsertVariantsInput[],
         logs?: LogsInterface,
     ) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             UpsertProductVariantsMutation,
@@ -241,7 +241,7 @@ export class CloudshelfApiUtils {
     }
 
     static async updateProductGroups(apiUrl: string, domain: string, input: ProductGroupInput[], logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             UpsertProductGroupsMutation,
@@ -266,7 +266,7 @@ export class CloudshelfApiUtils {
         productIds: string[],
         logs?: LogsInterface,
     ) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             UpdateProductsInProductGroupMutation,
@@ -304,7 +304,7 @@ export class CloudshelfApiUtils {
             homeFrameCallToAction: 'Touch to discover and buy',
         };
 
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
         const mutationTuple = await authedClient.mutate<UpsertCloudshelfMutation, UpsertCloudshelfMutationVariables>({
             mutation: UpsertCloudshelfDocument,
             variables: {
@@ -330,7 +330,7 @@ export class CloudshelfApiUtils {
     }
 
     static async createTheme(apiURL: string, retailer: RetailerEntity, logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
 
         const themeInput: ThemeInput = {
             id: `gid://external/ConnectorGeneratedTheme/${retailer.domain}`,
@@ -357,7 +357,7 @@ export class CloudshelfApiUtils {
         logs?: LogsInterface,
     ) {
         logs?.info?.(`Upserting locations for ${retailer.domain}`, { input });
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
 
         const mutationTuple = await authedClient.mutate<UpsertLocationsMutation, UpsertLocationsMutationVariables>({
             mutation: UpsertLocationsDocument,
@@ -385,7 +385,7 @@ export class CloudshelfApiUtils {
         productGroupId: string,
         logs?: LogsInterface,
     ) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             DeleteProductGroupsMutation,
@@ -403,7 +403,7 @@ export class CloudshelfApiUtils {
     }
 
     static async deleteProduct(apiURL: string, retailer: RetailerEntity, productId: string, logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
 
         const mutationTuple = await authedClient.mutate<DeleteProductsMutation, DeleteProductsMutationVariables>({
             mutation: DeleteProductsDocument,
@@ -418,7 +418,7 @@ export class CloudshelfApiUtils {
     }
 
     static async requestSubscriptionCheck(apiURL: string, retailer: RetailerEntity, id: string, logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             RequestShopifySubscriptionCheckMutation,
@@ -436,7 +436,7 @@ export class CloudshelfApiUtils {
     }
 
     static async keepKnownProductsViaFile(apiURL: string, domain: string, url: string, logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             KeepKnownProductsViaFileMutation,
@@ -454,7 +454,7 @@ export class CloudshelfApiUtils {
     }
 
     static async keepKnownVariantsViaFile(apiURL: string, domain: string, url: string, logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             KeepKnownVariantsViaFileMutation,
@@ -472,7 +472,7 @@ export class CloudshelfApiUtils {
     }
 
     static async keepKnownProductGroupsViaFile(apiURL: string, domain: string, url: string, logs?: LogsInterface) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain, logs);
 
         const mutationTuple = await authedClient.mutate<
             KeepKnownProductGroupsViaFileMutation,
@@ -535,7 +535,7 @@ export class CloudshelfApiUtils {
         lines?: OrderLineInput[],
         logs?: LogsInterface,
     ) {
-        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain);
+        const authedClient = await this.getCloudshelfAPIApolloClient(apiURL, domain, logs);
 
         const mutationTuple = await authedClient.mutate<UpsertOrdersMutation, UpsertOrdersMutationVariables>({
             mutation: UpsertOrdersDocument,

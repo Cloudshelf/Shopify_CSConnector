@@ -17,7 +17,6 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { getDbForTrigger } from '../../reuseables/db';
-import { sleep } from '../../reuseables/sleep';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -34,7 +33,7 @@ export const VARIANT_CHUNK_UPLOAD_SIZE = 500;
 export const ProcessProductsTask = task({
     id: 'process-products',
     queue: IngestionQueue,
-    machine: { preset: `medium-1x` },
+    machine: { preset: `small-2x` },
     run: async (payload: { remoteBulkOperationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
@@ -97,6 +96,7 @@ export const ProcessProductsTask = task({
             //if shopify didn't return any data... there is nothing we can do here
             return;
         }
+
         const tempFileId = ulid();
         const tempFile = `/tmp/${tempFileId}.jsonl`;
         logger.info(`Downloading data url: ${bulkOperationRecord.dataUrl} to ${tempFile}`);
@@ -110,45 +110,41 @@ export const ProcessProductsTask = task({
         } else {
             logger.info(`Partial product update`);
         }
+
         const chunkSize = 1000;
         logger.info(`Reading data file in chunks of ${chunkSize}`);
-        const productInputs: ProductInput[] = [];
-        const allProductShopifyIdsFromThisFile: string[] = [];
-        const allVariantShopifyIdsFromThisFile: string[] = [];
-        const productIdsToExplicitlyEnsureDeleted: string[] = [];
-        const variantInputs: UpsertVariantsInput[] = [];
-        let imageCount = 0;
+        // Arrays only needed for full sync stats
+        let totalProductCount = 0;
+        let totalVariantCount = 0;
+        let totalImageCount = 0;
+
         for await (const productsInJsonLChunk of JsonLUtils.readJsonlChunked(tempFile, chunkSize)) {
-            await sleep(1);
             logger.info(`--- Chunk Started ---`);
+            const chunkProductInputs: ProductInput[] = [];
+            const chunkVariantInputs: UpsertVariantsInput[] = [];
             for (const productInJsonL of productsInJsonLChunk) {
                 const product = productInJsonL as any;
                 const productId = GlobalIDUtils.gidConverter(product.id, 'ShopifyProduct')!;
-                allProductShopifyIdsFromThisFile.push(productId);
-                // if (product.status.toLowerCase() !== 'active' || !product.publishedOnCurrentPublication) {
-                //     logger.info(
-                //         `Product is inactive or not published. Skipping. Prod: ${product.handle}, status: ${product.status}, publishedOnCurrentPublication: ${product.publishedOnCurrentPublication}`,
-                //     );
-                //     productIdsToExplicitlyEnsureDeleted.push(productId);
-                //     continue;
-                // }
                 if (!product.publishedOnCurrentPublication) {
                     logger.info(
                         `Product is not published. Skipping. Prod: ${product.handle}, publishedOnCurrentPublication: ${product.publishedOnCurrentPublication}`,
                     );
-                    productIdsToExplicitlyEnsureDeleted.push(productId);
                     continue;
                 }
+
                 //Map over shopify product metafields, and create cloudshelf metadata
                 const metadata: MetadataInput[] = [];
-                (product.Metafield ?? []).map((metafield: any) => {
-                    const metafieldInput: MetadataInput = {
-                        id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
-                        key: `${metafield.namespace}-${metafield.key}`,
-                        data: metafield.value,
-                    };
-                    metadata.push(metafieldInput);
-                });
+                if (product.Metafield) {
+                    for (const metafield of product.Metafield) {
+                        const metafieldInput: MetadataInput = {
+                            id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
+                            key: `${metafield.namespace}-${metafield.key}`,
+                            data: metafield.value,
+                        };
+                        metadata.push(metafieldInput);
+                    }
+                }
+
                 //convert shopify product data to cloudshelf product data
                 const productInput: ProductInput = {
                     id: productId!,
@@ -160,121 +156,147 @@ export const ProcessProductsTask = task({
                     productType: product.productType,
                     metadata: metadata,
                 };
-                productInputs.push(productInput);
+                chunkProductInputs.push(productInput);
+
                 //convert shopify product variants to cloudshelf product variants
-                (product.ProductVariant ?? []).map((variant: any, variantIndex: number) => {
-                    const attributes: KeyValuePairInput[] = [];
-                    (variant.selectedOptions ?? []).map((opt: any) => {
-                        attributes.push({
-                            key: opt.name,
-                            value: opt.value,
-                        });
-                    });
-                    const metaimages: MetaimageInput[] = [];
-                    if (variantIndex === 0) {
-                        // We only support images on variants, while shopify supports them on product as well as the variant
-                        // we handle this by allowing an image to be marked as the preferred image, which means it will be the
-                        // image used for the product before a variant is selected
-                        if (product.featuredImage) {
-                            metaimages.push({
-                                url: product.featuredImage.url,
-                                preferredImage: true,
-                            });
-                        }
-                        (product.ProductImage ?? []).map((image: any) => {
-                            //check if metaimages already has this image, if so, don't add it again
-                            if (metaimages.some(m => m.url === image.url)) {
-                                return;
+                if (product.ProductVariant) {
+                    for (const [variantIndex, variant] of product.ProductVariant.entries()) {
+                        const attributes: KeyValuePairInput[] = [];
+                        if (variant.selectedOptions) {
+                            for (const opt of variant.selectedOptions) {
+                                attributes.push({
+                                    key: opt.name,
+                                    value: opt.value,
+                                });
                             }
-                            metaimages.push({
-                                url: image.url,
-                                preferredImage: false,
-                            });
-                        });
-                    }
-                    if (variant.image) {
-                        if (!metaimages.some(m => m.url === variant.image.url)) {
+                        }
+
+                        const imageUrls = new Set<string>();
+                        const metaimages: MetaimageInput[] = [];
+
+                        if (variantIndex === 0) {
+                            // We only support images on variants, while shopify supports them on product as well as the variant
+                            // we handle this by allowing an image to be marked as the preferred image, which means it will be the
+                            // image used for the product before a variant is selected
+                            if (product.featuredImage) {
+                                imageUrls.add(product.featuredImage.url);
+                                metaimages.push({
+                                    url: product.featuredImage.url,
+                                    preferredImage: true,
+                                });
+                            }
+                            if (product.ProductImage) {
+                                for (const image of product.ProductImage) {
+                                    if (!imageUrls.has(image.url)) {
+                                        imageUrls.add(image.url);
+                                        metaimages.push({
+                                            url: image.url,
+                                            preferredImage: false,
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                        if (variant.image && !imageUrls.has(variant.image.url)) {
+                            imageUrls.add(variant.image.url);
                             metaimages.push({
                                 url: variant.image.url,
                                 preferredImage: false,
                             });
                         }
-                    }
-                    const currentPrice = parseFloat(variant.price);
-                    let originalPrice = currentPrice;
-                    if (variant.compareAtPrice !== undefined && variant.compareAtPrice !== null) {
-                        const compareAtPrice = parseFloat(variant.compareAtPrice);
-                        originalPrice = compareAtPrice;
-                        if (compareAtPrice < currentPrice) {
-                            originalPrice = currentPrice;
+                        const currentPrice = parseFloat(variant.price);
+                        let originalPrice = currentPrice;
+                        if (variant.compareAtPrice !== undefined && variant.compareAtPrice !== null) {
+                            const compareAtPrice = parseFloat(variant.compareAtPrice);
+                            originalPrice = compareAtPrice;
+                            if (compareAtPrice < currentPrice) {
+                                originalPrice = currentPrice;
+                            }
+                        }
+                        const ProductVariantInput: ProductVariantInput = {
+                            id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
+                            position: variantIndex,
+                            displayName: variant.title,
+                            currentPrice: currentPrice,
+                            originalPrice: originalPrice,
+                            sku: variant.sku ?? '',
+                            barcode: variant.barcode ?? '',
+                            //We only support in stock / out of stock not stock count in v3
+                            isInStock: variant.sellableOnlineQuantity > 0,
+                            attributes: attributes,
+                            availableToPurchase: variant.availableForSale,
+                            metaimages: metaimages,
+                            //We don't yet support variant metadata
+                            metadata: [],
+                        };
+                        totalImageCount += metaimages.length;
+                        const existingVariantInput = chunkVariantInputs.find(v => v.productId === productId);
+                        if (existingVariantInput) {
+                            existingVariantInput.variants.push(ProductVariantInput);
+                        } else {
+                            chunkVariantInputs.push({
+                                productId: productId,
+                                variants: [ProductVariantInput],
+                            });
                         }
                     }
-                    const ProductVariantInput: ProductVariantInput = {
-                        id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
-                        position: variantIndex,
-                        displayName: variant.title,
-                        currentPrice: currentPrice,
-                        originalPrice: originalPrice,
-                        sku: variant.sku ?? '',
-                        barcode: variant.barcode ?? '',
-                        //We only support in stock / out of stock not stock count in v3
-                        isInStock: variant.sellableOnlineQuantity > 0,
-                        attributes: attributes,
-                        availableToPurchase: variant.availableForSale,
-                        metaimages: metaimages,
-                        //We don't yet support variant metadata
-                        metadata: [],
-                    };
-                    imageCount += metaimages.length;
-                    allVariantShopifyIdsFromThisFile.push(ProductVariantInput.id);
-                    const existingVariantInput = variantInputs.find(v => v.productId === productId);
-                    if (existingVariantInput) {
-                        existingVariantInput.variants.push(ProductVariantInput);
-                    } else {
-                        variantInputs.push({
-                            productId: productId,
-                            variants: [ProductVariantInput],
-                        });
+                }
+
+                // Process products immediately for this chunk
+                if (chunkProductInputs.length > 0) {
+                    logger.info(`Upserting ${chunkProductInputs.length} products from current chunk`);
+                    const productChunks = _.chunk(chunkProductInputs, PRODUCT_CHUNK_UPLOAD_SIZE);
+                    for (const productChunk of productChunks) {
+                        await CloudshelfApiUtils.upsertProducts(
+                            cloudshelfAPI,
+                            bulkOperationRecord.domain,
+                            productChunk,
+                            {
+                                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+                            },
+                        );
                     }
-                });
+                    totalProductCount += chunkProductInputs.length;
+                }
+
+                // Process variants immediately for this chunk
+                if (chunkVariantInputs.length > 0) {
+                    logger.info(`Upserting variants for ${chunkVariantInputs.length} products from current chunk`);
+                    const variantChunks = _.chunk(chunkVariantInputs, VARIANT_CHUNK_UPLOAD_SIZE);
+                    for (const variantChunk of variantChunks) {
+                        await CloudshelfApiUtils.upsertProductVariants(
+                            cloudshelfAPI,
+                            bulkOperationRecord.domain,
+                            variantChunk,
+                        );
+                    }
+                    totalVariantCount += chunkVariantInputs.reduce((acc, val) => acc + val.variants.length, 0);
+                }
+
+                logger.info(`--- Chunk finished ---`);
             }
-            logger.info(`--- Chunk finished ---`);
         }
+
         logger.info(
-            `Upserting ${productInputs.length} products to cloudshelf for current file, in chunks of ${PRODUCT_CHUNK_UPLOAD_SIZE}`,
+            `Finished processing all chunks. Total products: ${totalProductCount}, Total variants: ${totalVariantCount}`,
         );
-        const chunkedProductInputs = _.chunk(productInputs, PRODUCT_CHUNK_UPLOAD_SIZE);
-        for (const chunk of chunkedProductInputs) {
-            logger.info(`Upserting ${chunk.length} products to cloudshelf for current file`);
-            await CloudshelfApiUtils.upsertProducts(cloudshelfAPI, bulkOperationRecord.domain, chunk, {
-                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
-                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
-                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
-            });
-            await sleep(1);
-        }
-        logger.info(
-            `Upserting variants for ${variantInputs.length} products to cloudshelf for current file, in chunks of ${VARIANT_CHUNK_UPLOAD_SIZE}`,
-        );
-        const chunkedVariantInputs = _.chunk(variantInputs, VARIANT_CHUNK_UPLOAD_SIZE);
-        for (const variantInput of chunkedVariantInputs) {
-            logger.info(`Upserting ${variantInput.length} variants to cloudshelf for current file`);
-            await CloudshelfApiUtils.upsertProductVariants(cloudshelfAPI, bulkOperationRecord.domain, variantInput);
-            await sleep(1);
-        }
+
         logger.info(`Deleting downloaded data file: ${tempFile}`);
         await fsPromises.unlink(tempFile);
+
         if (payload.fullSync) {
-            const sumOfVariants = variantInputs.reduce((acc, val) => acc + val.variants.length, 0);
             const input = {
                 knownNumberOfProductGroups: undefined,
-                knownNumberOfProducts: productInputs.length,
-                knownNumberOfProductVariants: sumOfVariants,
-                knownNumberOfImages: imageCount,
+                knownNumberOfProducts: totalProductCount,
+                knownNumberOfProductVariants: totalVariantCount,
+                knownNumberOfImages: totalImageCount,
             };
             logger.info(`Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`);
             await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, bulkOperationRecord.domain, input);
         }
+
         await handleComplete(em, 'job complete', retailer);
     },
 });
