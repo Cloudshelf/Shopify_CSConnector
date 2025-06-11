@@ -159,7 +159,8 @@ export const ProcessProductGroupsTask = task({
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
-        logger.info(`Updating products in product groups on cloudshelf`);
+
+        logger.info(`Updating products in ${productsInGroups.length} product groups on cloudshelf`);
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
             const reversedProductIds = productIds.slice().reverse();
             logger.info(`Product Group: ${productGroupId}, products`, { reversedProductIds });
