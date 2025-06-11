@@ -120,8 +120,8 @@ export class CloudshelfApiUtils {
             attempts: {
                 max: 3,
                 retryIf: (error, _operation) => {
-                    if (!error || !error.statusCode) return false;
-                    return error.statusCode === 502;
+                    const status = (error as any)?.networkError?.statusCode ?? (error as any)?.statusCode;
+                    return status === 502;
                 },
             },
         });
