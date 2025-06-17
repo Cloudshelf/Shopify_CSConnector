@@ -1,13 +1,8 @@
 import { INestApplication, RawBodyRequest } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { SentryGqlInterceptor } from './modules/apm/sentry.graphql.interceptor';
-import * as Sentry from '@sentry/node';
-import { EventHint, Event as SentryEvent } from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { AppModule } from './app.module';
 import otelSDK from './instrumentation';
-import { SentryFilter } from './modules/apm/sentry.exception.filter';
 import { NoOAuthCookieExceptionFilter } from './modules/shopify/auth/no.oauth.cookie.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
 import * as bodyParser from 'body-parser';

@@ -1,7 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryUtil } from '../../../utils/SentryUtil';
 import { ProductJobUtils } from '../..//data-ingestion/product.job.utils';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
@@ -37,10 +36,10 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         this.logger.debug('Received BULK_OPERATIONS_FINISH webhook for domain ' + domain);
         this.logger.debug('payload', data);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
-            id: domain,
-            username: domain,
-        });
+        // SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
+        //     id: domain,
+        //     username: domain,
+        // });
 
         const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
         if (shouldIgnore) {

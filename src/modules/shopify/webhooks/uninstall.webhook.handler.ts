@@ -2,7 +2,6 @@ import { ConfigService } from '@nestjs/config';
 import { slackSchema } from '../../../modules/configuration/schemas/slack.schema';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
-import { SentryUtil } from '../../../utils/SentryUtil';
 import { SlackUtils } from '../../../utils/SlackUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { RetailerService } from '../../retailer/retailer.service';
@@ -28,10 +27,10 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         this.logger.debug(`Webhook ${webhookId} called for shop ID ${domain}`);
         this.logger.debug(data);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'APP_UNINSTALLED', {
-            id: domain,
-            username: domain,
-        });
+        // SentryUtil.InformationalTransaction('Webhook:Received', 'APP_UNINSTALLED', {
+        //     id: domain,
+        //     username: domain,
+        // });
 
         const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
         const slackNotificationChannel = this.slackConfigService.get<string>('SLACK_GENERAL_NOTIFICATION_CHANNEL');
