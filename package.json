@@ -21,7 +21,7 @@
     "codegen:shopifyStorefront": "graphql-codegen --config src/graphql/shopifyStorefront/codegen.ts",
     "--- prod options ---": "",
     "prebuild": "rimraf dist",
-    "build": "nest build && yarn sentry:sourcemaps",
+    "build": "nest build",
     "start:prod": "node dist/main",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org cloudshelf --project connector-shopify ./dist && sentry-cli --url https://apm.cloudshelf.ai sourcemaps upload --org cloudshelf --project connector-shopify ./dist",
     "--- other ---": "",
