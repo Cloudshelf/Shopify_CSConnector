@@ -3,6 +3,7 @@ import { RetailerEntity } from '../retailer/retailer.entity';
 import { AuthenticatedPOSRequest, AuthenticatedPOSRetailer } from './guards/authenticated.request.guard';
 import { CloudshelfDraftOrdersPayload } from './payloads/CloudshelfDraftOrdersPayload';
 import { POSService } from './pos.service';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Controller('pos')
 export class POSController {
@@ -10,6 +11,7 @@ export class POSController {
         //
     }
 
+    @Telemetry('controller.pos.getDraftOrders')
     @AuthenticatedPOSRequest()
     @Get()
     async getDraftOrders(

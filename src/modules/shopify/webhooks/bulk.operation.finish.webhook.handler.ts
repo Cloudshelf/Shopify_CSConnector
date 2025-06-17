@@ -3,13 +3,13 @@ import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/sho
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { ProductJobUtils } from '../..//data-ingestion/product.job.utils';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { BulkOperationService } from '../../data-ingestion/bulk.operation.service';
 import { BulkOperationType } from '../../data-ingestion/bulk.operation.type';
 import { CollectionJobUtils } from '../../data-ingestion/collection.job.utils';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { Telemetry } from 'src/decorators/telemetry';
 
 export interface BulkOperationWebhookPayload {
     admin_graphql_api_id: string;
@@ -32,7 +32,7 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         super();
     }
 
-    @SentryInstrument('BulkOperationFinishedWebhookHandler')
+    @Telemetry('webhook.BulkOperationFinishedWebhookHandler')
     async handle(domain: string, data: BulkOperationWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received BULK_OPERATIONS_FINISH webhook for domain ' + domain);
         this.logger.debug('payload', data);

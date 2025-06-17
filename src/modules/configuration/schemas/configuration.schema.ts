@@ -1,5 +1,6 @@
 import * as Joi from 'joi';
 import { graphqlSchema } from './graphql.schema';
+import { axiomSchema } from './axiom.schema';
 import { cloudflareSchema } from './cloudflare.schema';
 import { cloudshelfSchema } from './cloudshelf.schema';
 import { databaseSchema } from './database.schema';
@@ -17,6 +18,7 @@ export const configurationSchema = Joi.object({
     ...slackSchema,
     ...cloudshelfSchema,
     ...cloudflareSchema,
+    ...axiomSchema,
 });
 
 export const triggerConfigurationSchema = Joi.object({});

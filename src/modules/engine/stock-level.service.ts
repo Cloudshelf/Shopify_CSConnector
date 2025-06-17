@@ -5,14 +5,14 @@ import {
     StockViaProductVariantAllLocationsQuery,
     StockViaProductVariantAllLocationsQueryVariables,
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
-import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { RetailerEntity } from '../retailer/retailer.entity';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class StockLevelsService {
     private readonly logger = new Logger('StockLevelsService');
 
-    @SentryInstrument('StockLevelsService')
+    @Telemetry('service.stock-levels.getStockLevels')
     async getStockLevels(
         retailer: RetailerEntity,
         variantId: string,

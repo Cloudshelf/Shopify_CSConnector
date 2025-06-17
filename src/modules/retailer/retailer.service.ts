@@ -7,23 +7,25 @@ import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity
 import { RetailerEntity } from './retailer.entity';
 import { RetailerUtils } from './retailer.utils';
 import { Shopify } from '@shopify/shopify-api';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
     constructor(private readonly entityManager: EntityManager) {}
-    @SentryInstrument('RetailerService')
+
+    @Telemetry('service.retailer.findOneByStorefrontToken')
     findOneByStorefrontToken(authToken: string) {
         return this.entityManager.findOne(RetailerEntity, { storefrontToken: authToken }, { filters: false });
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.findOneByDomain')
     findOneByDomain(domain: string) {
         return this.entityManager.findOne(RetailerEntity, { domain: domain }, { filters: false });
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.updateOrCreate')
     async updateOrCreate(
         domain: string,
         accessToken: string,
@@ -32,36 +34,37 @@ export class RetailerService {
         return RetailerUtils.updateOrCreate(this.entityManager, domain, accessToken, scopesString);
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.existsByDomain')
     async existsByDomain(domain: string): Promise<boolean> {
         return RetailerUtils.existsByDomain(this.entityManager, domain);
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.deleteByDomain')
     async deleteByDomain(domain: string): Promise<boolean> {
         return RetailerUtils.deleteByDomain(this.entityManager, domain);
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.getSharedSecret')
     async getSharedSecret(domain: string): Promise<string | undefined> {
         return RetailerUtils.getSharedSecret(this.entityManager, domain);
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.save')
     async save(entity: RetailerEntity) {
         return await RetailerUtils.save(this.entityManager, entity);
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.getById')
     getById(organisationId: string) {
         return RetailerUtils.getById(this.entityManager, organisationId);
     }
 
-    @SentryInstrument('RetailerService')
+    @Telemetry('service.retailer.getByDomain')
     async getByDomain(domain: string) {
         return RetailerUtils.getByDomain(this.entityManager, domain);
     }
 
+    @Telemetry('service.retailer.updateShopInformationFromShopifyOnlineSession')
     async updateShopInformationFromShopifyOnlineSession(
         shopifyApiInstance: Shopify,
         entity: RetailerEntity,
@@ -75,14 +78,17 @@ export class RetailerService {
         );
     }
 
+    @Telemetry('service.retailer.updateShopInformationFromShopifyGraphql')
     async updateShopInformationFromShopifyGraphql(retailer: RetailerEntity, logs?: LogsInterface) {
         return await RetailerUtils.updateShopInformationFromShopifyGraphql(this.entityManager, retailer, logs);
     }
 
+    @Telemetry('service.retailer.updateLogoFromShopify')
     async updateLogoFromShopify(retailer: RetailerEntity, logs?: LogsInterface) {
         return RetailerUtils.updateLogoFromShopify(this.entityManager, retailer, logs);
     }
 
+    @Telemetry('service.retailer.getAll')
     async getAll(from: number, limit: number) {
         return RetailerUtils.getAll(this.entityManager, from, limit);
     }

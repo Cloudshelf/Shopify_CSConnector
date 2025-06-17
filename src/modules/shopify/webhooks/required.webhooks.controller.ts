@@ -2,11 +2,13 @@ import { Controller, Headers, HttpCode, Post } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { ShopifyHmac, ShopifyHmacType } from '@nestjs-shopify/core';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Controller('/shopify/required_webhooks')
 export class RequiredWebhooksController {
     private readonly logger = new ExtendedLogger('RequiredWebhooksController');
 
+    @Telemetry('webhook.shopRedact')
     @Post('/shop_redact')
     @HttpCode(200)
     @ShopifyHmac(ShopifyHmacType.Header)
@@ -23,6 +25,7 @@ export class RequiredWebhooksController {
         // );
     }
 
+    @Telemetry('webhook.customerRedact')
     @Post('/customer_redact')
     @HttpCode(200)
     @ShopifyHmac(ShopifyHmacType.Header)
@@ -35,6 +38,7 @@ export class RequiredWebhooksController {
         });
     }
 
+    @Telemetry('webhook.customerDataRequest')
     @Post('/customer_data_request')
     @HttpCode(200)
     @ShopifyHmac(ShopifyHmacType.Header)

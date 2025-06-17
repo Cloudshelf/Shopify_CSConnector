@@ -2,14 +2,12 @@ import { ConfigService } from '@nestjs/config';
 import { RetailerService } from '../../../modules/retailer/retailer.service';
 import { ProcessOrderTask } from '../../../trigger/data-ingestion/order/process-order';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { OrderUpdateWebhookPayload } from './attrs.cosnts';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { Telemetry } from 'src/decorators/telemetry';
 import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
-import { NotificationUtils } from 'src/utils/NotificationUtils';
-import { SlackUtils } from 'src/utils/SlackUtils';
 
 @WebhookHandler('ORDERS_UPDATED')
 export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -24,7 +22,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         super();
     }
 
-    @SentryInstrument('OrdersUpdatedWebhookHandler')
+    @Telemetry('webhook.OrdersUpdatedWebhookHandler')
     async handle(domain: string, data: OrderUpdateWebhookPayload, webhookId: string): Promise<void> {
         this.logger.debug('Received ORDERS_UPDATED webhook for domain ' + domain);
         this.logger.debug('data: ' + JSON.stringify(data));

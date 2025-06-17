@@ -11,15 +11,15 @@ import {
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager, MikroORM } from '@mikro-orm/core';
 import { app } from '../../main';
-import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
+import { Telemetry } from 'src/decorators/telemetry';
 
 export class RetailerUtils {
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.updateOrCreate')
     static async updateOrCreate(
         em: EntityManager,
         domain: string,
@@ -53,12 +53,12 @@ export class RetailerUtils {
         return { entity: shop, status };
     }
 
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.existsByDomain')
     static async existsByDomain(em: EntityManager, domain: string): Promise<boolean> {
         return !!(await em.findOne(RetailerEntity, { domain }));
     }
 
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.deleteByDomain')
     static async deleteByDomain(em: EntityManager, domain: string): Promise<boolean> {
         const retailer = await em.findOne(RetailerEntity, { domain });
         if (!!retailer) {
@@ -69,7 +69,7 @@ export class RetailerUtils {
         return false;
     }
 
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.getSharedSecret')
     static async getSharedSecret(em: EntityManager, domain: string): Promise<string | undefined> {
         if (em === undefined) {
             const orm = app!.get(MikroORM);
@@ -85,21 +85,22 @@ export class RetailerUtils {
         return shop.sharedSecret ?? undefined;
     }
 
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.save')
     static async save(em: EntityManager, entity: RetailerEntity) {
         await em.persistAndFlush(entity);
     }
 
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.getById')
     static getById(em: EntityManager, organisationId: string) {
         return em.findOne(RetailerEntity, { id: organisationId });
     }
 
-    @SentryInstrument('RetailerUtils')
+    @Telemetry('utils.retailer.getByDomain')
     static async getByDomain(em: EntityManager, domain: string) {
         return em.findOne(RetailerEntity, { domain });
     }
 
+    @Telemetry('utils.retailer.updateShopInformationFromShopifyOnlineSession')
     static async updateShopInformationFromShopifyOnlineSession(
         em: EntityManager,
         shopifyApiInstance: Shopify,
@@ -137,6 +138,7 @@ export class RetailerUtils {
         return entity;
     }
 
+    @Telemetry('utils.retailer.updateShopInformationFromShopifyGraphql')
     static async updateShopInformationFromShopifyGraphql(
         em: EntityManager,
         retailer: RetailerEntity,
@@ -173,6 +175,7 @@ export class RetailerUtils {
         return retailer;
     }
 
+    @Telemetry('utils.retailer.updateLogoFromShopify')
     static async updateLogoFromShopify(em: EntityManager, retailer: RetailerEntity, logs?: LogsInterface) {
         const graphqlClient = await ShopifyGraphqlUtil.getShopifyStorefrontApolloClientByRetailer(retailer);
 
@@ -193,6 +196,7 @@ export class RetailerUtils {
         return retailer;
     }
 
+    @Telemetry('utils.retailer.getAll')
     static async getAll(em: EntityManager, from: number, limit: number) {
         return em.find(RetailerEntity, {}, { limit, offset: from });
     }

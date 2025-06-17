@@ -6,6 +6,7 @@ import { EventHint, Event as SentryEvent } from '@sentry/node';
 import { ProfilingIntegration } from '@sentry/profiling-node';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { AppModule } from './app.module';
+import otelSDK from './instrumentation';
 import { SentryFilter } from './modules/apm/sentry.exception.filter';
 import { NoOAuthCookieExceptionFilter } from './modules/shopify/auth/no.oauth.cookie.exception.filter';
 import { ExtendedLogger } from './utils/ExtendedLogger';
@@ -16,34 +17,10 @@ import { ulid } from 'ulid';
 export let app: INestApplication | undefined = undefined;
 
 async function bootstrap() {
+    await otelSDK.start();
+    console.log('Started OTEL SDK');
     const logger = new ExtendedLogger('Main');
     Error.stackTraceLimit = 100;
-
-    //Setup Sentry
-    Sentry.init({
-        dsn: process.env.SENTRY_DNS,
-        debug: process.env.SENTRY_DEBUG === 'true',
-        tracesSampleRate: 1,
-        profilesSampleRate: 1,
-        environment: process.env.RELEASE_TYPE ?? 'local',
-        release: process.env.PACKAGE_VERSION ?? 'local',
-        ignoreErrors: [],
-        integrations: [
-            // new ProfilingIntegration()
-        ],
-        normalizeDepth: 5,
-        maxValueLength: 1250,
-        async beforeSend(event: SentryEvent, hint?: EventHint): Promise<SentryEvent | null> {
-            //Do some filtering here
-            console.log('Sentry before send', event);
-            return event;
-        },
-    });
-
-    Sentry.startTransaction({
-        op: 'Startup',
-        name: 'Application Startup',
-    }).finish();
 
     app = await NestFactory.create(AppModule, {
         bodyParser: false,
@@ -77,8 +54,9 @@ async function bootstrap() {
     app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
     const { httpAdapter } = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new SentryFilter(httpAdapter), new NoOAuthCookieExceptionFilter());
-    app.useGlobalInterceptors(new SentryGqlInterceptor());
+    app.useGlobalFilters(new NoOAuthCookieExceptionFilter());
+    // app.useGlobalFilters(new SentryFilter(httpAdapter), new NoOAuthCookieExceptionFilter());
+    // app.useGlobalInterceptors(new SentryGqlInterceptor());
 
     const port = process.env.PORT || 3100;
     const host = process.env.HOST || `http://localhost:${port}`;
@@ -89,4 +67,22 @@ async function bootstrap() {
     logger.verbose(`Start installation via shopify admin panel or by using: ${host}/offline/auth?shop=[domain]`);
     logger.verbose(`Startup ULID: ${ulid()}`);
 }
+
 bootstrap();
+
+async function shutdownHandler(signal?: string) {
+    console.log(`Application shutting down due to: ${signal}`);
+
+    try {
+        await otelSDK.shutdown();
+        console.log('OpenTelemetry SDK shutdown completed');
+    } catch (error) {
+        console.error('Error during OpenTelemetry SDK shutdown', error);
+    }
+
+    process.exit(0); // Ensures clean process exit
+}
+
+// Listen for NestJS shutdown signals
+process.on('SIGINT', shutdownHandler);
+process.on('SIGTERM', shutdownHandler);
