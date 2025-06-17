@@ -9,6 +9,7 @@ import { ProductJobUtils } from '../data-ingestion/product.job.utils';
 import { RetailerService } from '../retailer/retailer.service';
 import { ToolsService } from './tools.service';
 import { auth } from '@trigger.dev/sdk';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Resolver()
 export class ToolsResolver {
@@ -20,6 +21,20 @@ export class ToolsResolver {
         private readonly bulkOperationService: BulkOperationService,
     ) {}
 
+    @Telemetry('graphql.query.version', { isGraphQL: true })
+    @Query(() => String, {
+        name: 'version',
+        description: 'Returns the current version and environment type of the API',
+    })
+    async version(): Promise<string> {
+        const version = process.env.PACKAGE_VERSION || 'vUnknown';
+        const environment = process.env.RELEASE_TYPE || 'development';
+        const result = `${version} (${environment})`;
+        this.logger.log(`GraphQL Version: ${result}`);
+        return result;
+    }
+
+    @Telemetry('graphql.mutation.sendAllRetailerToCloudshelf', { isGraphQL: true })
     @Mutation(() => GraphQLBoolean)
     async sendAllRetailerToCloudshelf(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -34,6 +49,7 @@ export class ToolsResolver {
         return true;
     }
 
+    @Telemetry('graphql.mutation.getRetailerInfoWhereNull', { isGraphQL: true })
     @Mutation(() => GraphQLBoolean)
     async getRetailerInfoWhereNull(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -47,6 +63,8 @@ export class ToolsResolver {
 
         return true;
     }
+
+    @Telemetry('graphql.query.viewConfig', { isGraphQL: true })
     @Query(() => GraphQLString)
     async viewConfig(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -59,6 +77,7 @@ export class ToolsResolver {
         return JSON.stringify(process.env);
     }
 
+    @Telemetry('graphql.query.forceASafetySyncNow', { isGraphQL: true })
     @Query(() => GraphQLString)
     async forceASafetySyncNow(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -72,6 +91,7 @@ export class ToolsResolver {
         return 'OK';
     }
 
+    @Telemetry('graphql.query.forceSync', { isGraphQL: true })
     @Query(() => GraphQLString)
     async forceSync(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -106,6 +126,7 @@ export class ToolsResolver {
         return 'Scheduled a sync';
     }
 
+    @Telemetry('graphql.query.getWebhooksForRetailer', { isGraphQL: true })
     @Query(() => GraphQLString)
     async getWebhooksForRetailer(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -128,6 +149,7 @@ export class ToolsResolver {
         return 'OK: ' + JSON.stringify(webhooksForDomain);
     }
 
+    @Telemetry('graphql.query.reprocessBulkOperation', { isGraphQL: true })
     @Mutation(() => GraphQLBoolean)
     async reprocessBulkOperation(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -160,6 +182,7 @@ export class ToolsResolver {
         return true;
     }
 
+    @Telemetry('graphql.mutation.deleteAllWebhooks', { isGraphQL: true })
     @Mutation(() => GraphQLString)
     async deleteAllWebhooks(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -178,6 +201,7 @@ export class ToolsResolver {
         return 'OK: ' + JSON.stringify(result);
     }
 
+    @Telemetry('graphql.mutation.registerAllWebhooks', { isGraphQL: true })
     @Mutation(() => GraphQLString)
     async registerAllWebhooks(
         @Args({ name: 'token', type: () => GraphQLString })
@@ -200,6 +224,7 @@ export class ToolsResolver {
         return `OK (${process.env.HOST}): ` + JSON.stringify(result);
     }
 
+    @Telemetry('graphql.query.getTriggerPublicToken', { isGraphQL: true })
     @Query(() => GraphQLString)
     async getTriggerPublicToken(
         @Args({ name: 'token', type: () => GraphQLString })
