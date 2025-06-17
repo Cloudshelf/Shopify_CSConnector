@@ -1,6 +1,5 @@
 import { Controller, Headers, HttpCode, Post } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { SentryUtil } from '../../../utils/SentryUtil';
 import { ShopifyHmac, ShopifyHmacType } from '@nestjs-shopify/core';
 import { Telemetry } from 'src/decorators/telemetry';
 
@@ -15,10 +14,10 @@ export class RequiredWebhooksController {
     async shopRedact(@Headers('X-Shopify-Shop-Domain') shopDomain: string) {
         this.logger.log('Received shop redact webhook for domain ' + shopDomain);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'SHOP_REDACT', {
-            id: shopDomain,
-            username: shopDomain,
-        });
+        // SentryUtil.InformationalTransaction('Webhook:Received', 'SHOP_REDACT', {
+        //     id: shopDomain,
+        //     username: shopDomain,
+        // });
 
         // await this.slackService.sendGeneralNotification(
         //     NotificationUtils.buildUninstallAttachments(shopDomain, 'redact'),
@@ -32,10 +31,10 @@ export class RequiredWebhooksController {
     async customerRedact(@Headers('X-Shopify-Shop-Domain') shopDomain: string) {
         this.logger.log('Received customer redact webhook for domain ' + shopDomain);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'CUSTOMER_REDACT', {
-            id: shopDomain,
-            username: shopDomain,
-        });
+        // SentryUtil.InformationalTransaction('Webhook:Received', 'CUSTOMER_REDACT', {
+        //     id: shopDomain,
+        //     username: shopDomain,
+        // });
     }
 
     @Telemetry('webhook.customerDataRequest')
@@ -45,9 +44,9 @@ export class RequiredWebhooksController {
     async customerDataRequest(@Headers('X-Shopify-Shop-Domain') shopDomain: string) {
         this.logger.log(`Received customer data request webhook for domain ${shopDomain}`);
 
-        SentryUtil.InformationalTransaction('Webhook:Received', 'CUSTOMER_DATA_REQUEST', {
-            id: shopDomain,
-            username: shopDomain,
-        });
+        // SentryUtil.InformationalTransaction('Webhook:Received', 'CUSTOMER_DATA_REQUEST', {
+        //     id: shopDomain,
+        //     username: shopDomain,
+        // });
     }
 }
