@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
-import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
