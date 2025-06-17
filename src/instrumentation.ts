@@ -18,6 +18,7 @@ const traceExporter = new OTLPTraceExporter({
 
 const resource = new Resource({
     ['service.name']: 'Shopify_Connector',
+    ['service.version']: process.env.PACKAGE_VERSION || 'unknown',
 });
 
 const otelSDK = new NodeSDK({

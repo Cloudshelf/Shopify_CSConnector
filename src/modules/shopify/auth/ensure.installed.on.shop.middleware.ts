@@ -20,7 +20,7 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
         private readonly customTokenService: CustomTokenService,
     ) {}
 
-    @Telemetry('middlware.ensure-installed-on-shop.use')
+    @Telemetry('middleware.ensure-installed-on-shop.use')
     async use(req: Request, res: Response, next: NextFunction) {
         this.logger.debug(`In EnsureInstalledOnShopMiddleware`);
 
