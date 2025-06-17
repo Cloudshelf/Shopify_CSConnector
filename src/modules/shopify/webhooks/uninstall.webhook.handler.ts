@@ -4,11 +4,11 @@ import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SentryUtil } from '../../../utils/SentryUtil';
 import { SlackUtils } from '../../../utils/SlackUtils';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @WebhookHandler('APP_UNINSTALLED')
 export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -23,7 +23,7 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         super();
     }
 
-    @SentryInstrument('UninstalledWebhookHandler')
+    @Telemetry('webhook.UninstalledWebhookHandler')
     async handle(domain: string, data: unknown, webhookId: string): Promise<void> {
         this.logger.debug(`Webhook ${webhookId} called for shop ID ${domain}`);
         this.logger.debug(data);

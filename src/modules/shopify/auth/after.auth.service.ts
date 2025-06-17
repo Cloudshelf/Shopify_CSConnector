@@ -4,7 +4,6 @@ import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
 import { SlackUtils } from '../../../utils/SlackUtils';
-import { SentryInstrument } from '../../apm/sentry.function.instrumenter';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { slackSchema } from '../../configuration/schemas/slack.schema';
@@ -19,6 +18,7 @@ import { InjectShopify } from '@nestjs-shopify/core';
 import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
 import { Shopify } from '@shopify/shopify-api';
 import { Request, Response } from 'express';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
@@ -35,7 +35,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly slackConfigService: ConfigService<typeof slackSchema>,
     ) {}
 
-    @SentryInstrument('AfterAuthHandlerService')
+    @Telemetry('service.after-auth.afterAuth')
     async afterAuth(req: Request, res: Response, session: ShopifySessionEntity): Promise<void> {
         const { host } = req.query;
 

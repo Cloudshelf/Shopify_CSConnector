@@ -8,15 +8,15 @@ import {
     StockViaProductVariantAllLocationsQuery,
     StockViaProductVariantAllLocationsQueryVariables,
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
-import { SentryInstrument } from '../apm/sentry.function.instrumenter';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfDraftOrder, CloudshelfDraftOrdersPayload } from './payloads/CloudshelfDraftOrdersPayload';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class POSService {
     private readonly logger = new Logger('POSService');
 
-    @SentryInstrument('POSService')
+    @Telemetry('service.pos.getDraftOrders')
     async getDraftOrders(
         retailer: RetailerEntity,
         search?: string,

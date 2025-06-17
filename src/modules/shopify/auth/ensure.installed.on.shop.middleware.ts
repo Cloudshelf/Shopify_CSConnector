@@ -8,6 +8,7 @@ import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { InjectShopify } from '@nestjs-shopify/core';
 import { Shopify } from '@shopify/shopify-api';
 import { NextFunction, Request, Response } from 'express';
+import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
@@ -19,6 +20,7 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
         private readonly customTokenService: CustomTokenService,
     ) {}
 
+    @Telemetry('middleware.ensure-installed-on-shop.use')
     async use(req: Request, res: Response, next: NextFunction) {
         this.logger.debug(`In EnsureInstalledOnShopMiddleware`);
 
