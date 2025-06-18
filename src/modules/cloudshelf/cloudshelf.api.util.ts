@@ -568,24 +568,30 @@ export class CloudshelfApiUtils {
     ) {
         const authedClient = await CloudshelfApiUtils.getCloudshelfAPIApolloClient(apiURL, domain, logs);
 
+        const variables: UpsertOrdersMutationVariables = {
+            input: [
+                {
+                    newThirdPartyId: shopifyOrderId,
+                    thirdPartyId: shopifyCartId,
+                    status: status,
+                    lines: lines,
+                    fromPOS: fromPos,
+                    sessionId: sessionId,
+                },
+            ],
+        };
+
+        logs?.info(`Sending payload to API for Upset Orders`, variables);
+
         const mutationTuple = await authedClient.mutate<UpsertOrdersMutation, UpsertOrdersMutationVariables>({
             mutation: UpsertOrdersDocument,
-            variables: {
-                input: [
-                    {
-                        newThirdPartyId: shopifyOrderId,
-                        thirdPartyId: shopifyCartId,
-                        status: status,
-                        lines: lines,
-                        fromPOS: fromPos,
-                        sessionId: sessionId,
-                    },
-                ],
-            },
+            variables: variables,
         });
 
         if (mutationTuple.errors) {
             logs?.error?.(`Failed to report order status ${domain}`, { errors: mutationTuple.errors });
         }
+
+        logs?.info(`Order status update response:`, mutationTuple);
     }
 }

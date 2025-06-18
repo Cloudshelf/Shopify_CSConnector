@@ -134,6 +134,14 @@ export const ProcessOrderTask = task({
         const draftorderNoteAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_DRAFT_ORDER_ID);
         logger.info(`Order Lines: ${orderLines.length}`, { lines: orderLines });
 
+        let validSessionId: string | undefined = undefined;
+
+        if (sessionAttribute?.value) {
+            if (sessionAttribute?.value?.startsWith('gid://')) {
+                validSessionId = sessionAttribute.value;
+            }
+        }
+
         logger.info('reportOrderStatus payloads', {
             api: cloudshelfAPI,
             retailerDomain: retailer.domain,
@@ -141,7 +149,7 @@ export const ProcessOrderTask = task({
             cloudshelfStatus: cloudshelfStatus,
             admin_graphql_api_id: payload.data.admin_graphql_api_id,
             fromPOS: draftorderNoteAttribute !== undefined,
-            sessionId: sessionAttribute?.value ?? undefined,
+            sessionId: validSessionId,
             orderLines: orderLines,
         });
 
@@ -153,9 +161,16 @@ export const ProcessOrderTask = task({
             cloudshelfStatus,
             payload.data.admin_graphql_api_id,
             draftorderNoteAttribute !== undefined,
-            sessionAttribute?.value ?? undefined,
+            validSessionId,
             orderLines.length > 0 ? orderLines : undefined,
+            {
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+            },
         );
+
+        logger.info(`Reported Order Status!`);
 
         const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
         //Now delete the draft order from shopify (if it exists in the notes)
@@ -186,7 +201,7 @@ export const ProcessOrderTask = task({
             }
         }
 
-        if (sessionAttribute) {
+        if (validSessionId) {
             //If theres a session, we can assume it came from cloudshelf
             const canUseWriteOrders = await retailer.supportsWriteOrders();
             if (canUseWriteOrders) {
@@ -236,6 +251,8 @@ export const ProcessOrderTask = task({
                     tags: tags,
                     email: !hasEmail && emailAttribute ? emailAttribute.value : undefined,
                 };
+
+                logger.info(`Sending update order request with payload`, { orderInput });
                 //Update the order with the note to say it came from cloudshelf, the customer email (IF it was not already on the order, and add "Cloudshelf" as a tag)
                 const orderUpdateResult = await graphqlClient.mutate<OrderUpdateMutation, OrderUpdateMutationVariables>(
                     {
