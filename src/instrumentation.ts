@@ -1,3 +1,4 @@
+import { CrawlerErrorSampler } from './crawler-error-sampler';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core';
@@ -5,7 +6,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { BatchSpanProcessor, TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-base';
 import * as process from 'process';
 
 const traceExporter = new OTLPTraceExporter({
@@ -37,6 +38,7 @@ const otelSDK = new NodeSDK({
     }),
     instrumentations: [getNodeAutoInstrumentations()],
     resource,
+    sampler: new CrawlerErrorSampler(new TraceIdRatioBasedSampler(1.0)),
 });
 
 export default otelSDK;
