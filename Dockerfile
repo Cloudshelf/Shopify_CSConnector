@@ -4,7 +4,8 @@ WORKDIR /usr/src/app
 COPY package.json tsconfig.json package-lock.json .npmrc nest-cli.json tsconfig.build.json ./
 COPY tsconfig.json ./
 COPY ./patches ./patches
-RUN npm install
+RUN npm install --ignore-scripts
+RUN patch-package
 COPY ./src ./src
 COPY .env .env
 RUN npm run build
