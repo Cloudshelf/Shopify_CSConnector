@@ -25,7 +25,7 @@
     "start:prod": "node dist/main",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org cloudshelf --project connector-shopify ./dist && sentry-cli --url https://apm.cloudshelf.ai sourcemaps upload --org cloudshelf --project connector-shopify ./dist",
     "--- other ---": "",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && npx license-report --output=markdown --only=prod --fields=name --fields=installedVersion --fields=licenseType --fields=author --fields=link > LICENSES.md",
     "--- trigger ---": "",
     "trigger:dev": "npx trigger.dev@v4-beta dev --log-level debug",
     "trigger:dev:debug": "npx trigger.dev@v4-beta dev --log-level debug",
