@@ -4,6 +4,7 @@ import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
 import { idempotencyKeys, runs } from '@trigger.dev/sdk';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 export class ProductJobUtils {
     static async scheduleTriggerJob(
@@ -13,12 +14,12 @@ export class ProductJobUtils {
         reason?: string,
         logs?: LogsInterface,
     ) {
-        const retailerTag = `retailer_${retailer.id}`;
-        const syncTypeTag = fullSync ? 'type_full' : 'type_partial';
-        const tags: string[] = [retailerTag, `domain_${retailer.domain.toLowerCase()}`, syncTypeTag];
-        if (reason) {
-            tags.push(`reason_${reason}`);
-        }
+        const tags = TriggerTagsUtils.createTags({
+            domain: retailer.domain,
+            retailerId: retailer.id,
+            syncType: fullSync ? 'type_full' : 'type_partial',
+            reason,
+        });
         let delay = '20m';
 
         if (fullSync) {
@@ -33,7 +34,7 @@ export class ProductJobUtils {
         // if its partial sync, and there is a full sync scheduled, cancel any partial syncs and then do nothing.
         // if its partial sync, and there is NO full sync scheduled, then if there is any partials do nothing, otherwise schedule
 
-        const searchTags: string[] = [retailerTag];
+        const searchTags: string[] = [TriggerTagsUtils.createRetailerTag(retailer.id)];
         const pendingRuns: { id: string; type: 'type_full' | 'type_partial' }[] = [];
 
         for await (const run of runs.list({
@@ -96,14 +97,12 @@ export class ProductJobUtils {
         logs?: LogsInterface,
     ) {
         const delay = '1s';
-        const tags: string[] = [
-            `retailer_${retailer.id}`,
-            `domain_${retailer.domain.toLowerCase()}`,
-            bulkOp.installSync ? 'type_full' : 'type_partial',
-        ];
-        if (reason) {
-            tags.push(`reason_${reason}`);
-        }
+        const tags = TriggerTagsUtils.createTags({
+            domain: retailer.domain,
+            retailerId: retailer.id,
+            syncType: bulkOp.installSync ? 'type_full' : 'type_partial',
+            reason,
+        });
 
         logs?.info(
             `Asking trigger to schedule product consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,

@@ -4,6 +4,7 @@ import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
 import { idempotencyKeys } from '@trigger.dev/sdk';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 export class CollectionJobUtils {
     static async scheduleTriggerJob(
@@ -12,14 +13,12 @@ export class CollectionJobUtils {
         reason?: string,
         logs?: LogsInterface,
     ) {
-        const tags: string[] = [
-            `retailer_${retailer.id}`,
-            `domain_${retailer.domain.toLowerCase()}`,
-            fullSync ? 'type_full' : 'type_partial',
-        ];
-        if (reason) {
-            tags.push(`reason_${reason}`);
-        }
+        const tags = TriggerTagsUtils.createTags({
+            domain: retailer.domain,
+            retailerId: retailer.id,
+            syncType: fullSync ? 'type_full' : 'type_partial',
+            reason,
+        });
         const delay = '1s';
 
         await RequestProductGroupsTask.trigger(
@@ -43,14 +42,13 @@ export class CollectionJobUtils {
         logs?: LogsInterface,
     ) {
         const delay = '1s';
-        const tags: string[] = [
-            `retailer_${retailer.id}`,
-            `domain_${retailer.domain.toLowerCase()}`,
-            bulkOp.installSync ? 'type_full' : 'type_partial',
-        ];
-        if (reason) {
-            tags.push(`reason_${reason}`);
-        }
+        const tags = TriggerTagsUtils.createTags({
+            domain: retailer.domain,
+            retailerId: retailer.id,
+            syncType: bulkOp.installSync ? 'type_full' : 'type_partial',
+            reason,
+        });
+
         logs?.info(
             `Asking trigger to schhedule productgroup consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
         );

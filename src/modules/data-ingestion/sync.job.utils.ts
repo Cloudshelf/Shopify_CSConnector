@@ -1,14 +1,15 @@
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { HandlePostSync } from 'src/trigger/data-ingestion/handle-post-sync';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 export class PostSyncJobUtils {
     static async scheduleJob(retailer: RetailerEntity, reason?: string, logs?: LogsInterface) {
-        const retailerTag = `retailer_${retailer.id}`;
-        const tags: string[] = [retailerTag, `domain_${retailer.domain.toLowerCase()}`];
-        if (reason) {
-            tags.push(`reason_${reason}`);
-        }
+        const tags = TriggerTagsUtils.createTags({
+            domain: retailer.domain,
+            retailerId: retailer.id,
+            reason,
+        });
         const delay = '1s';
 
         await HandlePostSync.trigger(
