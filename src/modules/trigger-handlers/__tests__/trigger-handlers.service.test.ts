@@ -43,6 +43,19 @@ describe('TriggerHandlersService', () => {
 
         await triggerHandlersService.cancelTriggersForDomain({ domain, retailerId });
 
+        expect(runs.list).toHaveBeenCalledWith({
+            tag: ['domain_test.com', 'retailer_123'],
+            status: [
+                'WAITING_FOR_DEPLOY',
+                'DELAYED',
+                'EXECUTING',
+                'FROZEN',
+                'INTERRUPTED',
+                'QUEUED',
+                'REATTEMPTING',
+                'PENDING_VERSION',
+            ],
+        });
         expect(runs.cancel).toHaveBeenCalledWith('run1');
         expect(runs.cancel).toHaveBeenCalledWith('run2');
         expect(runs.cancel).toHaveBeenCalledWith('run3');

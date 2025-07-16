@@ -49,6 +49,10 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         await this.retailerService.deleteByDomain(domain);
         await this.databaseSessionStorage.deleteSessionsByDomain(domain);
         await this.cloudshelfApiService.reportUninstall(domain);
-        await this.triggerHandlersService.cancelTriggersForDomain({ domain, retailerId: foundRetailer?.id ?? '' });
+        try {
+            await this.triggerHandlersService.cancelTriggersForDomain({ domain, retailerId: foundRetailer?.id ?? '' });
+        } catch (error) {
+            this.logger.error(`Error cancelling triggers for domain ${domain}`, error);
+        }
     }
 }
