@@ -18,7 +18,7 @@ export class TriggerTagsUtils {
     }: {
         domain: string;
         retailerId?: string;
-        syncType?: string;
+        syncType?: 'type_full' | 'type_partial';
         reason?: string;
     }): string[] {
         const tags = [this.createDomainTag(domain)];
@@ -29,7 +29,7 @@ export class TriggerTagsUtils {
             tags.push(`reason_${reason}`);
         }
         if (syncType) {
-            tags.push(`sync_type_${syncType}`);
+            tags.push(syncType);
         }
         return tags;
     }

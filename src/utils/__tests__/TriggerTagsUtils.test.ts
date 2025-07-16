@@ -8,11 +8,11 @@ describe('TriggerTagsUtils', () => {
         ],
         [
             'with retailId, reason and sync type as empty string',
-            { reason: '', syncType: '', retailerId: '', expectedTags: ['domain_test.com'] },
+            { reason: '', syncType: undefined, retailerId: '', expectedTags: ['domain_test.com'] },
         ],
         [
             'with retailId as 123, reason and sync type as empty string',
-            { reason: '', syncType: '', retailerId: '123', expectedTags: ['domain_test.com', 'retailer_123'] },
+            { reason: '', syncType: undefined, retailerId: '123', expectedTags: ['domain_test.com', 'retailer_123'] },
         ],
     ])('should create tags with domain and retailer id %s', (_, { reason, syncType, retailerId, expectedTags }) => {
         const tags = TriggerTagsUtils.createTags({
@@ -42,7 +42,7 @@ describe('TriggerTagsUtils', () => {
             syncType: 'type_full',
         });
 
-        expect(tags).toEqual(['domain_test.com', 'retailer_123', 'sync_type_type_full']);
+        expect(tags).toEqual(['domain_test.com', 'retailer_123', 'type_full']);
     });
 
     it('should create tags with domain and retailer id and sync type and reason', () => {
@@ -53,6 +53,6 @@ describe('TriggerTagsUtils', () => {
             reason: 'test',
         });
 
-        expect(tags).toEqual(['domain_test.com', 'retailer_123', 'reason_test', 'sync_type_type_full']);
+        expect(tags).toEqual(['domain_test.com', 'retailer_123', 'reason_test', 'type_full']);
     });
 });
