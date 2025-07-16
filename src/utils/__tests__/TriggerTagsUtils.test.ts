@@ -3,11 +3,11 @@ import { TriggerTagsUtils } from '../TriggerTagsUtils';
 describe('TriggerTagsUtils', () => {
     test.each([
         [
-            'with retailId, reason and sync type as null',
+            'with retailId, reason and sync type as undefined',
             { reason: undefined, syncType: undefined, retailerId: undefined, expectedTags: ['domain_test.com'] },
         ],
         [
-            'with retailId, reason and sync type as empty string',
+            'with sync type as undefined, retailId, reason and as empty string',
             { reason: '', syncType: undefined, retailerId: '', expectedTags: ['domain_test.com'] },
         ],
         [

@@ -10,6 +10,10 @@ export class TriggerTagsUtils {
         return `domain_${domain.toLowerCase()}`;
     }
 
+    static createReasonTag(reason: string): string {
+        return `reason_${reason}`;
+    }
+
     static createTags({
         domain,
         retailerId,
@@ -21,12 +25,12 @@ export class TriggerTagsUtils {
         syncType?: 'type_full' | 'type_partial';
         reason?: string;
     }): string[] {
-        const tags = [this.createDomainTag(domain)];
+        const tags = [TriggerTagsUtils.createDomainTag(domain)];
         if (retailerId) {
-            tags.push(`retailer_${retailerId}`);
+            tags.push(TriggerTagsUtils.createRetailerTag(retailerId));
         }
         if (reason) {
-            tags.push(`reason_${reason}`);
+            tags.push(TriggerTagsUtils.createReasonTag(reason));
         }
         if (syncType) {
             tags.push(syncType);
