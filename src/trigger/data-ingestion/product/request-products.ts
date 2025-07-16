@@ -98,7 +98,7 @@ export const RequestProductsTask = task({
     id: 'request-products',
     queue: IngestionQueue,
     machine: {
-        preset: 'small-1x',
+        preset: 'small-2x',
     },
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);

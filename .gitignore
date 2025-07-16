@@ -46,3 +46,8 @@ lerna-debug.log*
 .sentryclirc
 
 .trigger
+
+# Tests
+/coverage
+/.nyc_output
+/junit.xml

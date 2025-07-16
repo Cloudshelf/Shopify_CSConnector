@@ -8,6 +8,7 @@ import { RetailerService } from '../../retailer/retailer.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 import { Telemetry } from 'src/decorators/telemetry';
+import { TriggerHandlersService } from 'src/modules/trigger-handlers/trigger-handlers.service';
 
 @WebhookHandler('APP_UNINSTALLED')
 export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -18,6 +19,7 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         private readonly databaseSessionStorage: DatabaseSessionStorage,
         private readonly cloudshelfApiService: CloudshelfApiService,
         private readonly slackConfigService: ConfigService<typeof slackSchema>,
+        private readonly triggerHandlersService: TriggerHandlersService,
     ) {
         super();
     }
@@ -34,9 +36,9 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
 
         const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
         const slackNotificationChannel = this.slackConfigService.get<string>('SLACK_GENERAL_NOTIFICATION_CHANNEL');
+        const foundRetailer = await this.retailerService.findOneByDomain(domain);
 
         if (slackToken && slackNotificationChannel) {
-            const foundRetailer = await this.retailerService.findOneByDomain(domain);
             await SlackUtils.SendNotification(
                 slackToken,
                 slackNotificationChannel,
@@ -47,5 +49,10 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         await this.retailerService.deleteByDomain(domain);
         await this.databaseSessionStorage.deleteSessionsByDomain(domain);
         await this.cloudshelfApiService.reportUninstall(domain);
+        try {
+            await this.triggerHandlersService.cancelTriggersForDomain({ domain, retailerId: foundRetailer?.id ?? '' });
+        } catch (error) {
+            this.logger.error(`Error cancelling triggers for domain ${domain}`, error);
+        }
     }
 }

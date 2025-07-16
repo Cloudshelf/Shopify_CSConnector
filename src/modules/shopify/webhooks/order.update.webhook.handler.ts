@@ -8,6 +8,7 @@ import { OrderUpdateWebhookPayload } from './attrs.cosnts';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 import { Telemetry } from 'src/decorators/telemetry';
 import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 @WebhookHandler('ORDERS_UPDATED')
 export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -55,7 +56,10 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
             return;
         }
 
-        const tags: string[] = [`retailer_${retailer.id}`, `domain_${retailer.domain.toLowerCase()}`];
+        const tags = TriggerTagsUtils.createTags({
+            domain: retailer.domain,
+            retailerId: retailer.id,
+        });
 
         await ProcessOrderTask.trigger(
             { data, organisationId: retailer.id },
