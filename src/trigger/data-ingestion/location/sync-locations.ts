@@ -8,12 +8,12 @@ import {
 } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.util';
 import { FlushMode } from '@mikro-orm/core';
-import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
 import { getDbForTrigger } from '../../reuseables/db';
 import { logger, task } from '@trigger.dev/sdk';
+import { CloudshelfApiLocationUtils } from 'src/modules/cloudshelf/cloudshelf.api.location.util';
 import { IngestionQueue } from 'src/trigger/queues';
 
 export const SyncLocationsTask = task({
@@ -103,7 +103,7 @@ export const SyncLocationsTask = task({
 
         logger.info('Creating location in Cloudshelf with data:', { locationInputs });
 
-        await CloudshelfApiUtils.upsertLocations(cloudshelfAPI, retailer, locationInputs, {
+        await CloudshelfApiLocationUtils.upsertLocations(cloudshelfAPI, retailer, locationInputs, {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),

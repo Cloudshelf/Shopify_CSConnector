@@ -35,3 +35,10 @@ mutation keepKnownProductGroupsViaFile($fileUrl: String!) {
         }
     }
 }
+
+mutation UpdateProductsInProductGroupInBatch($productGroupUpdateBatchInput: ProductGroupUpdateBatch!) {
+    updateProductsInProductGroupInBatch(productGroupUpdateBatchInput: $productGroupUpdateBatchInput) {
+        success
+        productGroupId
+    }
+}

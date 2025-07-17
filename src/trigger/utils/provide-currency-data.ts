@@ -1,10 +1,10 @@
 import { FlushMode } from '@mikro-orm/core';
 import _ from 'lodash';
-import { CloudshelfApiUtils } from '../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { getDbForTrigger } from '../reuseables/db';
 import { ApiClient } from '@trigger.dev/core/v3';
 import { logger, task } from '@trigger.dev/sdk';
+import { CloudshelfApiStoreUtils } from 'src/modules/cloudshelf/cloudshelf.api.store.util';
 
 export const ProvideCurrencyData = task({
     id: 'provideCurrencyData',
@@ -59,7 +59,7 @@ export const ProvideCurrencyData = task({
 
             try {
                 // Make API call to update currency
-                await CloudshelfApiUtils.upsertStore(cloudshelfAPI, retailer);
+                await CloudshelfApiStoreUtils.upsertStore(cloudshelfAPI, retailer);
 
                 logger.info(`Successfully updated currency for retailer ${retailer.domain}`);
             } catch (error) {

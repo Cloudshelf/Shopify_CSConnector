@@ -10,7 +10,6 @@ import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/sho
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 import _ from 'lodash';
-import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { CollectionJobUtils } from '../../../modules/data-ingestion/collection.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
@@ -20,6 +19,8 @@ import { getDbForTrigger } from '../../reuseables/db';
 import { logger, task } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
+import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
+import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { IngestionQueue } from 'src/trigger/queues';
 import * as stream from 'stream';
 import { ulid } from 'ulid';
@@ -239,7 +240,7 @@ export const ProcessProductsTask = task({
         const chunkedProductInputs = _.chunk(productInputs, PRODUCT_CHUNK_UPLOAD_SIZE);
         for (const chunk of chunkedProductInputs) {
             logger.info(`Upserting ${chunk.length} products to cloudshelf for current file`);
-            await CloudshelfApiUtils.upsertProducts(cloudshelfAPI, bulkOperationRecord.domain, chunk, {
+            await CloudshelfApiProductUtils.upsertProducts(cloudshelfAPI, bulkOperationRecord.domain, chunk, {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -253,7 +254,11 @@ export const ProcessProductsTask = task({
         const chunkedVariantInputs = _.chunk(variantInputs, VARIANT_CHUNK_UPLOAD_SIZE);
         for (const variantInput of chunkedVariantInputs) {
             logger.info(`Upserting ${variantInput.length} variants to cloudshelf for current file`);
-            await CloudshelfApiUtils.upsertProductVariants(cloudshelfAPI, bulkOperationRecord.domain, variantInput);
+            await CloudshelfApiProductUtils.upsertProductVariants(
+                cloudshelfAPI,
+                bulkOperationRecord.domain,
+                variantInput,
+            );
         }
 
         logger.info(`Deleting downloaded data file: ${tempFile}`);
@@ -267,7 +272,7 @@ export const ProcessProductsTask = task({
                 knownNumberOfImages: imageCount,
             };
             logger.info(`Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`);
-            await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, bulkOperationRecord.domain, input);
+            await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, bulkOperationRecord.domain, input);
         }
         await handleComplete(em, 'job complete', retailer);
     },

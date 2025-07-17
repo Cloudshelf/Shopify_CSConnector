@@ -260,6 +260,7 @@ export type CheckoutFlowDeletePayload = {
 
 export type CheckoutFlowDuplicatePayload = {
   __typename?: 'CheckoutFlowDuplicatePayload';
+  checkoutFlows?: Maybe<Array<CheckoutFlowOptions>>;
   /** An array of errors that occurred during the duplication operation */
   userErrors: Array<UserError>;
 };
@@ -513,6 +514,7 @@ export type CloudshelfDetailsPrinterBlock = {
 
 export type CloudshelfDuplicatePayload = {
   __typename?: 'CloudshelfDuplicatePayload';
+  cloudshelves?: Maybe<Array<Cloudshelf>>;
   /** An array of errors that occurred during the duplication operation */
   userErrors: Array<UserError>;
 };
@@ -662,6 +664,15 @@ export type CloudshelfUpsertPayload = {
   userErrors: Array<UserError>;
 };
 
+export type CompleteDraftOrderInput = {
+  attemptId: Scalars['String']['input'];
+  basketId: Scalars['GlobalId']['input'];
+  draftOrderId: Scalars['String']['input'];
+  onDevicePaymentId?: InputMaybe<Scalars['String']['input']>;
+  sessionId: Scalars['GlobalId']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type ComplexSession = {
   __typename?: 'ComplexSession';
   addedToBasket: Scalars['Boolean']['output'];
@@ -702,6 +713,16 @@ export type ComplexSessionPageInfo = {
   /** The cursor for the first node in the page */
   startCursor?: Maybe<Scalars['String']['output']>;
 };
+
+/** The type of configuration to retrieve */
+export enum ConfigType {
+  CheckoutFlow = 'CHECKOUT_FLOW',
+  Cloudshelf = 'CLOUDSHELF',
+  Device = 'DEVICE',
+  Location = 'LOCATION',
+  Organisation = 'ORGANISATION',
+  Theme = 'THEME'
+}
 
 export enum ContentConfigurationIssue {
   Cta = 'CTA',
@@ -1208,15 +1229,26 @@ export enum CountryCode {
   Zz = 'ZZ'
 }
 
-export type CreatePaidOrderAttributeInput = {
+export type CreateDraftOrderAttributeInput = {
   key: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+export type CreateDraftOrderInput = {
+  acquisitionOptionId: Scalars['GlobalId']['input'];
+  attemptId: Scalars['String']['input'];
+  attributes?: InputMaybe<Array<CreateDraftOrderAttributeInput>>;
+  basketId: Scalars['GlobalId']['input'];
+  emailAddress: Scalars['String']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  sessionId: Scalars['GlobalId']['input'];
 };
 
 export type CreatePaidOrderInput = {
   acquisitionOptionId: Scalars['GlobalId']['input'];
   attemptId: Scalars['String']['input'];
-  attributes?: InputMaybe<Array<CreatePaidOrderAttributeInput>>;
+  attributes?: InputMaybe<Array<CreateDraftOrderAttributeInput>>;
   basketId: Scalars['GlobalId']['input'];
   emailAddress: Scalars['String']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
@@ -1558,6 +1590,13 @@ export type DraftOrderInput = {
   thirdPartyId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type DraftOrderPayload = {
+  __typename?: 'DraftOrderPayload';
+  message?: Maybe<Scalars['String']['output']>;
+  order?: Maybe<ThirdPartyOrder>;
+  success: Scalars['Boolean']['output'];
+};
+
 /** The eCommerce platform the organisation has connected to Cloudshelf */
 export enum ECommercePlatform {
   /** The organisation is connected to Cloudshelf via a custom integration */
@@ -1726,14 +1765,14 @@ export type FilterInput = {
 
 export type FilterOptions = {
   __typename?: 'FilterOptions';
-  baseShoesizeUnit?: Maybe<Scalars['String']['output']>;
+  baseShoesizeUnit?: Maybe<ShoeSizeUnit>;
   capitalisationStyle?: Maybe<CapitalisationStyle>;
   orderType: FilterOrderType;
   swatches?: Maybe<Array<Swatch>>;
 };
 
 export type FilterOptionsInput = {
-  baseShoesizeUnit?: InputMaybe<Scalars['String']['input']>;
+  baseShoesizeUnit?: InputMaybe<ShoeSizeUnit>;
   capitalisationStyle?: InputMaybe<CapitalisationStyle>;
   orderType: FilterOrderType;
   swatches?: InputMaybe<Array<SwatchInput>>;
@@ -1778,8 +1817,15 @@ export type FulfilmentDetailsPrinterBlock = {
   printerBlockDiscriminator: Scalars['String']['output'];
 };
 
+export type HandoffEnginePayload = {
+  __typename?: 'HandoffEnginePayload';
+  error?: Maybe<Scalars['String']['output']>;
+  handoffPayload?: Maybe<HandoffPayload>;
+};
+
 export type HandoffPayload = {
   __typename?: 'HandoffPayload';
+  cloudshelfId: Scalars['String']['output'];
   productHandle: Scalars['String']['output'];
   productOptionId: Scalars['Float']['output'];
 };
@@ -2138,7 +2184,10 @@ export type Mutation = {
   /** Adds the given list of products to the product group, if they are not already part of the product group */
   addProductsToProductGroup: Scalars['Boolean']['output'];
   cancelHandoff: MobileHandoff;
+  completeDraftOrder: DraftOrderPayload;
+  createDraftOrder: DraftOrderPayload;
   createMobileHandoff: MobileHandoff;
+  /** @deprecated Will be removed soon. Should use createDraftOrder & completeDraftOrder */
   createPaidOrder: CreatePaidOrderPayload;
   createTrackedURL: TrackedUrlPayload;
   createUserAndLinkOrganisation: CreateUserAndLinkOrganisationPayloadResult;
@@ -2165,6 +2214,8 @@ export type Mutation = {
   duplicateThemes: ThemeDuplicatePayload;
   editSubscription: SubscriptionRecord;
   endSession: Session;
+  /** This is an internal function. This allows Cloudshelf staff to force publishing all entites for an organisation */
+  forcePublishOrganisation: Scalars['String']['output'];
   /** Allows the user to provide a file with known product variants to keep, any other product groups already in their organisation will be deleted. (with the exception of the all products group) */
   keepKnownProductGroupsViaFile: ProductGroupDeletionPayload;
   /** Allows the user to provide a file with known products to keep, any other products already in their organisation will be deleted */
@@ -2187,6 +2238,7 @@ export type Mutation = {
   revokeAccessRight: Scalars['Boolean']['output'];
   /** This is an internal function. This allows Cloudshelf staff to run internal tools */
   runInternalTool: Scalars['String']['output'];
+  saveOrgHubspotData: Scalars['Boolean']['output'];
   saveSurveyAnswers: Scalars['Boolean']['output'];
   /** Sets the users currently active organisation (actingAs), which is used to decide which organisations data is accessed in other queries. */
   selectCurrentOrganisationAccess: Scalars['Boolean']['output'];
@@ -2209,6 +2261,8 @@ export type Mutation = {
   updateMyUser: User;
   /** Sets the products in the product group to the given list of products */
   updateProductsInProductGroup: Scalars['Boolean']['output'];
+  /** Sets the products in the product group to the given list of products */
+  updateProductsInProductGroupInBatch: Array<ProductGroupUpdateBatchPayload>;
   updateSalesAssistantRules: Scalars['Boolean']['output'];
   updateSession: Session;
   /** Allows upserting of checkout flows */
@@ -2259,6 +2313,16 @@ export type MutationAddProductsToProductGroupArgs = {
 
 export type MutationCancelHandoffArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type MutationCompleteDraftOrderArgs = {
+  input: CompleteDraftOrderInput;
+};
+
+
+export type MutationCreateDraftOrderArgs = {
+  input: CreateDraftOrderInput;
 };
 
 
@@ -2366,6 +2430,11 @@ export type MutationEndSessionArgs = {
 };
 
 
+export type MutationForcePublishOrganisationArgs = {
+  domain: Scalars['String']['input'];
+};
+
+
 export type MutationKeepKnownProductGroupsViaFileArgs = {
   fileUrl: Scalars['String']['input'];
 };
@@ -2452,6 +2521,13 @@ export type MutationRunInternalToolArgs = {
 };
 
 
+export type MutationSaveOrgHubspotDataArgs = {
+  dealId?: InputMaybe<Scalars['String']['input']>;
+  hubspotId?: InputMaybe<Scalars['String']['input']>;
+  orgId: Scalars['GlobalId']['input'];
+};
+
+
 export type MutationSaveSurveyAnswersArgs = {
   answers: Scalars['String']['input'];
 };
@@ -2527,6 +2603,11 @@ export type MutationUpdateMyUserArgs = {
 export type MutationUpdateProductsInProductGroupArgs = {
   productGroupId: Scalars['GlobalId']['input'];
   productIds: Array<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationUpdateProductsInProductGroupInBatchArgs = {
+  productGroupUpdateBatchInput: ProductGroupUpdateBatch;
 };
 
 
@@ -2789,6 +2870,12 @@ export type Organisation = {
   eCommercePlatformDisplayName: Scalars['String']['output'];
   engagements: Array<Session>;
   fullTextSearchLanguage?: Maybe<ProductLanguage>;
+  /**
+   * Indicates if any entities (Organisation, Device, or Location) within this organisation have pending config publications.
+   * @deprecated Not currently in use
+   */
+  hasPendingPublications: Scalars['Boolean']['output'];
+  hubspotDealId?: Maybe<Scalars['String']['output']>;
   hubspotId?: Maybe<Scalars['String']['output']>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -2826,10 +2913,17 @@ export type Organisation = {
   productVariants: Array<ProductVariant>;
   /** The products which belong to this organisation. */
   products: Array<Product>;
+  /**
+   * Indicates if config publishing is currently in progress for this organisation.
+   * @deprecated Not currently in use
+   */
+  publishInProgress: Scalars['Boolean']['output'];
   rfidGS1CompanyPrefixes: Array<Scalars['String']['output']>;
   salesAssistantAllocation: Scalars['Boolean']['output'];
   salesAssistantClearRule: ClearSalesAssistantRule;
   salesAssistantNameRule: SalesAssistantNameRule;
+  /** The sales assisatnts which belong to this organisation. */
+  salesAssistants: Array<SalesAssistant>;
   uninstallStarted: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
@@ -3264,6 +3358,26 @@ export type ProductGroupPaginatedPayload = {
   totalCount: Scalars['Int']['output'];
 };
 
+export type ProductGroupUpdateBatch = {
+  /** The product group update batch items */
+  productGroupUpdateBatch: Array<ProductGroupUpdateBatchItem>;
+};
+
+export type ProductGroupUpdateBatchItem = {
+  /** The ID of the product group that was updated */
+  productGroupId: Scalars['ID']['input'];
+  /** The IDs of the products that were updated */
+  productIds: Array<Scalars['ID']['input']>;
+};
+
+export type ProductGroupUpdateBatchPayload = {
+  __typename?: 'ProductGroupUpdateBatchPayload';
+  /** The ID of the product group that was updated */
+  productGroupId: Scalars['ID']['output'];
+  /** Whether the update was successful */
+  success: Scalars['Boolean']['output'];
+};
+
 export type ProductGroupUpsertPayload = {
   __typename?: 'ProductGroupUpsertPayload';
   /** An array of ProductGroups that were created or updated */
@@ -3472,6 +3586,7 @@ export type Query = {
   checkoutFlows: CheckoutFlowPaginatedPayload;
   /** Returns a Cloudshelf entity */
   cloudshelf?: Maybe<Cloudshelf>;
+  /** @deprecated Cloudshelf Engine now requests configs from R2 storage. If you need handoff you should use  */
   cloudshelfEnginePayload: CloudshelfEnginePayload;
   /** Returns a paginated array of Cloudshelves */
   cloudshelves: CloudshelfPaginatedPayload;
@@ -3488,6 +3603,7 @@ export type Query = {
   /** Returns a Filter entity */
   filter?: Maybe<Filter>;
   getFractionalPaymentEligibility: PaymentGenericPayload;
+  getHandoffPayload: HandoffEnginePayload;
   getMobileHandoff?: Maybe<MobileHandoff>;
   getPaymentRequest: PaymentGenericPayload;
   getPaymentToken: PaymentTokenPayload;
@@ -3530,6 +3646,8 @@ export type Query = {
   products: ProductPaginatedPayload;
   /** Returns public information about a device */
   publicDevice?: Maybe<PublicDevicePayload>;
+  /** Returns the last published config for a given entity, or generates a new one with pending changes if requested */
+  publishedConfig?: Maybe<Scalars['String']['output']>;
   /** Returns a sales assistant entity */
   salesAssistant?: Maybe<SalesAssistant>;
   /** Returns a paginated array of Sales Assistants */
@@ -3682,6 +3800,11 @@ export type QueryFilterArgs = {
 export type QueryGetFractionalPaymentEligibilityArgs = {
   checkoutAcquisitionOptionId: Scalars['GlobalId']['input'];
   sessionId: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryGetHandoffPayloadArgs = {
+  id: Scalars['GlobalId']['input'];
 };
 
 
@@ -3840,6 +3963,12 @@ export type QueryProductsArgs = {
 
 export type QueryPublicDeviceArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryPublishedConfigArgs = {
+  configType: ConfigType;
+  id: Scalars['String']['input'];
 };
 
 
@@ -4063,6 +4192,12 @@ export enum SessionStatus {
   Complete = 'COMPLETE',
   Invalid = 'INVALID',
   InProgress = 'IN_PROGRESS'
+}
+
+export enum ShoeSizeUnit {
+  Eu = 'EU',
+  Uk = 'UK',
+  Us = 'US'
 }
 
 export type ShopifyStoreInput = {
@@ -4332,6 +4467,7 @@ export type ThemeDeletePayload = {
 
 export type ThemeDuplicatePayload = {
   __typename?: 'ThemeDuplicatePayload';
+  themes?: Maybe<Array<Theme>>;
   /** An array of errors that occurred during the delete operation */
   userErrors: Array<UserError>;
 };
@@ -4920,6 +5056,16 @@ export const KeepKnownProductGroupsViaFileDocument = gql`
   }
 }
     `;
+export const UpdateProductsInProductGroupInBatchDocument = gql`
+    mutation UpdateProductsInProductGroupInBatch($productGroupUpdateBatchInput: ProductGroupUpdateBatch!) {
+  updateProductsInProductGroupInBatch(
+    productGroupUpdateBatchInput: $productGroupUpdateBatchInput
+  ) {
+    success
+    productGroupId
+  }
+}
+    `;
 export const UpsertProductsDocument = gql`
     mutation upsertProducts($input: [ProductInput!]!) {
   upsertProducts(input: $input) {
@@ -5087,6 +5233,13 @@ export type KeepKnownProductGroupsViaFileMutationVariables = Exact<{
 
 
 export type KeepKnownProductGroupsViaFileMutation = { __typename?: 'Mutation', keepKnownProductGroupsViaFile: { __typename?: 'ProductGroupDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type UpdateProductsInProductGroupInBatchMutationVariables = Exact<{
+  productGroupUpdateBatchInput: ProductGroupUpdateBatch;
+}>;
+
+
+export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: string }> };
 
 export type UpsertProductsMutationVariables = Exact<{
   input: Array<ProductInput> | ProductInput;

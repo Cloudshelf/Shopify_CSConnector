@@ -1,5 +1,4 @@
 import { FlushMode } from '@mikro-orm/core';
-import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
@@ -7,6 +6,7 @@ import { getDbForTrigger } from '../../reuseables/db';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { logger, task } from '@trigger.dev/sdk';
 import { subDays } from 'date-fns';
+import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { IngestionQueue } from 'src/trigger/queues';
 
 async function buildCollectionTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
@@ -143,7 +143,7 @@ export const RequestProductGroupsTask = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+                await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
             } else if (typeof err.message === 'string' && err.message.includes('status code 402')) {
                 logger.warn('Ignoring ApolloError with status code 402 (Retailer has outstanding shopify bill)');
                 retailer.syncErrorCode = '402';
@@ -151,7 +151,7 @@ export const RequestProductGroupsTask = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+                await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
             } else if (typeof err.message === 'string' && err.message.includes('status code 404')) {
                 logger.warn('Ignoring ApolloError with status code 404 (Retailer Closed)');
                 retailer.syncErrorCode = '404';
@@ -159,7 +159,7 @@ export const RequestProductGroupsTask = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+                await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
             } else {
                 throw err;
             }
