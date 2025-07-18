@@ -162,7 +162,7 @@ describe('runInternal', () => {
     test.each([
         ['fullSync is true', { fullSync: true }],
         ['fullSync is false', { fullSync: false }],
-    ])('should end early if fullSync %s', async (_, { fullSync }) => {
+    ])('should call the right functions when %s', async (_, { fullSync }) => {
         const em = {};
         const fork = jest.fn().mockImplementation(() => em);
         (TriggerFncs.logger.warn as jest.Mock).mockImplementation(() => {});

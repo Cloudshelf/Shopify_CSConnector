@@ -13,7 +13,6 @@ import {
     ExchangeTokenQuery,
     ExchangeTokenQueryVariables,
 } from 'src/graphql/cloudshelf/generated/cloudshelf';
-import { EntityManager } from '@mikro-orm/postgresql';
 import { CryptographyUtils } from '../../utils/CryptographyUtils';
 import { LogsInterface } from './logs.interface';
 import { createResponseLoggingLink } from './response.logging.link';

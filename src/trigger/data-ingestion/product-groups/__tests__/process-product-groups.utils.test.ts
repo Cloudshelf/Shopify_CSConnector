@@ -194,7 +194,7 @@ describe('ProcessProductGroupsUtils', () => {
         } else if (image) {
             expect(result).toBe('https://image-example.com');
         } else {
-            expect(result).toBeUndefined;
+            expect(result).toBeUndefined();
         }
     });
 
