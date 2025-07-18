@@ -9,7 +9,7 @@ import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { IngestionQueue } from 'src/trigger/queues';
 
-const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: boolean }) => {
+export const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: boolean }) => {
     const {
         error,
         envVars: { cloudshelfAPI },
@@ -40,7 +40,6 @@ const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: b
             em,
             msg: `No Data URL, or shopify job failed. Status: ${bulkOperationRecord.status}`,
             retailer,
-            fullSync: payload.fullSync,
             payload,
         });
         //if shopify didn't return any data... there is nothing we can do here
@@ -66,7 +65,6 @@ const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: b
 
     logger.info(`Updating products in ${Object.entries(productsInGroups).length} product groups on cloudshelf`);
     await ProcessProductGroupsUtils.updateProductGroups({
-        em,
         retailer,
         productsInGroups,
         cloudshelfAPI,
@@ -96,7 +94,6 @@ const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: b
         em,
         msg: 'job complete',
         retailer,
-        fullSync: payload.fullSync,
         payload,
     });
 };

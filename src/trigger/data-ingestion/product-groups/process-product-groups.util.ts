@@ -1,4 +1,4 @@
-import * as joi from 'joi';
+import * as Joi from 'joi';
 import { ProductGroupInput, ProductGroupUpdateBatchItem } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { logger } from '@trigger.dev/sdk';
@@ -13,14 +13,16 @@ import { JsonLUtils } from 'src/utils/JsonLUtils';
 import { finished } from 'stream/promises';
 import { ulid } from 'ulid';
 
-const schema = joi.object({
-    CLOUDSHELF_API_URL: joi.string().required().uri().label('CLOUDSHELF_API_URL'),
-    SHOPIFY_CONNECTOR_HOST: joi.string().required().uri().label('SHOPIFY_CONNECTOR_HOST'),
-    CLOUDFLARE_R2_PUBLIC_ENDPOINT: joi.string().required().uri().label('CLOUDFLARE_R2_PUBLIC_ENDPOINT'),
-    FILE_PREFIX: joi.string().required().label('FILE_PREFIX'),
+const SCHEMA = Joi.object({
+    SHOPIFY_CONNECTOR_HOST: Joi.string().required().uri(),
+    CLOUDFLARE_R2_PUBLIC_ENDPOINT: Joi.string().required().uri(),
+    FILE_PREFIX: Joi.string().required(),
+    CLOUDSHELF_API_URL: Joi.string().required().uri(),
 });
 
 export class ProcessProductGroupsUtils {
+    static MAX_BATCH_SIZE = 5;
+
     static getEnvVars(): Record<string, string> {
         return {
             cloudshelfAPI: process.env.CLOUDSHELF_API_URL || '',
@@ -31,7 +33,7 @@ export class ProcessProductGroupsUtils {
     }
 
     static validateAndGetEnvVars(): { error: Error | null; envVars: Record<string, string> } {
-        const { error } = schema.validate(ProcessProductGroupsUtils.getEnvVars());
+        const { error } = SCHEMA.validate(process.env);
         if (error) {
             logger.error(`Invalid environment variables: ${error.message}`);
             return { error, envVars: {} };
@@ -43,13 +45,11 @@ export class ProcessProductGroupsUtils {
         em,
         msg,
         retailer,
-        fullSync,
         payload,
     }: {
         em: EntityManager;
         msg: string;
         retailer?: RetailerEntity;
-        fullSync?: boolean;
         payload: { fullSync?: boolean };
     }) {
         logger.info('handleComplete', { msg, retailer: retailer?.id ?? 'no retailer', fullSync: payload?.fullSync });
@@ -64,7 +64,7 @@ export class ProcessProductGroupsUtils {
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             });
         }
-        logger.info(`Handle Complete: ${msg}`);
+        logger.info(`handleComplete: ${msg}`);
         await em.flush();
     }
 
@@ -98,17 +98,15 @@ export class ProcessProductGroupsUtils {
             }
             if (collectionObj.Product) {
                 for (const p of collectionObj.Product) {
-                    const productId = GlobalIDUtils.gidConverter(p.id, 'ShopifyProduct')!;
-                    if (p.featuredImage?.url) {
-                        if (image === undefined || image === '') {
-                            image = p.featuredImage.url;
-                        }
-                    }
-                    if (productsInGroups[collectionId] === undefined) {
-                        productsInGroups[collectionId] = [productId];
-                    } else {
-                        productsInGroups[collectionId].push(productId);
-                    }
+                    image = ProcessProductGroupsUtils.handleFeaturedImage({
+                        product: p,
+                        image,
+                    });
+                    ProcessProductGroupsUtils.handleProductInCollection({
+                        product: p,
+                        productsInGroups,
+                        collectionId,
+                    });
                 }
             }
             const productGroupInput: ProductGroupInput = {
@@ -160,31 +158,30 @@ export class ProcessProductGroupsUtils {
     }
 
     static async updateProductGroups({
-        em,
         retailer,
         productsInGroups,
         cloudshelfAPI,
     }: {
-        em: EntityManager;
         retailer: RetailerEntity;
         productsInGroups: { [productGroupId: string]: string[] };
         cloudshelfAPI: string;
     }) {
         const productGroupUpdateBatch: ProductGroupUpdateBatchItem[] = [];
-        const maxBatchSize = 5;
 
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
             const reversedProductIds = productIds.slice().reverse();
+            logger.info(`Product Group: ${productGroupId}, products`, { reversedProductIds });
             productGroupUpdateBatch.push({
                 productGroupId,
                 productIds: reversedProductIds,
             });
 
-            if (productGroupUpdateBatch.length >= maxBatchSize) {
+            if (productGroupUpdateBatch.length >= ProcessProductGroupsUtils.MAX_BATCH_SIZE) {
+                const used = productGroupUpdateBatch.slice();
                 const response = await CloudshelfApiProductUtils.updateProductsInProductGroupInBatches({
                     apiUrl: cloudshelfAPI,
                     domain: retailer.domain,
-                    productGroupUpdateBatch,
+                    productGroupUpdateBatch: used,
                 });
                 logger.info(`Updated products in product group in batches`, { response });
                 productGroupUpdateBatch.length = 0;
@@ -192,11 +189,45 @@ export class ProcessProductGroupsUtils {
         }
 
         if (productGroupUpdateBatch.length > 0) {
-            await CloudshelfApiProductUtils.updateProductsInProductGroupInBatches({
+            const response = await CloudshelfApiProductUtils.updateProductsInProductGroupInBatches({
                 apiUrl: cloudshelfAPI,
                 domain: retailer.domain,
                 productGroupUpdateBatch,
             });
+            logger.info(`Updated products in product group in batches`, { response });
+        }
+    }
+
+    static handleFeaturedImage({
+        product,
+        image,
+    }: {
+        product: { featuredImage?: { url?: string } };
+        image: string | undefined;
+    }): string | undefined {
+        if (product.featuredImage?.url) {
+            if (image === undefined || image === '') {
+                return product.featuredImage.url;
+            }
+        }
+        return image;
+    }
+
+    static handleProductInCollection({
+        product,
+        productsInGroups,
+        collectionId,
+    }: {
+        product: { id: string; featuredImage?: { url?: string } };
+        productsInGroups: { [productGroupId: string]: string[] };
+        collectionId: string;
+    }) {
+        const productId = GlobalIDUtils.gidConverter(product.id, 'ShopifyProduct')!;
+
+        if (productsInGroups[collectionId] === undefined) {
+            productsInGroups[collectionId] = [productId];
+        } else {
+            productsInGroups[collectionId].push(productId);
         }
     }
 }
