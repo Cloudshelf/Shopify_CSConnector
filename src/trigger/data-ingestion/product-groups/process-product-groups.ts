@@ -1,13 +1,13 @@
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
+import { CloudshelfApiCloudshelfUtils } from '../../../modules/cloudshelf/cloudshelf.api.cloudshelf.util';
+import { CloudshelfApiProductUtils } from '../../../modules/cloudshelf/cloudshelf.api.products.util';
+import { CloudshelfApiReportUtils } from '../../../modules/cloudshelf/cloudshelf.api.report.util';
+import { IngestionQueue } from '../../queues';
 import { getDbForTrigger } from '../../reuseables/db';
 import { ProcessProductGroupsUtils } from './process-product-groups.util';
 import { logger, task } from '@trigger.dev/sdk';
 import { promises as fsPromises } from 'fs';
-import { CloudshelfApiCloudshelfUtils } from 'src/modules/cloudshelf/cloudshelf.api.cloudshelf.util';
-import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
-import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
-import { IngestionQueue } from 'src/trigger/queues';
 
 export const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: boolean }) => {
     const {

@@ -10,6 +10,15 @@ import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
 import { LogsInterface } from './logs.interface';
 
 export class CloudshelfApiCloudshelfUtils {
+    static generateCloudshelfInput(retailer: RetailerEntity): CloudshelfInput {
+        return {
+            id: `gid://external/ConnectorGeneratedCloudshelf/${retailer.domain}`,
+            randomContent: true,
+            displayName: 'First Cloudshelf',
+            homeFrameCallToAction: 'Touch to discover and buy',
+        };
+    }
+
     static async createFirstCloudshelfIfRequired(
         apiUrl: string,
         em: EntityManager,
@@ -23,12 +32,7 @@ export class CloudshelfApiCloudshelfUtils {
             return;
         }
 
-        const firstCloudshelf: CloudshelfInput = {
-            id: `gid://external/ConnectorGeneratedCloudshelf/${retailer.domain}`,
-            randomContent: true,
-            displayName: 'First Cloudshelf',
-            homeFrameCallToAction: 'Touch to discover and buy',
-        };
+        const firstCloudshelf = this.generateCloudshelfInput(retailer);
 
         const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
         const mutationTuple = await authedClient.mutate<UpsertCloudshelfMutation, UpsertCloudshelfMutationVariables>({

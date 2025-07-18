@@ -1,15 +1,15 @@
 import * as Joi from 'joi';
 import { ProductGroupInput, ProductGroupUpdateBatchItem } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
+import { CloudshelfApiProductUtils } from '../../../modules/cloudshelf/cloudshelf.api.products.util';
+import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
+import { PostSyncJobUtils } from '../../../modules/data-ingestion/sync.job.utils';
+import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
+import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
+import { JsonLUtils } from '../../../utils/JsonLUtils';
 import { logger } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream } from 'fs';
-import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
-import { BulkOperationUtils } from 'src/modules/data-ingestion/bulk.operation.utils';
-import { PostSyncJobUtils } from 'src/modules/data-ingestion/sync.job.utils';
-import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
-import { JsonLUtils } from 'src/utils/JsonLUtils';
 import { finished } from 'stream/promises';
 import { ulid } from 'ulid';
 

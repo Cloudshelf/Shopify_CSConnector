@@ -10,14 +10,18 @@ import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
 import { LogsInterface } from './logs.interface';
 
 export class CloudshelfApiThemeUtils {
-    static async createTheme(apiURL: string, retailer: RetailerEntity, logs?: LogsInterface) {
-        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
-
-        const themeInput: ThemeInput = {
+    static generateThemeInput(retailer: RetailerEntity): ThemeInput {
+        return {
             id: `gid://external/ConnectorGeneratedTheme/${retailer.domain}`,
             displayName: 'Default Theme',
             logoUrl: retailer.logoUrlFromShopify,
         };
+    }
+
+    static async createTheme(apiURL: string, retailer: RetailerEntity, logs?: LogsInterface) {
+        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiURL, retailer.domain, logs);
+
+        const themeInput = this.generateThemeInput(retailer);
 
         const mutationTuple = await authedClient.mutate<UpsertThemeMutation, UpsertThemeMutationVariables>({
             mutation: UpsertThemeDocument,
