@@ -1,7 +1,6 @@
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { CloudshelfApiUtils } from '../../modules/cloudshelf/cloudshelf.api.util';
 import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../utils/GlobalIDUtils';
@@ -11,6 +10,8 @@ import { getDbForTrigger } from '../reuseables/db';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
+import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
+import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
 import { ProductJobUtils } from 'src/modules/data-ingestion/product.job.utils';
 import { IngestionQueue } from 'src/trigger/queues';
@@ -180,7 +181,7 @@ async function handleCollections(
         logger.info(`${groupContentToSave.length} Collections Uploaded?: ${didGroupFileUpload}. URL: ${groupUrl}`);
         if (didGroupFileUpload) {
             logger.info(`Starting delete product groups via file`);
-            await CloudshelfApiUtils.keepKnownProductGroupsViaFile(cloudshelfAPI, retailer.domain, groupUrl, {
+            await CloudshelfApiProductUtils.keepKnownProductGroupsViaFile(cloudshelfAPI, retailer.domain, groupUrl, {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -342,7 +343,7 @@ async function handleProducts(
         logger.info(`${productContentToSave.length} Prods Uploaded?: ${didProdFileUpload}. URL: ${prodUrl}`);
         if (didProdFileUpload) {
             logger.info(`Starting delete products via file`);
-            await CloudshelfApiUtils.keepKnownProductsViaFile(cloudshelfAPI, retailer.domain, prodUrl, {
+            await CloudshelfApiProductUtils.keepKnownProductsViaFile(cloudshelfAPI, retailer.domain, prodUrl, {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -374,7 +375,7 @@ async function handleProducts(
         logger.info(`${variantContentToSave.length} Variants Uploaded?: ${didVarFileUpload}. URL: ${variantUrl}`);
         if (didVarFileUpload) {
             logger.info(`Starting delete variants via file`);
-            await CloudshelfApiUtils.keepKnownVariantsViaFile(cloudshelfAPI, retailer.domain, variantUrl, {
+            await CloudshelfApiProductUtils.keepKnownVariantsViaFile(cloudshelfAPI, retailer.domain, variantUrl, {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -488,7 +489,7 @@ export const HandlePostSync = task({
                 knownNumberOfImages: undefined,
             };
             logger.info(`Reporting catalog stats to cloudshelf: ${JSON.stringify(input)}`);
-            await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+            await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -501,7 +502,7 @@ export const HandlePostSync = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
                     info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                     warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -513,7 +514,7 @@ export const HandlePostSync = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
                     info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                     warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -525,7 +526,7 @@ export const HandlePostSync = task({
                     storeClosed: true,
                 };
                 logger.info(`Reporting retailer closed.`, { input });
-                await CloudshelfApiUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
+                await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input, {
                     info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                     warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),

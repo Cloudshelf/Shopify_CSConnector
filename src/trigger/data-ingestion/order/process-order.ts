@@ -14,7 +14,6 @@ import {
     OrderUpdateMutationVariables,
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
-import { CloudshelfApiUtils } from '../../../modules/cloudshelf/cloudshelf.api.util';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import {
     CLOUDSHELF_DEVICE_ATTRIBUTE,
@@ -28,6 +27,7 @@ import {
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
 import { getDbForTrigger } from '../../reuseables/db';
 import { logger, task } from '@trigger.dev/sdk';
+import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { OrderProcessingQueue } from 'src/trigger/queues';
 
 export const ProcessOrderTask = task({
@@ -154,7 +154,7 @@ export const ProcessOrderTask = task({
         });
 
         //Possible todo: have the connector create an order if it doesnt already exist (offline cloudshelves)
-        await CloudshelfApiUtils.reportOrderStatus(
+        await CloudshelfApiReportUtils.reportOrderStatus(
             cloudshelfAPI,
             retailer.domain,
             shopifyCartGid,

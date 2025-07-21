@@ -11,7 +11,14 @@ import {
 import { EntityManager } from '@mikro-orm/postgresql';
 import { cloudshelfSchema } from '../configuration/schemas/cloudshelf.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { CloudshelfApiUtils } from './cloudshelf.api.util';
+import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
+import { CloudshelfApiCloudshelfUtils } from './cloudshelf.api.cloudshelf.util';
+import { CloudshelfApiLocationUtils } from './cloudshelf.api.location.util';
+import { CloudshelfApiProductUtils } from './cloudshelf.api.products.util';
+import { CloudshelfApiReportUtils } from './cloudshelf.api.report.util';
+import { CloudshelfApiStoreUtils } from './cloudshelf.api.store.util';
+import { CloudshelfApiSubscriptionUtils } from './cloudshelf.api.subscription.util';
+import { CloudshelfApiThemeUtils } from './cloudshelf.api.theme.util';
 import { LogsInterface } from './logs.interface';
 import { from } from 'rxjs';
 import { Telemetry } from 'src/decorators/telemetry';
@@ -27,22 +34,25 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.getCloudshelfAuthToken')
     async getCloudshelfAuthToken(domain: string): Promise<string | undefined> {
-        return CloudshelfApiUtils.getCloudshelfAuthToken(this.configService.get<string>('CLOUDSHELF_API_URL')!, domain);
+        return CloudshelfApiAuthUtils.getCloudshelfAuthToken(
+            this.configService.get<string>('CLOUDSHELF_API_URL')!,
+            domain,
+        );
     }
 
     @Telemetry('service.cloudshelf.upsertStore')
     async upsertStore(retailer: RetailerEntity): Promise<void> {
-        return CloudshelfApiUtils.upsertStore(this.configService.get<string>('CLOUDSHELF_API_URL')!, retailer);
+        return CloudshelfApiStoreUtils.upsertStore(this.configService.get<string>('CLOUDSHELF_API_URL')!, retailer);
     }
 
     @Telemetry('service.cloudshelf.reportUninstall')
     async reportUninstall(domain: string): Promise<void> {
-        return CloudshelfApiUtils.reportUninstall(this.configService.get<string>('CLOUDSHELF_API_URL')!, domain);
+        return CloudshelfApiReportUtils.reportUninstall(this.configService.get<string>('CLOUDSHELF_API_URL')!, domain);
     }
 
     @Telemetry('service.cloudshelf.upsertProducts')
     async upsertProducts(domain: string, input: ProductInput[], logs?: LogsInterface) {
-        return CloudshelfApiUtils.upsertProducts(
+        return CloudshelfApiProductUtils.upsertProducts(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             input,
@@ -52,7 +62,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.upsertProductVariants')
     async upsertProductVariants(domain: string, inputs: UpsertVariantsInput[], logs?: LogsInterface) {
-        return CloudshelfApiUtils.upsertProductVariants(
+        return CloudshelfApiProductUtils.upsertProductVariants(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             inputs,
@@ -62,7 +72,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.updateProductGroups')
     async updateProductGroups(domain: string, input: ProductGroupInput[], logs?: LogsInterface) {
-        return CloudshelfApiUtils.updateProductGroups(
+        return CloudshelfApiProductUtils.updateProductGroups(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             input,
@@ -77,7 +87,7 @@ export class CloudshelfApiService {
         productIds: string[],
         logs?: LogsInterface,
     ) {
-        return CloudshelfApiUtils.updateProductsInProductGroup(
+        return CloudshelfApiProductUtils.updateProductsInProductGroup(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             productGroupId,
@@ -88,7 +98,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.createFirstCloudshelfIfRequired')
     async createFirstCloudshelfIfRequired(retailer: RetailerEntity, logs?: LogsInterface) {
-        return CloudshelfApiUtils.createFirstCloudshelfIfRequired(
+        return CloudshelfApiCloudshelfUtils.createFirstCloudshelfIfRequired(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             this.entityManager,
             retailer,
@@ -98,12 +108,16 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.createTheme')
     async createTheme(retailer: RetailerEntity, logs?: LogsInterface) {
-        return CloudshelfApiUtils.createTheme(this.configService.get<string>('CLOUDSHELF_API_URL')!, retailer, logs);
+        return CloudshelfApiThemeUtils.createTheme(
+            this.configService.get<string>('CLOUDSHELF_API_URL')!,
+            retailer,
+            logs,
+        );
     }
 
     @Telemetry('service.cloudshelf.upsertLocations')
     async upsertLocations(retailer: RetailerEntity, input: LocationInput[], logs?: LogsInterface) {
-        return CloudshelfApiUtils.upsertLocations(
+        return CloudshelfApiLocationUtils.upsertLocations(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             retailer,
             input,
@@ -113,7 +127,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.deleteProductGroup')
     async deleteProductGroup(retailer: RetailerEntity, productGroupId: string, logs?: LogsInterface) {
-        return CloudshelfApiUtils.deleteProductGroup(
+        return CloudshelfApiProductUtils.deleteProductGroup(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             retailer,
             productGroupId,
@@ -123,7 +137,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.deleteProduct')
     async deleteProduct(retailer: RetailerEntity, productId: string, logs?: LogsInterface) {
-        return CloudshelfApiUtils.deleteProduct(
+        return CloudshelfApiProductUtils.deleteProduct(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             retailer,
             productId,
@@ -133,7 +147,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.requestSubscriptionCheck')
     async requestSubscriptionCheck(retailer: RetailerEntity, id: string, logs?: LogsInterface) {
-        return CloudshelfApiUtils.requestSubscriptionCheck(
+        return CloudshelfApiSubscriptionUtils.requestSubscriptionCheck(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             retailer,
             id,
@@ -143,7 +157,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.keepKnownProductsViaFile')
     async keepKnownProductsViaFile(domain: string, url: string, logs?: LogsInterface) {
-        return CloudshelfApiUtils.keepKnownProductsViaFile(
+        return CloudshelfApiProductUtils.keepKnownProductsViaFile(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             url,
@@ -153,7 +167,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.keepKnownVariantsViaFile')
     async keepKnownVariantsViaFile(domain: string, url: string, logs?: LogsInterface) {
-        return CloudshelfApiUtils.keepKnownVariantsViaFile(
+        return CloudshelfApiProductUtils.keepKnownVariantsViaFile(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             url,
@@ -163,7 +177,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.keepKnownProductGroupsViaFile')
     async keepKnownProductGroupsViaFile(domain: string, url: string, logs?: LogsInterface) {
-        return CloudshelfApiUtils.keepKnownProductGroupsViaFile(
+        return CloudshelfApiProductUtils.keepKnownProductGroupsViaFile(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             url,
@@ -183,7 +197,7 @@ export class CloudshelfApiService {
         },
         logs?: LogsInterface,
     ) {
-        return CloudshelfApiUtils.reportCatalogStats(
+        return CloudshelfApiReportUtils.reportCatalogStats(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             input,
@@ -202,7 +216,7 @@ export class CloudshelfApiService {
         lines?: OrderLineInput[],
         logs?: LogsInterface,
     ) {
-        return CloudshelfApiUtils.reportOrderStatus(
+        return CloudshelfApiReportUtils.reportOrderStatus(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             shopifyCartId,
