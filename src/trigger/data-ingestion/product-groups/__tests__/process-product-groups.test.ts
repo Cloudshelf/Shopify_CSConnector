@@ -41,7 +41,7 @@ describe('runInternal', () => {
     it('should throw error if app data source is not found', async () => {
         (TriggerFncs.logger.error as jest.Mock).mockImplementation(() => {});
         (ProcessProductGroupsUtils.validateAndGetEnvVars as jest.Mock).mockImplementation(() => ({
-            envVars: { cloudshelfAPI: 'https://example.com' },
+            envVars: { CLOUDSHELF_API_URL: 'https://example.com' },
         }));
         (ReusableFcns.getDbForTrigger as jest.Mock).mockImplementation(() => null);
 
@@ -64,7 +64,7 @@ describe('runInternal', () => {
         const fork = jest.fn().mockImplementation(() => em);
         (TriggerFncs.logger.warn as jest.Mock).mockImplementation(() => {});
         (ProcessProductGroupsUtils.validateAndGetEnvVars as jest.Mock).mockImplementation(() => ({
-            envVars: { cloudshelfAPI: 'https://example.com' },
+            envVars: { CLOUDSHELF_API_URL: 'https://example.com' },
         }));
         (ReusableFcns.getDbForTrigger as jest.Mock).mockImplementation(() => {
             return {
@@ -117,7 +117,7 @@ describe('runInternal', () => {
         const fork = jest.fn().mockImplementation(() => em);
         (TriggerFncs.logger.warn as jest.Mock).mockImplementation(() => {});
         (ProcessProductGroupsUtils.validateAndGetEnvVars as jest.Mock).mockImplementation(() => ({
-            envVars: { cloudshelfAPI: 'https://example.com' },
+            envVars: { CLOUDSHELF_API_URL: 'https://example.com' },
         }));
         (ReusableFcns.getDbForTrigger as jest.Mock).mockImplementation(() => {
             return {
@@ -167,7 +167,7 @@ describe('runInternal', () => {
         const fork = jest.fn().mockImplementation(() => em);
         (TriggerFncs.logger.warn as jest.Mock).mockImplementation(() => {});
         (ProcessProductGroupsUtils.validateAndGetEnvVars as jest.Mock).mockImplementation(() => ({
-            envVars: { cloudshelfAPI: 'https://example.com' },
+            envVars: { CLOUDSHELF_API_URL: 'https://example.com' },
         }));
         (ReusableFcns.getDbForTrigger as jest.Mock).mockImplementation(() => {
             return {

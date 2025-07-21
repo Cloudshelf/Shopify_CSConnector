@@ -25,10 +25,10 @@ export class ProcessProductGroupsUtils {
 
     static getEnvVars(): Record<string, string> {
         return {
-            cloudshelfAPI: process.env.CLOUDSHELF_API_URL || '',
-            shopifyConnectorHost: process.env.SHOPIFY_CONNECTOR_HOST || '',
-            cloudflareR2PublicEndpoint: process.env.CLOUDFLARE_R2_PUBLIC_ENDPOINT || '',
-            filePrefix: process.env.FILE_PREFIX || '',
+            CLOUDSHELF_API_URL: process.env.CLOUDSHELF_API_URL || '',
+            SHOPIFY_CONNECTOR_HOST: process.env.SHOPIFY_CONNECTOR_HOST || '',
+            CLOUDFLARE_R2_PUBLIC_ENDPOINT: process.env.CLOUDFLARE_R2_PUBLIC_ENDPOINT || '',
+            FILE_PREFIX: process.env.FILE_PREFIX || '',
         };
     }
 

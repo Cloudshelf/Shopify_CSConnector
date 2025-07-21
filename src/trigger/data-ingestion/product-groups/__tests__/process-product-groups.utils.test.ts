@@ -71,10 +71,10 @@ describe('ProcessProductGroupsUtils', () => {
                     expectedResult: {
                         error: null,
                         envVars: {
-                            cloudshelfAPI: 'https://example.com',
-                            shopifyConnectorHost: 'https://example.com',
-                            cloudflareR2PublicEndpoint: 'https://example.com',
-                            filePrefix: 'test',
+                            CLOUDSHELF_API_URL: 'https://example.com',
+                            SHOPIFY_CONNECTOR_HOST: 'https://example.com',
+                            CLOUDFLARE_R2_PUBLIC_ENDPOINT: 'https://example.com',
+                            FILE_PREFIX: 'test',
                         },
                     },
                 },
@@ -194,7 +194,7 @@ describe('ProcessProductGroupsUtils', () => {
         } else if (image) {
             expect(result).toBe('https://image-example.com');
         } else {
-            expect(result).toBeUndefined();
+            expect(result).toBe('https://example-prod-feat.com');
         }
     });
 

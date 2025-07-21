@@ -12,7 +12,7 @@ import { promises as fsPromises } from 'fs';
 export const runInternal = async (payload: { remoteBulkOperationId: string; fullSync: boolean }) => {
     const {
         error,
-        envVars: { cloudshelfAPI },
+        envVars: { CLOUDSHELF_API_URL },
     } = ProcessProductGroupsUtils.validateAndGetEnvVars();
     if (error) {
         logger.error(`Invalid environment variables: ${error.message}`);
@@ -57,7 +57,7 @@ export const runInternal = async (payload: { remoteBulkOperationId: string; full
     const { productGroupInputs, productsInGroups } = await ProcessProductGroupsUtils.readJsonl(tempFile);
 
     logger.info(`Upserting collections to cloudshelf`, { productGroupInputs });
-    await CloudshelfApiProductUtils.updateProductGroups(cloudshelfAPI, retailer.domain, productGroupInputs, {
+    await CloudshelfApiProductUtils.updateProductGroups(CLOUDSHELF_API_URL, retailer.domain, productGroupInputs, {
         info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
         warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
         error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -67,12 +67,12 @@ export const runInternal = async (payload: { remoteBulkOperationId: string; full
     await ProcessProductGroupsUtils.updateProductGroups({
         retailer,
         productsInGroups,
-        cloudshelfAPI,
+        cloudshelfAPI: CLOUDSHELF_API_URL,
     });
 
     logger.info(`Finished reporting all products in all groups`);
     logger.info(`Creating first cloud shelf if required`);
-    await CloudshelfApiCloudshelfUtils.createFirstCloudshelfIfRequired(cloudshelfAPI, em, retailer, {
+    await CloudshelfApiCloudshelfUtils.createFirstCloudshelfIfRequired(CLOUDSHELF_API_URL, em, retailer, {
         info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
         warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
         error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
@@ -88,7 +88,7 @@ export const runInternal = async (payload: { remoteBulkOperationId: string; full
             knownNumberOfImages: undefined,
         };
         logger.info(`Reporting catalog stats to cloudshelf.`, { input });
-        await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
+        await CloudshelfApiReportUtils.reportCatalogStats(CLOUDSHELF_API_URL, retailer.domain, input);
     }
     await ProcessProductGroupsUtils.handleComplete({
         em,
