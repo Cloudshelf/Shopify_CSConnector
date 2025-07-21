@@ -21,7 +21,7 @@ const SCHEMA = Joi.object({
 });
 
 export class ProcessProductGroupsUtils {
-    static MAX_BATCH_SIZE = 5;
+    static MAX_BATCH_SIZE = parseInt(process.env.MAX_BATCH_SIZE || '5');
 
     static getEnvVars(): Record<string, string> {
         return {
