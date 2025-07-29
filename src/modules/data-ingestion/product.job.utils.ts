@@ -38,7 +38,7 @@ export class ProductJobUtils {
         const pendingRuns: { id: string; type: 'type_full' | 'type_partial' }[] = [];
 
         for await (const run of runs.list({
-            status: ['WAITING_FOR_DEPLOY', 'DELAYED', 'EXECUTING', 'FROZEN', 'INTERRUPTED', 'QUEUED', 'REATTEMPTING'],
+            status: ['PENDING_VERSION', 'DELAYED', 'EXECUTING', 'WAITING', 'QUEUED'],
             taskIdentifier: [RequestProductsTask.id],
             tag: searchTags,
         })) {
