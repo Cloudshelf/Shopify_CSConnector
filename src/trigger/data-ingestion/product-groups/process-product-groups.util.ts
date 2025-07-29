@@ -33,7 +33,7 @@ export class ProcessProductGroupsUtils {
     }
 
     static validateAndGetEnvVars(): { error: Error | null; envVars: Record<string, string> } {
-        const { error } = SCHEMA.validate(process.env);
+        const { error } = SCHEMA.validate(ProcessProductGroupsUtils.getEnvVars());
         if (error) {
             logger.error(`Invalid environment variables: ${error.message}`);
             return { error, envVars: {} };
