@@ -5,7 +5,7 @@ COPY package.json tsconfig.json package-lock.json .npmrc nest-cli.json tsconfig.
 COPY tsconfig.json ./
 COPY ./patches ./patches
 RUN npm install --ignore-scripts
-RUN patch-package
+RUN npx patch-package
 COPY ./src ./src
 COPY .env .env
 RUN npm run build
