@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { runs } from '@trigger.dev/sdk/v3';
+import { runs } from '@trigger.dev/sdk';
 import { ExtendedLogger } from 'src/utils/ExtendedLogger';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
@@ -12,16 +12,7 @@ export class TriggerHandlersService {
         this.logger.debug(`Cancelling triggers for domain ${domain} with tags ${searchTags}`);
 
         for await (const run of runs.list({
-            status: [
-                'WAITING_FOR_DEPLOY',
-                'DELAYED',
-                'EXECUTING',
-                'FROZEN',
-                'INTERRUPTED',
-                'QUEUED',
-                'REATTEMPTING',
-                'PENDING_VERSION',
-            ],
+            status: ['PENDING_VERSION', 'DELAYED', 'EXECUTING', 'WAITING', 'QUEUED'],
             tag: searchTags,
         })) {
             try {
