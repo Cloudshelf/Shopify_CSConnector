@@ -8,13 +8,11 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
     const allWebhooks = await getWebhooks(retailer);
     const topics = allWebhooks.map(w => w.node.topic.toString());
     logs?.info(`existing webhooks`, { topics });
+
+    const webhookURL = new URL('/shopify/webhooks', host).toString();
+
     if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.OrdersUpdated)) {
-        const r1 = await registerWebhookForRetailer(
-            retailer,
-            WebhookSubscriptionTopic.OrdersUpdated,
-            `https://${host}/shopify/webhooks`,
-            logs,
-        );
+        const r1 = await registerWebhookForRetailer(retailer, WebhookSubscriptionTopic.OrdersUpdated, webhookURL, logs);
         if (!r1) {
             logs?.error(
                 `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.OrdersUpdated}`,
@@ -25,12 +23,7 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
         }
     }
     if (!allWebhooks.find(w => w.node.topic === WebhookSubscriptionTopic.OrdersCreate)) {
-        const r1 = await registerWebhookForRetailer(
-            retailer,
-            WebhookSubscriptionTopic.OrdersCreate,
-            `https://${host}/shopify/webhooks`,
-            logs,
-        );
+        const r1 = await registerWebhookForRetailer(retailer, WebhookSubscriptionTopic.OrdersCreate, webhookURL, logs);
         if (!r1) {
             logs?.error(
                 `Failed to register webhook for retailer ${retailer.domain} and topic ${WebhookSubscriptionTopic.OrdersCreate}`,
@@ -44,7 +37,8 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
         const r2 = await registerWebhookForRetailer(
             retailer,
             WebhookSubscriptionTopic.BulkOperationsFinish,
-            `https://${host}/shopify/webhooks`,
+            webhookURL,
+            logs,
         );
         if (!r2) {
             logs?.error(
@@ -59,7 +53,8 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
         const r3 = await registerWebhookForRetailer(
             retailer,
             WebhookSubscriptionTopic.AppUninstalled,
-            `https://${host}/shopify/webhooks`,
+            webhookURL,
+            logs,
         );
         if (!r3) {
             logs?.error(
@@ -74,7 +69,8 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
         const r5 = await registerWebhookForRetailer(
             retailer,
             WebhookSubscriptionTopic.ProductsDelete,
-            `https://${host}/shopify/webhooks`,
+            webhookURL,
+            logs,
         );
         if (!r5) {
             logs?.error(
@@ -89,7 +85,8 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
         const r7 = await registerWebhookForRetailer(
             retailer,
             WebhookSubscriptionTopic.CollectionsDelete,
-            `https://${host}/shopify/webhooks`,
+            webhookURL,
+            logs,
         );
         if (!r7) {
             logs?.error(
@@ -104,7 +101,8 @@ export async function registerAllWebhooksForRetailer(retailer: RetailerEntity, h
         const r8 = await registerWebhookForRetailer(
             retailer,
             WebhookSubscriptionTopic.AppSubscriptionsUpdate,
-            `https://${host}/shopify/webhooks`,
+            webhookURL,
+            logs,
         );
         if (!r8) {
             logs?.error(
