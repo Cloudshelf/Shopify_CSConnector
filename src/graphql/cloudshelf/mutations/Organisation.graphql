@@ -1,0 +1,10 @@
+mutation SetOrganisationIsSyncing($domainName: String!, $syncing: Boolean!) {
+    setOrganisationIsSyncing(domainName: $domainName, syncing: $syncing)
+}
+
+query OrganisationStatusByDomain($domainName: String!) {
+    organisationStatusByDomain(domainName: $domainName) {
+        status
+        syncing
+    }
+}

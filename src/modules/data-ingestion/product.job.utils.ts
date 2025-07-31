@@ -1,5 +1,6 @@
 import { ProcessProductsTask } from '../../trigger/data-ingestion/product/process-products';
 import { RequestProductsTask } from '../../trigger/data-ingestion/product/request-products';
+import { CloudshelfApiOrganisationUtils } from '../cloudshelf/cloudshelf.api.organisation.util';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
@@ -109,23 +110,30 @@ export class ProductJobUtils {
         );
         try {
             const idempotencyKey = await idempotencyKeys.create(bulkOp.shopifyBulkOpId);
-            const newTaskID = await ProcessProductsTask.trigger(
-                {
-                    remoteBulkOperationId: bulkOp.shopifyBulkOpId,
-                    fullSync: bulkOp.installSync,
-                },
-                {
-                    delay,
-                    queue: `ingestion`,
-                    tags,
-                    concurrencyKey: retailer.id,
-                    idempotencyKey: idempotencyKey,
-                    machine: retailer.triggerMachineSizeProducts ?? undefined,
-                    maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
-                },
-            );
 
-            logs?.info(`product consumer id: ${newTaskID.id}. idempotencyKey: ${idempotencyKey}`);
+            await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
+                apiUrl: process.env.CLOUDSHELF_API_URL || '',
+                domainName: retailer.domain,
+                func: async () => {
+                    const newTaskID = await ProcessProductsTask.trigger(
+                        {
+                            remoteBulkOperationId: bulkOp.shopifyBulkOpId,
+                            fullSync: bulkOp.installSync,
+                        },
+                        {
+                            delay,
+                            queue: `ingestion`,
+                            tags,
+                            concurrencyKey: retailer.id,
+                            idempotencyKey: idempotencyKey,
+                            machine: retailer.triggerMachineSizeProducts ?? undefined,
+                            maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
+                        },
+                    );
+
+                    logs?.info(`product consumer id: ${newTaskID.id}. idempotencyKey: ${idempotencyKey}`);
+                },
+            });
         } catch (err: any) {
             logs?.error(`Error in product consumer scheduler.`);
             logs?.error(`err`, err);
