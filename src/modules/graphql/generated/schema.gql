@@ -2,12 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CloudshelfSyncOrganisationInput {
+  domainName: String!
+  reason: CloudshelfSyncOrganisationReason!
+}
+
+enum CloudshelfSyncOrganisationReason {
+  REACTIVATE
+}
+
 type Mutation {
   deleteAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   getRetailerInfoWhereNull(token: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   reprocessBulkOperation(opId: String!, token: String!): Boolean!
   sendAllRetailerToCloudshelf(token: String!): Boolean!
+  syncOrganisation(input: CloudshelfSyncOrganisationInput!): Boolean!
 }
 
 type Query {

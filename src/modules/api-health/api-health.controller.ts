@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { HealthCheck, HealthCheckService } from '@nestjs/terminus';
 import { Telemetry } from 'src/decorators/telemetry';
+import { RequestProductsTask } from 'src/trigger/data-ingestion/product/request-products';
 
 @Controller('api-health')
 export class ApiHealthController {
@@ -9,7 +10,7 @@ export class ApiHealthController {
     @Telemetry('controller.healthcheck.check')
     @Get()
     @HealthCheck()
-    check() {
+    async check() {
         //TODO: Implement health checks
         return this.health.check([]);
     }

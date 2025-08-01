@@ -27,7 +27,7 @@
     "--- other ---": "",
     "postinstall": "patch-package && npx license-report --output=markdown --only=prod --fields=name --fields=installedVersion --fields=licenseType --fields=author --fields=link > LICENSES.md",
     "--- trigger ---": "",
-    "trigger:dev": "npx trigger.dev@v4-beta dev --log-level debug",
+    "trigger:dev": "npx trigger.dev@v4-beta dev",
     "trigger:dev:debug": "npx trigger.dev@v4-beta dev --log-level debug",
     "trigger:deploy:staging": "npx trigger.dev@v4-beta deploy --env staging",
     "trigger:deploy:production": "npx trigger.dev@v4-beta deploy --env prod",

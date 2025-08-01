@@ -1623,11 +1623,95 @@ export type EngineImageWithVariantInfo = {
   variantId?: Maybe<Scalars['GlobalId']['output']>;
 };
 
+export type EngineImageWithVariantInfoBlock = {
+  __typename?: 'EngineImageWithVariantInfoBlock';
+  preferred: Scalars['Boolean']['output'];
+  url: Scalars['String']['output'];
+  variantId?: Maybe<Scalars['GlobalId']['output']>;
+};
+
 export enum EngineOrientation {
   Horizontal = 'HORIZONTAL',
   Portrait = 'PORTRAIT',
   Square = 'SQUARE'
 }
+
+export type EngineProductBlock = {
+  __typename?: 'EngineProductBlock';
+  anyVariantAvailableForSale: Scalars['Boolean']['output'];
+  anyVariantIsInStock: Scalars['Boolean']['output'];
+  descriptionHtml: Scalars['String']['output'];
+  eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  handle: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  images: Array<EngineImageWithVariantInfoBlock>;
+  metadata: Array<EngineProductMetadataBlock>;
+  productGroups: Array<EngineProductGroupWithPositionBlock>;
+  remoteUpdatedAt: Scalars['String']['output'];
+  tags: Array<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  variants: Array<EngineProductVariantBlock>;
+  vendor: Scalars['String']['output'];
+};
+
+export type EngineProductBlockEdge = {
+  __typename?: 'EngineProductBlockEdge';
+  /** The cursor for provided node to be used in pagination */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The EngineProductBlock entity */
+  node?: Maybe<EngineProductBlock>;
+};
+
+export type EngineProductBlockPageInfo = {
+  __typename?: 'EngineProductBlockPageInfo';
+  /** The cursor for the last node in the page */
+  endCursor?: Maybe<Scalars['String']['output']>;
+  /** Whether or not there is a another page of data */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** Whether or not there is a previous page of data */
+  hasPreviousPage: Scalars['Boolean']['output'];
+  /** The cursor for the first node in the page */
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type EngineProductBlockPayload = {
+  __typename?: 'EngineProductBlockPayload';
+  edges?: Maybe<Array<EngineProductBlockEdge>>;
+  pageInfo?: Maybe<EngineProductBlockPageInfo>;
+  /** The total number of items available */
+  totalCount: Scalars['Int']['output'];
+};
+
+export type EngineProductGroupWithPositionBlock = {
+  __typename?: 'EngineProductGroupWithPositionBlock';
+  id?: Maybe<Scalars['GlobalId']['output']>;
+  order: Scalars['Float']['output'];
+};
+
+export type EngineProductMetadataBlock = {
+  __typename?: 'EngineProductMetadataBlock';
+  data: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  variantId?: Maybe<Scalars['GlobalId']['output']>;
+};
+
+export type EngineProductVariantBlock = {
+  __typename?: 'EngineProductVariantBlock';
+  availableForSale: Scalars['Boolean']['output'];
+  barcode: Scalars['String']['output'];
+  currentlyNotInStock: Scalars['Boolean']['output'];
+  displayName: Scalars['String']['output'];
+  eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  hasSalePrice?: Maybe<Scalars['Boolean']['output']>;
+  id?: Maybe<Scalars['GlobalId']['output']>;
+  options: Array<KeyValuePair>;
+  originalPrice: Scalars['Float']['output'];
+  position?: Maybe<Scalars['Float']['output']>;
+  price: Scalars['Float']['output'];
+  sellableOnlineQuantity: Scalars['Float']['output'];
+  sku: Scalars['String']['output'];
+};
 
 export type EngineProductWithAdditionalInfo = {
   __typename?: 'EngineProductWithAdditionalInfo';
@@ -1788,7 +1872,6 @@ export enum FilterOrderType {
 
 export enum FilterType {
   Basic = 'BASIC',
-  CategoryHandle = 'CATEGORY_HANDLE',
   CategoryId = 'CATEGORY_ID',
   Colour = 'COLOUR',
   Material = 'MATERIAL',
@@ -1848,7 +1931,8 @@ export enum ImageAnchor {
 
 export enum ImageBackgroundStyle {
   Blur = 'BLUR',
-  Colour = 'COLOUR'
+  Colour = 'COLOUR',
+  ZoomToFill = 'ZOOM_TO_FILL'
 }
 
 export enum ImageOrientation {
@@ -2228,6 +2312,7 @@ export type Mutation = {
   markInstallComplete: Scalars['Boolean']['output'];
   markShopifyOrganisationUninstallStarted: Scalars['Boolean']['output'];
   newSession: Session;
+  notice: Scalars['Boolean']['output'];
   /** Register a webhook for a given subject. The supplied URL will be called with a POST request when the subject is triggered. */
   registerWebhook: WebhookRegisterPayload;
   /** Removes the given products from the product group, if they are currently part of it */
@@ -2247,6 +2332,7 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
+  setOrganisationIsSyncing: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
   startPaymentRequest: PaymentGenericPayload;
@@ -2265,6 +2351,7 @@ export type Mutation = {
   updateProductsInProductGroupInBatch: Array<ProductGroupUpdateBatchPayload>;
   updateSalesAssistantRules: Scalars['Boolean']['output'];
   updateSession: Session;
+  updateUserLastAccess: Scalars['Boolean']['output'];
   /** Allows upserting of checkout flows */
   upsertCheckoutFlows: CheckoutFlowUpsertPayload;
   /** Allows upserting of Cloudshelves */
@@ -2476,6 +2563,11 @@ export type MutationNewSessionArgs = {
 };
 
 
+export type MutationNoticeArgs = {
+  str?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationRegisterWebhookArgs = {
   inputs: Array<WebhookRegisterInput>;
 };
@@ -2558,6 +2650,12 @@ export type MutationSetActiveVersionArgs = {
 export type MutationSetHandoffImageUrlArgs = {
   id: Scalars['GlobalId']['input'];
   imageUrl: Scalars['String']['input'];
+};
+
+
+export type MutationSetOrganisationIsSyncingArgs = {
+  domainName: Scalars['String']['input'];
+  syncing: Scalars['Boolean']['input'];
 };
 
 
@@ -2924,6 +3022,10 @@ export type Organisation = {
   salesAssistantNameRule: SalesAssistantNameRule;
   /** The sales assisatnts which belong to this organisation. */
   salesAssistants: Array<SalesAssistant>;
+  /** The status of the organisation. This is used to determine if the organisation is active or idle. */
+  status: OrganisationStatus;
+  /** Indicates if the organisation is currently syncing. */
+  syncing: Scalars['Boolean']['output'];
   uninstallStarted: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
@@ -2999,6 +3101,18 @@ export type OrganisationSortOptionsInput = {
   id?: InputMaybe<SortOrder>;
   status?: InputMaybe<SortOrder>;
   updatedAt?: InputMaybe<SortOrder>;
+};
+
+export enum OrganisationStatus {
+  Active = 'ACTIVE',
+  Idle = 'IDLE',
+  Processing = 'PROCESSING'
+}
+
+export type OrganisationStatusPayload = {
+  __typename?: 'OrganisationStatusPayload';
+  status: OrganisationStatus;
+  syncing: Scalars['Boolean']['output'];
 };
 
 export type OrganisationUpsertPayload = {
@@ -3597,7 +3711,9 @@ export type Query = {
   device?: Maybe<Device>;
   /** Returns a paginated array of Devices. */
   devices: DevicePaginatedPayload;
+  /** @deprecated use the newer engineProductsBlock or load from R2 storage */
   engineProducts: EngineProductWithAdditionalInfoPayload;
+  engineProductsBlock: EngineProductBlockPayload;
   /** Returns the exchange rates for a given currency code in GBP, USD, and EUR */
   exchangeRates: Scalars['String']['output'];
   /** Returns a Filter entity */
@@ -3621,7 +3737,9 @@ export type Query = {
   /** Returns the currently authenticated user. */
   me: User;
   metadataKeys: Array<Scalars['String']['output']>;
+  /** @deprecated use the newer onlineFilterSearchBlock */
   onlineFilterSearch: EngineProductWithAdditionalInfoPayload;
+  onlineFilterSearchBlock: EngineProductBlockPayload;
   /** Returns an Order entity. */
   order?: Maybe<Order>;
   /** Returns a paginated array of Order entities */
@@ -3630,6 +3748,8 @@ export type Query = {
   organisation?: Maybe<Organisation>;
   /** Returns if the install has been completed for an organisation */
   organisationInstallComplete?: Maybe<Scalars['Boolean']['output']>;
+  organisationStatusByDomain: OrganisationStatusPayload;
+  organisationStatusById: OrganisationStatusPayload;
   /** Returns a paginated array of user access rights for the current organisation */
   organisationUsers: UserForOrganisationPaginatedPayload;
   /** Returns a paginated array of organisations */
@@ -3787,6 +3907,18 @@ export type QueryEngineProductsArgs = {
 };
 
 
+export type QueryEngineProductsBlockArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  cloudshelfId: Scalars['GlobalId']['input'];
+  explicitProductHandle?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeMetafieldKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  includeMetafieldPartialKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryExchangeRatesArgs = {
   currencyCode: Scalars['String']['input'];
 };
@@ -3878,6 +4010,18 @@ export type QueryOnlineFilterSearchArgs = {
 };
 
 
+export type QueryOnlineFilterSearchBlockArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  cloudshelfId: Scalars['GlobalId']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeMetafieldKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  includeMetafieldPartialKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  searchQuery: Scalars['String']['input'];
+};
+
+
 export type QueryOrderArgs = {
   id: Scalars['GlobalId']['input'];
 };
@@ -3899,6 +4043,11 @@ export type QueryOrganisationArgs = {
 
 export type QueryOrganisationInstallCompleteArgs = {
   domain: Scalars['String']['input'];
+};
+
+
+export type QueryOrganisationStatusByDomainArgs = {
+  domainName: Scalars['String']['input'];
 };
 
 
@@ -4392,6 +4541,8 @@ export type Theme = {
   attractLoopBackgroundColor: Scalars['String']['output'];
   attractLoopFontColor: Scalars['String']['output'];
   attractLoopFontSize: Size;
+  attractLoopImageColor: Scalars['String']['output'];
+  attractLoopImageStyle: ImageBackgroundStyle;
   bodyFont: ThemeFont;
   /** An array of Cloudshelves that use this theme. */
   cloudshelves: Array<Cloudshelf>;
@@ -4430,7 +4581,6 @@ export type Theme = {
   pdpImageBackgroundStyle: ImageBackgroundStyle;
   pdpImageModifierLandscape: Scalars['Float']['output'];
   pdpImageModifierPortrait: Scalars['Float']['output'];
-  pdpImageZoomToFill: Scalars['Boolean']['output'];
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   /** The primary colour of the theme. */
@@ -4504,6 +4654,8 @@ export type ThemeInput = {
   attractLoopFontColor?: InputMaybe<Scalars['String']['input']>;
   /** Hidden will not be respected by the API */
   attractLoopFontSize?: InputMaybe<Size>;
+  attractLoopImageColor?: InputMaybe<Scalars['String']['input']>;
+  attractLoopImageStyle?: InputMaybe<ImageBackgroundStyle>;
   blocksRounded?: InputMaybe<Scalars['Boolean']['input']>;
   bodyFont?: InputMaybe<ThemeFontInput>;
   collectionGridTileModifier?: InputMaybe<Scalars['Float']['input']>;
@@ -4531,7 +4683,6 @@ export type ThemeInput = {
   pdpImageBackgroundStyle?: InputMaybe<ImageBackgroundStyle>;
   pdpImageModifierLandscape?: InputMaybe<Scalars['Float']['input']>;
   pdpImageModifierPortrait?: InputMaybe<Scalars['Float']['input']>;
-  pdpImageZoomToFill?: InputMaybe<Scalars['Boolean']['input']>;
   primaryColor?: InputMaybe<Scalars['String']['input']>;
   primaryContrastColor?: InputMaybe<Scalars['String']['input']>;
   productGridHeightModifier?: InputMaybe<Scalars['Float']['input']>;
@@ -4719,7 +4870,6 @@ export type User = {
   firstName: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
-  lastAccess?: Maybe<Scalars['UTCDateTime']['output']>;
   lastName: Scalars['String']['output'];
   metadata: Array<Metadata>;
   telephone: Scalars['String']['output'];
@@ -4815,6 +4965,7 @@ export type UserOrganisationAccess = {
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   isCloudshelfStaff: Scalars['Boolean']['output'];
+  lastAccess?: Maybe<Scalars['UTCDateTime']['output']>;
   organisation: Organisation;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
@@ -5011,6 +5162,19 @@ export const UpsertOrdersDocument = gql`
   }
 }
     `;
+export const SetOrganisationIsSyncingDocument = gql`
+    mutation SetOrganisationIsSyncing($domainName: String!, $syncing: Boolean!) {
+  setOrganisationIsSyncing(domainName: $domainName, syncing: $syncing)
+}
+    `;
+export const OrganisationStatusByDomainDocument = gql`
+    query OrganisationStatusByDomain($domainName: String!) {
+  organisationStatusByDomain(domainName: $domainName) {
+    status
+    syncing
+  }
+}
+    `;
 export const UpsertProductGroupsDocument = gql`
     mutation upsertProductGroups($input: [ProductGroupInput!]!) {
   upsertProductGroups(input: $input) {
@@ -5204,6 +5368,21 @@ export type UpsertOrdersMutationVariables = Exact<{
 
 
 export type UpsertOrdersMutation = { __typename?: 'Mutation', upsertOrders: { __typename?: 'OrderUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, orders: Array<{ __typename?: 'Order', id: any }> } };
+
+export type SetOrganisationIsSyncingMutationVariables = Exact<{
+  domainName: Scalars['String']['input'];
+  syncing: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetOrganisationIsSyncingMutation = { __typename?: 'Mutation', setOrganisationIsSyncing: boolean };
+
+export type OrganisationStatusByDomainQueryVariables = Exact<{
+  domainName: Scalars['String']['input'];
+}>;
+
+
+export type OrganisationStatusByDomainQuery = { __typename?: 'Query', organisationStatusByDomain: { __typename?: 'OrganisationStatusPayload', status: OrganisationStatus, syncing: boolean } };
 
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;

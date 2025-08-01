@@ -51,3 +51,5 @@ lerna-debug.log*
 /coverage
 /.nyc_output
 /junit.xml
+
+.vscode

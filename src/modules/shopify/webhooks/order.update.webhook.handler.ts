@@ -2,13 +2,14 @@ import { ConfigService } from '@nestjs/config';
 import { RetailerService } from '../../../modules/retailer/retailer.service';
 import { ProcessOrderTask } from '../../../trigger/data-ingestion/order/process-order';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
+import { TriggerTagsUtils } from '../../../utils/TriggerTagsUtils';
+import { CloudshelfApiOrganisationUtils } from '../../cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { OrderUpdateWebhookPayload } from './attrs.cosnts';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 import { Telemetry } from 'src/decorators/telemetry';
 import { slackSchema } from 'src/modules/configuration/schemas/slack.schema';
-import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 @WebhookHandler('ORDERS_UPDATED')
 export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -56,18 +57,25 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
             return;
         }
 
-        const tags = TriggerTagsUtils.createTags({
-            domain: retailer.domain,
-            retailerId: retailer.id,
-        });
+        await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
+            apiUrl: process.env.CLOUDSHELF_API_URL || '',
+            domainName: retailer.domain,
+            func: async () => {
+                const tags = TriggerTagsUtils.createTags({
+                    domain: retailer.domain,
+                    retailerId: retailer.id,
+                });
 
-        await ProcessOrderTask.trigger(
-            { data, organisationId: retailer.id },
-            {
-                queue: `order-processing`,
-                concurrencyKey: domain,
-                tags,
+                await ProcessOrderTask.trigger(
+                    { data, organisationId: retailer.id },
+                    {
+                        queue: `order-processing`,
+                        concurrencyKey: domain,
+                        tags,
+                    },
+                );
             },
-        );
+            location: 'OrdersUpdatedWebhookHandler.handle',
+        });
     }
 }
