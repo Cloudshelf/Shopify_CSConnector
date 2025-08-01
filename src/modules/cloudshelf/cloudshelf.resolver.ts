@@ -1,14 +1,9 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { OrganisationStatus } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { AuthRequired } from '../auth/auth.guard';
 import { RetailerService } from '../retailer/retailer.service';
-import { CloudshelfApiOrganisationUtils } from './cloudshelf.api.organisation.util';
 import { CloudshelfSyncOrganisationInput } from './types/cloudshelf.sync.organisation.input';
-import { SyncLocationsTask } from 'src/trigger/data-ingestion/location/sync-locations';
-import { ProcessProductGroupsTask } from 'src/trigger/data-ingestion/product-groups/process-product-groups';
 import { RequestProductsTask } from 'src/trigger/data-ingestion/product/request-products';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
-import { ulid } from 'ulid';
 
 @Resolver()
 export class CloudshelfResolver {

@@ -21,7 +21,6 @@ export class AuthRequiredGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const graphQLContext: Context = context.getArgByIndex(2) as Context;
         const request = graphQLContext.req;
-        console.log('request ===========================>', request);
         if (!request) {
             return false;
         }
@@ -29,10 +28,6 @@ export class AuthRequiredGuard implements CanActivate {
         const storeDomain = request.headers['x-store-domain'] as string;
         const hmac = request.headers['x-hmac'] as string;
         const schofield = request.headers['x-nonce'] as string;
-
-        console.log('storeDomain ===========================>', storeDomain);
-        console.log('hmac ===========================>', hmac);
-        console.log('schofield ===========================>', schofield);
 
         let operationVars = (graphQLContext.req as any).body.variables;
         let vs = Object.keys(operationVars ?? {})

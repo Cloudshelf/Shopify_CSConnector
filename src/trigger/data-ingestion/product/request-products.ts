@@ -104,8 +104,6 @@ export const RequestProductsTask = task({
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info('Payload', payload);
 
-        console.log('RequestProductsTask.trigger ==================================================', payload);
-
         const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {
             logger.error(`AppDataSource is not set`);
@@ -130,7 +128,7 @@ export const RequestProductsTask = task({
             throw new Error(`Retailer does not exist for id "${payload.organisationId}"`);
         }
 
-        await CloudshelfApiOrganisationUtils.setOrganisationIsSyncing({
+        CloudshelfApiOrganisationUtils.setOrganisationIsSyncing({
             apiUrl: cloudshelfAPI,
             retailer,
             syncing: true,
@@ -217,6 +215,11 @@ export const RequestProductsTask = task({
             } else {
                 throw err;
             }
+            CloudshelfApiOrganisationUtils.setOrganisationIsSyncing({
+                apiUrl: cloudshelfAPI,
+                retailer,
+                syncing: false,
+            });
         } finally {
             logger.info(`Flushing changes to database`);
             await em.flush();
