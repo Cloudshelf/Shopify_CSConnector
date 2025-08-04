@@ -40,5 +40,6 @@ mutation UpdateProductsInProductGroupInBatch($productGroupUpdateBatchInput: Prod
     updateProductsInProductGroupInBatch(productGroupUpdateBatchInput: $productGroupUpdateBatchInput) {
         success
         productGroupId
+        number
     }
 }

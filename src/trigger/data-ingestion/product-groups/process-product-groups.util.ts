@@ -170,7 +170,9 @@ export class ProcessProductGroupsUtils {
 
         for (const [productGroupId, productIds] of Object.entries(productsInGroups)) {
             const reversedProductIds = productIds.slice().reverse();
-            logger.info(`Product Group: ${productGroupId}, products`, { reversedProductIds });
+            logger.info(`Product Group: ${productGroupId}, ${reversedProductIds.length} products`, {
+                reversedProductIds,
+            });
             productGroupUpdateBatch.push({
                 productGroupId,
                 productIds: reversedProductIds,

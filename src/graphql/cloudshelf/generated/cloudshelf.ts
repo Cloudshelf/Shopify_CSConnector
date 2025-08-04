@@ -1623,11 +1623,95 @@ export type EngineImageWithVariantInfo = {
   variantId?: Maybe<Scalars['GlobalId']['output']>;
 };
 
+export type EngineImageWithVariantInfoBlock = {
+  __typename?: 'EngineImageWithVariantInfoBlock';
+  preferred: Scalars['Boolean']['output'];
+  url: Scalars['String']['output'];
+  variantId?: Maybe<Scalars['GlobalId']['output']>;
+};
+
 export enum EngineOrientation {
   Horizontal = 'HORIZONTAL',
   Portrait = 'PORTRAIT',
   Square = 'SQUARE'
 }
+
+export type EngineProductBlock = {
+  __typename?: 'EngineProductBlock';
+  anyVariantAvailableForSale: Scalars['Boolean']['output'];
+  anyVariantIsInStock: Scalars['Boolean']['output'];
+  descriptionHtml: Scalars['String']['output'];
+  eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  handle: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  images: Array<EngineImageWithVariantInfoBlock>;
+  metadata: Array<EngineProductMetadataBlock>;
+  productGroups: Array<EngineProductGroupWithPositionBlock>;
+  remoteUpdatedAt: Scalars['String']['output'];
+  tags: Array<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  variants: Array<EngineProductVariantBlock>;
+  vendor: Scalars['String']['output'];
+};
+
+export type EngineProductBlockEdge = {
+  __typename?: 'EngineProductBlockEdge';
+  /** The cursor for provided node to be used in pagination */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The EngineProductBlock entity */
+  node?: Maybe<EngineProductBlock>;
+};
+
+export type EngineProductBlockPageInfo = {
+  __typename?: 'EngineProductBlockPageInfo';
+  /** The cursor for the last node in the page */
+  endCursor?: Maybe<Scalars['String']['output']>;
+  /** Whether or not there is a another page of data */
+  hasNextPage: Scalars['Boolean']['output'];
+  /** Whether or not there is a previous page of data */
+  hasPreviousPage: Scalars['Boolean']['output'];
+  /** The cursor for the first node in the page */
+  startCursor?: Maybe<Scalars['String']['output']>;
+};
+
+export type EngineProductBlockPayload = {
+  __typename?: 'EngineProductBlockPayload';
+  edges?: Maybe<Array<EngineProductBlockEdge>>;
+  pageInfo?: Maybe<EngineProductBlockPageInfo>;
+  /** The total number of items available */
+  totalCount: Scalars['Int']['output'];
+};
+
+export type EngineProductGroupWithPositionBlock = {
+  __typename?: 'EngineProductGroupWithPositionBlock';
+  id?: Maybe<Scalars['GlobalId']['output']>;
+  order: Scalars['Float']['output'];
+};
+
+export type EngineProductMetadataBlock = {
+  __typename?: 'EngineProductMetadataBlock';
+  data: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  variantId?: Maybe<Scalars['GlobalId']['output']>;
+};
+
+export type EngineProductVariantBlock = {
+  __typename?: 'EngineProductVariantBlock';
+  availableForSale: Scalars['Boolean']['output'];
+  barcode: Scalars['String']['output'];
+  currentlyNotInStock: Scalars['Boolean']['output'];
+  displayName: Scalars['String']['output'];
+  eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
+  hasSalePrice?: Maybe<Scalars['Boolean']['output']>;
+  id?: Maybe<Scalars['GlobalId']['output']>;
+  options: Array<KeyValuePair>;
+  originalPrice: Scalars['Float']['output'];
+  position?: Maybe<Scalars['Float']['output']>;
+  price: Scalars['Float']['output'];
+  sellableOnlineQuantity: Scalars['Float']['output'];
+  sku: Scalars['String']['output'];
+};
 
 export type EngineProductWithAdditionalInfo = {
   __typename?: 'EngineProductWithAdditionalInfo';
@@ -1788,7 +1872,6 @@ export enum FilterOrderType {
 
 export enum FilterType {
   Basic = 'BASIC',
-  CategoryHandle = 'CATEGORY_HANDLE',
   CategoryId = 'CATEGORY_ID',
   Colour = 'COLOUR',
   Material = 'MATERIAL',
@@ -1848,7 +1931,8 @@ export enum ImageAnchor {
 
 export enum ImageBackgroundStyle {
   Blur = 'BLUR',
-  Colour = 'COLOUR'
+  Colour = 'COLOUR',
+  ZoomToFill = 'ZOOM_TO_FILL'
 }
 
 export enum ImageOrientation {
@@ -2228,6 +2312,7 @@ export type Mutation = {
   markInstallComplete: Scalars['Boolean']['output'];
   markShopifyOrganisationUninstallStarted: Scalars['Boolean']['output'];
   newSession: Session;
+  notice: Scalars['Boolean']['output'];
   /** Register a webhook for a given subject. The supplied URL will be called with a POST request when the subject is triggered. */
   registerWebhook: WebhookRegisterPayload;
   /** Removes the given products from the product group, if they are currently part of it */
@@ -2473,6 +2558,11 @@ export type MutationNewSessionArgs = {
   latitude?: InputMaybe<Scalars['Latitude']['input']>;
   longitude?: InputMaybe<Scalars['Longitude']['input']>;
   salesAssistantId?: InputMaybe<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationNoticeArgs = {
+  str?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3372,6 +3462,8 @@ export type ProductGroupUpdateBatchItem = {
 
 export type ProductGroupUpdateBatchPayload = {
   __typename?: 'ProductGroupUpdateBatchPayload';
+  /** The number of products */
+  number: Scalars['Int']['output'];
   /** The ID of the product group that was updated */
   productGroupId: Scalars['ID']['output'];
   /** Whether the update was successful */
@@ -3597,7 +3689,9 @@ export type Query = {
   device?: Maybe<Device>;
   /** Returns a paginated array of Devices. */
   devices: DevicePaginatedPayload;
+  /** @deprecated use the newer engineProductsBlock or load from R2 storage */
   engineProducts: EngineProductWithAdditionalInfoPayload;
+  engineProductsBlock: EngineProductBlockPayload;
   /** Returns the exchange rates for a given currency code in GBP, USD, and EUR */
   exchangeRates: Scalars['String']['output'];
   /** Returns a Filter entity */
@@ -3621,7 +3715,9 @@ export type Query = {
   /** Returns the currently authenticated user. */
   me: User;
   metadataKeys: Array<Scalars['String']['output']>;
+  /** @deprecated use the newer onlineFilterSearchBlock */
   onlineFilterSearch: EngineProductWithAdditionalInfoPayload;
+  onlineFilterSearchBlock: EngineProductBlockPayload;
   /** Returns an Order entity. */
   order?: Maybe<Order>;
   /** Returns a paginated array of Order entities */
@@ -3787,6 +3883,18 @@ export type QueryEngineProductsArgs = {
 };
 
 
+export type QueryEngineProductsBlockArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  cloudshelfId: Scalars['GlobalId']['input'];
+  explicitProductHandle?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeMetafieldKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  includeMetafieldPartialKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryExchangeRatesArgs = {
   currencyCode: Scalars['String']['input'];
 };
@@ -3867,6 +3975,18 @@ export type QueryLocationsArgs = {
 
 
 export type QueryOnlineFilterSearchArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  cloudshelfId: Scalars['GlobalId']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeMetafieldKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  includeMetafieldPartialKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  searchQuery: Scalars['String']['input'];
+};
+
+
+export type QueryOnlineFilterSearchBlockArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   cloudshelfId: Scalars['GlobalId']['input'];
@@ -4392,6 +4512,8 @@ export type Theme = {
   attractLoopBackgroundColor: Scalars['String']['output'];
   attractLoopFontColor: Scalars['String']['output'];
   attractLoopFontSize: Size;
+  attractLoopImageColor: Scalars['String']['output'];
+  attractLoopImageStyle: ImageBackgroundStyle;
   bodyFont: ThemeFont;
   /** An array of Cloudshelves that use this theme. */
   cloudshelves: Array<Cloudshelf>;
@@ -4430,7 +4552,6 @@ export type Theme = {
   pdpImageBackgroundStyle: ImageBackgroundStyle;
   pdpImageModifierLandscape: Scalars['Float']['output'];
   pdpImageModifierPortrait: Scalars['Float']['output'];
-  pdpImageZoomToFill: Scalars['Boolean']['output'];
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   /** The primary colour of the theme. */
@@ -4504,6 +4625,8 @@ export type ThemeInput = {
   attractLoopFontColor?: InputMaybe<Scalars['String']['input']>;
   /** Hidden will not be respected by the API */
   attractLoopFontSize?: InputMaybe<Size>;
+  attractLoopImageColor?: InputMaybe<Scalars['String']['input']>;
+  attractLoopImageStyle?: InputMaybe<ImageBackgroundStyle>;
   blocksRounded?: InputMaybe<Scalars['Boolean']['input']>;
   bodyFont?: InputMaybe<ThemeFontInput>;
   collectionGridTileModifier?: InputMaybe<Scalars['Float']['input']>;
@@ -4531,7 +4654,6 @@ export type ThemeInput = {
   pdpImageBackgroundStyle?: InputMaybe<ImageBackgroundStyle>;
   pdpImageModifierLandscape?: InputMaybe<Scalars['Float']['input']>;
   pdpImageModifierPortrait?: InputMaybe<Scalars['Float']['input']>;
-  pdpImageZoomToFill?: InputMaybe<Scalars['Boolean']['input']>;
   primaryColor?: InputMaybe<Scalars['String']['input']>;
   primaryContrastColor?: InputMaybe<Scalars['String']['input']>;
   productGridHeightModifier?: InputMaybe<Scalars['Float']['input']>;
@@ -5063,6 +5185,7 @@ export const UpdateProductsInProductGroupInBatchDocument = gql`
   ) {
     success
     productGroupId
+    number
   }
 }
     `;
@@ -5239,7 +5362,7 @@ export type UpdateProductsInProductGroupInBatchMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: string }> };
+export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: string, number: number }> };
 
 export type UpsertProductsMutationVariables = Exact<{
   input: Array<ProductInput> | ProductInput;
