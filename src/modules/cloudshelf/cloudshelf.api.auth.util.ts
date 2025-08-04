@@ -6,6 +6,7 @@ import {
     createHttpLink,
     from,
 } from '@apollo/client/core';
+import { onError } from '@apollo/client/link/error';
 import { RetryLink } from '@apollo/client/link/retry';
 import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import {
@@ -38,6 +39,9 @@ export class CloudshelfApiAuthUtils {
 
         const httpLink = createHttpLink({
             uri: apiURL,
+            fetchOptions: {
+                timeout: 30000, // 30 seconds timeout
+            },
         });
 
         const authLink = new ApolloLink((operation, forward) => {
@@ -61,25 +65,46 @@ export class CloudshelfApiAuthUtils {
             return forward(operation);
         });
 
+        const errorLink = onError(({ graphQLErrors, networkError }) => {
+            // Log errors for debugging
+            if (graphQLErrors) {
+                graphQLErrors.forEach(({ message, locations, path }) =>
+                    logs?.error?.(
+                        `[CloudshelfApiAuthUtils] GraphQL error: Message: ${message}, Location: ${locations}, Path: ${path}`,
+                    ),
+                );
+            }
+
+            if (networkError) {
+                const statusCode = 'statusCode' in networkError ? (networkError as any).statusCode : undefined;
+                logs?.error?.(
+                    `[CloudshelfApiAuthUtils] Network error: ${networkError}${
+                        statusCode ? ` (status: ${statusCode})` : ''
+                    }`,
+                );
+            }
+        });
+
         const responseLoggingLink = createResponseLoggingLink(logs);
         const retryLink = new RetryLink({
             delay: {
-                initial: 2000,
-                max: Infinity,
-                jitter: false,
+                initial: 1500,
+                max: 5000,
+                jitter: true,
             },
             attempts: {
-                max: 3,
+                max: 5,
                 retryIf: (error, _operation) => {
                     const status = (error as any)?.networkError?.statusCode ?? (error as any)?.statusCode;
-                    return status === 502;
+                    // Retry on temporary errors
+                    return [499, 502, 503, 504].includes(status);
                 },
             },
         });
 
         const client = new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([authLink, retryLink, responseLoggingLink, httpLink]),
+            link: from([authLink, errorLink, retryLink, responseLoggingLink, httpLink]),
             defaultOptions: graphqlDefaultOptions,
         });
 
