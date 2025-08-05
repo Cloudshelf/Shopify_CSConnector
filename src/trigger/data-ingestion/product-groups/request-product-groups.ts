@@ -1,3 +1,4 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
 import { CloudshelfApiReportUtils } from '../../../modules/cloudshelf/cloudshelf.api.report.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
@@ -8,6 +9,7 @@ import { getDbForTrigger } from '../../reuseables/db';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { logger, task } from '@trigger.dev/sdk';
 import { subDays } from 'date-fns';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 
 async function buildCollectionTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
@@ -98,6 +100,12 @@ export const RequestProductGroupsTask = task({
                 `Requesting product groups for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
             );
 
+            CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
+                apiUrl: process.env.CLOUDSHELF_API_URL!,
+                retailer,
+                syncStage: SyncStage.RequestProductGroups,
+            });
+
             await TriggerWaitForNobleReschedule(retailer);
 
             let changesSince: Date | undefined = undefined;
@@ -161,8 +169,16 @@ export const RequestProductGroupsTask = task({
                 logger.info(`Reporting retailer closed.`, { input });
                 await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
             } else {
+                await CloudshelfApiOrganisationUtils.failOrganisationSync({
+                    apiUrl: process.env.CLOUDSHELF_API_URL!,
+                    domainName: retailer.domain,
+                });
                 throw err;
             }
+            CloudshelfApiOrganisationUtils.failOrganisationSync({
+                apiUrl: process.env.CLOUDSHELF_API_URL!,
+                domainName: retailer.domain,
+            });
         } finally {
             logger.info(`Flushing changes to database`);
             await em.flush();

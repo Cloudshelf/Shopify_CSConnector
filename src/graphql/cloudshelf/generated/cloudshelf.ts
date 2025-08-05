@@ -2332,10 +2332,11 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
-  setOrganisationIsSyncing: Scalars['Boolean']['output'];
+  setOrganisationSyncStatus: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
   startPaymentRequest: PaymentGenericPayload;
+  startSync: Scalars['Boolean']['output'];
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
   transferToShopifyPOS: TransferedOrderPayload;
@@ -2653,9 +2654,9 @@ export type MutationSetHandoffImageUrlArgs = {
 };
 
 
-export type MutationSetOrganisationIsSyncingArgs = {
+export type MutationSetOrganisationSyncStatusArgs = {
   domainName: Scalars['String']['input'];
-  syncing: Scalars['Boolean']['input'];
+  syncStage: SyncStage;
 };
 
 
@@ -3024,8 +3025,8 @@ export type Organisation = {
   salesAssistants: Array<SalesAssistant>;
   /** The status of the organisation. This is used to determine if the organisation is active or idle. */
   status: OrganisationStatus;
-  /** Indicates if the organisation is currently syncing. */
-  syncing: Scalars['Boolean']['output'];
+  /** Indicates the current stage of the sync process. */
+  syncStage: SyncStage;
   uninstallStarted: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
@@ -3109,10 +3110,12 @@ export enum OrganisationStatus {
   Processing = 'PROCESSING'
 }
 
-export type OrganisationStatusPayload = {
-  __typename?: 'OrganisationStatusPayload';
+export type OrganisationSyncStatusPayload = {
+  __typename?: 'OrganisationSyncStatusPayload';
+  lastSyncedAt?: Maybe<Scalars['String']['output']>;
+  nextSyncAt?: Maybe<Scalars['String']['output']>;
   status: OrganisationStatus;
-  syncing: Scalars['Boolean']['output'];
+  syncStage: SyncStage;
 };
 
 export type OrganisationUpsertPayload = {
@@ -3748,8 +3751,8 @@ export type Query = {
   organisation?: Maybe<Organisation>;
   /** Returns if the install has been completed for an organisation */
   organisationInstallComplete?: Maybe<Scalars['Boolean']['output']>;
-  organisationStatusByDomain: OrganisationStatusPayload;
-  organisationStatusById: OrganisationStatusPayload;
+  organisationSyncStatusByDomain: OrganisationSyncStatusPayload;
+  organisationSyncStatusById: OrganisationSyncStatusPayload;
   /** Returns a paginated array of user access rights for the current organisation */
   organisationUsers: UserForOrganisationPaginatedPayload;
   /** Returns a paginated array of organisations */
@@ -4046,7 +4049,7 @@ export type QueryOrganisationInstallCompleteArgs = {
 };
 
 
-export type QueryOrganisationStatusByDomainArgs = {
+export type QueryOrganisationSyncStatusByDomainArgs = {
   domainName: Scalars['String']['input'];
 };
 
@@ -4514,6 +4517,17 @@ export type SwatchInput = {
   displayName: Scalars['String']['input'];
   imageUrl: Scalars['String']['input'];
 };
+
+/** The current stage of the sync process. */
+export enum SyncStage {
+  CleanUp = 'CLEAN_UP',
+  Done = 'DONE',
+  Failed = 'FAILED',
+  ProcessProducts = 'PROCESS_PRODUCTS',
+  ProcessProductGroups = 'PROCESS_PRODUCT_GROUPS',
+  RequestProducts = 'REQUEST_PRODUCTS',
+  RequestProductGroups = 'REQUEST_PRODUCT_GROUPS'
+}
 
 export type SyncStatsPayload = {
   __typename?: 'SyncStatsPayload';
@@ -5162,17 +5176,9 @@ export const UpsertOrdersDocument = gql`
   }
 }
     `;
-export const SetOrganisationIsSyncingDocument = gql`
-    mutation SetOrganisationIsSyncing($domainName: String!, $syncing: Boolean!) {
-  setOrganisationIsSyncing(domainName: $domainName, syncing: $syncing)
-}
-    `;
-export const OrganisationStatusByDomainDocument = gql`
-    query OrganisationStatusByDomain($domainName: String!) {
-  organisationStatusByDomain(domainName: $domainName) {
-    status
-    syncing
-  }
+export const SetOrganisationSyncStatusDocument = gql`
+    mutation SetOrganisationSyncStatus($domainName: String!, $syncStage: SyncStage!) {
+  setOrganisationSyncStatus(domainName: $domainName, syncStage: $syncStage)
 }
     `;
 export const UpsertProductGroupsDocument = gql`
@@ -5319,6 +5325,16 @@ export const IsInstallCompletedDocument = gql`
   organisationInstallComplete(domain: $domain)
 }
     `;
+export const OrganisationSyncStatusByDomainDocument = gql`
+    query OrganisationSyncStatusByDomain($domainName: String!) {
+  organisationSyncStatusByDomain(domainName: $domainName) {
+    status
+    syncStage
+    lastSyncedAt
+    nextSyncAt
+  }
+}
+    `;
 export type ReportCatalogStatsMutationVariables = Exact<{
   knownNumberOfImages?: InputMaybe<Scalars['Int']['input']>;
   knownNumberOfProductGroups?: InputMaybe<Scalars['Int']['input']>;
@@ -5369,20 +5385,13 @@ export type UpsertOrdersMutationVariables = Exact<{
 
 export type UpsertOrdersMutation = { __typename?: 'Mutation', upsertOrders: { __typename?: 'OrderUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, orders: Array<{ __typename?: 'Order', id: any }> } };
 
-export type SetOrganisationIsSyncingMutationVariables = Exact<{
+export type SetOrganisationSyncStatusMutationVariables = Exact<{
   domainName: Scalars['String']['input'];
-  syncing: Scalars['Boolean']['input'];
+  syncStage: SyncStage;
 }>;
 
 
-export type SetOrganisationIsSyncingMutation = { __typename?: 'Mutation', setOrganisationIsSyncing: boolean };
-
-export type OrganisationStatusByDomainQueryVariables = Exact<{
-  domainName: Scalars['String']['input'];
-}>;
-
-
-export type OrganisationStatusByDomainQuery = { __typename?: 'Query', organisationStatusByDomain: { __typename?: 'OrganisationStatusPayload', status: OrganisationStatus, syncing: boolean } };
+export type SetOrganisationSyncStatusMutation = { __typename?: 'Mutation', setOrganisationSyncStatus: boolean };
 
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;
@@ -5482,3 +5491,10 @@ export type IsInstallCompletedQueryVariables = Exact<{
 
 
 export type IsInstallCompletedQuery = { __typename?: 'Query', organisationInstallComplete?: boolean | null };
+
+export type OrganisationSyncStatusByDomainQueryVariables = Exact<{
+  domainName: Scalars['String']['input'];
+}>;
+
+
+export type OrganisationSyncStatusByDomainQuery = { __typename?: 'Query', organisationSyncStatusByDomain: { __typename?: 'OrganisationSyncStatusPayload', status: OrganisationStatus, syncStage: SyncStage, lastSyncedAt?: string | null, nextSyncAt?: string | null } };

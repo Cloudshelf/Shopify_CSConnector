@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import { ProductGroupInput, ProductGroupUpdateBatchItem } from 'src/graphql/cloudshelf/generated/cloudshelf';
+import { ProductGroupInput, ProductGroupUpdateBatchItem, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { CloudshelfApiOrganisationUtils } from '../../../modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiProductUtils } from '../../../modules/cloudshelf/cloudshelf.api.products.util';
@@ -63,12 +63,6 @@ export class ProcessProductGroupsUtils {
                 info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
-            });
-
-            await CloudshelfApiOrganisationUtils.setOrganisationIsSyncing({
-                apiUrl: process.env.CLOUDSHELF_API_URL || '',
-                retailer,
-                syncing: false,
             });
         }
         logger.info(`handleComplete: ${msg}`);

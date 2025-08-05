@@ -21,7 +21,7 @@ export class ProductJobUtils {
             syncType: fullSync ? 'type_full' : 'type_partial',
             reason,
         });
-        let delay = '20m';
+        let delay = '60m';
 
         if (fullSync) {
             delay = '10s';

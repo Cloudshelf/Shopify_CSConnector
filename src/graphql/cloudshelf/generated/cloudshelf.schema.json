@@ -18215,7 +18215,7 @@
             "deprecationReason": null
           },
           {
-            "name": "setOrganisationIsSyncing",
+            "name": "setOrganisationSyncStatus",
             "description": null,
             "args": [
               {
@@ -18235,14 +18235,14 @@
                 "deprecationReason": null
               },
               {
-                "name": "syncing",
+                "name": "syncStage",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
                   "name": null,
                   "ofType": {
-                    "kind": "SCALAR",
-                    "name": "Boolean",
+                    "kind": "ENUM",
+                    "name": "SyncStage",
                     "ofType": null
                   }
                 },
@@ -18395,6 +18395,22 @@
               "ofType": {
                 "kind": "OBJECT",
                 "name": "PaymentGenericPayload",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startSync",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               }
             },
@@ -21476,15 +21492,15 @@
             "deprecationReason": null
           },
           {
-            "name": "syncing",
-            "description": "Indicates if the organisation is currently syncing.",
+            "name": "syncStage",
+            "description": "Indicates the current stage of the sync process.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "Boolean",
+                "kind": "ENUM",
+                "name": "SyncStage",
                 "ofType": null
               }
             },
@@ -22097,10 +22113,34 @@
       },
       {
         "kind": "OBJECT",
-        "name": "OrganisationStatusPayload",
+        "name": "OrganisationSyncStatusPayload",
         "description": null,
         "isOneOf": null,
         "fields": [
+          {
+            "name": "lastSyncedAt",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "nextSyncAt",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "status",
             "description": null,
@@ -22118,15 +22158,15 @@
             "deprecationReason": null
           },
           {
-            "name": "syncing",
+            "name": "syncStage",
             "description": null,
             "args": [],
             "type": {
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "SCALAR",
-                "name": "Boolean",
+                "kind": "ENUM",
+                "name": "SyncStage",
                 "ofType": null
               }
             },
@@ -28699,7 +28739,7 @@
             "deprecationReason": null
           },
           {
-            "name": "organisationStatusByDomain",
+            "name": "organisationSyncStatusByDomain",
             "description": null,
             "args": [
               {
@@ -28724,7 +28764,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "OrganisationStatusPayload",
+                "name": "OrganisationSyncStatusPayload",
                 "ofType": null
               }
             },
@@ -28732,7 +28772,7 @@
             "deprecationReason": null
           },
           {
-            "name": "organisationStatusById",
+            "name": "organisationSyncStatusById",
             "description": null,
             "args": [],
             "type": {
@@ -28740,7 +28780,7 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "OrganisationStatusPayload",
+                "name": "OrganisationSyncStatusPayload",
                 "ofType": null
               }
             },
@@ -32721,6 +32761,60 @@
         ],
         "interfaces": null,
         "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
+        "name": "SyncStage",
+        "description": "The current stage of the sync process.",
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "CLEAN_UP",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "DONE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "FAILED",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "PROCESS_PRODUCTS",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "PROCESS_PRODUCT_GROUPS",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "REQUEST_PRODUCTS",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "REQUEST_PRODUCT_GROUPS",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
         "possibleTypes": null
       },
       {

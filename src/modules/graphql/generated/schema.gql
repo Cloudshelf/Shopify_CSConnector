@@ -4,6 +4,9 @@
 
 input CloudshelfSyncOrganisationInput {
   domainName: String!
+
+  """If true, will sync all products and product groups"""
+  fullSync: Boolean = false
   reason: CloudshelfSyncOrganisationReason!
 }
 

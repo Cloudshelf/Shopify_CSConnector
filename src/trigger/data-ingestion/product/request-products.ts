@@ -1,3 +1,4 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
 import { CloudshelfApiOrganisationUtils } from '../../../modules/cloudshelf/cloudshelf.api.organisation.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
@@ -128,11 +129,12 @@ export const RequestProductsTask = task({
             throw new Error(`Retailer does not exist for id "${payload.organisationId}"`);
         }
 
-        CloudshelfApiOrganisationUtils.setOrganisationIsSyncing({
+        await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
             apiUrl: cloudshelfAPI,
             retailer,
-            syncing: true,
+            syncStage: SyncStage.RequestProducts,
         });
+
         try {
             logger.info(
                 `Requesting products for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
@@ -213,12 +215,15 @@ export const RequestProductsTask = task({
                 logger.info(`Reporting retailer closed.`, { input });
                 await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
             } else {
+                CloudshelfApiOrganisationUtils.failOrganisationSync({
+                    apiUrl: cloudshelfAPI,
+                    domainName: retailer.domain,
+                });
                 throw err;
             }
-            CloudshelfApiOrganisationUtils.setOrganisationIsSyncing({
+            await CloudshelfApiOrganisationUtils.failOrganisationSync({
                 apiUrl: cloudshelfAPI,
-                retailer,
-                syncing: false,
+                domainName: retailer.domain,
             });
         } finally {
             logger.info(`Flushing changes to database`);

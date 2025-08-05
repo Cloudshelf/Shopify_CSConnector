@@ -28,9 +28,9 @@ export class CloudshelfResolver {
         await RequestProductsTask.trigger(
             {
                 organisationId: retailer.id,
-                fullSync: true,
+                fullSync: !!input.fullSync,
             },
-            { tags },
+            { tags, delay: '1s', queue: 'ingestion', concurrencyKey: retailer.id },
         );
 
         return true;
