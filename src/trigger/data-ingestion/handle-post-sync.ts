@@ -552,10 +552,6 @@ export const HandlePostSync = task({
                 });
                 throw err;
             }
-            CloudshelfApiOrganisationUtils.failOrganisationSync({
-                apiUrl: process.env.CLOUDSHELF_API_URL!,
-                domainName: retailer.domain,
-            });
         } finally {
             await handleComplete(em, 'job complete', retailer);
         }

@@ -175,10 +175,6 @@ export const RequestProductGroupsTask = task({
                 });
                 throw err;
             }
-            CloudshelfApiOrganisationUtils.failOrganisationSync({
-                apiUrl: process.env.CLOUDSHELF_API_URL!,
-                domainName: retailer.domain,
-            });
         } finally {
             logger.info(`Flushing changes to database`);
             await em.flush();

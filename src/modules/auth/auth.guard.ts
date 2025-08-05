@@ -1,7 +1,11 @@
 import { CanActivate, ExecutionContext, UseGuards, applyDecorators } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import * as dotenv from 'dotenv';
 import { IncomingMessage } from 'http';
+import { CryptographyUtils } from 'src/utils/CryptographyUtils';
 import { ExtendedLogger } from 'src/utils/ExtendedLogger';
+
+dotenv.config();
 
 export class IncomingMessageWithAuthCode extends IncomingMessage {
     authCode?: number;
@@ -38,8 +42,25 @@ export class AuthRequiredGuard implements CanActivate {
             }, {} as any);
 
         if (!storeDomain || !hmac || !schofield) {
-            this.logger.log({ storeDomain, hmac, schofield });
+            console.log('Blocking request due to missing authorization token');
             this.logger.verbose('Blocking request due to missing authorization token');
+            request.authCode = 401;
+            return false;
+        }
+
+        const secret = process.env.CLOUDSHELF_API_HMAC_KEY;
+        if (!secret) {
+            console.log('HMAC secret not configured');
+            this.logger.error('HMAC secret not configured');
+            request.authCode = 500;
+            return false;
+        }
+
+        const isValid = CryptographyUtils.validateHmac(hmac, storeDomain + JSON.stringify(vs), schofield);
+
+        if (!isValid) {
+            console.log('Blocking request due to invalid HMAC');
+            this.logger.verbose('Blocking request due to invalid HMAC');
             request.authCode = 401;
             return false;
         }

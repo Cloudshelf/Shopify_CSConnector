@@ -26,7 +26,7 @@ export class CloudshelfApiOrganisationUtils {
     }): Promise<void> {
         const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
 
-        const setOrganisationIsSyncingMutation = await authedClient.mutate<
+        const setOrganisationSyncStatusMutation = await authedClient.mutate<
             SetOrganisationSyncStatusMutation,
             SetOrganisationSyncStatusMutationVariables
         >({
@@ -37,8 +37,8 @@ export class CloudshelfApiOrganisationUtils {
             },
         });
 
-        if (setOrganisationIsSyncingMutation.errors) {
-            logs?.error?.(`Failed to set organisation is syncing ${retailer.domain}`);
+        if (setOrganisationSyncStatusMutation.errors) {
+            logs?.error?.(`Failed to set organisation sync status ${retailer.domain}`);
             return;
         }
     }
@@ -52,23 +52,28 @@ export class CloudshelfApiOrganisationUtils {
         domainName: string;
         logs?: LogsInterface;
     }): Promise<OrganisationSyncStatusByDomainQuery['organisationSyncStatusByDomain']> {
-        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, domainName, logs);
+        try {
+            const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, domainName, logs);
 
-        const organisationStatusByDomainQuery = await authedClient.query<
-            OrganisationSyncStatusByDomainQuery,
-            OrganisationSyncStatusByDomainQueryVariables
-        >({
-            query: OrganisationSyncStatusByDomainDocument,
-            variables: { domainName },
-            fetchPolicy: 'no-cache',
-        });
+            const organisationStatusByDomainQuery = await authedClient.query<
+                OrganisationSyncStatusByDomainQuery,
+                OrganisationSyncStatusByDomainQueryVariables
+            >({
+                query: OrganisationSyncStatusByDomainDocument,
+                variables: { domainName },
+                fetchPolicy: 'no-cache',
+            });
 
-        if (organisationStatusByDomainQuery.errors) {
-            logs?.error?.(`Failed to get organisation status by domain ${domainName}`);
-            throw new Error(`Failed to get organisation status by domain ${domainName}`);
+            if (organisationStatusByDomainQuery.errors) {
+                logs?.error?.(`Failed to get organisation status by domain ${domainName}`);
+                throw new Error(`Failed to get organisation status by domain ${domainName}`);
+            }
+
+            return organisationStatusByDomainQuery.data.organisationSyncStatusByDomain;
+        } catch (error) {
+            logs?.error(`Error in getOrganisationStatusByDomain - ${domainName}`, error);
+            throw error;
         }
-
-        return organisationStatusByDomainQuery.data.organisationSyncStatusByDomain;
     }
 
     static async checkAndExitIfOrganisationIsNotActive({
@@ -107,22 +112,15 @@ export class CloudshelfApiOrganisationUtils {
         domainName: string;
         logs?: LogsInterface;
     }): Promise<void> {
-        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, domainName, logs);
-
-        const setOrganisationIsSyncingMutation = await authedClient.mutate<
-            SetOrganisationSyncStatusMutation,
-            SetOrganisationSyncStatusMutationVariables
-        >({
-            mutation: SetOrganisationSyncStatusDocument,
-            variables: {
-                domainName,
+        try {
+            await this.setOrganisationSyncStatus({
+                apiUrl,
+                retailer: { domain: domainName } as RetailerEntity,
+                logs,
                 syncStage: SyncStage.Failed,
-            },
-        });
-
-        if (setOrganisationIsSyncingMutation.errors) {
-            logs?.error?.(`Failed to set organisation is syncing ${domainName}`);
-            return;
+            });
+        } catch (error) {
+            logs?.error(`Error in failOrganisationSync - ${domainName}`, error);
         }
     }
 }
