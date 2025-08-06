@@ -60,7 +60,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
         await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
             apiUrl: process.env.CLOUDSHELF_API_URL || '',
             domainName: retailer.domain,
-            func: async () => {
+            callbackIfActive: async () => {
                 const tags = TriggerTagsUtils.createTags({
                     domain: retailer.domain,
                     retailerId: retailer.id,

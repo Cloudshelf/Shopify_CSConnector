@@ -114,7 +114,7 @@ export class ProductJobUtils {
             await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
                 apiUrl: process.env.CLOUDSHELF_API_URL || '',
                 domainName: retailer.domain,
-                func: async () => {
+                callbackIfActive: async () => {
                     const newTaskID = await ProcessProductsTask.trigger(
                         {
                             remoteBulkOperationId: bulkOp.shopifyBulkOpId,

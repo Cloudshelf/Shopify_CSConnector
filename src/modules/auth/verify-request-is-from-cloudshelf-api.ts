@@ -1,11 +1,8 @@
 import { CanActivate, ExecutionContext, UseGuards, applyDecorators } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import * as dotenv from 'dotenv';
 import { IncomingMessage } from 'http';
 import { CryptographyUtils } from 'src/utils/CryptographyUtils';
 import { ExtendedLogger } from 'src/utils/ExtendedLogger';
-
-dotenv.config();
 
 export class IncomingMessageWithAuthCode extends IncomingMessage {
     authCode?: number;
@@ -17,8 +14,8 @@ export interface Context {
 
 export const AUTH_REQUEST_HEADER_NAME = 'authorization';
 
-export class AuthRequiredGuard implements CanActivate {
-    private readonly logger = new ExtendedLogger(AuthRequiredGuard.name);
+export class VerifyRequestIsFromCloudshelfAPIGuard implements CanActivate {
+    private readonly logger = new ExtendedLogger(VerifyRequestIsFromCloudshelfAPIGuard.name);
 
     constructor(readonly metadataReflector: Reflector) {}
 
@@ -69,6 +66,6 @@ export class AuthRequiredGuard implements CanActivate {
     }
 }
 
-export function AuthRequired() {
-    return applyDecorators(UseGuards(AuthRequiredGuard));
+export function VerifyRequestIsFromCloudshelfAPI() {
+    return applyDecorators(UseGuards(VerifyRequestIsFromCloudshelfAPIGuard));
 }

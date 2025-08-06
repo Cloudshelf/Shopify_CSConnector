@@ -15,7 +15,7 @@ export class LocationJobUtils {
         await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
             apiUrl: process.env.CLOUDSHELF_API_URL || '',
             domainName: retailer.domain,
-            func: async () => {
+            callbackIfActive: async () => {
                 await SyncLocationsTask.trigger(
                     { organisationId: retailer.id },
                     { queue: `ingestion`, concurrencyKey: retailer.id, tags },

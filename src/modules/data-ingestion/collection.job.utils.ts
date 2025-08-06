@@ -26,7 +26,7 @@ export class CollectionJobUtils {
         await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
             apiUrl: process.env.CLOUDSHELF_API_URL || '',
             domainName: retailer.domain,
-            func: async () => {
+            callbackIfActive: async () => {
                 await RequestProductGroupsTask.trigger(
                     {
                         organisationId: retailer.id,
@@ -60,7 +60,7 @@ export class CollectionJobUtils {
         await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
             apiUrl: process.env.CLOUDSHELF_API_URL || '',
             domainName: retailer.domain,
-            func: async () => {
+            callbackIfActive: async () => {
                 await ProcessProductGroupsTask.trigger(
                     {
                         remoteBulkOperationId: bulkOp.shopifyBulkOpId,

@@ -80,13 +80,13 @@ export class CloudshelfApiOrganisationUtils {
         apiUrl,
         domainName,
         logs,
-        func,
+        callbackIfActive,
         location,
     }: {
         apiUrl: string;
         domainName: string;
         logs?: LogsInterface;
-        func: () => Promise<void>;
+        callbackIfActive: () => Promise<void>;
         location?: string;
     }): Promise<void> {
         try {
@@ -96,7 +96,7 @@ export class CloudshelfApiOrganisationUtils {
                 return;
             }
 
-            await func();
+            await callbackIfActive();
         } catch (error) {
             logs?.error(`Error in checkAndExitIfOrganisationIsNotActive - ${location}`, error);
             throw error;

@@ -1,5 +1,5 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
-import { AuthRequired } from '../auth/auth.guard';
+import { VerifyRequestIsFromCloudshelfAPI } from '../auth/verify-request-is-from-cloudshelf-api';
 import { RetailerService } from '../retailer/retailer.service';
 import { CloudshelfSyncOrganisationInput } from './types/cloudshelf.sync.organisation.input';
 import { RequestProductsTask } from 'src/trigger/data-ingestion/product/request-products';
@@ -10,7 +10,7 @@ export class CloudshelfResolver {
     constructor(private readonly retailerService: RetailerService) {}
 
     @Mutation(() => Boolean)
-    @AuthRequired()
+    @VerifyRequestIsFromCloudshelfAPI()
     async syncOrganisation(
         @Args({ name: 'input', type: () => CloudshelfSyncOrganisationInput }) input: CloudshelfSyncOrganisationInput,
     ) {

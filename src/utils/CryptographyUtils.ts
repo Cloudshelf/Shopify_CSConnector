@@ -21,7 +21,7 @@ export class CryptographyUtils {
         }
 
         const logger = new ExtendedLogger('validateHmac');
-        logger.debug('Validating hmac', { hmac, data, nonce });
+        logger.debug('Validating hmac', { hmac, hasData: !!data, hasNonce: !!nonce });
         const nonceAsTimestamp = parseInt(nonce, 10);
         // Check timestamp is within 5 minutes
         if (Date.now() - nonceAsTimestamp > 5 * 60 * 1000) {
@@ -32,7 +32,10 @@ export class CryptographyUtils {
         h.update(data + nonce);
         const digest = h.digest('hex');
         if (digest !== hmac) {
-            logger.debug('Hmacs do not match', { hmac, digest });
+            logger.debug('Hmacs do not match', {
+                expected: digest.substring(0, 8) + '...',
+                received: hmac.substring(0, 8) + '...',
+            });
         }
         logger.debug('HMAC valid: ' + (digest === hmac));
         return hmac === digest;
