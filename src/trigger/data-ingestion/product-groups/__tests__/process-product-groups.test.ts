@@ -1,3 +1,4 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { runInternal } from '../process-product-groups';
@@ -5,9 +6,11 @@ import { ProcessProductGroupsUtils } from '../process-product-groups.util';
 import * as TriggerFncs from '@trigger.dev/sdk/v3';
 import * as fs from 'fs';
 import { CloudshelfApiCloudshelfUtils } from 'src/modules/cloudshelf/cloudshelf.api.cloudshelf.util';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import * as ReusableFcns from 'src/trigger/reuseables/db';
+import { CryptographyUtils } from 'src/utils/CryptographyUtils';
 
 jest.mock('@trigger.dev/sdk/v3');
 jest.mock('src/trigger/data-ingestion/product-groups/process-product-groups.util');
@@ -15,11 +18,18 @@ jest.mock('src/trigger/reuseables/db');
 jest.mock('src/modules/cloudshelf/cloudshelf.api.report.util');
 jest.mock('src/modules/cloudshelf/cloudshelf.api.cloudshelf.util');
 jest.mock('src/modules/cloudshelf/cloudshelf.api.products.util');
+jest.mock('src/utils/CryptographyUtils');
+jest.mock('src/modules/cloudshelf/cloudshelf.api.organisation.util');
 
 describe('runInternal', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.resetModules();
+        jest.clearAllMocks();
+        jest.spyOn(CryptographyUtils, 'validateHmac').mockReturnValue(true);
+    });
+
+    afterEach(() => {
         jest.clearAllMocks();
     });
 
@@ -197,6 +207,8 @@ describe('runInternal', () => {
         (CloudshelfApiProductUtils.updateProductGroups as jest.Mock).mockImplementation(() => {});
         (ProcessProductGroupsUtils.updateProductGroups as jest.Mock).mockImplementation(() => {});
         (CloudshelfApiCloudshelfUtils.createFirstCloudshelfIfRequired as jest.Mock).mockImplementation(() => {});
+        (CloudshelfApiOrganisationUtils.setOrganisationSyncStatus as jest.Mock).mockImplementation(() => {});
+        (CloudshelfApiOrganisationUtils.failOrganisationSync as jest.Mock).mockImplementation(() => {});
         const payload = {
             remoteBulkOperationId: '123',
             fullSync,
@@ -240,5 +252,13 @@ describe('runInternal', () => {
             },
             payload,
         });
+        expect(CloudshelfApiOrganisationUtils.setOrganisationSyncStatus).toHaveBeenCalledWith({
+            apiUrl: 'https://example.com',
+            retailer: {
+                domain: 'example.com',
+            },
+            syncStage: SyncStage.ProcessProductGroups,
+        });
+        expect(CloudshelfApiOrganisationUtils.failOrganisationSync).not.toHaveBeenCalled();
     });
 });

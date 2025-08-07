@@ -20,7 +20,6 @@ import { CloudshelfApiStoreUtils } from './cloudshelf.api.store.util';
 import { CloudshelfApiSubscriptionUtils } from './cloudshelf.api.subscription.util';
 import { CloudshelfApiThemeUtils } from './cloudshelf.api.theme.util';
 import { LogsInterface } from './logs.interface';
-import { from } from 'rxjs';
 import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()

@@ -1,4 +1,5 @@
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
@@ -10,6 +11,7 @@ import { getDbForTrigger } from '../reuseables/db';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
@@ -454,6 +456,12 @@ export const HandlePostSync = task({
         retailer.syncErrorCode = null;
 
         try {
+            CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
+                apiUrl: process.env.CLOUDSHELF_API_URL!,
+                retailer,
+                syncStage: SyncStage.CleanUp,
+            });
+
             await TriggerWaitForNobleReschedule(retailer);
 
             const collectionResult = await handleCollections(
@@ -494,6 +502,12 @@ export const HandlePostSync = task({
                 warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
             });
+
+            await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
+                apiUrl: process.env.CLOUDSHELF_API_URL!,
+                retailer,
+                syncStage: SyncStage.Done,
+            });
         } catch (err) {
             if (typeof err.message === 'string' && err.message.includes('status code 401')) {
                 logger.warn('Ignoring ApolloError with status code 401 (Retailer uninstalled?)');
@@ -532,6 +546,10 @@ export const HandlePostSync = task({
                     error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
                 });
             } else {
+                await CloudshelfApiOrganisationUtils.failOrganisationSync({
+                    apiUrl: process.env.CLOUDSHELF_API_URL!,
+                    domainName: retailer.domain,
+                });
                 throw err;
             }
         } finally {

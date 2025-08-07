@@ -1,6 +1,7 @@
 import * as Joi from 'joi';
-import { ProductGroupInput, ProductGroupUpdateBatchItem } from 'src/graphql/cloudshelf/generated/cloudshelf';
+import { ProductGroupInput, ProductGroupUpdateBatchItem, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
+import { CloudshelfApiOrganisationUtils } from '../../../modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiProductUtils } from '../../../modules/cloudshelf/cloudshelf.api.products.util';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { PostSyncJobUtils } from '../../../modules/data-ingestion/sync.job.utils';

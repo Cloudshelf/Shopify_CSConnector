@@ -1,12 +1,11 @@
-import { Module } from '@nestjs/common';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { Module, forwardRef } from '@nestjs/common';
+import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { IntegrationsModule } from '../integrations/integrations.module';
-import { RetailerEntity } from './retailer.entity';
 import { RetailerEntityResolver } from './retailer.resolver';
 import { RetailerService } from './retailer.service';
 
 @Module({
-    imports: [IntegrationsModule],
+    imports: [IntegrationsModule, CloudshelfModule],
     providers: [RetailerService, RetailerEntityResolver],
     controllers: [],
     exports: [RetailerService],

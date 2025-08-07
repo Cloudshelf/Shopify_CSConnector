@@ -1,14 +1,16 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
+import { CloudshelfApiOrganisationUtils } from '../../../modules/cloudshelf/cloudshelf.api.organisation.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/registerAllWebhooksForRetailer';
+import { IngestionQueue } from '../../../trigger/queues';
 import { getDbForTrigger } from '../../reuseables/db';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
 import { logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
-import { IngestionQueue } from 'src/trigger/queues';
 
 async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
@@ -126,6 +128,13 @@ export const RequestProductsTask = task({
             logger.error(`Retailer does not exist for id "${payload.organisationId}"`);
             throw new Error(`Retailer does not exist for id "${payload.organisationId}"`);
         }
+
+        await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
+            apiUrl: cloudshelfAPI,
+            retailer,
+            syncStage: SyncStage.RequestProducts,
+        });
+
         try {
             logger.info(
                 `Requesting products for retailer ${retailer.displayName} (${retailer.id}) (${retailer.domain})`,
@@ -161,6 +170,7 @@ export const RequestProductsTask = task({
                     }`,
                 );
             }
+
             const queryPayload = await buildProductTriggerQueryPayload(retailer, changesSince);
             logger.info(`Requesting bulk operation with payload`, { queryPayload });
             await BulkOperationUtils.requestBulkOperation(
@@ -205,8 +215,16 @@ export const RequestProductsTask = task({
                 logger.info(`Reporting retailer closed.`, { input });
                 await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfAPI, retailer.domain, input);
             } else {
+                CloudshelfApiOrganisationUtils.failOrganisationSync({
+                    apiUrl: cloudshelfAPI,
+                    domainName: retailer.domain,
+                });
                 throw err;
             }
+            await CloudshelfApiOrganisationUtils.failOrganisationSync({
+                apiUrl: cloudshelfAPI,
+                domainName: retailer.domain,
+            });
         } finally {
             logger.info(`Flushing changes to database`);
             await em.flush();

@@ -1,0 +1,3 @@
+mutation SetOrganisationSyncStatus($domainName: String!, $syncStage: SyncStage!) {
+    setOrganisationSyncStatus(domainName: $domainName, syncStage: $syncStage)
+}
