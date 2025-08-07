@@ -1,5 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { forwardRef } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import { CloudshelfResolver } from '../cloudshelf.resolver';
 import {
     CloudshelfSyncOrganisationInput,
