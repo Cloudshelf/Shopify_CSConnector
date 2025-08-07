@@ -39,7 +39,6 @@ export class VerifyRequestIsFromCloudshelfAPIGuard implements CanActivate {
             }, {} as any);
 
         if (!storeDomain || !hmac || !schofield) {
-            console.log('Blocking request due to missing authorization token');
             this.logger.verbose('Blocking request due to missing authorization token');
             request.authCode = 401;
             return false;
@@ -47,7 +46,6 @@ export class VerifyRequestIsFromCloudshelfAPIGuard implements CanActivate {
 
         const secret = process.env.CLOUDSHELF_API_HMAC_KEY;
         if (!secret) {
-            console.log('HMAC secret not configured');
             this.logger.error('HMAC secret not configured');
             request.authCode = 500;
             return false;
@@ -56,7 +54,6 @@ export class VerifyRequestIsFromCloudshelfAPIGuard implements CanActivate {
         const isValid = CryptographyUtils.validateHmac(hmac, storeDomain + JSON.stringify(vs), schofield);
 
         if (!isValid) {
-            console.log('Blocking request due to invalid HMAC');
             this.logger.verbose('Blocking request due to invalid HMAC');
             request.authCode = 401;
             return false;

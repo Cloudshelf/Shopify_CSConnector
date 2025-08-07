@@ -8,6 +8,7 @@ import { CloudshelfApiCloudshelfUtils } from 'src/modules/cloudshelf/cloudshelf.
 import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import * as ReusableFcns from 'src/trigger/reuseables/db';
+import { CryptographyUtils } from 'src/utils/CryptographyUtils';
 
 jest.mock('@trigger.dev/sdk/v3');
 jest.mock('src/trigger/data-ingestion/product-groups/process-product-groups.util');
@@ -15,11 +16,18 @@ jest.mock('src/trigger/reuseables/db');
 jest.mock('src/modules/cloudshelf/cloudshelf.api.report.util');
 jest.mock('src/modules/cloudshelf/cloudshelf.api.cloudshelf.util');
 jest.mock('src/modules/cloudshelf/cloudshelf.api.products.util');
+jest.mock('src/utils/CryptographyUtils');
+jest.mock('src/modules/cloudshelf/cloudshelf.api.organisation.util');
 
 describe('runInternal', () => {
     beforeEach(() => {
         jest.resetAllMocks();
         jest.resetModules();
+        jest.clearAllMocks();
+        jest.spyOn(CryptographyUtils, 'validateHmac').mockReturnValue(true);
+    });
+
+    afterEach(() => {
         jest.clearAllMocks();
     });
 

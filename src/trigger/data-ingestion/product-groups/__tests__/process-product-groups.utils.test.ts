@@ -81,7 +81,6 @@ describe('ProcessProductGroupsUtils', () => {
             ],
         ])('validateAndGetEnvVars: %s', (_, { envVars, expectedResult }) => {
             process.env = { ...envVars };
-            console.log('process.env', process.env);
             expect(ProcessProductGroupsUtils.validateAndGetEnvVars()).toEqual(expectedResult);
         });
 

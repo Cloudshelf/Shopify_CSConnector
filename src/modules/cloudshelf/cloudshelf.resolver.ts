@@ -1,3 +1,4 @@
+import { Inject, forwardRef } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { VerifyRequestIsFromCloudshelfAPI } from '../auth/verify-request-is-from-cloudshelf-api';
 import { RetailerService } from '../retailer/retailer.service';
@@ -7,7 +8,10 @@ import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 @Resolver()
 export class CloudshelfResolver {
-    constructor(private readonly retailerService: RetailerService) {}
+    constructor(
+        @Inject(forwardRef(() => RetailerService))
+        private readonly retailerService: RetailerService,
+    ) {}
 
     @Mutation(() => Boolean)
     @VerifyRequestIsFromCloudshelfAPI()
