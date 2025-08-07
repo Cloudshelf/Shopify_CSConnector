@@ -1,3 +1,4 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
 import { runInternal } from '../process-product-groups';
@@ -5,6 +6,7 @@ import { ProcessProductGroupsUtils } from '../process-product-groups.util';
 import * as TriggerFncs from '@trigger.dev/sdk/v3';
 import * as fs from 'fs';
 import { CloudshelfApiCloudshelfUtils } from 'src/modules/cloudshelf/cloudshelf.api.cloudshelf.util';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiProductUtils } from 'src/modules/cloudshelf/cloudshelf.api.products.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import * as ReusableFcns from 'src/trigger/reuseables/db';
@@ -205,6 +207,8 @@ describe('runInternal', () => {
         (CloudshelfApiProductUtils.updateProductGroups as jest.Mock).mockImplementation(() => {});
         (ProcessProductGroupsUtils.updateProductGroups as jest.Mock).mockImplementation(() => {});
         (CloudshelfApiCloudshelfUtils.createFirstCloudshelfIfRequired as jest.Mock).mockImplementation(() => {});
+        (CloudshelfApiOrganisationUtils.setOrganisationSyncStatus as jest.Mock).mockImplementation(() => {});
+        (CloudshelfApiOrganisationUtils.failOrganisationSync as jest.Mock).mockImplementation(() => {});
         const payload = {
             remoteBulkOperationId: '123',
             fullSync,
@@ -248,5 +252,13 @@ describe('runInternal', () => {
             },
             payload,
         });
+        expect(CloudshelfApiOrganisationUtils.setOrganisationSyncStatus).toHaveBeenCalledWith({
+            apiUrl: 'https://example.com',
+            retailer: {
+                domain: 'example.com',
+            },
+            syncStage: SyncStage.ProcessProductGroups,
+        });
+        expect(CloudshelfApiOrganisationUtils.failOrganisationSync).not.toHaveBeenCalled();
     });
 });
