@@ -1,3 +1,4 @@
+import { EntityManager } from '@mikro-orm/postgresql';
 import { ProcessProductsTask } from '../../trigger/data-ingestion/product/process-products';
 import { RequestProductsTask } from '../../trigger/data-ingestion/product/request-products';
 import { CloudshelfApiOrganisationUtils } from '../cloudshelf/cloudshelf.api.organisation.util';
@@ -8,6 +9,38 @@ import { idempotencyKeys, runs } from '@trigger.dev/sdk';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 export class ProductJobUtils {
+    private static async cancelPendingJobs({ retailer, logs }: { retailer: RetailerEntity; logs?: LogsInterface }) {
+        try {
+            const searchTags: string[] = [TriggerTagsUtils.createRetailerTag(retailer.id)];
+            for await (const run of runs.list({
+                status: ['PENDING_VERSION', 'DELAYED', 'EXECUTING', 'WAITING', 'QUEUED'],
+                taskIdentifier: [RequestProductsTask.id],
+                tag: searchTags,
+            })) {
+                logs?.info(`Cancelling ${run.id}`, run);
+                await runs.cancel(run.id);
+            }
+        } catch (err) {
+            logs?.error(`Error cancelling pending jobs for retailer ${retailer.domain}`, err);
+        }
+    }
+
+    static async cancelAllPendingJobs({
+        domainNames,
+        logs,
+        entityManager,
+    }: {
+        domainNames: string[];
+        logs?: LogsInterface;
+        entityManager: EntityManager;
+    }) {
+        const retailers = await entityManager.find(RetailerEntity, {
+            domain: { $in: domainNames },
+        });
+
+        await Promise.all(retailers.map(retailer => this.cancelPendingJobs({ retailer, logs })));
+    }
+
     static async scheduleTriggerJob(
         retailer: RetailerEntity,
         fullSync?: boolean,

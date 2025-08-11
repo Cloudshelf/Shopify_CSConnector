@@ -2,6 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CloudshelfCancelOrganisationsSyncInput {
+  domainNames: [String!]!
+}
+
 input CloudshelfSyncOrganisationInput {
   domainName: String!
 
@@ -15,6 +19,7 @@ enum CloudshelfSyncOrganisationReason {
 }
 
 type Mutation {
+  cancelOrganisationsSync(input: CloudshelfCancelOrganisationsSyncInput!): Boolean!
   deleteAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   getRetailerInfoWhereNull(token: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!

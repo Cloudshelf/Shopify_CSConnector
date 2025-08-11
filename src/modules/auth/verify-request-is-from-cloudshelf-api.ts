@@ -30,7 +30,7 @@ export class VerifyRequestIsFromCloudshelfAPIGuard implements CanActivate {
         const hmac = request.headers['x-hmac'] as string;
         const schofield = request.headers['x-nonce'] as string;
 
-        let operationVars = (graphQLContext.req as any).body.variables;
+        let operationVars = (graphQLContext.req as any)?.body?.variables;
         let vs = Object.keys(operationVars ?? {})
             .sort()
             .reduce((obj, key) => {

@@ -48,7 +48,7 @@ describe('VerifyRequestIsFromCloudshelfAPIGuard', () => {
         expect(result).toBe(false);
     });
 
-    it('should return false and set authCode=401 if headers are missing', async () => {
+    it('should return false if headers are missing', async () => {
         const context: any = getContext({});
         const result = await guard.canActivate(context);
         expect(result).toBe(false);
@@ -77,8 +77,7 @@ describe('VerifyRequestIsFromCloudshelfAPIGuard', () => {
 
         const result = await guard.canActivate(context);
         expect(result).toBe(false);
-        // @ts-ignore
-        expect(req.authCode).toBe(500);
+        expect(context.getArgByIndex(2).req.authCode).toBe(500);
 
         process.env.CLOUDSHELF_API_HMAC_KEY = oldEnv;
     });

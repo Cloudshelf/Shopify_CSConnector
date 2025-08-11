@@ -27,3 +27,10 @@ export class CloudshelfSyncOrganisationInput {
     })
     fullSync?: boolean;
 }
+
+@InputType()
+export class CloudshelfCancelOrganisationsSyncInput {
+    @IsNotEmpty()
+    @Field(() => [String])
+    domainNames: string[];
+}
