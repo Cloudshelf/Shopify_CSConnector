@@ -5,18 +5,27 @@ import { CloudshelfApiOrganisationUtils } from '../cloudshelf/cloudshelf.api.org
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
+import { ListRunsQueryParams } from '@trigger.dev/core/v3';
 import { idempotencyKeys, runs } from '@trigger.dev/sdk';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
+
+const TRIGGER_RUNS_STATUSES: ListRunsQueryParams['status'][] = [
+    'PENDING_VERSION',
+    'DELAYED',
+    'EXECUTING',
+    'WAITING',
+    'QUEUED',
+];
 
 export class ProductJobUtils {
     private static async cancelPendingJobs({ retailer, logs }: { retailer: RetailerEntity; logs?: LogsInterface }) {
         try {
             const searchTags: string[] = [TriggerTagsUtils.createRetailerTag(retailer.id)];
             for await (const run of runs.list({
-                status: ['PENDING_VERSION', 'DELAYED', 'EXECUTING', 'WAITING', 'QUEUED'],
+                status: TRIGGER_RUNS_STATUSES,
                 taskIdentifier: [RequestProductsTask.id],
                 tag: searchTags,
-            })) {
+            } as ListRunsQueryParams)) {
                 logs?.info(`Cancelling ${run.id}`, run);
                 await runs.cancel(run.id);
             }
@@ -72,10 +81,10 @@ export class ProductJobUtils {
         const pendingRuns: { id: string; type: 'type_full' | 'type_partial' }[] = [];
 
         for await (const run of runs.list({
-            status: ['PENDING_VERSION', 'DELAYED', 'EXECUTING', 'WAITING', 'QUEUED'],
+            status: TRIGGER_RUNS_STATUSES,
             taskIdentifier: [RequestProductsTask.id],
             tag: searchTags,
-        })) {
+        } as ListRunsQueryParams)) {
             const i: { id: string; type: 'type_full' | 'type_partial' } = {
                 id: run.id,
                 type: run.tags.includes('type_full') ? 'type_full' : 'type_partial',

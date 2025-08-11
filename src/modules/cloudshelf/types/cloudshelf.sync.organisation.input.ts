@@ -1,5 +1,6 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { GraphQLBoolean, GraphQLString } from 'graphql';
+import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
 
 export enum CloudshelfSyncOrganisationReason {
     REACTIVATE = 'REACTIVATE',
@@ -12,7 +13,7 @@ registerEnumType(CloudshelfSyncOrganisationReason, {
 @InputType()
 export class CloudshelfSyncOrganisationInput {
     @IsNotEmpty()
-    @Field(() => String)
+    @Field(() => GraphQLString)
     domainName: string;
 
     @IsNotEmpty()
@@ -20,7 +21,7 @@ export class CloudshelfSyncOrganisationInput {
     reason: CloudshelfSyncOrganisationReason;
 
     @IsOptional()
-    @Field(() => Boolean, {
+    @Field(() => GraphQLBoolean, {
         nullable: true,
         description: 'If true, will sync all products and product groups',
         defaultValue: false,
@@ -31,6 +32,6 @@ export class CloudshelfSyncOrganisationInput {
 @InputType()
 export class CloudshelfCancelOrganisationsSyncInput {
     @IsNotEmpty()
-    @Field(() => [String])
+    @Field(() => [GraphQLString])
     domainNames: string[];
 }
