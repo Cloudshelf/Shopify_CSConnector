@@ -38,7 +38,7 @@ export class VerifyRequestIsFromCloudshelfAPIGuard implements CanActivate {
                 return obj;
             }, {} as any);
 
-        if (!storeDomain || !hmac || !schofield) {
+        if (!hmac || !schofield) {
             this.logger.verbose('Blocking request due to missing authorization token');
             request.authCode = 401;
             return false;
