@@ -25114,6 +25114,22 @@
         "isOneOf": null,
         "fields": [
           {
+            "name": "number",
+            "description": "The number of products",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "productGroupId",
             "description": "The ID of the product group that was updated",
             "args": [],

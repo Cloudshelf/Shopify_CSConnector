@@ -3489,6 +3489,8 @@ export type ProductGroupUpdateBatchItem = {
 
 export type ProductGroupUpdateBatchPayload = {
   __typename?: 'ProductGroupUpdateBatchPayload';
+  /** The number of products */
+  number: Scalars['Int']['output'];
   /** The ID of the product group that was updated */
   productGroupId: Scalars['ID']['output'];
   /** Whether the update was successful */
@@ -5233,6 +5235,7 @@ export const UpdateProductsInProductGroupInBatchDocument = gql`
   ) {
     success
     productGroupId
+    number
   }
 }
     `;
@@ -5427,7 +5430,7 @@ export type UpdateProductsInProductGroupInBatchMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: string }> };
+export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: string, number: number }> };
 
 export type UpsertProductsMutationVariables = Exact<{
   input: Array<ProductInput> | ProductInput;
