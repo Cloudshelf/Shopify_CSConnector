@@ -45,7 +45,7 @@ export default defineConfig({
         instrumentations: [new NestInstrumentation()],
         logExporters: [
             new OTLPLogExporter({
-                url: 'https://api.axiom.co/v1/traces',
+                url: 'https://api.axiom.co/v1/logs',
                 headers: {
                     Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
                     'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
