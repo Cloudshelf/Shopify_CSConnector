@@ -19,6 +19,38 @@ const FS_PATHS_TO_IGNORE = [
     '/home/node/.aws/*',
 ];
 
+// Pre-compile patterns for efficient matching
+const exactPaths = new Set<string>();
+const regexPatterns: RegExp[] = [];
+
+// Initialize pattern matchers at module load time
+FS_PATHS_TO_IGNORE.forEach(pattern => {
+    if (pattern.includes('*')) {
+        // Convert wildcard pattern to regex once
+        const regexPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+        regexPatterns.push(new RegExp(`^${regexPattern}$`));
+    } else {
+        // Store exact matches in Set for O(1) lookup
+        exactPaths.add(pattern);
+    }
+});
+
+// Centralized path matching function
+function shouldIgnorePath(path: unknown): boolean {
+    // Handle non-string arguments
+    if (typeof path !== 'string') {
+        return false;
+    }
+
+    // Check exact matches first (O(1))
+    if (exactPaths.has(path)) {
+        return true;
+    }
+
+    // Check regex patterns
+    return regexPatterns.some(regex => regex.test(path));
+}
+
 export default defineConfig({
     project: 'proj_pnqbfgxmeuaytlevhxap',
     maxDuration: 1800, // 30 mins
@@ -51,33 +83,15 @@ export default defineConfig({
         new UndiciInstrumentation(),
         new HttpInstrumentation(),
         new FsInstrumentation({
-            createHook: (functionName, info) => {
-                const path = info.args[0];
-                if (typeof path === 'string') {
-                    // Skip tracing for paths in the ignore list
-                    const shouldIgnore = FS_PATHS_TO_IGNORE.some(pattern => {
-                        // Convert wildcard pattern to regex
-                        if (pattern.includes('*')) {
-                            // Escape special regex characters except *
-                            const regexPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
-                            const regex = new RegExp(`^${regexPattern}$`);
-                            return regex.test(path);
-                        }
-                        // Exact match for patterns without wildcards
-                        return path === pattern;
-                    });
-
-                    if (shouldIgnore) {
-                        return false;
-                    }
-                }
-                return true;
+            createHook: (_functionName, info) => {
+                // Use centralized matching logic
+                return !shouldIgnorePath(info.args[0]);
             },
             endHook: (functionName, info) => {
                 const { span, args } = info;
-                // Add the file path as an attribute if available
+                // Add the file path as an attribute if available (handle non-string args)
                 const path = args[0];
-                if (path && typeof path === 'string') {
+                if (typeof path === 'string') {
                     span.setAttribute('fs.path', path);
                     span.setAttribute('fs.operation', functionName);
                 }
@@ -85,9 +99,9 @@ export default defineConfig({
             // Only trace fs operations if there's a parent span
             requireParentSpan: true,
         }),
+        new NestInstrumentation(),
     ],
     telemetry: {
-        instrumentations: [new NestInstrumentation()],
         logExporters: [
             new OTLPLogExporter({
                 url: 'https://api.axiom.co/v1/logs',
