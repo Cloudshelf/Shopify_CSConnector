@@ -8,6 +8,17 @@ import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { emitDecoratorMetadata } from '@trigger.dev/build/extensions/typescript';
 import { defineConfig } from '@trigger.dev/sdk';
 
+// Paths to ignore in filesystem instrumentation
+// Use exact paths or patterns with wildcards (*)
+const FS_PATHS_TO_IGNORE = [
+    '/app/*', //  Wildcard: matches any file in /app/*
+    '.env', // Exact match
+    '/tmp/*', // Wildcard: matches any file in /tmp/
+    '*/node_modules/*', // Wildcard: matches any path containing node_modules
+    'node:internal/*',
+    '/home/node/.aws/*',
+];
+
 export default defineConfig({
     project: 'proj_pnqbfgxmeuaytlevhxap',
     maxDuration: 1800, // 30 mins
@@ -39,7 +50,41 @@ export default defineConfig({
         new PgInstrumentation(),
         new UndiciInstrumentation(),
         new HttpInstrumentation(),
-        new FsInstrumentation(),
+        new FsInstrumentation({
+            createHook: (functionName, info) => {
+                const path = info.args[0];
+                if (typeof path === 'string') {
+                    // Skip tracing for paths in the ignore list
+                    const shouldIgnore = FS_PATHS_TO_IGNORE.some(pattern => {
+                        // Convert wildcard pattern to regex
+                        if (pattern.includes('*')) {
+                            // Escape special regex characters except *
+                            const regexPattern = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
+                            const regex = new RegExp(`^${regexPattern}$`);
+                            return regex.test(path);
+                        }
+                        // Exact match for patterns without wildcards
+                        return path === pattern;
+                    });
+
+                    if (shouldIgnore) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            endHook: (functionName, info) => {
+                const { span, args } = info;
+                // Add the file path as an attribute if available
+                const path = args[0];
+                if (path && typeof path === 'string') {
+                    span.setAttribute('fs.path', path);
+                    span.setAttribute('fs.operation', functionName);
+                }
+            },
+            // Only trace fs operations if there's a parent span
+            requireParentSpan: true,
+        }),
     ],
     telemetry: {
         instrumentations: [new NestInstrumentation()],
