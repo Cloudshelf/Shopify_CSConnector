@@ -9,7 +9,7 @@ export class ApiHealthController {
     @Telemetry('controller.healthcheck.check')
     @Get()
     @HealthCheck()
-    check() {
+    async check() {
         //TODO: Implement health checks
         return this.health.check([]);
     }

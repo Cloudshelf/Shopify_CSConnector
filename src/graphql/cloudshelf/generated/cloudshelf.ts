@@ -2332,9 +2332,11 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
+  setOrganisationSyncStatus: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
   startPaymentRequest: PaymentGenericPayload;
+  startSync: Scalars['Boolean']['output'];
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
   transferToShopifyPOS: TransferedOrderPayload;
@@ -2350,6 +2352,7 @@ export type Mutation = {
   updateProductsInProductGroupInBatch: Array<ProductGroupUpdateBatchPayload>;
   updateSalesAssistantRules: Scalars['Boolean']['output'];
   updateSession: Session;
+  updateUserLastAccess: Scalars['Boolean']['output'];
   /** Allows upserting of checkout flows */
   upsertCheckoutFlows: CheckoutFlowUpsertPayload;
   /** Allows upserting of Cloudshelves */
@@ -2648,6 +2651,12 @@ export type MutationSetActiveVersionArgs = {
 export type MutationSetHandoffImageUrlArgs = {
   id: Scalars['GlobalId']['input'];
   imageUrl: Scalars['String']['input'];
+};
+
+
+export type MutationSetOrganisationSyncStatusArgs = {
+  domainName: Scalars['String']['input'];
+  syncStage: SyncStage;
 };
 
 
@@ -3014,6 +3023,10 @@ export type Organisation = {
   salesAssistantNameRule: SalesAssistantNameRule;
   /** The sales assisatnts which belong to this organisation. */
   salesAssistants: Array<SalesAssistant>;
+  /** The status of the organisation. This is used to determine if the organisation is active or idle. */
+  status: OrganisationStatus;
+  /** Indicates the current stage of the sync process. */
+  syncStage: SyncStage;
   uninstallStarted: Scalars['Boolean']['output'];
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
@@ -3089,6 +3102,20 @@ export type OrganisationSortOptionsInput = {
   id?: InputMaybe<SortOrder>;
   status?: InputMaybe<SortOrder>;
   updatedAt?: InputMaybe<SortOrder>;
+};
+
+export enum OrganisationStatus {
+  Active = 'ACTIVE',
+  Idle = 'IDLE',
+  Processing = 'PROCESSING'
+}
+
+export type OrganisationSyncStatusPayload = {
+  __typename?: 'OrganisationSyncStatusPayload';
+  lastSyncedAt?: Maybe<Scalars['String']['output']>;
+  nextSyncAt?: Maybe<Scalars['String']['output']>;
+  status: OrganisationStatus;
+  syncStage: SyncStage;
 };
 
 export type OrganisationUpsertPayload = {
@@ -3726,6 +3753,8 @@ export type Query = {
   organisation?: Maybe<Organisation>;
   /** Returns if the install has been completed for an organisation */
   organisationInstallComplete?: Maybe<Scalars['Boolean']['output']>;
+  organisationSyncStatusByDomain: OrganisationSyncStatusPayload;
+  organisationSyncStatusById: OrganisationSyncStatusPayload;
   /** Returns a paginated array of user access rights for the current organisation */
   organisationUsers: UserForOrganisationPaginatedPayload;
   /** Returns a paginated array of organisations */
@@ -4019,6 +4048,11 @@ export type QueryOrganisationArgs = {
 
 export type QueryOrganisationInstallCompleteArgs = {
   domain: Scalars['String']['input'];
+};
+
+
+export type QueryOrganisationSyncStatusByDomainArgs = {
+  domainName: Scalars['String']['input'];
 };
 
 
@@ -4486,6 +4520,17 @@ export type SwatchInput = {
   imageUrl: Scalars['String']['input'];
 };
 
+/** The current stage of the sync process. */
+export enum SyncStage {
+  CleanUp = 'CLEAN_UP',
+  Done = 'DONE',
+  Failed = 'FAILED',
+  ProcessProducts = 'PROCESS_PRODUCTS',
+  ProcessProductGroups = 'PROCESS_PRODUCT_GROUPS',
+  RequestProducts = 'REQUEST_PRODUCTS',
+  RequestProductGroups = 'REQUEST_PRODUCT_GROUPS'
+}
+
 export type SyncStatsPayload = {
   __typename?: 'SyncStatsPayload';
   isClosed?: Maybe<Scalars['Boolean']['output']>;
@@ -4841,7 +4886,6 @@ export type User = {
   firstName: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
-  lastAccess?: Maybe<Scalars['UTCDateTime']['output']>;
   lastName: Scalars['String']['output'];
   metadata: Array<Metadata>;
   telephone: Scalars['String']['output'];
@@ -4937,6 +4981,7 @@ export type UserOrganisationAccess = {
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   isCloudshelfStaff: Scalars['Boolean']['output'];
+  lastAccess?: Maybe<Scalars['UTCDateTime']['output']>;
   organisation: Organisation;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
@@ -5133,6 +5178,11 @@ export const UpsertOrdersDocument = gql`
   }
 }
     `;
+export const SetOrganisationSyncStatusDocument = gql`
+    mutation SetOrganisationSyncStatus($domainName: String!, $syncStage: SyncStage!) {
+  setOrganisationSyncStatus(domainName: $domainName, syncStage: $syncStage)
+}
+    `;
 export const UpsertProductGroupsDocument = gql`
     mutation upsertProductGroups($input: [ProductGroupInput!]!) {
   upsertProductGroups(input: $input) {
@@ -5278,6 +5328,16 @@ export const IsInstallCompletedDocument = gql`
   organisationInstallComplete(domain: $domain)
 }
     `;
+export const OrganisationSyncStatusByDomainDocument = gql`
+    query OrganisationSyncStatusByDomain($domainName: String!) {
+  organisationSyncStatusByDomain(domainName: $domainName) {
+    status
+    syncStage
+    lastSyncedAt
+    nextSyncAt
+  }
+}
+    `;
 export type ReportCatalogStatsMutationVariables = Exact<{
   knownNumberOfImages?: InputMaybe<Scalars['Int']['input']>;
   knownNumberOfProductGroups?: InputMaybe<Scalars['Int']['input']>;
@@ -5327,6 +5387,14 @@ export type UpsertOrdersMutationVariables = Exact<{
 
 
 export type UpsertOrdersMutation = { __typename?: 'Mutation', upsertOrders: { __typename?: 'OrderUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, orders: Array<{ __typename?: 'Order', id: any }> } };
+
+export type SetOrganisationSyncStatusMutationVariables = Exact<{
+  domainName: Scalars['String']['input'];
+  syncStage: SyncStage;
+}>;
+
+
+export type SetOrganisationSyncStatusMutation = { __typename?: 'Mutation', setOrganisationSyncStatus: boolean };
 
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;
@@ -5426,3 +5494,10 @@ export type IsInstallCompletedQueryVariables = Exact<{
 
 
 export type IsInstallCompletedQuery = { __typename?: 'Query', organisationInstallComplete?: boolean | null };
+
+export type OrganisationSyncStatusByDomainQueryVariables = Exact<{
+  domainName: Scalars['String']['input'];
+}>;
+
+
+export type OrganisationSyncStatusByDomainQuery = { __typename?: 'Query', organisationSyncStatusByDomain: { __typename?: 'OrganisationSyncStatusPayload', status: OrganisationStatus, syncStage: SyncStage, lastSyncedAt?: string | null, nextSyncAt?: string | null } };

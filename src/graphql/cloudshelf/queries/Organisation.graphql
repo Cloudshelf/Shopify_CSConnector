@@ -1,0 +1,8 @@
+query OrganisationSyncStatusByDomain($domainName: String!) {
+    organisationSyncStatusByDomain(domainName: $domainName) {
+        status
+        syncStage
+        lastSyncedAt
+        nextSyncAt
+    }
+}
