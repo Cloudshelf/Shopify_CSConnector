@@ -1,5 +1,8 @@
+import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { FsInstrumentation } from '@opentelemetry/instrumentation-fs';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { PgInstrumentation } from '@opentelemetry/instrumentation-pg';
 import { UndiciInstrumentation } from '@opentelemetry/instrumentation-undici';
 import { emitDecoratorMetadata } from '@trigger.dev/build/extensions/typescript';
@@ -19,7 +22,6 @@ export default defineConfig({
             '@nestjs/terminus',
             'fsevents',
         ],
-
         extensions: [emitDecoratorMetadata()],
     },
     logLevel: 'log',
@@ -39,4 +41,26 @@ export default defineConfig({
         new HttpInstrumentation(),
         new FsInstrumentation(),
     ],
+    telemetry: {
+        instrumentations: [new NestInstrumentation()],
+        logExporters: [
+            new OTLPLogExporter({
+                url: 'https://api.axiom.co/v1/logs',
+                headers: {
+                    Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
+                    'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
+                },
+            }),
+        ],
+        exporters: [
+            new OTLPTraceExporter({
+                url: 'https://api.axiom.co/v1/traces',
+                headers: {
+                    Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
+                    'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
+                },
+                keepAlive: true,
+            }),
+        ],
+    },
 });

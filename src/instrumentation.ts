@@ -4,7 +4,7 @@ import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-ho
 import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
-import { Resource } from '@opentelemetry/resources';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { BatchSpanProcessor, TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-base';
 import * as process from 'process';
@@ -17,7 +17,7 @@ const traceExporter = new OTLPTraceExporter({
     },
 });
 
-const resource = new Resource({
+const resource = resourceFromAttributes({
     ['service.name']: 'Shopify_Connector',
     ['service.version']: process.env.PACKAGE_VERSION || 'unknown',
 });
