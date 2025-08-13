@@ -494,3 +494,12 @@ jobs:
                       }
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
+            - name: Add annotation in Axiom when a deployment happens
+              uses: axiomhq/annotation-action@v0.1.0
+              with:
+                  axiomToken: ${{ secrets.AXIOM_TOKEN }}
+                  datasets: ${{ vars.AXIOM_DATASET }}
+                  type: 'development-connector-shopify'
+                  title: ${{ needs.version.outputs.version }}
+                  description: 'Commit ${{ github.event.head_commit.message }}'
+                  url: 'https://github.com/${{ github.repository }}/commit/${{ github.sha }}'
