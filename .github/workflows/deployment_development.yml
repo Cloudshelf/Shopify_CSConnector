@@ -499,7 +499,7 @@ jobs:
               with:
                   axiomToken: ${{ secrets.AXIOM_TOKEN }}
                   datasets: ${{ vars.AXIOM_DATASET }}
-                  type: 'development-connector-shopify'
+                  type: 'development-release-connector-shopify'
                   title: ${{ needs.version.outputs.version }}
                   description: 'Commit ${{ github.event.head_commit.message }}'
                   url: 'https://github.com/${{ github.repository }}/commit/${{ github.sha }}'
