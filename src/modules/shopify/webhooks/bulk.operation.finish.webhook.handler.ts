@@ -9,6 +9,7 @@ import { CollectionJobUtils } from '../../data-ingestion/collection.job.utils';
 import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 import { Telemetry } from 'src/decorators/telemetry';
+import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 
 export interface BulkOperationWebhookPayload {
     admin_graphql_api_id: string;
@@ -64,6 +65,11 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         }
 
         bulkOp = await this.bulkOperationService.updateFromShopify(retailer, bulkOp);
+
+        if (retailer.status === RetailerStatus.IDLE) {
+            this.logger.debug('Early exit in Bulk Operation Finish Webhook Handler because retailer is not active');
+            return;
+        }
 
         if (bulkOp?.status === BulkOperationStatus.Completed) {
             this.logger.debug('Bulk operation completed successfully', { bulkOp });
