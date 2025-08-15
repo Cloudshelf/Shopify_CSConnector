@@ -5,6 +5,7 @@ import { SlackUtils } from '../../utils/SlackUtils';
 import { ReportSyncIssuesQueue } from '../queues';
 import { getDbForTrigger } from '../reuseables/db';
 import { logger, schedules } from '@trigger.dev/sdk';
+import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 
 export const ReportSyncIssues = schedules.task({
     id: 'report-sync-issues',
@@ -53,6 +54,7 @@ export const ReportSyncIssues = schedules.task({
                 },
             ],
             syncErrorCode: { $eq: null },
+            status: RetailerStatus.ACTIVE,
         });
 
         const data = retailers.map(r => {
