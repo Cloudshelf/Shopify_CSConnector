@@ -132,7 +132,7 @@ export const ProcessOrderTask = task({
         }
 
         const draftorderNoteAttribute = payload.data.note_attributes.find(x => x.name === CLOUDSHELF_DRAFT_ORDER_ID);
-        logger.info(`Order Lines: ${orderLines.length}`, { lines: orderLines });
+        logger.info(`Order Lines: ${orderLines.length}`);
 
         let validSessionId: string | undefined = undefined;
 
@@ -252,7 +252,7 @@ export const ProcessOrderTask = task({
                     email: !hasEmail && emailAttribute ? emailAttribute.value : undefined,
                 };
 
-                logger.info(`Sending update order request with payload`, { orderInput });
+                logger.info(`Sending update order request with payload`, { data: JSON.stringify(orderInput) });
                 //Update the order with the note to say it came from cloudshelf, the customer email (IF it was not already on the order, and add "Cloudshelf" as a tag)
                 const orderUpdateResult = await graphqlClient.mutate<OrderUpdateMutation, OrderUpdateMutationVariables>(
                     {

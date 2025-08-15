@@ -82,7 +82,7 @@ async function handleCollections(
     logger.info(`Building query payload`);
     const collectionQueryPayload = await buildCollectionIdsQuery(retailer);
 
-    logger.info(`Requesting bulk operation with payload`, { collectionQueryPayload });
+    logger.info(`Requesting bulk operation with payload`, { data: collectionQueryPayload });
     let collectionBuildOperation = await BulkOperationUtils.requestBulkOperation(
         em,
         retailer,
@@ -105,7 +105,7 @@ async function handleCollections(
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
-        logger.info('Updated Bulk Op From Shopify', { op: collectionBuildOperation });
+        logger.info('Updated Bulk Op From Shopify', { data: JSON.stringify(collectionBuildOperation) });
     } while (collectionBuildOperation.status === BulkOperationStatus.Running);
 
     if (!collectionBuildOperation.dataUrl || collectionBuildOperation.status !== BulkOperationStatus.Completed) {
@@ -220,7 +220,7 @@ async function handleProducts(
     logger.info(`Building query payload`);
     const productQueryPayload = await buildProductIdsQuery(retailer);
 
-    logger.info(`Requesting bulk operation with payload`, { productQueryPayload });
+    logger.info(`Requesting bulk operation with payload`, { data: JSON.stringify(productQueryPayload) });
     let productBulkOperation = await BulkOperationUtils.requestBulkOperation(
         em,
         retailer,
@@ -243,7 +243,7 @@ async function handleProducts(
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
         });
-        logger.info('Updated Bulk Op From Shopify', { op: productBulkOperation });
+        logger.info('Updated Bulk Op From Shopify', { data: JSON.stringify(productBulkOperation) });
     } while (productBulkOperation.status === BulkOperationStatus.Running);
 
     if (!productBulkOperation.dataUrl || productBulkOperation.status !== BulkOperationStatus.Completed) {
@@ -385,7 +385,7 @@ async function handleProducts(
             logger.info(`Finished delete variants via file`);
         }
     } catch (err) {
-        logger.error('Something went wrong while reporting known variant data', { error: err });
+        logger.error('Something went wrong while reporting known variant data', { error: JSON.stringify(err) });
     } finally {
         seenVariantIds.clear();
         varIdsToRemoveAtTheEnd.clear();
@@ -403,7 +403,7 @@ export const HandlePostSync = task({
     queue: IngestionQueue,
     machine: { preset: `small-2x` },
     run: async (payload: { organisationId: string }, { ctx }) => {
-        logger.info('Payload', payload);
+        logger.info('Payload', { data: JSON.stringify(payload) });
         const handleComplete = async (em: EntityManager, msg: string, retailer?: RetailerEntity) => {
             logger.info('handleComplete', { msg, retailer: retailer?.id ?? 'no retailer' });
             if (retailer) {

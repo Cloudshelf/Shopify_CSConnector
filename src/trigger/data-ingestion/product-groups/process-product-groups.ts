@@ -65,7 +65,7 @@ export const runInternal = async (payload: { remoteBulkOperationId: string; full
         logger.info(`Reading data file`);
         const { productGroupInputs, productsInGroups } = await ProcessProductGroupsUtils.readJsonl(tempFile);
 
-        logger.info(`Upserting collections to cloudshelf`, { productGroupInputs });
+        logger.info(`Upserting collections to cloudshelf`, { data: JSON.stringify(productGroupInputs) });
         await CloudshelfApiProductUtils.updateProductGroups(CLOUDSHELF_API_URL, retailer.domain, productGroupInputs, {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
@@ -96,7 +96,7 @@ export const runInternal = async (payload: { remoteBulkOperationId: string; full
                 knownNumberOfProductVariants: undefined,
                 knownNumberOfImages: undefined,
             };
-            logger.info(`Reporting catalog stats to cloudshelf.`, { input });
+            logger.info(`Reporting catalog stats to cloudshelf.`, { data: JSON.stringify(input) });
             await CloudshelfApiReportUtils.reportCatalogStats(CLOUDSHELF_API_URL, retailer.domain, input);
         }
         await ProcessProductGroupsUtils.handleComplete({

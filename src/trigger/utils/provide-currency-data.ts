@@ -63,7 +63,9 @@ export const ProvideCurrencyData = task({
 
                 logger.info(`Successfully updated currency for retailer ${retailer.domain}`);
             } catch (error) {
-                logger.error(`Error updating currency for retailer ${retailer.domain}:`, error);
+                logger.error(`Error updating currency for retailer ${retailer.domain}:`, {
+                    error: JSON.stringify(error),
+                });
             }
         }
     },
