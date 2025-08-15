@@ -1,9 +1,8 @@
-import { OrganisationStatus } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { ProcessProductGroupsTask } from '../../trigger/data-ingestion/product-groups/process-product-groups';
 import { RequestProductGroupsTask } from '../../trigger/data-ingestion/product-groups/request-product-groups';
-import { CloudshelfApiOrganisationUtils } from '../cloudshelf/cloudshelf.api.organisation.util';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
+import { RetailerStatus } from '../retailer/retailer.status.enum';
 import { BulkOperation } from './bulk.operation.entity';
 import { idempotencyKeys } from '@trigger.dev/sdk';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
@@ -23,20 +22,18 @@ export class CollectionJobUtils {
         });
         const delay = '1s';
 
-        await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-            apiUrl: process.env.CLOUDSHELF_API_URL || '',
-            domainName: retailer.domain,
-            callbackIfActive: async () => {
-                await RequestProductGroupsTask.trigger(
-                    {
-                        organisationId: retailer.id,
-                        fullSync: fullSync ?? false,
-                    },
-                    { delay, queue: `ingestion`, tags, concurrencyKey: retailer.id },
-                );
+        if (retailer.status === RetailerStatus.IDLE) {
+            logs?.info(`CollectionJobUtils: ${retailer.domain} is idle, skipping job`);
+            return;
+        }
+
+        await RequestProductGroupsTask.trigger(
+            {
+                organisationId: retailer.id,
+                fullSync: fullSync ?? false,
             },
-            location: 'CollectionJobUtils.scheduleTriggerJob',
-        });
+            { delay, queue: `ingestion`, tags, concurrencyKey: retailer.id },
+        );
     }
 
     static async scheduleConsumerJob(
@@ -57,27 +54,25 @@ export class CollectionJobUtils {
             `Asking trigger to schhedule productgroup consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
         );
 
-        await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-            apiUrl: process.env.CLOUDSHELF_API_URL || '',
-            domainName: retailer.domain,
-            callbackIfActive: async () => {
-                await ProcessProductGroupsTask.trigger(
-                    {
-                        remoteBulkOperationId: bulkOp.shopifyBulkOpId,
-                        fullSync: bulkOp.installSync ?? false,
-                    },
-                    {
-                        delay,
-                        queue: `ingestion`,
-                        tags,
-                        concurrencyKey: retailer.id,
-                        idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
-                        machine: retailer.triggerMachineSizeProductGroups ?? undefined,
-                        maxDuration: retailer.triggerMaxDurationProductGroups ?? undefined,
-                    },
-                );
+        if (retailer.status === RetailerStatus.IDLE) {
+            logs?.info(`CollectionJobUtils: ${retailer.domain} is idle, skipping job`);
+            return;
+        }
+
+        await ProcessProductGroupsTask.trigger(
+            {
+                remoteBulkOperationId: bulkOp.shopifyBulkOpId,
+                fullSync: bulkOp.installSync ?? false,
             },
-            location: 'CollectionJobUtils.scheduleConsumerJob',
-        });
+            {
+                delay,
+                queue: `ingestion`,
+                tags,
+                concurrencyKey: retailer.id,
+                idempotencyKey: await idempotencyKeys.create(bulkOp.shopifyBulkOpId),
+                machine: retailer.triggerMachineSizeProductGroups ?? undefined,
+                maxDuration: retailer.triggerMaxDurationProductGroups ?? undefined,
+            },
+        );
     }
 }

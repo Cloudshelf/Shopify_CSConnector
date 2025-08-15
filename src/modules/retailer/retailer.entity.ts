@@ -68,6 +68,9 @@ export class RetailerEntity extends BaseEntity {
     @Property({ type: types.integer, nullable: true })
     triggerMaxDurationProductGroups: number | null;
 
+    @Property({ type: 'text', default: 'active' })
+    status: string;
+
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');
     }

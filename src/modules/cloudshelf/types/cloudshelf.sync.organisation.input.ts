@@ -1,6 +1,6 @@
 import { Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLString } from 'graphql';
-import { IsArray, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export enum CloudshelfSyncOrganisationReason {
     REACTIVATE = 'REACTIVATE',
@@ -34,4 +34,12 @@ export class CloudshelfCancelOrganisationsSyncInput {
     @IsNotEmpty()
     @Field(() => [GraphQLString])
     domainNames: string[];
+
+    @IsOptional()
+    @Field(() => GraphQLBoolean, {
+        nullable: true,
+        description: 'If true, will mark the retailers as idle',
+        defaultValue: false,
+    })
+    markAsIdle?: boolean;
 }

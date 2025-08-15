@@ -1,6 +1,6 @@
-import { CloudshelfApiOrganisationUtils } from '../cloudshelf/cloudshelf.api.organisation.util';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
+import { RetailerStatus } from '../retailer/retailer.status.enum';
 import { HandlePostSync } from 'src/trigger/data-ingestion/handle-post-sync';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
@@ -13,23 +13,21 @@ export class PostSyncJobUtils {
         });
         const delay = '1s';
 
-        await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-            apiUrl: process.env.CLOUDSHELF_API_URL || '',
-            domainName: retailer.domain,
-            callbackIfActive: async () => {
-                await HandlePostSync.trigger(
-                    {
-                        organisationId: retailer.id,
-                    },
-                    {
-                        delay,
-                        queue: `ingestion`,
-                        tags,
-                        concurrencyKey: retailer.id,
-                    },
-                );
+        if (retailer.status === RetailerStatus.IDLE) {
+            logs?.info(`PostSyncJobUtils: ${retailer.domain} is idle, skipping job`);
+            return;
+        }
+
+        await HandlePostSync.trigger(
+            {
+                organisationId: retailer.id,
             },
-            location: 'PostSyncJobUtils.scheduleJob',
-        });
+            {
+                delay,
+                queue: `ingestion`,
+                tags,
+                concurrencyKey: retailer.id,
+            },
+        );
     }
 }

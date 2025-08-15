@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
+import { TriggerHandlersService } from '../trigger-handlers/trigger-handlers.service';
 import { RetailerEntity } from './retailer.entity';
+import { RetailerStatus } from './retailer.status.enum';
 import { RetailerUtils } from './retailer.utils';
 import { Shopify } from '@shopify/shopify-api';
 import { Telemetry } from 'src/decorators/telemetry';
@@ -12,7 +14,10 @@ import { Telemetry } from 'src/decorators/telemetry';
 export class RetailerService {
     private readonly logger = new Logger('RetailerService');
 
-    constructor(private readonly entityManager: EntityManager) {}
+    constructor(
+        private readonly entityManager: EntityManager,
+        private readonly triggerHandlersService: TriggerHandlersService,
+    ) {}
 
     @Telemetry('service.retailer.findOneByStorefrontToken')
     findOneByStorefrontToken(authToken: string) {
@@ -90,5 +95,61 @@ export class RetailerService {
     @Telemetry('service.retailer.getAll')
     async getAll(from: number, limit: number) {
         return RetailerUtils.getAll(this.entityManager, from, limit);
+    }
+
+    @Telemetry('service.retailer.markRetailersAsIdle')
+    async markRetailersAsIdle(domains: string[]) {
+        this.logger.debug(`Marking retailers as idle: ${domains}`);
+        try {
+            await this.entityManager.nativeUpdate(
+                RetailerEntity,
+                { domain: { $in: domains } },
+                { status: RetailerStatus.IDLE },
+            );
+        } catch (error) {
+            this.logger.error(`Error marking retailers as idle: ${domains}`, error);
+        }
+    }
+
+    @Telemetry('service.retailer.cancelTriggersForRetailers')
+    async cancelTriggersForRetailers(domains: string[]) {
+        const retailers = await this.entityManager.find(RetailerEntity, {
+            domain: { $in: domains },
+        });
+
+        try {
+            await Promise.all(
+                retailers.map(retailer =>
+                    this.triggerHandlersService.cancelTriggersForDomain({
+                        domain: retailer.domain,
+                        retailerId: retailer.id,
+                    }),
+                ),
+            );
+        } catch (error) {
+            this.logger.error(`Error cancelling triggers for retailers: ${domains}`, error);
+        }
+    }
+
+    @Telemetry('service.retailer.markRetailersAsActive')
+    async markRetailersAsActive(domain: string) {
+        this.logger.debug(`Marking retailer as active: ${domain}`);
+        try {
+            const retailer = await this.entityManager.findOne(RetailerEntity, { domain });
+            if (!retailer) {
+                this.logger.error(`Retailer not found: ${domain}`);
+                return;
+            }
+
+            if (retailer.status === RetailerStatus.ACTIVE) {
+                this.logger.debug(`Retailer is already active: ${domain}`);
+                return;
+            }
+
+            retailer.status = RetailerStatus.ACTIVE;
+            await this.entityManager.persistAndFlush(retailer);
+        } catch (error) {
+            this.logger.error(`Error marking retailer as active: ${domain}`, error);
+        }
     }
 }

@@ -2,6 +2,7 @@ import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { ProductJobUtils } from '../../modules/data-ingestion/product.job.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
+import { RetailerStatus } from '../../modules/retailer/retailer.status.enum';
 import { CreateSafetySyncsQueue } from '../queues';
 import { getDbForTrigger } from '../reuseables/db';
 import { logger, schedules } from '@trigger.dev/sdk';
@@ -36,6 +37,12 @@ export async function internalScheduleTriggerJobs(em: EntityManager) {
 
     for (const retailer of retailers) {
         logger.debug('Creating safety sync for retailer ' + retailer.domain);
+
+        if (retailer.status === RetailerStatus.IDLE) {
+            logger.debug(`SafetySync: ${retailer.domain} is idle, skipping safety sync`);
+            continue;
+        }
+
         await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'safetySync', {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),

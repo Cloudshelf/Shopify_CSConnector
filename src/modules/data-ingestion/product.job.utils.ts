@@ -1,9 +1,8 @@
-import { EntityManager } from '@mikro-orm/postgresql';
 import { ProcessProductsTask } from '../../trigger/data-ingestion/product/process-products';
 import { RequestProductsTask } from '../../trigger/data-ingestion/product/request-products';
-import { CloudshelfApiOrganisationUtils } from '../cloudshelf/cloudshelf.api.organisation.util';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
+import { RetailerStatus } from '../retailer/retailer.status.enum';
 import { BulkOperation } from './bulk.operation.entity';
 import { ListRunsQueryParams } from '@trigger.dev/core/v3';
 import { idempotencyKeys, runs } from '@trigger.dev/sdk';
@@ -18,38 +17,6 @@ const TRIGGER_RUNS_STATUSES: ListRunsQueryParams['status'][] = [
 ];
 
 export class ProductJobUtils {
-    private static async cancelPendingJobs({ retailer, logs }: { retailer: RetailerEntity; logs?: LogsInterface }) {
-        try {
-            const searchTags: string[] = [TriggerTagsUtils.createRetailerTag(retailer.id)];
-            for await (const run of runs.list({
-                status: TRIGGER_RUNS_STATUSES,
-                taskIdentifier: [RequestProductsTask.id],
-                tag: searchTags,
-            } as ListRunsQueryParams)) {
-                logs?.info(`Cancelling ${run.id}`, run);
-                await runs.cancel(run.id);
-            }
-        } catch (err) {
-            logs?.error(`Error cancelling pending jobs for retailer ${retailer.domain}`, err);
-        }
-    }
-
-    static async cancelAllPendingJobs({
-        domainNames,
-        logs,
-        entityManager,
-    }: {
-        domainNames: string[];
-        logs?: LogsInterface;
-        entityManager: EntityManager;
-    }) {
-        const retailers = await entityManager.find(RetailerEntity, {
-            domain: { $in: domainNames },
-        });
-
-        await Promise.all(retailers.map(retailer => this.cancelPendingJobs({ retailer, logs })));
-    }
-
     static async scheduleTriggerJob(
         retailer: RetailerEntity,
         fullSync?: boolean,
@@ -153,29 +120,28 @@ export class ProductJobUtils {
         try {
             const idempotencyKey = await idempotencyKeys.create(bulkOp.shopifyBulkOpId);
 
-            await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-                apiUrl: process.env.CLOUDSHELF_API_URL || '',
-                domainName: retailer.domain,
-                callbackIfActive: async () => {
-                    const newTaskID = await ProcessProductsTask.trigger(
-                        {
-                            remoteBulkOperationId: bulkOp.shopifyBulkOpId,
-                            fullSync: bulkOp.installSync,
-                        },
-                        {
-                            delay,
-                            queue: `ingestion`,
-                            tags,
-                            concurrencyKey: retailer.id,
-                            idempotencyKey: idempotencyKey,
-                            machine: retailer.triggerMachineSizeProducts ?? undefined,
-                            maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
-                        },
-                    );
+            if (retailer.status === RetailerStatus.IDLE) {
+                logs?.info(`ProductJobUtils: ${retailer.domain} is idle, skipping job`);
+                return;
+            }
 
-                    logs?.info(`product consumer id: ${newTaskID.id}. idempotencyKey: ${idempotencyKey}`);
+            const newTaskID = await ProcessProductsTask.trigger(
+                {
+                    remoteBulkOperationId: bulkOp.shopifyBulkOpId,
+                    fullSync: bulkOp.installSync,
                 },
-            });
+                {
+                    delay,
+                    queue: `ingestion`,
+                    tags,
+                    concurrencyKey: retailer.id,
+                    idempotencyKey: idempotencyKey,
+                    machine: retailer.triggerMachineSizeProducts ?? undefined,
+                    maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
+                },
+            );
+
+            logs?.info(`product consumer id: ${newTaskID.id}. idempotencyKey: ${idempotencyKey}`);
         } catch (err: any) {
             logs?.error(`Error in product consumer scheduler.`);
             logs?.error(`err`, err);
