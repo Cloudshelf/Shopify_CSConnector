@@ -138,18 +138,20 @@ export class RetailerService {
             const retailer = await this.entityManager.findOne(RetailerEntity, { domain });
             if (!retailer) {
                 this.logger.error(`Retailer not found: ${domain}`);
-                return;
+                return false;
             }
 
             if (retailer.status === RetailerStatus.ACTIVE) {
                 this.logger.debug(`Retailer is already active: ${domain}`);
-                return;
+                return true;
             }
 
             retailer.status = RetailerStatus.ACTIVE;
             await this.entityManager.persistAndFlush(retailer);
+            return true;
         } catch (error) {
             this.logger.error(`Error marking retailer as active: ${domain}`, error);
+            return false;
         }
     }
 }

@@ -128,7 +128,7 @@ export class ProductJobUtils {
             const newTaskID = await ProcessProductsTask.trigger(
                 {
                     remoteBulkOperationId: bulkOp.shopifyBulkOpId,
-                    fullSync: bulkOp.installSync,
+                    fullSync: bulkOp.installSync ?? false,
                 },
                 {
                     delay,
