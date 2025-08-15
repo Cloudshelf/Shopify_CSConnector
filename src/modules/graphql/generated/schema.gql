@@ -4,6 +4,9 @@
 
 input CloudshelfCancelOrganisationsSyncInput {
   domainNames: [String!]!
+
+  """If true, will mark the retailers as idle"""
+  markAsIdle: Boolean = false
 }
 
 input CloudshelfSyncOrganisationInput {
@@ -22,6 +25,7 @@ type Mutation {
   cancelOrganisationsSync(input: CloudshelfCancelOrganisationsSyncInput!): Boolean!
   deleteAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   getRetailerInfoWhereNull(token: String!): Boolean!
+  markRetailersAsActive(domain: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   reprocessBulkOperation(opId: String!, token: String!): Boolean!
   sendAllRetailerToCloudshelf(token: String!): Boolean!

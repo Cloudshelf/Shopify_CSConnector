@@ -76,33 +76,6 @@ export class CloudshelfApiOrganisationUtils {
         }
     }
 
-    static async checkAndExitIfOrganisationIsNotActive({
-        apiUrl,
-        domainName,
-        logs,
-        callbackIfActive,
-        location,
-    }: {
-        apiUrl: string;
-        domainName: string;
-        logs?: LogsInterface;
-        callbackIfActive: () => Promise<void>;
-        location?: string;
-    }): Promise<void> {
-        try {
-            const { status } = await this.getOrganisationStatusByDomain({ apiUrl, domainName, logs });
-            if (status !== OrganisationStatus.Active) {
-                logs?.info(`Organisation ${domainName} is not active | status:${status}`);
-                return;
-            }
-
-            await callbackIfActive();
-        } catch (error) {
-            logs?.error(`Error in checkAndExitIfOrganisationIsNotActive - ${location}`, error);
-            throw error;
-        }
-    }
-
     static async failOrganisationSync({
         apiUrl,
         domainName,

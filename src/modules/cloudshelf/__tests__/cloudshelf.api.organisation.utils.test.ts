@@ -89,67 +89,6 @@ describe('CloudshelfApiOrganisationUtils', () => {
         });
     });
 
-    describe('checkAndExitIfOrganisationIsNotActive', () => {
-        it('should call callbackIfActive if status is Active', async () => {
-            const callbackIfActive = jest.fn();
-            jest.spyOn(CloudshelfApiOrganisationUtils, 'getOrganisationStatusByDomain').mockResolvedValue({
-                status: OrganisationStatus.Active,
-            } as any);
-
-            await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-                apiUrl,
-                domainName,
-                logs,
-                callbackIfActive,
-                location: 'test-location',
-            });
-
-            expect(callbackIfActive).toHaveBeenCalled();
-        });
-
-        it('should not call callbackIfActive if status is not Active', async () => {
-            const callbackIfActive = jest.fn();
-            jest.spyOn(CloudshelfApiOrganisationUtils, 'getOrganisationStatusByDomain').mockResolvedValue({
-                status: OrganisationStatus.Idle,
-            } as any);
-
-            await CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-                apiUrl,
-                domainName,
-                logs,
-                callbackIfActive,
-                location: 'test-location',
-            });
-
-            expect(callbackIfActive).not.toHaveBeenCalled();
-            expect(logs.info).toHaveBeenCalledWith(
-                expect.stringContaining('Organisation test-domain.com is not active'),
-            );
-        });
-
-        it('should log and throw if getOrganisationStatusByDomain throws', async () => {
-            const callbackIfActive = jest.fn();
-            jest.spyOn(CloudshelfApiOrganisationUtils, 'getOrganisationStatusByDomain').mockRejectedValue(
-                new Error('fail'),
-            );
-
-            await expect(
-                CloudshelfApiOrganisationUtils.checkAndExitIfOrganisationIsNotActive({
-                    apiUrl,
-                    domainName,
-                    logs,
-                    callbackIfActive,
-                    location: 'test-location',
-                }),
-            ).rejects.toThrow('fail');
-
-            expect(logs.error).toHaveBeenCalledWith(
-                expect.stringContaining('Error in checkAndExitIfOrganisationIsNotActive'),
-                expect.any(Error),
-            );
-        });
-    });
-
     describe('failOrganisationSync', () => {
         it('should call setOrganisationSyncStatus with SyncStage.Failed', async () => {
             const setOrganisationSyncStatusSpy = jest

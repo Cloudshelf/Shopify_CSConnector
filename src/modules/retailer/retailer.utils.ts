@@ -15,6 +15,7 @@ import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
+import { RetailerStatus } from './retailer.status.enum';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
 import { Telemetry } from 'src/decorators/telemetry';
 
@@ -45,6 +46,7 @@ export class RetailerUtils {
                 scopes: scopesArray,
                 createdAt: now,
                 updatedAt: now,
+                status: RetailerStatus.ACTIVE,
             });
             status = 'created';
         }
