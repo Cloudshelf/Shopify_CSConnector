@@ -51,7 +51,7 @@ export class CloudshelfApiProductUtils {
 
         //TODO: Handle errors
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to update products ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to update products ${domain}`, { errors: JSON.stringify(mutationTuple.errors) });
         }
     }
 
@@ -75,7 +75,9 @@ export class CloudshelfApiProductUtils {
 
         //TODO: Handle errors
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to update product variants ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to update product variants ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
     }
 
@@ -93,7 +95,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to update product groups ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to update product groups ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
         //TODO: Handle errors
     }
@@ -119,7 +123,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to update products in group ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to update products in group ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
     }
 
@@ -149,7 +155,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to update products in group ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to update products in group ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
             return;
         }
 
@@ -175,7 +183,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to delete product group ${retailer.domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to delete product group ${retailer.domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
     }
 
@@ -208,7 +218,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to handle keepKnownProductsViaFile ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to handle keepKnownProductsViaFile ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
     }
 
@@ -226,7 +238,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to handle keepKnownVariantsViaFile ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to handle keepKnownVariantsViaFile ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
     }
 
@@ -244,7 +258,9 @@ export class CloudshelfApiProductUtils {
         });
 
         if (mutationTuple.errors) {
-            logs?.error?.(`Failed to handle keepKnownProductGroupsViaFile ${domain}`, { errors: mutationTuple.errors });
+            logs?.error?.(`Failed to handle keepKnownProductGroupsViaFile ${domain}`, {
+                errors: JSON.stringify(mutationTuple.errors),
+            });
         }
     }
 }
