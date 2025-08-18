@@ -12,7 +12,7 @@ yarn start:dev:env=dev     # Development environment
 yarn start:dev:env=prod    # Production environment
 
 # Build and production
-yarn build                 # Build with Sentry source maps
+yarn build                 # Build the application
 yarn start:prod           # Run production build
 ```
 
@@ -44,7 +44,7 @@ yarn trigger:deploy:production  # Deploy to production
 - **MikroORM** with PostgreSQL for data persistence
 - **Apollo GraphQL** for API layer
 - **Trigger.dev v4** for background job processing
-- **Sentry** for monitoring and error tracking
+- **OpenTelemetry** with Axiom for monitoring, tracing, and error tracking
 
 ### Module Structure
 The application follows NestJS module patterns with domain-driven organization:
@@ -92,4 +92,4 @@ Environment-based configuration with Joi validation schemas in `src/modules/conf
 4. Test background jobs locally: `yarn trigger:dev`
 
 ### Error Handling
-Comprehensive error handling with Sentry integration and structured logging using ULID request tracking.
+Comprehensive error handling with OpenTelemetry integration for distributed tracing and structured logging using ULID request tracking. Errors are automatically captured in spans and sent to Axiom for monitoring.
