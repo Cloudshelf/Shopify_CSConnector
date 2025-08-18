@@ -60,7 +60,6 @@ export default defineConfig({
             '@apollo/gateway',
             '@nestjs/mongoose',
             '@nestjs/sequelize',
-            '@sentry/profiling-node',
             '@nestjs/apollo',
             '@nestjs/terminus',
             'fsevents',
@@ -101,25 +100,25 @@ export default defineConfig({
         }),
         new NestInstrumentation(),
     ],
-    telemetry: {
-        logExporters: [
-            new OTLPLogExporter({
-                url: 'https://api.axiom.co/v1/logs',
-                headers: {
-                    Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
-                    'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
-                },
-            }),
-        ],
-        exporters: [
-            new OTLPTraceExporter({
-                url: 'https://api.axiom.co/v1/traces',
-                headers: {
-                    Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
-                    'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
-                },
-                keepAlive: true,
-            }),
-        ],
-    },
+    // telemetry: {
+    //     logExporters: [
+    //         new OTLPLogExporter({
+    //             url: 'https://api.axiom.co/v1/logs',
+    //             headers: {
+    //                 Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
+    //                 'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
+    //             },
+    //         }),
+    //     ],
+    //     exporters: [
+    //         new OTLPTraceExporter({
+    //             url: 'https://api.axiom.co/v1/traces',
+    //             headers: {
+    //                 Authorization: `Bearer ${process.env.AXIOM_TOKEN}`,
+    //                 'X-Axiom-Dataset': process.env.AXIOM_DATASET || '',
+    //             },
+    //             keepAlive: true,
+    //         }),
+    //     ],
+    // },
 });

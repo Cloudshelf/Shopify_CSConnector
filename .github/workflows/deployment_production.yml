@@ -126,12 +126,6 @@ jobs:
                   echo "VERSION=${{ needs.version.outputs.version }}" >> .env
                   echo "PACKAGE_VERSION=${{ needs.version.outputs.version }}" >> .env
 
-            # Add the sentry creds to .env
-            - name: Add sentry creds to .env
-              run: |
-                  echo "" >> .env
-                  echo "SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_CREDS }}" >> .env
-
             - name: Set up QEMU
               uses: docker/setup-qemu-action@v2
 

@@ -42,8 +42,6 @@ lerna-debug.log*
 
 # Temporary
 .tmp
-# Sentry Config File
-.sentryclirc
 
 .trigger
 

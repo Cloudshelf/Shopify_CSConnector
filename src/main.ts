@@ -50,8 +50,6 @@ async function bootstrap() {
 
     const { httpAdapter } = app.get(HttpAdapterHost);
     app.useGlobalFilters(new NoOAuthCookieExceptionFilter());
-    // app.useGlobalFilters(new SentryFilter(httpAdapter), new NoOAuthCookieExceptionFilter());
-    // app.useGlobalInterceptors(new SentryGqlInterceptor());
 
     const port = process.env.PORT || 3100;
     const host = process.env.HOST || `http://localhost:${port}`;

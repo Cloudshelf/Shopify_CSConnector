@@ -10,6 +10,7 @@ import { RetailerService } from '../../retailer/retailer.service';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
 import { Telemetry } from 'src/decorators/telemetry';
 import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
+import { TelemetryUtil } from '../../../utils/TelemetryUtil';
 
 export interface BulkOperationWebhookPayload {
     admin_graphql_api_id: string;
@@ -37,10 +38,15 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         this.logger.debug('Received BULK_OPERATIONS_FINISH webhook for domain ' + domain);
         this.logger.debug('payload', data);
 
-        // SentryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
-        //     id: domain,
-        //     username: domain,
-        // });
+        TelemetryUtil.InformationalTransaction('Webhook:Received', 'BULK_OPERATIONS_FINISH', {
+            webhookId,
+            domain,
+            operationId: data.admin_graphql_api_id,
+            status: data.status,
+        }, {
+            id: domain,
+            username: domain,
+        });
 
         const shouldIgnore = this.configService.get<boolean>('SHOPIFY_IGNORE_UPDATE_WEBHOOKS');
         if (shouldIgnore) {

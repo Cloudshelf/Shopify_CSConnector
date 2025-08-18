@@ -10,7 +10,7 @@ An open-source connector which connects Shopify to the [Cloudshelf Omnichannel A
 | Node.Js Framework  | [NestJS](https://nestjs.com/)  |
 | GraphQL | [Apollo GraphQL](https://apollographql.com/)  |
 | ORM | [MikroORM](https://mikro-orm.io/)  |
-| Application Performance Monitoring | [Sentry](https://sentry.io/)  |
+| Application Performance Monitoring | [OpenTelemetry](https://opentelemetry.io/) with [Axiom](https://axiom.co/)  |
 | Shopify Connection | [NestJS Shopify**](https://github.com/nestjs-shopify/nestjs-shopify)  |
 | Code Style | [Prettier](https://prettier.io/)  |
 | Vulnerability Scanning | [Dependabot](https://github.com/dependabot)  |

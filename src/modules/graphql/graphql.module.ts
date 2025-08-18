@@ -2,6 +2,7 @@ import { ApolloDriver } from '@nestjs/apollo';
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule as NestGraphQLModule } from '@nestjs/graphql';
+import { ErrorTrackingPlugin } from '../apm/graphql-error-tracking.plugin';
 import { graphqlSchema } from '../configuration/schemas/graphql.schema';
 import { Context, IncomingMessageWithAuthCode } from './graphql.context';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
@@ -16,7 +17,6 @@ export class GraphQLModule {
             driver: ApolloDriver,
             imports: [ConfigModule],
             inject: [ConfigService<typeof graphqlSchema>],
-
             useFactory: (configService: ConfigService<typeof graphqlSchema>) => {
                 let autoSchemaFile = join(process.cwd(), 'src', 'modules', 'graphql', 'generated', 'schema.gql');
                 const schemaPath = configService.get<string | undefined>('GRAPHQL_SCHEMA_PATH');
@@ -53,7 +53,7 @@ export class GraphQLModule {
         return {
             module: GraphQLModule,
             imports: [graphQL],
-            providers: [],
+            providers: [ErrorTrackingPlugin],
             exports: [graphQL],
         };
     }
