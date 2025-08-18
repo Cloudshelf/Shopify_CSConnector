@@ -13,7 +13,7 @@ export class OtelExceptionFilter extends BaseExceptionFilter {
         applicationRef: HttpServer<any, any> | AbstractHttpAdapter<any, any, any>,
     ): void {
         this.logger.debug(`In OtelExceptionFilter`);
-        
+
         // Get the active span and record the exception
         const activeSpan = trace.getActiveSpan();
         if (activeSpan) {
@@ -43,7 +43,7 @@ export class OtelExceptionFilter extends BaseExceptionFilter {
         } else {
             // Do the normal error stuff, so that we return the http error codes if it was a http request
             this.logger.debug(`HTTP context - calling super`);
-            return super.handleUnknownError(exception, host, applicationRef);
+            super.handleUnknownError(exception, host, applicationRef);
         }
     }
 }

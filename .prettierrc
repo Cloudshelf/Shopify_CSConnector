@@ -5,7 +5,7 @@
     "tabWidth": 4,
     "singleQuote": true,
     "bracketSpacing": true,
-    "jsxBracketSameLine": false,
+    "bracketSameLine": false,
     "useTabs": false,
     "arrowParens": "avoid",
     "trailingComma": "all",
@@ -19,7 +19,8 @@
         "@opentelemetry/(.*)$",
         "@mikro-orm/(.*)$",
         "lodash",
-        "<THIRD_PARTY_MODULES>"
+        "<THIRD_PARTY_MODULES>",
+        "^[./]"
     ],
     "importOrderSortSpecifiers": true,
     "importOrderMergeDuplicateImports": true

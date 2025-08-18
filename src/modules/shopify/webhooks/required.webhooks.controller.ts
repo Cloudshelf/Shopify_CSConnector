@@ -1,8 +1,8 @@
 import { Controller, Headers, HttpCode, Post } from '@nestjs/common';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
+import { TelemetryUtil } from '../../../utils/TelemetryUtil';
 import { ShopifyHmac, ShopifyHmacType } from '@nestjs-shopify/core';
 import { Telemetry } from 'src/decorators/telemetry';
-import { TelemetryUtil } from '../../../utils/TelemetryUtil';
 
 @Controller('/shopify/required_webhooks')
 export class RequiredWebhooksController {
@@ -15,12 +15,17 @@ export class RequiredWebhooksController {
     async shopRedact(@Headers('X-Shopify-Shop-Domain') shopDomain: string) {
         this.logger.log('Received shop redact webhook for domain ' + shopDomain);
 
-        TelemetryUtil.InformationalTransaction('Webhook:Received', 'SHOP_REDACT', {
-            shopDomain,
-        }, {
-            id: shopDomain,
-            username: shopDomain,
-        });
+        TelemetryUtil.InformationalTransaction(
+            'Webhook:Received',
+            'SHOP_REDACT',
+            {
+                shopDomain,
+            },
+            {
+                id: shopDomain,
+                username: shopDomain,
+            },
+        );
 
         // await this.slackService.sendGeneralNotification(
         //     NotificationUtils.buildUninstallAttachments(shopDomain, 'redact'),
@@ -34,12 +39,17 @@ export class RequiredWebhooksController {
     async customerRedact(@Headers('X-Shopify-Shop-Domain') shopDomain: string) {
         this.logger.log('Received customer redact webhook for domain ' + shopDomain);
 
-        TelemetryUtil.InformationalTransaction('Webhook:Received', 'CUSTOMER_REDACT', {
-            shopDomain,
-        }, {
-            id: shopDomain,
-            username: shopDomain,
-        });
+        TelemetryUtil.InformationalTransaction(
+            'Webhook:Received',
+            'CUSTOMER_REDACT',
+            {
+                shopDomain,
+            },
+            {
+                id: shopDomain,
+                username: shopDomain,
+            },
+        );
     }
 
     @Telemetry('webhook.customerDataRequest')
@@ -49,11 +59,16 @@ export class RequiredWebhooksController {
     async customerDataRequest(@Headers('X-Shopify-Shop-Domain') shopDomain: string) {
         this.logger.log(`Received customer data request webhook for domain ${shopDomain}`);
 
-        TelemetryUtil.InformationalTransaction('Webhook:Received', 'CUSTOMER_DATA_REQUEST', {
-            shopDomain,
-        }, {
-            id: shopDomain,
-            username: shopDomain,
-        });
+        TelemetryUtil.InformationalTransaction(
+            'Webhook:Received',
+            'CUSTOMER_DATA_REQUEST',
+            {
+                shopDomain,
+            },
+            {
+                id: shopDomain,
+                username: shopDomain,
+            },
+        );
     }
 }
