@@ -1,15 +1,15 @@
-import { CrawlerErrorSampler } from './crawler-error-sampler';
+import { SpanStatusCode } from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { BatchSpanProcessor, TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-base';
-import { SpanStatusCode } from '@opentelemetry/api';
 import * as process from 'process';
+import { CrawlerErrorSampler } from './crawler-error-sampler';
 
 const traceExporter = new OTLPTraceExporter({
     url: 'https://api.axiom.co/v1/traces',
@@ -25,18 +25,27 @@ const resource = resourceFromAttributes({
 });
 
 // Paths that are excluded from proxy (these are actual API endpoints)
-const EXCLUDED_PROXY_PATHS = [
-    /^\/shopify\/.*/,
-    /^\/graphql/,
-    /^\/api-health.*/,
-    /^\/stock-levels/,
-    /^\/pos/,
-];
+const EXCLUDED_PROXY_PATHS = [/^\/shopify\/.*/, /^\/graphql/, /^\/api-health.*/, /^\/stock-levels/, /^\/pos/];
 
 function isProxyRequest(url: string | undefined): boolean {
     if (!url) return false;
-    // Extract the path from the URL
-    const path = url.split('?')[0];
+    
+    let path: string;
+    try {
+        // Try to parse as a URL (handles absolute URLs)
+        const parsed = new URL(url, 'http://dummy');
+        path = parsed.pathname;
+    } catch {
+        // If parsing fails, treat as a raw path
+        // Remove query string and hash if present
+        path = url.split('?')[0].split('#')[0];
+    }
+    
+    // Ensure path is not empty, default to root
+    if (!path) {
+        path = '/';
+    }
+    
     // Check if the path matches any excluded patterns
     return !EXCLUDED_PROXY_PATHS.some(pattern => pattern.test(path));
 }
@@ -48,7 +57,7 @@ const customHttpInstrumentation = new HttpInstrumentation({
         if (response && 'statusCode' in response) {
             const url = (request as any).url || (request as any).path;
             const statusCode = (response as any).statusCode;
-            
+
             // If this is a proxy request returning 404, don't mark as error
             if (isProxyRequest(url) && statusCode === 404) {
                 span.setStatus({ code: SpanStatusCode.UNSET });
