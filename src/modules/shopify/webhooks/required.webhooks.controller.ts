@@ -1,8 +1,8 @@
 import { Controller, Headers, HttpCode, Post } from '@nestjs/common';
+import { ShopifyHmac, ShopifyHmacType } from '@nestjs-shopify/common';
+import { Telemetry } from 'src/decorators/telemetry';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { TelemetryUtil } from '../../../utils/TelemetryUtil';
-import { ShopifyHmac, ShopifyHmacType } from '@nestjs-shopify/core';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @Controller('/shopify/required_webhooks')
 export class RequiredWebhooksController {

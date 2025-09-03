@@ -1511,38 +1511,6 @@ export enum AppTransactionSortKeys {
   Id = 'ID'
 }
 
-/** Represents an error that happens while uninstalling an app. */
-export type AppUninstallAppUninstallError = DisplayableError & {
-  __typename?: 'AppUninstallAppUninstallError';
-  /** The error code. */
-  code?: Maybe<AppUninstallAppUninstallErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `AppUninstallAppUninstallError`. */
-export enum AppUninstallAppUninstallErrorCode {
-  /** The app cannot be found. */
-  AppNotFound = 'APP_NOT_FOUND',
-  /** The app is not installed. */
-  AppNotInstalled = 'APP_NOT_INSTALLED',
-  /** An error occurred while uninstalling the app. */
-  AppUninstallError = 'APP_UNINSTALL_ERROR',
-  /** User does not have sufficient permissions to uninstall this app. */
-  UserPermissionsInsufficient = 'USER_PERMISSIONS_INSUFFICIENT'
-}
-
-/** Return type for `appUninstall` mutation. */
-export type AppUninstallPayload = {
-  __typename?: 'AppUninstallPayload';
-  /** The uninstalled app. */
-  app?: Maybe<App>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<AppUninstallAppUninstallError>;
-};
-
 /**
  * Defines a usage pricing model for the app subscription.
  * These charges are variable based on how much the merchant uses the app.
@@ -1657,7 +1625,7 @@ export type Article = HasEvents & HasMetafieldDefinitions & HasMetafields & HasP
   body: Scalars['HTML']['output'];
   /** List of the article's comments. */
   comments: CommentConnection;
-  /** Count of comments. Limited to a maximum of 10000 by default. */
+  /** Count of comments. */
   commentsCount?: Maybe<Count>;
   /** The date and time (ISO 8601 format) when the article was created. */
   createdAt: Scalars['DateTime']['output'];
@@ -2111,14 +2079,6 @@ export type AttributeInput = {
   value: Scalars['String']['input'];
 };
 
-/** The intended audience for the order status page. */
-export enum Audience {
-  /** Intended for customer notifications. */
-  Customerview = 'CUSTOMERVIEW',
-  /** Intended for merchant wanting to preview the order status page. Should be used immediately after querying. */
-  Merchantview = 'MERCHANTVIEW'
-}
-
 /** The input fields for an author. Either the `name` or `user_id` fields can be supplied, but never both. */
 export type AuthorInput = {
   /** The author's full name. */
@@ -2309,8 +2269,6 @@ export type BasicEvent = Event & Node & {
   attributeToApp: Scalars['Boolean']['output'];
   /** Whether the event was caused by an admin user. */
   attributeToUser: Scalars['Boolean']['output'];
-  /** The entity which performed the action that generated the event. */
-  author?: Maybe<Scalars['String']['output']>;
   /** The date and time when the event was created. */
   createdAt: Scalars['DateTime']['output'];
   /** Whether the event is critical. */
@@ -2383,7 +2341,7 @@ export type Blog = HasEvents & HasMetafieldDefinitions & HasMetafields & HasPubl
   __typename?: 'Blog';
   /** List of the blog's articles. */
   articles: ArticleConnection;
-  /** Count of articles. Limited to a maximum of 10000 by default. */
+  /** Count of articles. */
   articlesCount?: Maybe<Count>;
   /** Indicates whether readers can post comments to the blog and if comments are moderated or not. */
   commentPolicy: CommentPolicy;
@@ -2980,8 +2938,6 @@ export type BusinessEntity = Node & {
   __typename?: 'BusinessEntity';
   /** The address of the merchant's Business Entity. */
   address: BusinessEntityAddress;
-  /** Whether the Business Entity is archived from the shop. */
-  archived: Scalars['Boolean']['output'];
   /** The name of the company associated with the merchant's Business Entity. */
   companyName?: Maybe<Scalars['String']['output']>;
   /** The display name of the merchant's Business Entity. */
@@ -3040,12 +2996,6 @@ export type BuyerExperienceConfigurationInput = {
   editableShippingAddress?: InputMaybe<Scalars['Boolean']['input']>;
   /** Represents the merchant configured payment terms. */
   paymentTermsTemplateId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-/** The input fields for a buyer signal. */
-export type BuyerSignalInput = {
-  /** The country code of the buyer. */
-  countryCode: CountryCode;
 };
 
 /** The input fields for exchange line items on a calculated return. */
@@ -4494,7 +4444,6 @@ export type ChannelProductsArgs = {
  * A channel can be a platform or marketplace such as Facebook or Pinterest, an online store, or POS.
  */
 export type ChannelProductsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4550,8 +4499,6 @@ export type ChannelInformation = Node & {
   channelDefinition?: Maybe<ChannelDefinition>;
   /** The unique ID for the channel. */
   channelId: Scalars['ID']['output'];
-  /** The publishing destination display name or channel name. */
-  displayName?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
 };
@@ -7809,7 +7756,7 @@ export type CommentEventAttachment = {
 };
 
 /** The main embed of a comment event. */
-export type CommentEventEmbed = Customer | DraftOrder | InventoryTransfer | Order | Product | ProductVariant;
+export type CommentEventEmbed = Customer | DraftOrder | Order | Product | ProductVariant;
 
 /** The subject line of a comment event. */
 export type CommentEventSubject = {
@@ -8683,12 +8630,6 @@ export type CompanyLocationCatalogsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/** A location or branch of a [company that's a customer](https://shopify.dev/api/admin-graphql/latest/objects/company) of the shop. Configuration of B2B relationship, for example prices lists and checkout settings, may be done for a location. */
-export type CompanyLocationCatalogsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -10188,19 +10129,6 @@ export enum CurrencyCode {
   Zmw = 'ZMW'
 }
 
-/** Represents a currency exchange adjustment applied to an order transaction. */
-export type CurrencyExchangeAdjustment = Node & {
-  __typename?: 'CurrencyExchangeAdjustment';
-  /** The adjustment amount in both shop and presentment currencies. */
-  adjustment: MoneyV2;
-  /** The final amount in both shop and presentment currencies after the adjustment. */
-  finalAmountSet: MoneyV2;
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The original amount in both shop and presentment currencies before the adjustment. */
-  originalAmountSet: MoneyV2;
-};
-
 /** Currency formats configured for the merchant. These formats are available to use within Liquid. */
 export type CurrencyFormats = {
   __typename?: 'CurrencyFormats';
@@ -10223,8 +10151,6 @@ export type CurrencySetting = {
   currencyName: Scalars['String']['output'];
   /** Whether the currency is enabled or not. An enabled currency setting is visible to buyers and allows orders to be generated with that currency as presentment. */
   enabled: Scalars['Boolean']['output'];
-  /** The manual rate, if enabled, that applies to this currency when converting from shop currency. This rate is specific to the associated market's currency setting. */
-  manualRate?: Maybe<Scalars['Decimal']['output']>;
   /** The date and time when the active exchange rate for the currency was last modified. It can be the automatic rate's creation date, or the manual rate's last updated at date if active. */
   rateUpdatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
@@ -17190,23 +17116,6 @@ export enum DisputeType {
   Inquiry = 'INQUIRY'
 }
 
-/** A distance, which includes a numeric value and a unit of measurement. */
-export type Distance = {
-  __typename?: 'Distance';
-  /** The unit of measurement for `value`. */
-  unit: DistanceUnit;
-  /** The distance value using the unit system specified with `unit`. */
-  value: Scalars['Float']['output'];
-};
-
-/** Units of measurement for distance. */
-export enum DistanceUnit {
-  /** Metric system unit of distance. */
-  Kilometers = 'KILOMETERS',
-  /** Imperial system unit of distance. */
-  Miles = 'MILES'
-}
-
 /** A unique string that represents the address of a Shopify store on the Internet. */
 export type Domain = Node & {
   __typename?: 'Domain';
@@ -17647,47 +17556,6 @@ export enum DraftOrderAppliedDiscountType {
   Percentage = 'PERCENTAGE'
 }
 
-/** The available delivery options for a draft order. */
-export type DraftOrderAvailableDeliveryOptions = {
-  __typename?: 'DraftOrderAvailableDeliveryOptions';
-  /** The available local delivery rates for the draft order. Requires a customer with a valid shipping address and at least one line item. */
-  availableLocalDeliveryRates: Array<DraftOrderShippingRate>;
-  /** The available local pickup options for the draft order. Requires at least one line item. */
-  availableLocalPickupOptions: Array<PickupInStoreLocation>;
-  /** The available shipping rates for the draft order. Requires a customer with a valid shipping address and at least one line item. */
-  availableShippingRates: Array<DraftOrderShippingRate>;
-  /** Returns information about pagination of local pickup options. */
-  pageInfo: PageInfo;
-};
-
-/** The input fields used to determine available delivery options for a draft order. */
-export type DraftOrderAvailableDeliveryOptionsInput = {
-  /**
-   * Whether or not to accept automatic discounts on the draft order during calculation.
-   * If false, only discount codes and custom draft order discounts (see `appliedDiscount`) will be applied.
-   * If true, eligible automatic discounts will be applied in addition to discount codes and custom draft order discounts.
-   */
-  acceptAutomaticDiscounts?: InputMaybe<Scalars['Boolean']['input']>;
-  /**
-   * The discount that will be applied to the draft order.
-   * A draft order line item can have one discount. A draft order can also have one order-level discount.
-   */
-  appliedDiscount?: InputMaybe<DraftOrderAppliedDiscountInput>;
-  /** Discount codes that will be attempted to be applied to the draft order. If the draft isn't eligible for any given discount code it will be skipped during calculation. */
-  discountCodes?: InputMaybe<Array<Scalars['String']['input']>>;
-  /**
-   * Product variant line item or custom line item associated to the draft order.
-   * Each draft order must include at least one line item.
-   */
-  lineItems?: InputMaybe<Array<DraftOrderLineItemInput>>;
-  /** The selected country code that determines the pricing of the draft order. */
-  marketRegionCountryCode?: InputMaybe<CountryCode>;
-  /** The purchasing entity for the draft order. */
-  purchasingEntity?: InputMaybe<PurchasingEntityInput>;
-  /** The mailing address to where the order will be shipped. */
-  shippingAddress?: InputMaybe<MailingAddressInput>;
-};
-
 /** Return type for `draftOrderBulkAddTags` mutation. */
 export type DraftOrderBulkAddTagsPayload = {
   __typename?: 'DraftOrderBulkAddTagsPayload';
@@ -17760,6 +17628,13 @@ export type DraftOrderCreateFromOrderPayload = {
   __typename?: 'DraftOrderCreateFromOrderPayload';
   /** The created draft order. */
   draftOrder?: Maybe<DraftOrder>;
+  /** The list of errors that occurred from executing the mutation. */
+  userErrors: Array<UserError>;
+};
+
+/** Return type for `draftOrderCreateMerchantCheckout` mutation. */
+export type DraftOrderCreateMerchantCheckoutPayload = {
+  __typename?: 'DraftOrderCreateMerchantCheckoutPayload';
   /** The list of errors that occurred from executing the mutation. */
   userErrors: Array<UserError>;
 };
@@ -17852,7 +17727,6 @@ export type DraftOrderInput = {
   /**
    * The list of product variant or custom line item.
    * Each draft order must include at least one line item.
-   * Accepts a maximum of 499 line items.
    *
    * NOTE: Draft orders don't currently support subscriptions.
    */
@@ -18142,17 +18016,6 @@ export type DraftOrderLineItemInput = {
   weight?: InputMaybe<WeightInput>;
 };
 
-/** A warning indicating that the market region country code is not supported with Markets. */
-export type DraftOrderMarketRegionCountryCodeNotSupportedWarning = DraftOrderWarning & {
-  __typename?: 'DraftOrderMarketRegionCountryCodeNotSupportedWarning';
-  /** The error code. */
-  errorCode: Scalars['String']['output'];
-  /** The input field that the warning applies to. */
-  field: Scalars['String']['output'];
-  /** The warning message. */
-  message: Scalars['String']['output'];
-};
-
 /** The platform discounts applied to the draft order. */
 export type DraftOrderPlatformDiscount = {
   __typename?: 'DraftOrderPlatformDiscount';
@@ -18169,8 +18032,6 @@ export type DraftOrderPlatformDiscount = {
    * @deprecated Use `discountClasses` instead.
    */
   discountClass: DiscountClass;
-  /** The discount classes. */
-  discountClasses: Array<DiscountClass>;
   /** The discount node for the platform discount. */
   discountNode?: Maybe<DiscountNode>;
   /** The ID of the discount. */
@@ -18206,21 +18067,6 @@ export type DraftOrderPlatformDiscountAllocation = {
 
 /** The element of the draft being discounted. */
 export type DraftOrderPlatformDiscountAllocationTarget = CalculatedDraftOrderLineItem | DraftOrderLineItem | ShippingLine;
-
-/** A shipping rate is an additional cost added to the cost of the products that were ordered. */
-export type DraftOrderShippingRate = {
-  __typename?: 'DraftOrderShippingRate';
-  /** The code of the shipping rate. */
-  code: Scalars['String']['output'];
-  /** Unique identifier for this shipping rate. */
-  handle: Scalars['String']['output'];
-  /** The cost associated with the shipping rate. */
-  price: MoneyV2;
-  /** The source of the shipping rate. */
-  source: Scalars['String']['output'];
-  /** The name of the shipping rate. */
-  title: Scalars['String']['output'];
-};
 
 /** The set of valid sort keys for the DraftOrder query. */
 export enum DraftOrderSortKeys {
@@ -18536,8 +18382,6 @@ export enum EventSubjectType {
   DiscountNode = 'DISCOUNT_NODE',
   /** A DraftOrder resource generated the event. */
   DraftOrder = 'DRAFT_ORDER',
-  /** A InventoryTransfer resource generated the event. */
-  InventoryTransfer = 'INVENTORY_TRANSFER',
   /** A Order resource generated the event. */
   Order = 'ORDER',
   /** A Page resource generated the event. */
@@ -18565,18 +18409,6 @@ export type ExchangeLineItem = Node & {
    * @deprecated Use `lineItems` instead.
    */
   lineItem?: Maybe<LineItem>;
-  /** The order line items for the exchange. */
-  lineItems?: Maybe<Array<LineItem>>;
-  /** The quantity of the exchange item that can be processed. */
-  processableQuantity: Scalars['Int']['output'];
-  /** The quantity of the exchange item that have been processed. */
-  processedQuantity: Scalars['Int']['output'];
-  /** The number of units ordered, including refunded and removed units. */
-  quantity: Scalars['Int']['output'];
-  /** The quantity of the exchange item that haven't been processed. */
-  unprocessedQuantity: Scalars['Int']['output'];
-  /** The ID of the variant at time of return creation. */
-  variantId?: Maybe<Scalars['ID']['output']>;
 };
 
 /** The input fields for an applied discount on a calculated exchange line item. */
@@ -18628,14 +18460,6 @@ export type ExchangeLineItemInput = {
   quantity: Scalars['Int']['input'];
   /** The ID of the product variant to be added to the order as part of an exchange. */
   variantId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-/** The input fields for removing an exchange line item from a return. */
-export type ExchangeLineItemRemoveFromReturnInput = {
-  /** The ID of the exchange line item to remove. */
-  exchangeLineItemId: Scalars['ID']['input'];
-  /** The quantity of the associated exchange line item to be removed. */
-  quantity: Scalars['Int']['input'];
 };
 
 /** An exchange where existing items on an order are returned and new items are added to the order. */
@@ -18840,8 +18664,8 @@ export type FeeSale = Sale & {
   __typename?: 'FeeSale';
   /** The type of order action that the sale represents. */
   actionType: SaleActionType;
-  /** The fee associated with the sale. It can be null if the fee was deleted. */
-  fee?: Maybe<Fee>;
+  /** The fee associated with the sale. */
+  fee: Fee;
   /** The unique ID for the sale. */
   id: Scalars['ID']['output'];
   /** The line type assocated with the sale. */
@@ -23212,12 +23036,6 @@ export type Image = HasMetafields & {
    */
   src: Scalars['URL']['output'];
   /**
-   * The ThumbHash of the image.
-   *
-   * Useful to display placeholder images while the original image is loading.
-   */
-  thumbhash?: Maybe<Scalars['String']['output']>;
-  /**
    * The location of the transformed image as a URL.
    *
    * All transformation arguments are considered "best-effort". If they can be applied to an image, they will be.
@@ -23801,7 +23619,10 @@ export type InventoryLevel = Node & {
   item: InventoryItem;
   /** The location associated with the inventory level. */
   location: Location;
-  /** Quantities for the requested names. */
+  /**
+   * The quantity of an inventory item at a specific location, for a quantity
+   * [name](https://shopify.dev/docs/apps/fulfillment/inventory-management-apps#inventory-states).
+   */
   quantities: Array<InventoryQuantity>;
   /** Scheduled changes for the requested quantity names. */
   scheduledChanges: InventoryScheduledChangeConnection;
@@ -23998,19 +23819,30 @@ export type InventoryProperties = {
   quantityNames: Array<InventoryQuantityName>;
 };
 
-/** Represents a quantity of an inventory item at a specific location, for a specific name. */
+/**
+ * The `InventoryQuantity` object lets you manage and track inventory quantities for specific [states](https://shopify.dev/docs/apps/fulfillment/inventory-management-apps#inventory-states).
+ * Inventory quantities represent different states of items such as available for purchase, committed to orders, reserved for drafts, incoming from suppliers, or set aside for quality control or safety stock.
+ *
+ * You can use [inventory levels](https://shopify.dev/docs/api/admin-graphql/latest/objects/inventorylevel) to manage where inventory items are stocked. You can also [make inventory adjustments](https://shopify.dev/docs/api/admin-graphql/latest/mutations/inventoryAdjustQuantities) to apply changes to inventory quantities.
+ *
+ * Inventory quantities can be managed by a merchant or by [fulfillment services](https://shopify.dev/docs/api/admin-graphql/latest/objects/fulfillmentservice) that handle inventory tracking.
+ * Learn more about working with [Shopify's inventory management system](https://shopify.dev/docs/apps/fulfillment/inventory-management-apps).
+ */
 export type InventoryQuantity = Node & {
   __typename?: 'InventoryQuantity';
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
   /**
-   * The [name](https://shopify.dev/docs/apps/fulfillment/inventory-management-apps#inventory-states)
+   * The inventory state [name](https://shopify.dev/docs/apps/fulfillment/inventory-management-apps#inventory-states)
    * that identifies the inventory quantity.
    */
   name: Scalars['String']['output'];
-  /** The quantity for the quantity name. */
+  /**
+   * The quantity of an inventory item at a specific location, for a quantity
+   * [name](https://shopify.dev/docs/apps/fulfillment/inventory-management-apps#inventory-states).
+   */
   quantity: Scalars['Int']['output'];
-  /** When the quantity was last updated. */
+  /** When the inventory quantity was last updated. */
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
@@ -24374,1203 +24206,6 @@ export enum InventorySetScheduledChangesUserErrorCode {
   /** The from_name and to_name can't be the same. */
   SameFromToNames = 'SAME_FROM_TO_NAMES'
 }
-
-/** Represents an inventory shipment. */
-export type InventoryShipment = Node & {
-  __typename?: 'InventoryShipment';
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The total quantity of all items in the shipment. */
-  lineItemTotalQuantity: Scalars['Int']['output'];
-  /** The line items included in this shipment. */
-  lineItems?: Maybe<InventoryShipmentLineItemConnection>;
-  /** The number of line items associated with the inventory shipment. Limited to a maximum of 10000 by default. */
-  lineItemsCount?: Maybe<Count>;
-  /** The name of the inventory shipment. */
-  name: Scalars['String']['output'];
-  /** The current status of the shipment. */
-  status: InventoryShipmentStatus;
-  /** The total quantity of items accepted across all line items in this shipment. */
-  totalAcceptedQuantity: Scalars['Int']['output'];
-  /** The total quantity of items received (both accepted and rejected) across all line items in this shipment. */
-  totalReceivedQuantity: Scalars['Int']['output'];
-  /** The total quantity of items rejected across all line items in this shipment. */
-  totalRejectedQuantity: Scalars['Int']['output'];
-  /** The tracking information for the shipment. */
-  tracking?: Maybe<InventoryShipmentTracking>;
-};
-
-
-/** Represents an inventory shipment. */
-export type InventoryShipmentLineItemsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<ShipmentLineItemSortKeys>;
-};
-
-
-/** Represents an inventory shipment. */
-export type InventoryShipmentLineItemsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Return type for `inventoryShipmentAddItems` mutation. */
-export type InventoryShipmentAddItemsPayload = {
-  __typename?: 'InventoryShipmentAddItemsPayload';
-  /** The list of added line items. */
-  addedItems?: Maybe<Array<InventoryShipmentLineItem>>;
-  /** The inventory shipment with the added items. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentAddItemsUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentAddItems`. */
-export type InventoryShipmentAddItemsUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentAddItemsUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentAddItemsUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentAddItemsUserError`. */
-export enum InventoryShipmentAddItemsUserErrorCode {
-  /** A single item can't be listed twice. */
-  DuplicateItem = 'DUPLICATE_ITEM',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** Current shipment status does not support this operation. */
-  InvalidShipmentStatus = 'INVALID_SHIPMENT_STATUS',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** An auto-generated type for paginating through multiple InventoryShipments. */
-export type InventoryShipmentConnection = {
-  __typename?: 'InventoryShipmentConnection';
-  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<InventoryShipmentEdge>;
-  /** A list of nodes that are contained in InventoryShipmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<InventoryShipment>;
-  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
-  pageInfo: PageInfo;
-};
-
-/** Return type for `inventoryShipmentCreateInTransit` mutation. */
-export type InventoryShipmentCreateInTransitPayload = {
-  __typename?: 'InventoryShipmentCreateInTransitPayload';
-  /** The created inventory shipment. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentCreateInTransitUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentCreateInTransit`. */
-export type InventoryShipmentCreateInTransitUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentCreateInTransitUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentCreateInTransitUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentCreateInTransitUserError`. */
-export enum InventoryShipmentCreateInTransitUserErrorCode {
-  /** A single item can't be listed twice. */
-  DuplicateItem = 'DUPLICATE_ITEM',
-  /** The shipment input cannot be empty. */
-  EmptyShipmentInput = 'EMPTY_SHIPMENT_INPUT',
-  /** One or more items are not valid. */
-  InvalidItem = 'INVALID_ITEM',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** The shipment input is invalid. */
-  InvalidShipmentInput = 'INVALID_SHIPMENT_INPUT',
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The URL is invalid. */
-  InvalidUrl = 'INVALID_URL',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The list of line items is empty. */
-  ItemsEmpty = 'ITEMS_EMPTY',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** The input fields to add a shipment. */
-export type InventoryShipmentCreateInput = {
-  /** The list of line items for the inventory shipment. */
-  lineItems: Array<InventoryShipmentLineItemInput>;
-  /** The ID of the inventory movement (transfer or purchase order) this shipment belongs to. */
-  movementId: Scalars['ID']['input'];
-  /** The tracking information for the shipment. */
-  trackingInput?: InputMaybe<InventoryShipmentTrackingInput>;
-};
-
-/** Return type for `inventoryShipmentCreate` mutation. */
-export type InventoryShipmentCreatePayload = {
-  __typename?: 'InventoryShipmentCreatePayload';
-  /** The created inventory shipment. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentCreateUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentCreate`. */
-export type InventoryShipmentCreateUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentCreateUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentCreateUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentCreateUserError`. */
-export enum InventoryShipmentCreateUserErrorCode {
-  /** Bundled items cannot be used for this operation. */
-  BundledItem = 'BUNDLED_ITEM',
-  /** A single item can't be listed twice. */
-  DuplicateItem = 'DUPLICATE_ITEM',
-  /** The shipment input cannot be empty. */
-  EmptyShipmentInput = 'EMPTY_SHIPMENT_INPUT',
-  /** One or more items are not valid. */
-  InvalidItem = 'INVALID_ITEM',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** The shipment input is invalid. */
-  InvalidShipmentInput = 'INVALID_SHIPMENT_INPUT',
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The URL is invalid. */
-  InvalidUrl = 'INVALID_URL',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** Return type for `inventoryShipmentDelete` mutation. */
-export type InventoryShipmentDeletePayload = {
-  __typename?: 'InventoryShipmentDeletePayload';
-  /** The ID of the inventory shipment that was deleted. */
-  id?: Maybe<Scalars['ID']['output']>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentDeleteUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentDelete`. */
-export type InventoryShipmentDeleteUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentDeleteUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentDeleteUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentDeleteUserError`. */
-export enum InventoryShipmentDeleteUserErrorCode {
-  /** Current shipment status does not support this operation. */
-  InvalidShipmentStatus = 'INVALID_SHIPMENT_STATUS',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND'
-}
-
-/** An auto-generated type which holds one InventoryShipment and a cursor during pagination. */
-export type InventoryShipmentEdge = {
-  __typename?: 'InventoryShipmentEdge';
-  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of InventoryShipmentEdge. */
-  node: InventoryShipment;
-};
-
-/** Represents a single line item within an inventory shipment. */
-export type InventoryShipmentLineItem = Node & {
-  __typename?: 'InventoryShipmentLineItem';
-  /** The quantity of items that were accepted in this shipment line item. */
-  acceptedQuantity: Scalars['Int']['output'];
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The inventory item associated with this line item. */
-  inventoryItem?: Maybe<InventoryItem>;
-  /** The quantity of items in this shipment line item. */
-  quantity: Scalars['Int']['output'];
-  /** The quantity of items that were rejected in this shipment line item. */
-  rejectedQuantity: Scalars['Int']['output'];
-  /** The total quantity of units that haven't been received (neither accepted or rejected) in this shipment line item. */
-  unreceivedQuantity: Scalars['Int']['output'];
-};
-
-/** An auto-generated type for paginating through multiple InventoryShipmentLineItems. */
-export type InventoryShipmentLineItemConnection = {
-  __typename?: 'InventoryShipmentLineItemConnection';
-  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<InventoryShipmentLineItemEdge>;
-  /** A list of nodes that are contained in InventoryShipmentLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<InventoryShipmentLineItem>;
-  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
-  pageInfo: PageInfo;
-};
-
-/** An auto-generated type which holds one InventoryShipmentLineItem and a cursor during pagination. */
-export type InventoryShipmentLineItemEdge = {
-  __typename?: 'InventoryShipmentLineItemEdge';
-  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of InventoryShipmentLineItemEdge. */
-  node: InventoryShipmentLineItem;
-};
-
-/** The input fields for a line item on an inventory shipment. */
-export type InventoryShipmentLineItemInput = {
-  /** The inventory item ID for the shipment line item. */
-  inventoryItemId: Scalars['ID']['input'];
-  /** The quantity for the shipment line item. */
-  quantity: Scalars['Int']['input'];
-};
-
-/** Return type for `inventoryShipmentMarkInTransit` mutation. */
-export type InventoryShipmentMarkInTransitPayload = {
-  __typename?: 'InventoryShipmentMarkInTransitPayload';
-  /** The marked in transit inventory shipment. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentMarkInTransitUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentMarkInTransit`. */
-export type InventoryShipmentMarkInTransitUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentMarkInTransitUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentMarkInTransitUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentMarkInTransitUserError`. */
-export enum InventoryShipmentMarkInTransitUserErrorCode {
-  /** Failed to activate inventory at location. */
-  ActivationFailed = 'ACTIVATION_FAILED',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** Current shipment status does not support this operation. */
-  InvalidShipmentStatus = 'INVALID_SHIPMENT_STATUS',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The list of line items is empty. */
-  ItemsEmpty = 'ITEMS_EMPTY',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** The input fields to receive an item on an inventory shipment. */
-export type InventoryShipmentReceiveItemInput = {
-  /** The quantity for the item to be received. */
-  quantity: Scalars['Int']['input'];
-  /** The reason for received item. */
-  reason: InventoryShipmentReceiveLineItemReason;
-  /** The shipment line item ID to be received. */
-  shipmentLineItemId: Scalars['ID']['input'];
-};
-
-/** The reason for receiving a line item on an inventory shipment. */
-export enum InventoryShipmentReceiveLineItemReason {
-  /** The line item was accepted. */
-  Accepted = 'ACCEPTED',
-  /** The line item was rejected. */
-  Rejected = 'REJECTED'
-}
-
-/** Return type for `inventoryShipmentReceive` mutation. */
-export type InventoryShipmentReceivePayload = {
-  __typename?: 'InventoryShipmentReceivePayload';
-  /** The inventory shipment with received items. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentReceiveUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentReceive`. */
-export type InventoryShipmentReceiveUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentReceiveUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentReceiveUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentReceiveUserError`. */
-export enum InventoryShipmentReceiveUserErrorCode {
-  /** Unexpected internal error happened. */
-  InternalError = 'INTERNAL_ERROR',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** Current shipment status does not support this operation. */
-  InvalidShipmentStatus = 'INVALID_SHIPMENT_STATUS',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND'
-}
-
-/** Return type for `inventoryShipmentRemoveItems` mutation. */
-export type InventoryShipmentRemoveItemsPayload = {
-  __typename?: 'InventoryShipmentRemoveItemsPayload';
-  /** The inventory shipment with items removed. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentRemoveItemsUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentRemoveItems`. */
-export type InventoryShipmentRemoveItemsUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentRemoveItemsUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentRemoveItemsUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentRemoveItemsUserError`. */
-export enum InventoryShipmentRemoveItemsUserErrorCode {
-  /** Unexpected internal error happened. */
-  InternalError = 'INTERNAL_ERROR',
-  /** Current shipment status does not support this operation. */
-  InvalidShipmentStatus = 'INVALID_SHIPMENT_STATUS',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND'
-}
-
-/** Return type for `inventoryShipmentSetTracking` mutation. */
-export type InventoryShipmentSetTrackingPayload = {
-  __typename?: 'InventoryShipmentSetTrackingPayload';
-  /** The inventory shipment with the edited tracking info. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentSetTrackingUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentSetTracking`. */
-export type InventoryShipmentSetTrackingUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentSetTrackingUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentSetTrackingUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentSetTrackingUserError`. */
-export enum InventoryShipmentSetTrackingUserErrorCode {
-  /** The URL is invalid. */
-  InvalidUrl = 'INVALID_URL',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND'
-}
-
-/** The status of an inventory shipment. */
-export enum InventoryShipmentStatus {
-  /** The inventory shipment has been created but not yet shipped. */
-  Draft = 'DRAFT',
-  /** The inventory shipment is currently in transit. */
-  InTransit = 'IN_TRANSIT',
-  /** Status not included in the current enumeration set. */
-  Other = 'OTHER',
-  /** The inventory shipment has been partially received at the destination. */
-  PartiallyReceived = 'PARTIALLY_RECEIVED',
-  /** The inventory shipment has been completely received at the destination. */
-  Received = 'RECEIVED'
-}
-
-/** Represents the tracking information for an inventory shipment. */
-export type InventoryShipmentTracking = {
-  __typename?: 'InventoryShipmentTracking';
-  /** The estimated date and time that the shipment will arrive. */
-  arrivesAt?: Maybe<Scalars['DateTime']['output']>;
-  /** The name of the shipping carrier company. */
-  company?: Maybe<Scalars['String']['output']>;
-  /** The tracking number used by the carrier to identify the shipment. */
-  trackingNumber?: Maybe<Scalars['String']['output']>;
-  /**
-   * The URL to track the shipment.
-   *
-   * Given a tracking number and a shipping carrier company name from
-   * [the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#field-company),
-   * Shopify will return a generated tracking URL if no tracking URL was set manually.
-   */
-  trackingUrl?: Maybe<Scalars['URL']['output']>;
-};
-
-/** The input fields for an inventory shipment's tracking information. */
-export type InventoryShipmentTrackingInput = {
-  /** The estimated date and time that the shipment will arrive. */
-  arrivesAt?: InputMaybe<Scalars['DateTime']['input']>;
-  /**
-   * The name of the shipping carrier company.
-   *
-   * Given a shipping carrier company name from
-   * [the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#field-company),
-   * Shopify can build a tracking URL for a provided tracking number.
-   */
-  company?: InputMaybe<Scalars['String']['input']>;
-  /** The tracking number for the shipment. */
-  trackingNumber?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * The URL to track the shipment.
-   *
-   * Use this field to specify a custom tracking URL. If no custom tracking URL is set, Shopify will automatically provide
-   * this field on query for a tracking number and a supported shipping carrier company from
-   * [the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#field-company).
-   */
-  trackingUrl?: InputMaybe<Scalars['URL']['input']>;
-};
-
-/** The input fields for a line item on an inventory shipment. */
-export type InventoryShipmentUpdateItemQuantitiesInput = {
-  /** The quantity for the shipment line item. */
-  quantity: Scalars['Int']['input'];
-  /** The ID for the inventory shipment line item. */
-  shipmentLineItemId: Scalars['ID']['input'];
-};
-
-/** Return type for `inventoryShipmentUpdateItemQuantities` mutation. */
-export type InventoryShipmentUpdateItemQuantitiesPayload = {
-  __typename?: 'InventoryShipmentUpdateItemQuantitiesPayload';
-  /** The inventory shipment with updated item quantities. */
-  shipment?: Maybe<InventoryShipment>;
-  /** The updated item quantities. */
-  updatedLineItems?: Maybe<Array<InventoryShipmentLineItem>>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryShipmentUpdateItemQuantitiesUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryShipmentUpdateItemQuantities`. */
-export type InventoryShipmentUpdateItemQuantitiesUserError = DisplayableError & {
-  __typename?: 'InventoryShipmentUpdateItemQuantitiesUserError';
-  /** The error code. */
-  code?: Maybe<InventoryShipmentUpdateItemQuantitiesUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryShipmentUpdateItemQuantitiesUserError`. */
-export enum InventoryShipmentUpdateItemQuantitiesUserErrorCode {
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** Current shipment status does not support this operation. */
-  InvalidShipmentStatus = 'INVALID_SHIPMENT_STATUS',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The shipment was not found. */
-  ShipmentNotFound = 'SHIPMENT_NOT_FOUND'
-}
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransfer = CommentEventSubject & HasEvents & HasMetafieldDefinitions & HasMetafields & Node & {
-  __typename?: 'InventoryTransfer';
-  /** The date and time the inventory transfer was created in UTC format. */
-  dateCreated?: Maybe<Scalars['DateTime']['output']>;
-  /** Snapshot of the destination location (name, address, when snapped) with an optional link to the live Location object. If the original location is deleted, the snapshot data will still be available but the location link will be nil. */
-  destination?: Maybe<LocationSnapshot>;
-  /** The list of events associated with the inventory transfer. */
-  events: EventConnection;
-  /** Whether the merchant has added timeline comments to the inventory transfer. */
-  hasTimelineComment: Scalars['Boolean']['output'];
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The line items associated with the inventory transfer. */
-  lineItems: InventoryTransferLineItemConnection;
-  /** The number of line items associated with the inventory transfer. Limited to a maximum of 10000 by default. */
-  lineItemsCount?: Maybe<Count>;
-  /**
-   * A [custom field](https://shopify.dev/docs/apps/build/custom-data),
-   * including its `namespace` and `key`, that's associated with a Shopify resource
-   * for the purposes of adding and storing additional information.
-   */
-  metafield?: Maybe<Metafield>;
-  /**
-   * List of metafield definitions.
-   * @deprecated This field will be removed in a future version. Use `QueryRoot.metafieldDefinitions` instead.
-   */
-  metafieldDefinitions: MetafieldDefinitionConnection;
-  /**
-   * A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
-   * that a merchant associates with a Shopify resource.
-   */
-  metafields: MetafieldConnection;
-  /** The name of the inventory transfer. */
-  name: Scalars['String']['output'];
-  /** Additional note attached to the inventory transfer. */
-  note?: Maybe<Scalars['String']['output']>;
-  /** Snapshot of the origin location (name, address, when snapped) with an optional link to the live Location object. If the original location is deleted, the snapshot data will still be available but the location link will be nil. */
-  origin?: Maybe<LocationSnapshot>;
-  /** The total quantity of items received in the transfer. */
-  receivedQuantity: Scalars['Int']['output'];
-  /** The reference name of the inventory transfer. */
-  referenceName?: Maybe<Scalars['String']['output']>;
-  /** The shipments associated with the inventory transfer. */
-  shipments: InventoryShipmentConnection;
-  /** The current status of the transfer. */
-  status: InventoryTransferStatus;
-  /** A list of tags that have been added to the inventory transfer. */
-  tags: Array<Scalars['String']['output']>;
-  /** The total quantity of items being transferred. */
-  totalQuantity: Scalars['Int']['output'];
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferEventsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<EventSortKeys>;
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferLineItemsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferLineItemsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferMetafieldArgs = {
-  key: Scalars['String']['input'];
-  namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferMetafieldDefinitionsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  pinnedStatus?: InputMaybe<MetafieldDefinitionPinnedStatus>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<MetafieldDefinitionSortKeys>;
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferMetafieldsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  keys?: InputMaybe<Array<Scalars['String']['input']>>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/** Represents the intention to move inventory between locations. */
-export type InventoryTransferShipmentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-/** Return type for `inventoryTransferCancel` mutation. */
-export type InventoryTransferCancelPayload = {
-  __typename?: 'InventoryTransferCancelPayload';
-  /** The cancelled inventory transfer. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferCancelUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferCancel`. */
-export type InventoryTransferCancelUserError = DisplayableError & {
-  __typename?: 'InventoryTransferCancelUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferCancelUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferCancelUserError`. */
-export enum InventoryTransferCancelUserErrorCode {
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** Shipment already exists for the transfer. */
-  ShipmentExists = 'SHIPMENT_EXISTS',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND'
-}
-
-/** An auto-generated type for paginating through multiple InventoryTransfers. */
-export type InventoryTransferConnection = {
-  __typename?: 'InventoryTransferConnection';
-  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<InventoryTransferEdge>;
-  /** A list of nodes that are contained in InventoryTransferEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<InventoryTransfer>;
-  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
-  pageInfo: PageInfo;
-};
-
-/** The input fields to create an inventory transfer. */
-export type InventoryTransferCreateAsReadyToShipInput = {
-  /** The date and time the inventory transfer was created. If left blank, defaults to the current date and time in UTC format. */
-  dateCreated?: InputMaybe<Scalars['DateTime']['input']>;
-  /** The destination location for the inventory transfer. */
-  destinationLocationId: Scalars['ID']['input'];
-  /** The list of line items for the inventory transfer. */
-  lineItems?: Array<InventoryTransferLineItemInput>;
-  /** A note to add to the Inventory Transfer. */
-  note?: InputMaybe<Scalars['String']['input']>;
-  /** The origin location for the inventory transfer. */
-  originLocationId: Scalars['ID']['input'];
-  /** The reference name to add to the inventory transfer. */
-  referenceName?: InputMaybe<Scalars['String']['input']>;
-  /** The tags to add to the inventory transfer. */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-/** Return type for `inventoryTransferCreateAsReadyToShip` mutation. */
-export type InventoryTransferCreateAsReadyToShipPayload = {
-  __typename?: 'InventoryTransferCreateAsReadyToShipPayload';
-  /** The created inventory transfer. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferCreateAsReadyToShipUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferCreateAsReadyToShip`. */
-export type InventoryTransferCreateAsReadyToShipUserError = DisplayableError & {
-  __typename?: 'InventoryTransferCreateAsReadyToShipUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferCreateAsReadyToShipUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferCreateAsReadyToShipUserError`. */
-export enum InventoryTransferCreateAsReadyToShipUserErrorCode {
-  /** Bundled items cannot be used for this operation. */
-  BundledItem = 'BUNDLED_ITEM',
-  /** A single item can't be listed twice. */
-  DuplicateItem = 'DUPLICATE_ITEM',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The list of line items is empty. */
-  ItemsEmpty = 'ITEMS_EMPTY',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The tag exceeds the maximum length. */
-  TagExceedsMaxLength = 'TAG_EXCEEDS_MAX_LENGTH',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND',
-  /** The origin location cannot be the same as the destination location. */
-  TransferOriginCannotBeTheSameAsDestination = 'TRANSFER_ORIGIN_CANNOT_BE_THE_SAME_AS_DESTINATION',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** The input fields to create an inventory transfer. */
-export type InventoryTransferCreateInput = {
-  /** The date and time the inventory transfer was created. If left blank, defaults to the current date and time in UTC format. */
-  dateCreated?: InputMaybe<Scalars['DateTime']['input']>;
-  /** The destination location for the inventory transfer. */
-  destinationLocationId?: InputMaybe<Scalars['ID']['input']>;
-  /** The list of line items for the inventory transfer. */
-  lineItems?: Array<InventoryTransferLineItemInput>;
-  /** A note to add to the Inventory Transfer. */
-  note?: InputMaybe<Scalars['String']['input']>;
-  /** The origin location for the inventory transfer. */
-  originLocationId?: InputMaybe<Scalars['ID']['input']>;
-  /** The reference name to add to the inventory transfer. */
-  referenceName?: InputMaybe<Scalars['String']['input']>;
-  /** The tags to add to the inventory transfer. */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-/** Return type for `inventoryTransferCreate` mutation. */
-export type InventoryTransferCreatePayload = {
-  __typename?: 'InventoryTransferCreatePayload';
-  /** The created inventory transfer. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferCreateUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferCreate`. */
-export type InventoryTransferCreateUserError = DisplayableError & {
-  __typename?: 'InventoryTransferCreateUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferCreateUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferCreateUserError`. */
-export enum InventoryTransferCreateUserErrorCode {
-  /** Bundled items cannot be used for this operation. */
-  BundledItem = 'BUNDLED_ITEM',
-  /** A single item can't be listed twice. */
-  DuplicateItem = 'DUPLICATE_ITEM',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The tag exceeds the maximum length. */
-  TagExceedsMaxLength = 'TAG_EXCEEDS_MAX_LENGTH',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND',
-  /** The origin location cannot be the same as the destination location. */
-  TransferOriginCannotBeTheSameAsDestination = 'TRANSFER_ORIGIN_CANNOT_BE_THE_SAME_AS_DESTINATION',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** Return type for `inventoryTransferDelete` mutation. */
-export type InventoryTransferDeletePayload = {
-  __typename?: 'InventoryTransferDeletePayload';
-  /** The ID of the deleted inventory transfer. */
-  deletedId?: Maybe<Scalars['ID']['output']>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferDeleteUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferDelete`. */
-export type InventoryTransferDeleteUserError = DisplayableError & {
-  __typename?: 'InventoryTransferDeleteUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferDeleteUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferDeleteUserError`. */
-export enum InventoryTransferDeleteUserErrorCode {
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND'
-}
-
-/** Return type for `inventoryTransferDuplicate` mutation. */
-export type InventoryTransferDuplicatePayload = {
-  __typename?: 'InventoryTransferDuplicatePayload';
-  /** The duplicated inventory transfer. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferDuplicateUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferDuplicate`. */
-export type InventoryTransferDuplicateUserError = DisplayableError & {
-  __typename?: 'InventoryTransferDuplicateUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferDuplicateUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferDuplicateUserError`. */
-export enum InventoryTransferDuplicateUserErrorCode {
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND'
-}
-
-/** An auto-generated type which holds one InventoryTransfer and a cursor during pagination. */
-export type InventoryTransferEdge = {
-  __typename?: 'InventoryTransferEdge';
-  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of InventoryTransferEdge. */
-  node: InventoryTransfer;
-};
-
-/** The input fields to edit an inventory transfer. */
-export type InventoryTransferEditInput = {
-  /** The date the inventory transfer was created. */
-  dateCreated?: InputMaybe<Scalars['Date']['input']>;
-  /**
-   * The destination location for the inventory transfer. The destination location can only be
-   * changed for draft transfers.
-   */
-  destinationId?: InputMaybe<Scalars['ID']['input']>;
-  /** A note to add to the Inventory Transfer. */
-  note?: InputMaybe<Scalars['String']['input']>;
-  /**
-   * The origin location for the inventory transfer. The origin location can only be changed
-   * for draft transfers.
-   */
-  originId?: InputMaybe<Scalars['ID']['input']>;
-  /** The reference name to add to the inventory transfer. */
-  referenceName?: InputMaybe<Scalars['String']['input']>;
-  /** The tags to add to the inventory transfer. */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>;
-};
-
-/** Return type for `inventoryTransferEdit` mutation. */
-export type InventoryTransferEditPayload = {
-  __typename?: 'InventoryTransferEditPayload';
-  /** The edited inventory transfer. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferEditUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferEdit`. */
-export type InventoryTransferEditUserError = DisplayableError & {
-  __typename?: 'InventoryTransferEditUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferEditUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferEditUserError`. */
-export enum InventoryTransferEditUserErrorCode {
-  /** Unexpected internal error happened. */
-  InternalError = 'INTERNAL_ERROR',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The tag exceeds the maximum length. */
-  TagExceedsMaxLength = 'TAG_EXCEEDS_MAX_LENGTH',
-  /** The location of a transfer cannot be updated. Only Draft Transfers can mutate their locations. */
-  TransferLocationImmutable = 'TRANSFER_LOCATION_IMMUTABLE',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND',
-  /** The origin location cannot be the same as the destination location. */
-  TransferOriginCannotBeTheSameAsDestination = 'TRANSFER_ORIGIN_CANNOT_BE_THE_SAME_AS_DESTINATION'
-}
-
-/** Represents a line item belonging to an inventory transfer. */
-export type InventoryTransferLineItem = Node & {
-  __typename?: 'InventoryTransferLineItem';
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-  /** The inventory item associated with this line item. */
-  inventoryItem?: Maybe<InventoryItem>;
-  /** The quantity of the item that has been picked for a draft shipment but not yet shipped. */
-  pickedForShipmentQuantity: Scalars['Int']['output'];
-  /** The quantity of the item that can be actioned upon, such as editing the item quantity on the transfer or adding to a shipment. */
-  processableQuantity: Scalars['Int']['output'];
-  /** The quantity of the item that can be shipped. */
-  shippableQuantity: Scalars['Int']['output'];
-  /** The quantity of the item that has been shipped. */
-  shippedQuantity: Scalars['Int']['output'];
-  /** The title of the product associated with this line item. */
-  title?: Maybe<Scalars['String']['output']>;
-  /** The total quantity of items being transferred. */
-  totalQuantity: Scalars['Int']['output'];
-};
-
-/** An auto-generated type for paginating through multiple InventoryTransferLineItems. */
-export type InventoryTransferLineItemConnection = {
-  __typename?: 'InventoryTransferLineItemConnection';
-  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<InventoryTransferLineItemEdge>;
-  /** A list of nodes that are contained in InventoryTransferLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<InventoryTransferLineItem>;
-  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
-  pageInfo: PageInfo;
-};
-
-/** An auto-generated type which holds one InventoryTransferLineItem and a cursor during pagination. */
-export type InventoryTransferLineItemEdge = {
-  __typename?: 'InventoryTransferLineItemEdge';
-  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of InventoryTransferLineItemEdge. */
-  node: InventoryTransferLineItem;
-};
-
-/** The input fields for a line item on an inventory transfer. */
-export type InventoryTransferLineItemInput = {
-  /** The inventory item ID for the transfer line item. */
-  inventoryItemId: Scalars['ID']['input'];
-  /** The quantity for the transfer line item. */
-  quantity: Scalars['Int']['input'];
-};
-
-/** Represents an update to a single transfer line item. */
-export type InventoryTransferLineItemUpdate = {
-  __typename?: 'InventoryTransferLineItemUpdate';
-  /** The delta quantity for the transfer line item. */
-  deltaQuantity?: Maybe<Scalars['Int']['output']>;
-  /** The inventory item ID for the transfer line item. */
-  inventoryItemId?: Maybe<Scalars['ID']['output']>;
-  /** The new quantity for the transfer line item. */
-  newQuantity?: Maybe<Scalars['Int']['output']>;
-};
-
-/** Return type for `inventoryTransferMarkAsReadyToShip` mutation. */
-export type InventoryTransferMarkAsReadyToShipPayload = {
-  __typename?: 'InventoryTransferMarkAsReadyToShipPayload';
-  /** The ready to ship inventory transfer. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferMarkAsReadyToShipUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferMarkAsReadyToShip`. */
-export type InventoryTransferMarkAsReadyToShipUserError = DisplayableError & {
-  __typename?: 'InventoryTransferMarkAsReadyToShipUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferMarkAsReadyToShipUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferMarkAsReadyToShipUserError`. */
-export enum InventoryTransferMarkAsReadyToShipUserErrorCode {
-  /** One or more items are not valid. */
-  InvalidItem = 'INVALID_ITEM',
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The list of line items is empty. */
-  ItemsEmpty = 'ITEMS_EMPTY',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND'
-}
-
-/** The input fields to remove inventory items from a transfer. */
-export type InventoryTransferRemoveItemsInput = {
-  /** The ID of the inventory transfer where the items will be removed. */
-  id: Scalars['ID']['input'];
-  /** The IDs of the transfer line items to be removed from the transfer. */
-  transferLineItemIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-};
-
-/** Return type for `inventoryTransferRemoveItems` mutation. */
-export type InventoryTransferRemoveItemsPayload = {
-  __typename?: 'InventoryTransferRemoveItemsPayload';
-  /** The transfer with line items removed. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The line items that have had their shippable quantity removed. */
-  removedQuantities?: Maybe<Array<InventoryTransferLineItemUpdate>>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferRemoveItemsUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferRemoveItems`. */
-export type InventoryTransferRemoveItemsUserError = DisplayableError & {
-  __typename?: 'InventoryTransferRemoveItemsUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferRemoveItemsUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferRemoveItemsUserError`. */
-export enum InventoryTransferRemoveItemsUserErrorCode {
-  /** The item cannot have its shippable quantity removed if all of its quantity is fully allocated in one or more shipments. */
-  AllQuantityShipped = 'ALL_QUANTITY_SHIPPED',
-  /** A ready to ship transfer must have at least one item. */
-  CantRemoveAllItemsFromReadyToShipTransfer = 'CANT_REMOVE_ALL_ITEMS_FROM_READY_TO_SHIP_TRANSFER',
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The item cannot be removed because it exists in a draft shipment with zero quantity. */
-  ItemPresentOnDraftShipmentWithZeroQuantity = 'ITEM_PRESENT_ON_DRAFT_SHIPMENT_WITH_ZERO_QUANTITY',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND'
-}
-
-/** The input fields to the InventoryTransferSetItems mutation. */
-export type InventoryTransferSetItemsInput = {
-  /** The ID of the inventory transfer where the items will be set. */
-  id: Scalars['ID']['input'];
-  /** The line items to be set on the Transfer. */
-  lineItems: Array<InventoryTransferLineItemInput>;
-};
-
-/** Return type for `inventoryTransferSetItems` mutation. */
-export type InventoryTransferSetItemsPayload = {
-  __typename?: 'InventoryTransferSetItemsPayload';
-  /** The Transfer with its line items updated. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** The updated line items. */
-  updatedLineItems?: Maybe<Array<InventoryTransferLineItemUpdate>>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<InventoryTransferSetItemsUserError>;
-};
-
-/** An error that occurs during the execution of `InventoryTransferSetItems`. */
-export type InventoryTransferSetItemsUserError = DisplayableError & {
-  __typename?: 'InventoryTransferSetItemsUserError';
-  /** The error code. */
-  code?: Maybe<InventoryTransferSetItemsUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `InventoryTransferSetItemsUserError`. */
-export enum InventoryTransferSetItemsUserErrorCode {
-  /** Bundled items cannot be used for this operation. */
-  BundledItem = 'BUNDLED_ITEM',
-  /** A single item can't be listed twice. */
-  DuplicateItem = 'DUPLICATE_ITEM',
-  /** The quantity is invalid. */
-  InvalidQuantity = 'INVALID_QUANTITY',
-  /** Current transfer status does not support this operation. */
-  InvalidTransferStatus = 'INVALID_TRANSFER_STATUS',
-  /** The item is not stocked at the intended location. */
-  InventoryStateNotActive = 'INVENTORY_STATE_NOT_ACTIVE',
-  /** The item was not found. */
-  ItemNotFound = 'ITEM_NOT_FOUND',
-  /** The location selected is not active. */
-  LocationNotActive = 'LOCATION_NOT_ACTIVE',
-  /** The location selected can't be found. */
-  LocationNotFound = 'LOCATION_NOT_FOUND',
-  /** The transfer was not found. */
-  TransferNotFound = 'TRANSFER_NOT_FOUND',
-  /** The item does not track inventory. */
-  UntrackedItem = 'UNTRACKED_ITEM'
-}
-
-/** The status of a transfer. */
-export enum InventoryTransferStatus {
-  /** The inventory transfer has been canceled. */
-  Canceled = 'CANCELED',
-  /** The inventory transfer has been created but not yet finalized. */
-  Draft = 'DRAFT',
-  /** The inventory transfer is in progress, with a shipment currently underway or received. */
-  InProgress = 'IN_PROGRESS',
-  /** Status not included in the current enumeration set. */
-  Other = 'OTHER',
-  /** The inventory transfer has been created, but not yet shipped. */
-  ReadyToShip = 'READY_TO_SHIP',
-  /** The inventory transfer has been completely received at the destination. */
-  Transferred = 'TRANSFERRED'
-}
-
-/** The financial transfer details for a return outcome that results in an invoice. */
-export type InvoiceReturnOutcome = {
-  __typename?: 'InvoiceReturnOutcome';
-  /** The total monetary value to be invoiced in shop and presentment currencies. */
-  amount: MoneyBag;
-};
 
 /** A job corresponds to some long running task that the client should poll for status. */
 export type Job = {
@@ -26171,8 +24806,6 @@ export type LineItemGroup = Node & {
   customAttributes: Array<Attribute>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
-  /** ID of the product of the line item group. */
-  productId?: Maybe<Scalars['ID']['output']>;
   /** Quantity of the line item group on the order. */
   quantity: Scalars['Int']['output'];
   /** Title of the line item group. */
@@ -27114,19 +25747,6 @@ export type LocationLocalPickupEnablePayload = {
   userErrors: Array<DeliveryLocationLocalPickupSettingsError>;
 };
 
-/** A snapshot of location details including name and address captured at a specific point in time. Refer to the parent model to know the lifecycle. */
-export type LocationSnapshot = {
-  __typename?: 'LocationSnapshot';
-  /** The address details of the location as they were when the snapshot was recorded. */
-  address: LocationAddress;
-  /** A reference to the live Location object, if it still exists and is accessible. This provides current details of the location, which may differ from the snapshotted name and address. */
-  location?: Maybe<Location>;
-  /** The name of the location as it was when the snapshot was recorded. */
-  name: Scalars['String']['output'];
-  /** The date and time when these snapshot details (name and address) were recorded. */
-  snapshottedAt: Scalars['DateTime']['output'];
-};
-
 /** The set of valid sort keys for the Location query. */
 export enum LocationSortKeys {
   /** Sort by the `id` value. */
@@ -27760,8 +26380,6 @@ export type MarketCurrencySettings = {
    * in the market's base currency.
    */
   localCurrencies: Scalars['Boolean']['output'];
-  /** Whether or not rounding is enabled on multi-currency prices. */
-  roundingEnabled: Scalars['Boolean']['output'];
 };
 
 /** The input fields used to update the currency settings of a market. */
@@ -28196,8 +26814,6 @@ export enum MarketUserErrorCode {
   MultipleCurrenciesNotSupported = 'MULTIPLE_CURRENCIES_NOT_SUPPORTED',
   /** Can’t delete, disable, or change the type of the last region market. */
   MustHaveAtLeastOneActiveRegionMarket = 'MUST_HAVE_AT_LEAST_ONE_ACTIVE_REGION_MARKET',
-  /** Your shop is not entitled to activate markets of this type. */
-  NotEntitledToActivateMarket = 'NOT_ENTITLED_TO_ACTIVATE_MARKET',
   /** No languages selected. */
   NoLanguages = 'NO_LANGUAGES',
   /** Can't enable or disable local currencies on a single country market. */
@@ -29192,39 +27808,6 @@ export type MarketsRegionsEntitlement = {
   enabled: Scalars['Boolean']['output'];
 };
 
-/** The resolved values based on the markets configuration for a buyer signal. Resolved values include the resolved catalogs, web presences, currency, and price inclusivity. */
-export type MarketsResolvedValues = {
-  __typename?: 'MarketsResolvedValues';
-  /** The resolved catalogs. */
-  catalogs: MarketCatalogConnection;
-  /** The resolved currency code. */
-  currencyCode: CurrencyCode;
-  /** The resolved price inclusivity attributes. */
-  priceInclusivity: ResolvedPriceInclusivity;
-  /** The resolved web presences ordered by priority. */
-  webPresences: MarketWebPresenceConnection;
-};
-
-
-/** The resolved values based on the markets configuration for a buyer signal. Resolved values include the resolved catalogs, web presences, currency, and price inclusivity. */
-export type MarketsResolvedValuesCatalogsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/** The resolved values based on the markets configuration for a buyer signal. Resolved values include the resolved catalogs, web presences, currency, and price inclusivity. */
-export type MarketsResolvedValuesWebPresencesArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
 /** The entitlements for retail markets. */
 export type MarketsRetailEntitlement = {
   __typename?: 'MarketsRetailEntitlement';
@@ -30002,8 +28585,28 @@ export type MetafieldAccess = {
   admin?: Maybe<MetafieldAdminAccess>;
   /** The access permitted on the Customer Account API. */
   customerAccount: MetafieldCustomerAccountAccess;
+  /**
+   * The explicit grants for this metafield definition, superseding the default admin access
+   * for the specified grantees.
+   * @deprecated Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
+   *  This will be removed in 2025-07.
+   */
+  grants: Array<MetafieldAccessGrant>;
   /** The access permitted on the Storefront API. */
   storefront?: Maybe<MetafieldStorefrontAccess>;
+};
+
+/**
+ * An explicit access grant for the metafields under this definition.
+ *
+ * Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
+ */
+export type MetafieldAccessGrant = {
+  __typename?: 'MetafieldAccessGrant';
+  /** The level of access the grantee has. */
+  access: MetafieldGrantAccessLevel;
+  /** The grantee being granted access. */
+  grantee: Scalars['String']['output'];
 };
 
 /** The input fields that set access permissions for the definition's metafields. */
@@ -30395,6 +28998,8 @@ export enum MetafieldDefinitionCreateUserErrorCode {
   CapabilityRequiredButDisabled = 'CAPABILITY_REQUIRED_BUT_DISABLED',
   /** A duplicate option. */
   DuplicateOption = 'DUPLICATE_OPTION',
+  /** The maximum limit of grants per definition type has been exceeded. */
+  GrantLimitExceeded = 'GRANT_LIMIT_EXCEEDED',
   /** The input value isn't included in the list. */
   Inclusion = 'INCLUSION',
   /** The input value is invalid. */
@@ -30772,6 +29377,8 @@ export enum MetafieldDefinitionUpdateUserErrorCode {
   DisallowedOwnerType = 'DISALLOWED_OWNER_TYPE',
   /** A duplicate option. */
   DuplicateOption = 'DUPLICATE_OPTION',
+  /** The maximum limit of grants per definition type has been exceeded. */
+  GrantLimitExceeded = 'GRANT_LIMIT_EXCEEDED',
   /** An internal error occurred. */
   InternalError = 'INTERNAL_ERROR',
   /** The metafield definition capability is invalid. */
@@ -30855,6 +29462,14 @@ export type MetafieldEdge = {
   /** The item at the end of MetafieldEdge. */
   node: Metafield;
 };
+
+/** Possible access levels for explicit metafield access grants. */
+export enum MetafieldGrantAccessLevel {
+  /** Read metafield access. */
+  Read = 'READ',
+  /** Read and write metafield access. */
+  ReadWrite = 'READ_WRITE'
+}
 
 /** Identifies a metafield by its owner resource, namespace, and key. */
 export type MetafieldIdentifier = {
@@ -32251,8 +30866,6 @@ export type Mutation = {
   appSubscriptionLineItemUpdate?: Maybe<AppSubscriptionLineItemUpdatePayload>;
   /** Extends the trial of an app subscription. */
   appSubscriptionTrialExtend?: Maybe<AppSubscriptionTrialExtendPayload>;
-  /** Uninstalls an app. */
-  appUninstall?: Maybe<AppUninstallPayload>;
   /**
    * Enables an app to charge a store for features or services on a per-use basis.
    * The usage charge value is counted towards the `cappedAmount` limit that was specified in the `appUsagePricingDetails` field when the app subscription was created.
@@ -33041,6 +31654,11 @@ export type Mutation = {
   draftOrderCreate?: Maybe<DraftOrderCreatePayload>;
   /** Creates a draft order from order. */
   draftOrderCreateFromOrder?: Maybe<DraftOrderCreateFromOrderPayload>;
+  /**
+   * Creates a merchant checkout for the given draft order.
+   * @deprecated This mutation is no longer supported.
+   */
+  draftOrderCreateMerchantCheckout?: Maybe<DraftOrderCreateMerchantCheckoutPayload>;
   /** Deletes a draft order. */
   draftOrderDelete?: Maybe<DraftOrderDeletePayload>;
   /** Duplicates a draft order. */
@@ -33419,48 +32037,6 @@ export type Mutation = {
   inventorySetQuantities?: Maybe<InventorySetQuantitiesPayload>;
   /** Set up scheduled changes of inventory items. */
   inventorySetScheduledChanges?: Maybe<InventorySetScheduledChangesPayload>;
-  /** Adds items to an inventory shipment. */
-  inventoryShipmentAddItems?: Maybe<InventoryShipmentAddItemsPayload>;
-  /** Adds a draft shipment to an inventory transfer. */
-  inventoryShipmentCreate?: Maybe<InventoryShipmentCreatePayload>;
-  /** Adds an in-transit shipment to an inventory transfer. */
-  inventoryShipmentCreateInTransit?: Maybe<InventoryShipmentCreateInTransitPayload>;
-  /** Deletes an inventory shipment. Only draft shipments can be deleted. */
-  inventoryShipmentDelete?: Maybe<InventoryShipmentDeletePayload>;
-  /** Marks a draft inventory shipment as in transit. */
-  inventoryShipmentMarkInTransit?: Maybe<InventoryShipmentMarkInTransitPayload>;
-  /** Receive an inventory shipment. */
-  inventoryShipmentReceive?: Maybe<InventoryShipmentReceivePayload>;
-  /** Remove items from an inventory shipment. */
-  inventoryShipmentRemoveItems?: Maybe<InventoryShipmentRemoveItemsPayload>;
-  /** Edits the tracking info on an inventory shipment. */
-  inventoryShipmentSetTracking?: Maybe<InventoryShipmentSetTrackingPayload>;
-  /** Updates items on an inventory shipment. */
-  inventoryShipmentUpdateItemQuantities?: Maybe<InventoryShipmentUpdateItemQuantitiesPayload>;
-  /** Cancels an inventory transfer. */
-  inventoryTransferCancel?: Maybe<InventoryTransferCancelPayload>;
-  /** Creates an inventory transfer. */
-  inventoryTransferCreate?: Maybe<InventoryTransferCreatePayload>;
-  /** Creates an inventory transfer in ready to ship. */
-  inventoryTransferCreateAsReadyToShip?: Maybe<InventoryTransferCreateAsReadyToShipPayload>;
-  /** Deletes an inventory transfer. */
-  inventoryTransferDelete?: Maybe<InventoryTransferDeletePayload>;
-  /**
-   * This mutation allows duplicating an existing inventory transfer. The duplicated transfer will have the same
-   * line items and quantities as the original transfer, but will be in a draft state with no shipments.
-   */
-  inventoryTransferDuplicate?: Maybe<InventoryTransferDuplicatePayload>;
-  /** Edits an inventory transfer. */
-  inventoryTransferEdit?: Maybe<InventoryTransferEditPayload>;
-  /** Sets an inventory transfer to ready to ship. */
-  inventoryTransferMarkAsReadyToShip?: Maybe<InventoryTransferMarkAsReadyToShipPayload>;
-  /**
-   * This mutation allows removing the shippable quantities of line items on a Transfer.
-   * It removes all quantities of the item from the transfer that are not associated with shipments.
-   */
-  inventoryTransferRemoveItems?: Maybe<InventoryTransferRemoveItemsPayload>;
-  /** This mutation allows for the setting of line items on a Transfer. Will replace the items already set, if any. */
-  inventoryTransferSetItems?: Maybe<InventoryTransferSetItemsPayload>;
   /**
    * Activates a location so that you can stock inventory at the location. Refer to the
    * [`isActive`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Location#field-isactive) and
@@ -33748,10 +32324,6 @@ export type Mutation = {
    * fully paid.
    */
   orderCreateManualPayment?: Maybe<OrderCreateManualPaymentPayload>;
-  /** Removes customer from an order. */
-  orderCustomerRemove?: Maybe<OrderCustomerRemovePayload>;
-  /** Sets a customer on an order. */
-  orderCustomerSet?: Maybe<OrderCustomerSetPayload>;
   /** Deletes an order. For more information on which orders can be deleted, refer to [Delete an order](https://help.shopify.com/manual/orders/cancel-delete-order#delete-an-order). */
   orderDelete?: Maybe<OrderDeletePayload>;
   /** Adds a custom line item to an existing order. For example, you could add a gift wrapping service as a [custom line item](https://shopify.dev/apps/fulfillment/order-management-apps/order-editing#add-a-custom-line-item). To learn how to edit existing orders, refer to [Edit an existing order with Admin API](https://shopify.dev/apps/fulfillment/order-management-apps/order-editing). */
@@ -34471,8 +33043,6 @@ export type Mutation = {
    * any restocking input.
    */
   refundCreate?: Maybe<RefundCreatePayload>;
-  /** Removes return and/or exchange lines from a return. */
-  removeFromReturn?: Maybe<RemoveFromReturnPayload>;
   /**
    * Approves a customer's return request.
    * If this mutation is successful, then the `Return.status` field of the
@@ -34530,8 +33100,6 @@ export type Mutation = {
    * @deprecated Use `removeFromReturn` instead.
    */
   returnLineItemRemoveFromReturn?: Maybe<ReturnLineItemRemoveFromReturnPayload>;
-  /** Process a return. */
-  returnProcess?: Maybe<ReturnProcessPayload>;
   /**
    * Refunds a return when its status is `OPEN` or `CLOSED` and associates it with the related return request.
    * @deprecated Use `returnProcess` instead.
@@ -35054,7 +33622,6 @@ export type MutationBulkOperationCancelArgs = {
 /** The schema's entry point for all mutation operations. */
 export type MutationBulkOperationRunMutationArgs = {
   clientIdentifier?: InputMaybe<Scalars['String']['input']>;
-  groupObjects?: Scalars['Boolean']['input'];
   mutation: Scalars['String']['input'];
   stagedUploadPath: Scalars['String']['input'];
 };
@@ -35062,7 +33629,6 @@ export type MutationBulkOperationRunMutationArgs = {
 
 /** The schema's entry point for all mutation operations. */
 export type MutationBulkOperationRunQueryArgs = {
-  groupObjects?: Scalars['Boolean']['input'];
   query: Scalars['String']['input'];
 };
 
@@ -36000,6 +34566,12 @@ export type MutationDraftOrderCreateFromOrderArgs = {
 
 
 /** The schema's entry point for all mutation operations. */
+export type MutationDraftOrderCreateMerchantCheckoutArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/** The schema's entry point for all mutation operations. */
 export type MutationDraftOrderDeleteArgs = {
   input: DraftOrderDeleteInput;
 };
@@ -36146,7 +34718,6 @@ export type MutationFulfillmentOrderAcceptCancellationRequestArgs = {
 
 /** The schema's entry point for all mutation operations. */
 export type MutationFulfillmentOrderAcceptFulfillmentRequestArgs = {
-  estimatedShippedAt?: InputMaybe<Scalars['DateTime']['input']>;
   id: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
 };
@@ -36405,121 +34976,6 @@ export type MutationInventorySetQuantitiesArgs = {
 /** The schema's entry point for all mutation operations. */
 export type MutationInventorySetScheduledChangesArgs = {
   input: InventorySetScheduledChangesInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentAddItemsArgs = {
-  id: Scalars['ID']['input'];
-  lineItems: Array<InventoryShipmentLineItemInput>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentCreateArgs = {
-  input: InventoryShipmentCreateInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentCreateInTransitArgs = {
-  input: InventoryShipmentCreateInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentDeleteArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentMarkInTransitArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentReceiveArgs = {
-  bulkReceiveAction?: InputMaybe<InventoryShipmentReceiveLineItemReason>;
-  id: Scalars['ID']['input'];
-  lineItems?: InputMaybe<Array<InventoryShipmentReceiveItemInput>>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentRemoveItemsArgs = {
-  id: Scalars['ID']['input'];
-  lineItems: Array<Scalars['ID']['input']>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentSetTrackingArgs = {
-  id: Scalars['ID']['input'];
-  tracking: InventoryShipmentTrackingInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryShipmentUpdateItemQuantitiesArgs = {
-  id: Scalars['ID']['input'];
-  items?: InputMaybe<Array<InventoryShipmentUpdateItemQuantitiesInput>>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferCancelArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferCreateArgs = {
-  input: InventoryTransferCreateInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferCreateAsReadyToShipArgs = {
-  input: InventoryTransferCreateAsReadyToShipInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferDeleteArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferDuplicateArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferEditArgs = {
-  id: Scalars['ID']['input'];
-  input: InventoryTransferEditInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferMarkAsReadyToShipArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferRemoveItemsArgs = {
-  input: InventoryTransferRemoveItemsInput;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationInventoryTransferSetItemsArgs = {
-  input: InventoryTransferSetItemsInput;
 };
 
 
@@ -36847,7 +35303,7 @@ export type MutationOrderCancelArgs = {
   notifyCustomer?: InputMaybe<Scalars['Boolean']['input']>;
   orderId: Scalars['ID']['input'];
   reason: OrderCancelReason;
-  refundMethod?: InputMaybe<OrderCancelRefundMethodInput>;
+  refund: Scalars['Boolean']['input'];
   restock: Scalars['Boolean']['input'];
   staffNote?: InputMaybe<Scalars['String']['input']>;
 };
@@ -36888,20 +35344,6 @@ export type MutationOrderCreateManualPaymentArgs = {
   amount?: InputMaybe<MoneyInput>;
   id: Scalars['ID']['input'];
   paymentMethodName?: InputMaybe<Scalars['String']['input']>;
-  processedAt?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationOrderCustomerRemoveArgs = {
-  orderId: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationOrderCustomerSetArgs = {
-  customerId: Scalars['ID']['input'];
-  orderId: Scalars['ID']['input'];
 };
 
 
@@ -37491,14 +35933,6 @@ export type MutationRefundCreateArgs = {
 
 
 /** The schema's entry point for all mutation operations. */
-export type MutationRemoveFromReturnArgs = {
-  exchangeLineItems?: InputMaybe<Array<ExchangeLineItemRemoveFromReturnInput>>;
-  returnId: Scalars['ID']['input'];
-  returnLineItems?: InputMaybe<Array<ReturnLineItemRemoveFromReturnInput>>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
 export type MutationReturnApproveRequestArgs = {
   input: ReturnApproveRequestInput;
 };
@@ -37532,12 +35966,6 @@ export type MutationReturnDeclineRequestArgs = {
 export type MutationReturnLineItemRemoveFromReturnArgs = {
   returnId: Scalars['ID']['input'];
   returnLineItems: Array<ReturnLineItemRemoveFromReturnInput>;
-};
-
-
-/** The schema's entry point for all mutation operations. */
-export type MutationReturnProcessArgs = {
-  input: ReturnProcessInput;
 };
 
 
@@ -37774,7 +36202,7 @@ export type MutationStandardMetafieldDefinitionEnableArgs = {
   key?: InputMaybe<Scalars['String']['input']>;
   namespace?: InputMaybe<Scalars['String']['input']>;
   ownerType: MetafieldOwnerType;
-  pin?: InputMaybe<Scalars['Boolean']['input']>;
+  pin?: Scalars['Boolean']['input'];
 };
 
 
@@ -38300,14 +36728,6 @@ export type Node = {
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
 };
-
-/** The valid values for the notification usage, specifying the intended notification environment usage for certain operations. */
-export enum NotificationUsage {
-  /** The notification environment is sms. */
-  Sms = 'SMS',
-  /** The notification environment is web. */
-  Web = 'WEB'
-}
 
 /** The input fields for dimensions of an object. */
 export type ObjectDimensionsInput = {
@@ -38984,8 +37404,6 @@ export type Order = CommentEventSubject & HasEvents & HasLocalizationExtensions 
    * Commonly used for special delivery instructions, gift messages, or internal processing notes.
    */
   note?: Maybe<Scalars['String']['output']>;
-  /** The order number used to generate the name using the store's configured order number prefix/suffix. This number isn't guaranteed to follow a consecutive integer sequence (e.g. 1, 2, 3..), nor is it guaranteed to be unique across multiple stores, or even for a single store. */
-  number: Scalars['Int']['output'];
   /**
    * The total amount of all additional fees, such as import fees or taxes, that were applied when an order was created.
    * Returns `null` if additional fees aren't applicable.
@@ -39494,7 +37912,6 @@ export type OrderFulfillmentOrdersArgs = {
  */
 export type OrderFulfillmentsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -39874,39 +38291,9 @@ export type OrderShippingLinesArgs = {
  *
  * Learn more about [building apps for orders and fulfillment](https://shopify.dev/docs/apps/build/orders-fulfillment).
  */
-export type OrderStatusPageUrlArgs = {
-  audience?: InputMaybe<Audience>;
-  notificationUsage?: InputMaybe<NotificationUsage>;
-};
-
-
-/**
- * The `Order` object represents a customer's request to purchase one or more products from a store. Use the `Order` object to handle the complete purchase lifecycle from checkout to fulfillment.
- *
- * Use the `Order` object when you need to:
- *
- * - Display order details on customer account pages or admin dashboards.
- * - Create orders for phone sales, wholesale customers, or subscription services.
- * - Update order information like shipping addresses, notes, or fulfillment status.
- * - Process returns, exchanges, and partial refunds.
- * - Generate invoices, receipts, and shipping labels.
- *
- * The `Order` object serves as the central hub connecting customer information, product details, payment processing, and fulfillment data within the GraphQL Admin API schema.
- *
- * > Note:
- * > Only the last 60 days' worth of orders from a store are accessible from the `Order` object by default. If you want to access older records,
- * > then you need to [request access to all orders](https://shopify.dev/docs/api/usage/access-scopes#orders-permissions). If your app is granted
- * > access, then you can add the `read_all_orders`, `read_orders`, and `write_orders` scopes.
- *
- * > Caution:
- * > Only use orders data if it's required for your app's functionality. Shopify will restrict [access to scopes](https://shopify.dev/docs/api/usage/access-scopes#requesting-specific-permissions) for apps that don't have a legitimate use for the associated data.
- *
- * Learn more about [building apps for orders and fulfillment](https://shopify.dev/docs/apps/build/orders-fulfillment).
- */
 export type OrderSuggestedRefundArgs = {
   refundDuties?: InputMaybe<Array<RefundDutyInput>>;
   refundLineItems?: InputMaybe<Array<RefundLineItemInput>>;
-  refundMethodAllocation?: InputMaybe<RefundMethodAllocation>;
   refundShipping?: InputMaybe<Scalars['Boolean']['input']>;
   shippingAmount?: InputMaybe<Scalars['Money']['input']>;
   suggestFullRefund?: InputMaybe<Scalars['Boolean']['input']>;
@@ -40090,20 +38477,6 @@ export enum OrderCancelReason {
   Staff = 'STAFF'
 }
 
-/** The input fields used to specify the refund method for an order cancellation. */
-export type OrderCancelRefundMethodInput = {
-  /** Whether to refund to the original payment method. */
-  originalPaymentMethodsRefund?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether to refund to store credit. */
-  storeCreditRefund?: InputMaybe<OrderCancelStoreCreditRefundInput>;
-};
-
-/** The input fields used to refund to store credit. */
-export type OrderCancelStoreCreditRefundInput = {
-  /** The expiration date of the store credit. */
-  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
 /** Errors related to order cancellation. */
 export type OrderCancelUserError = DisplayableError & {
   __typename?: 'OrderCancelUserError';
@@ -40124,15 +38497,7 @@ export enum OrderCancelUserErrorCode {
   /** The record with the ID used as the input value couldn't be found. */
   NotFound = 'NOT_FOUND',
   /** An order refund was requested but the user does not have the refund_orders permission. */
-  NoRefundPermission = 'NO_REFUND_PERMISSION',
-  /** An order refund was requested but the user does not have the refund_to_store_credit permission. */
-  NoRefundToStoreCreditPermission = 'NO_REFUND_TO_STORE_CREDIT_PERMISSION',
-  /** A store credit order refund was requested but the order is a B2B order. */
-  StoreCreditRefundB2BNotSupported = 'STORE_CREDIT_REFUND_B2B_NOT_SUPPORTED',
-  /** A store credit order refund was requested but the expiration date is in the past. */
-  StoreCreditRefundExpirationInPast = 'STORE_CREDIT_REFUND_EXPIRATION_IN_PAST',
-  /** A store credit order refund was requested but the order has no customer. */
-  StoreCreditRefundMissingCustomer = 'STORE_CREDIT_REFUND_MISSING_CUSTOMER'
+  NoRefundPermission = 'NO_REFUND_PERMISSION'
 }
 
 /** Details about the order cancellation. */
@@ -40470,9 +38835,7 @@ export enum OrderCreateManualPaymentOrderCreateManualPaymentErrorCode {
   /** Order is temporarily unavailable. */
   OrderIsTemporarilyUnavailable = 'ORDER_IS_TEMPORARILY_UNAVAILABLE',
   /** Order is not found. */
-  OrderNotFound = 'ORDER_NOT_FOUND',
-  /** Indicates that the processedAt field is invalid, such as when it references a future date. */
-  ProcessedAtInvalid = 'PROCESSED_AT_INVALID'
+  OrderNotFound = 'ORDER_NOT_FOUND'
 }
 
 /** Return type for `orderCreateManualPayment` mutation. */
@@ -40729,68 +39092,6 @@ export enum OrderCreateUserErrorCode {
   ShopDormant = 'SHOP_DORMANT',
   /** Indicates that the tax line rate is missing - only enforced for LineItem or ShippingLine-level tax lines. */
   TaxLineRateMissing = 'TAX_LINE_RATE_MISSING'
-}
-
-/** Return type for `orderCustomerRemove` mutation. */
-export type OrderCustomerRemovePayload = {
-  __typename?: 'OrderCustomerRemovePayload';
-  /** The order that had its customer removed. */
-  order?: Maybe<Order>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<OrderCustomerRemoveUserError>;
-};
-
-/** Errors related to order customer removal. */
-export type OrderCustomerRemoveUserError = DisplayableError & {
-  __typename?: 'OrderCustomerRemoveUserError';
-  /** The error code. */
-  code?: Maybe<OrderCustomerRemoveUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `OrderCustomerRemoveUserError`. */
-export enum OrderCustomerRemoveUserErrorCode {
-  /** The input value is invalid. */
-  Invalid = 'INVALID',
-  /** The record with the ID used as the input value couldn't be found. */
-  NotFound = 'NOT_FOUND',
-  /** An error ocurred while saving the order. */
-  NotSaved = 'NOT_SAVED'
-}
-
-/** Return type for `orderCustomerSet` mutation. */
-export type OrderCustomerSetPayload = {
-  __typename?: 'OrderCustomerSetPayload';
-  /** The order that had a customer set. */
-  order?: Maybe<Order>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<OrderCustomerSetUserError>;
-};
-
-/** Errors related to order customer set. */
-export type OrderCustomerSetUserError = DisplayableError & {
-  __typename?: 'OrderCustomerSetUserError';
-  /** The error code. */
-  code?: Maybe<OrderCustomerSetUserErrorCode>;
-  /** The path to the input field that caused the error. */
-  field?: Maybe<Array<Scalars['String']['output']>>;
-  /** The error message. */
-  message: Scalars['String']['output'];
-};
-
-/** Possible error codes that can be returned by `OrderCustomerSetUserError`. */
-export enum OrderCustomerSetUserErrorCode {
-  /** The input value is invalid. */
-  Invalid = 'INVALID',
-  /** The record with the ID used as the input value couldn't be found. */
-  NotFound = 'NOT_FOUND',
-  /** The customer does not have the permissions to place this order. */
-  NotPermitted = 'NOT_PERMITTED',
-  /** An error ocurred while saving the order. */
-  NotSaved = 'NOT_SAVED'
 }
 
 /** Return type for `orderDelete` mutation. */
@@ -41633,10 +39934,6 @@ export type OrderTransaction = Node & {
   authorizationExpiresAt?: Maybe<Scalars['DateTime']['output']>;
   /** Date and time when the transaction was created. */
   createdAt: Scalars['DateTime']['output'];
-  /** An adjustment on the transaction showing the amount lost or gained  due to fluctuations in the currency exchange rate. */
-  currencyExchangeAdjustment?: Maybe<CurrencyExchangeAdjustment>;
-  /** The Shopify Point of Sale device used to process the transaction. */
-  device?: Maybe<PointOfSaleDevice>;
   /** A standardized error code, independent of the payment provider. */
   errorCode?: Maybe<OrderTransactionErrorCode>;
   /** The transaction fees charged on the order transaction. Only present for Shopify Payments transactions. */
@@ -41649,8 +39946,6 @@ export type OrderTransaction = Node & {
   id: Scalars['ID']['output'];
   /** The kind of transaction. */
   kind: OrderTransactionKind;
-  /** The physical location where the transaction was processed. */
-  location?: Maybe<Location>;
   /** Whether the transaction is processed by manual payment gateway. */
   manualPaymentGateway: Scalars['Boolean']['output'];
   /** Whether the transaction can be manually captured. */
@@ -42351,7 +40646,7 @@ export type PaymentCustomizationUpdatePayload = {
 };
 
 /** Payment details related to a transaction. */
-export type PaymentDetails = CardPaymentDetails | LocalPaymentMethodsPaymentDetails | PaypalWalletPaymentDetails | ShopPayInstallmentsPaymentDetails;
+export type PaymentDetails = CardPaymentDetails | LocalPaymentMethodsPaymentDetails | ShopPayInstallmentsPaymentDetails;
 
 /** All possible instrument outputs for Payment Mandates. */
 export type PaymentInstrument = VaultCreditCard | VaultPaypalBillingAgreement;
@@ -42692,39 +40987,6 @@ export enum PaypalExpressSubscriptionsGatewayStatus {
   /** The status is pending. */
   Pending = 'PENDING'
 }
-
-/** PayPal Wallet payment details related to a transaction. */
-export type PaypalWalletPaymentDetails = BasePaymentDetails & {
-  __typename?: 'PaypalWalletPaymentDetails';
-  /** The name of payment method used by the buyer. */
-  paymentMethodName?: Maybe<Scalars['String']['output']>;
-};
-
-/** A location for in-store pickup. */
-export type PickupInStoreLocation = {
-  __typename?: 'PickupInStoreLocation';
-  /** The code of the pickup location. */
-  code: Scalars['String']['output'];
-  /** Distance from the buyer to the pickup location. */
-  distanceFromBuyer?: Maybe<Distance>;
-  /** A unique identifier for this pickup location. */
-  handle: Scalars['String']['output'];
-  /** Pickup instructions. */
-  instructions: Scalars['String']['output'];
-  /** The location ID of the pickup location. */
-  locationId: Scalars['ID']['output'];
-  /** The source of the pickup location. */
-  source: Scalars['String']['output'];
-  /** Title of the pickup location. */
-  title: Scalars['String']['output'];
-};
-
-/** Represents a mobile device that Shopify Point of Sale has been installed on. */
-export type PointOfSaleDevice = Node & {
-  __typename?: 'PointOfSaleDevice';
-  /** A globally-unique ID. */
-  id: Scalars['ID']['output'];
-};
 
 /** The input fields used to include the line items of a specified fulfillment order that should be marked as prepared for pickup by a customer. */
 export type PreparedFulfillmentOrderLineItemsInput = {
@@ -44433,18 +42695,6 @@ export type Product = HasEvents & HasMetafieldDefinitions & HasMetafields & HasP
    */
   productCategory?: Maybe<ProductCategory>;
   /**
-   * A list of products that contain at least one variant associated with
-   * at least one of the current products' variants via group relationship.
-   */
-  productComponents: ProductComponentTypeConnection;
-  /**
-   * A count of unique products that contain at least one variant associated with
-   * at least one of the current products' variants via group relationship.
-   */
-  productComponentsCount?: Maybe<Count>;
-  /** A list of products that has a variant that contains any of this product's variants as a component. */
-  productParents: ProductConnection;
-  /**
    * A list of the channels where the product is published.
    * @deprecated Use `resourcePublications` instead.
    */
@@ -44864,47 +43114,6 @@ export type ProductMetafieldsArgs = {
  */
 export type ProductOptionsArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-/**
- * The `Product` object lets you manage products in a merchant’s store.
- *
- * Products are the goods and services that merchants offer to customers. They can include various details such as title, description, price, images, and options such as size or color.
- * You can use [product variants](https://shopify.dev/docs/api/admin-graphql/latest/objects/productvariant) to create or update different versions of the same product.
- * You can also add or update product [media](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/media).
- * Products can be organized by grouping them into a [collection](https://shopify.dev/docs/api/admin-graphql/latest/objects/collection).
- *
- * Learn more about working with [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components),
- * including limitations and considerations.
- */
-export type ProductProductComponentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/**
- * The `Product` object lets you manage products in a merchant’s store.
- *
- * Products are the goods and services that merchants offer to customers. They can include various details such as title, description, price, images, and options such as size or color.
- * You can use [product variants](https://shopify.dev/docs/api/admin-graphql/latest/objects/productvariant) to create or update different versions of the same product.
- * You can also add or update product [media](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/media).
- * Products can be organized by grouping them into a [collection](https://shopify.dev/docs/api/admin-graphql/latest/objects/collection).
- *
- * Learn more about working with [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components),
- * including limitations and considerations.
- */
-export type ProductProductParentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -45493,61 +43702,6 @@ export type ProductCompareAtPriceRange = {
   maxVariantCompareAtPrice: MoneyV2;
   /** The lowest variant's compare-at price. */
   minVariantCompareAtPrice: MoneyV2;
-};
-
-/** The product component information. */
-export type ProductComponentType = {
-  __typename?: 'ProductComponentType';
-  /** The list of products' variants that are components. */
-  componentVariants: ProductVariantConnection;
-  /** The number of component variants for the product component. */
-  componentVariantsCount?: Maybe<Count>;
-  /** The list of products' variants that are not components. */
-  nonComponentVariants: ProductVariantConnection;
-  /** The number of non_components variants for the product component. */
-  nonComponentVariantsCount?: Maybe<Count>;
-  /** The product that's a component. */
-  product: Product;
-};
-
-
-/** The product component information. */
-export type ProductComponentTypeComponentVariantsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/** The product component information. */
-export type ProductComponentTypeNonComponentVariantsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-/** An auto-generated type for paginating through multiple ProductComponentTypes. */
-export type ProductComponentTypeConnection = {
-  __typename?: 'ProductComponentTypeConnection';
-  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<ProductComponentTypeEdge>;
-  /** A list of nodes that are contained in ProductComponentTypeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<ProductComponentType>;
-  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
-  pageInfo: PageInfo;
-};
-
-/** An auto-generated type which holds one ProductComponentType and a cursor during pagination. */
-export type ProductComponentTypeEdge = {
-  __typename?: 'ProductComponentTypeEdge';
-  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of ProductComponentTypeEdge. */
-  node: ProductComponentType;
 };
 
 /** An auto-generated type for paginating through multiple Products. */
@@ -47156,8 +45310,6 @@ export type ProductVariant = HasEvents & HasMetafieldDefinitions & HasMetafields
   price: Scalars['Money']['output'];
   /** The product that this variant belongs to. */
   product: Product;
-  /** A list of products that have product variants that contain this variant as a product component. */
-  productParents: ProductConnection;
   /** A list of the product variant components. */
   productVariantComponents: ProductVariantComponentConnection;
   /**
@@ -47183,8 +45335,6 @@ export type ProductVariant = HasEvents & HasMetafieldDefinitions & HasMetafields
   sellingPlanGroups: SellingPlanGroupConnection;
   /** Count of selling plan groups associated with the product variant. */
   sellingPlanGroupsCount?: Maybe<Count>;
-  /** Whether to show the unit price for this product variant. */
-  showUnitPrice: Scalars['Boolean']['output'];
   /**
    * A case-sensitive identifier for the product variant in the shop.
    * Required in order to connect to a fulfillment service.
@@ -47208,8 +45358,6 @@ export type ProductVariant = HasEvents & HasMetafieldDefinitions & HasMetafields
   title: Scalars['String']['output'];
   /** The published translations associated with the resource. */
   translations: Array<Translation>;
-  /** The unit price value for the variant based on the variant measurement. */
-  unitPrice?: Maybe<MoneyV2>;
   /** The unit price measurement for the variant. */
   unitPriceMeasurement?: Maybe<UnitPriceMeasurement>;
   /** The date and time (ISO 8601 format) when the product variant was last modified. */
@@ -47514,45 +45662,6 @@ export type ProductVariantPresentmentPricesArgs = {
  *
  * Learn more about [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components).
  */
-export type ProductVariantProductParentsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/**
- * The `ProductVariant` object represents a version of a
- * [product](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product)
- * that comes in more than one [option](https://shopify.dev/docs/api/admin-graphql/latest/objects/ProductOption),
- * such as size or color. For example, if a merchant sells t-shirts with options for size and color, then a small,
- * blue t-shirt would be one product variant and a large, blue t-shirt would be another.
- *
- * Use the `ProductVariant` object to manage the full lifecycle and configuration of a product's variants. Common
- * use cases for using the `ProductVariant` object include:
- *
- * - Tracking inventory for each variant
- * - Setting unique prices for each variant
- * - Assigning barcodes and SKUs to connect variants to fulfillment services
- * - Attaching variant-specific images and media
- * - Setting delivery and tax requirements
- * - Supporting product bundles, subscriptions, and selling plans
- *
- * A `ProductVariant` is associated with a parent
- * [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) object.
- * `ProductVariant` serves as the central link between a product's merchandising configuration, inventory,
- * pricing, fulfillment, and sales channels within the GraphQL Admin API schema. Each variant
- * can reference other GraphQL types such as:
- *
- * - [`InventoryItem`](https://shopify.dev/docs/api/admin-graphql/latest/objects/InventoryItem): Used for inventory tracking
- * - [`Image`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Image): Used for variant-specific images
- * - [`SellingPlanGroup`](https://shopify.dev/docs/api/admin-graphql/latest/objects/SellingPlanGroup): Used for subscriptions and selling plans
- *
- * Learn more about [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components).
- */
 export type ProductVariantProductVariantComponentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -47714,8 +45823,6 @@ export type ProductVariantContextualPricing = {
   quantityPriceBreaks: QuantityPriceBreakConnection;
   /** The quantity rule applied for a given context. */
   quantityRule: QuantityRule;
-  /** The unit price value for the given context based on the variant measurement. */
-  unitPrice?: Maybe<MoneyV2>;
 };
 
 
@@ -47962,16 +46069,12 @@ export type ProductVariantSetInput = {
    * from channels that don't support bundles.
    */
   requiresComponents?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether or not unit price should be shown for this product variant. */
-  showUnitPrice?: InputMaybe<Scalars['Boolean']['input']>;
   /** The SKU for the variant. Case-sensitive string. */
   sku?: InputMaybe<Scalars['String']['input']>;
   /** The tax code associated with the variant. */
   taxCode?: InputMaybe<Scalars['String']['input']>;
   /** Whether the variant is taxable. */
   taxable?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The unit price measurement for the product variant. */
-  unitPriceMeasurement?: InputMaybe<UnitPriceMeasurementInput>;
 };
 
 /** The set of valid sort keys for the ProductVariant query. */
@@ -48146,14 +46249,10 @@ export type ProductVariantsBulkInput = {
    * omitted from channels that don't support bundles.
    */
   requiresComponents?: InputMaybe<Scalars['Boolean']['input']>;
-  /** Whether the unit price should be shown for this product variant. */
-  showUnitPrice?: InputMaybe<Scalars['Boolean']['input']>;
   /** The tax code associated with the variant. */
   taxCode?: InputMaybe<Scalars['String']['input']>;
   /** Whether the variant is taxable. */
   taxable?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The unit price measurement for the product variant. */
-  unitPriceMeasurement?: InputMaybe<UnitPriceMeasurementInput>;
 };
 
 /** Return type for `productVariantsBulkReorder` mutation. */
@@ -49251,7 +47350,7 @@ export type QueryRoot = {
   blog?: Maybe<Blog>;
   /** List of the shop's blogs. */
   blogs: BlogConnection;
-  /** Count of blogs. Limited to a maximum of 10000 by default. */
+  /** Count of blogs. */
   blogsCount?: Maybe<Count>;
   /** Returns a list of Business Entities associated with the shop. */
   businessEntities: Array<BusinessEntity>;
@@ -49408,7 +47507,7 @@ export type QueryRoot = {
   comments: CommentConnection;
   /** Returns the list of companies in the shop. */
   companies: CompanyConnection;
-  /** The number of companies for a shop. Limited to a maximum of 10000 by default. */
+  /** The number of companies for a shop. */
   companiesCount?: Maybe<Count>;
   /** Returns a `Company` resource by ID. */
   company?: Maybe<Company>;
@@ -49461,7 +47560,7 @@ export type QueryRoot = {
    * The `customers` query supports [pagination](https://shopify.dev/api/usage/pagination-graphql) and [sorting](https://shopify.dev/api/admin-graphql/latest/enums/CustomerSortKeys).
    */
   customers: CustomerConnection;
-  /** The number of customers. Limited to a maximum of 10000 by default. */
+  /** The number of customers. */
   customersCount?: Maybe<Count>;
   /**
    * The paginated list of deletion events.
@@ -49484,7 +47583,7 @@ export type QueryRoot = {
   deliveryPromiseSettings: DeliveryPromiseSetting;
   /** Returns the shop-wide shipping settings. */
   deliverySettings?: Maybe<DeliverySetting>;
-  /** The total number of discount codes for the shop. Limited to a maximum of 10000 by default. */
+  /** The total number of discount codes for the shop. */
   discountCodesCount?: Maybe<Count>;
   /** Returns a discount resource by ID. */
   discountNode?: Maybe<DiscountNode>;
@@ -49526,16 +47625,12 @@ export type QueryRoot = {
    * which indicates its progress through the sales workflow.
    */
   draftOrder?: Maybe<DraftOrder>;
-  /** Returns a list of available delivery options for a draft order. */
-  draftOrderAvailableDeliveryOptions: DraftOrderAvailableDeliveryOptions;
   /** List of the shop's draft order saved searches. */
   draftOrderSavedSearches: SavedSearchConnection;
   /** Returns a `DraftOrderTag` resource by ID. */
   draftOrderTag?: Maybe<DraftOrderTag>;
   /** List of saved draft orders. */
   draftOrders: DraftOrderConnection;
-  /** Returns the number of draft orders that match the query. Limited to a maximum of 10000 by default. */
-  draftOrdersCount?: Maybe<Count>;
   /** Get a single event by its id. */
   event?: Maybe<Event>;
   /** The paginated list of events associated with the store. */
@@ -49614,12 +47709,6 @@ export type QueryRoot = {
   inventoryLevel?: Maybe<InventoryLevel>;
   /** General inventory properties for the shop. */
   inventoryProperties: InventoryProperties;
-  /** Returns an inventory shipment by ID. */
-  inventoryShipment?: Maybe<InventoryShipment>;
-  /** Returns an inventory transfer by ID. */
-  inventoryTransfer?: Maybe<InventoryTransfer>;
-  /** Returns a paginated list of transfers. */
-  inventoryTransfers: InventoryTransferConnection;
   /** Returns a Job resource by ID. Used to check the status of internal jobs and any applicable changes. */
   job?: Maybe<Job>;
   /** Returns an inventory Location resource by ID. */
@@ -49662,8 +47751,6 @@ export type QueryRoot = {
   marketingEvents: MarketingEventConnection;
   /** The markets configured for the shop. */
   markets: MarketConnection;
-  /** The resolved values for a buyer signal. */
-  marketsResolvedValues: MarketsResolvedValues;
   /** Returns a Menu resource by ID. */
   menu?: Maybe<Menu>;
   /** The shop's menus. */
@@ -49747,7 +47834,7 @@ export type QueryRoot = {
   page?: Maybe<Page>;
   /** List of the shop's pages. */
   pages: PageConnection;
-  /** Count of pages. Limited to a maximum of 10000 by default. */
+  /** Count of pages. */
   pagesCount?: Maybe<Count>;
   /** The payment customization. */
   paymentCustomization?: Maybe<PaymentCustomization>;
@@ -49757,8 +47844,6 @@ export type QueryRoot = {
   paymentTermsTemplates: Array<PaymentTermsTemplate>;
   /** The number of pendings orders. Limited to a maximum of 10000. */
   pendingOrdersCount?: Maybe<Count>;
-  /** Returns a `PointOfSaleDevice` resource by ID. */
-  pointOfSaleDevice?: Maybe<PointOfSaleDevice>;
   /** Returns a price list resource by ID. */
   priceList?: Maybe<PriceList>;
   /** All price lists for a shop. */
@@ -49901,7 +47986,7 @@ export type QueryRoot = {
    * Learn more about working with [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components).
    */
   productVariants: ProductVariantConnection;
-  /** Count of product variants. Limited to a maximum of 10000 by default. */
+  /** Count of product variants. */
   productVariantsCount?: Maybe<Count>;
   /**
    * The list of vendors added to products.
@@ -49935,7 +48020,7 @@ export type QueryRoot = {
    * Learn more about working with [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components).
    */
   products: ProductConnection;
-  /** Count of products. Limited to a maximum of 10000 by default. */
+  /** Count of products. */
   productsCount?: Maybe<Count>;
   /** The list of publicly-accessible Admin API versions, including supported versions, the release candidate, and unstable versions. */
   publicApiVersions: Array<ApiVersion>;
@@ -49943,7 +48028,7 @@ export type QueryRoot = {
   publication?: Maybe<Publication>;
   /** List of publications. */
   publications: PublicationConnection;
-  /** Count of publications. Limited to a maximum of 10000 by default. */
+  /** Count of publications. */
   publicationsCount?: Maybe<Count>;
   /** Returns a count of published products by publication ID. Limited to a maximum of 10000 by default. */
   publishedProductsCount?: Maybe<Count>;
@@ -50030,7 +48115,7 @@ export type QueryRoot = {
   segmentValueSuggestions: SegmentValueConnection;
   /** A list of a shop's segments. */
   segments: SegmentConnection;
-  /** The number of segments for a shop. Limited to a maximum of 10000 by default. */
+  /** The number of segments for a shop. */
   segmentsCount?: Maybe<Count>;
   /** Returns a Selling Plan Group resource by ID. */
   sellingPlanGroup?: Maybe<SellingPlanGroup>;
@@ -50047,10 +48132,6 @@ export type QueryRoot = {
   shopBillingPreferences: ShopBillingPreferences;
   /** A list of locales available on a shop. */
   shopLocales: Array<ShopLocale>;
-  /** Returns a Shop Pay payment request receipt. */
-  shopPayPaymentRequestReceipt?: Maybe<ShopPayPaymentRequestReceipt>;
-  /** Returns a list of Shop Pay payment request receipts. */
-  shopPayPaymentRequestReceipts?: Maybe<ShopPayPaymentRequestReceiptConnection>;
   /**
    * Returns a Shopify Function by its ID.
    * [Functions](https://shopify.dev/apps/build/functions)
@@ -50351,7 +48432,6 @@ export type QueryRootBlogsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootBlogsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -50429,7 +48509,6 @@ export type QueryRootCatalogsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCatalogsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<CatalogType>;
 };
@@ -50553,7 +48632,6 @@ export type QueryRootCollectionsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCollectionsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
   savedSearchId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -50586,12 +48664,6 @@ export type QueryRootCompaniesArgs = {
   query?: InputMaybe<Scalars['String']['input']>;
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
   sortKey?: InputMaybe<CompanySortKeys>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootCompaniesCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -50750,7 +48822,6 @@ export type QueryRootCustomersArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootCustomersCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -50822,7 +48893,6 @@ export type QueryRootDeliveryPromiseProviderArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootDiscountCodesCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -50848,7 +48918,6 @@ export type QueryRootDiscountNodesArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootDiscountNodesCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
   savedSearchId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -50908,16 +48977,6 @@ export type QueryRootDraftOrderArgs = {
 
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootDraftOrderAvailableDeliveryOptionsArgs = {
-  input: DraftOrderAvailableDeliveryOptionsInput;
-  localPickupCount?: InputMaybe<Scalars['Int']['input']>;
-  localPickupFrom?: InputMaybe<Scalars['Int']['input']>;
-  search?: InputMaybe<Scalars['String']['input']>;
-  sessionToken?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootDraftOrderSavedSearchesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -50943,14 +49002,6 @@ export type QueryRootDraftOrdersArgs = {
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
   savedSearchId?: InputMaybe<Scalars['ID']['input']>;
   sortKey?: InputMaybe<DraftOrderSortKeys>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootDraftOrdersCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  savedSearchId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -51053,7 +49104,6 @@ export type QueryRootGiftCardsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootGiftCardsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
   savedSearchId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -51079,31 +49129,6 @@ export type QueryRootInventoryItemsArgs = {
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootInventoryLevelArgs = {
   id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootInventoryShipmentArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootInventoryTransferArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootInventoryTransfersArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  savedSearchId?: InputMaybe<Scalars['ID']['input']>;
-  sortKey?: InputMaybe<TransferSortKeys>;
 };
 
 
@@ -51151,7 +49176,6 @@ export type QueryRootLocationsAvailableForDeliveryProfilesConnectionArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootLocationsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -51257,12 +49281,6 @@ export type QueryRootMarketsArgs = {
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
   sortKey?: InputMaybe<MarketsSortKeys>;
   type?: InputMaybe<MarketType>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootMarketsResolvedValuesArgs = {
-  buyerSignal: BuyerSignalInput;
 };
 
 
@@ -51453,12 +49471,6 @@ export type QueryRootPagesArgs = {
 
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootPagesCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPaymentCustomizationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -51478,12 +49490,6 @@ export type QueryRootPaymentCustomizationsArgs = {
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPaymentTermsTemplatesArgs = {
   paymentTermsType?: InputMaybe<PaymentTermsType>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootPointOfSaleDeviceArgs = {
-  id: Scalars['ID']['input'];
 };
 
 
@@ -51613,7 +49619,6 @@ export type QueryRootProductVariantsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootProductVariantsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -51669,13 +49674,11 @@ export type QueryRootPublicationsArgs = {
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPublicationsCountArgs = {
   catalogType?: InputMaybe<CatalogType>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootPublishedProductsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   publicationId: Scalars['ID']['input'];
 };
 
@@ -51803,12 +49806,6 @@ export type QueryRootSegmentsArgs = {
 
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootSegmentsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootSellingPlanGroupArgs = {
   id: Scalars['ID']['input'];
 };
@@ -51829,24 +49826,6 @@ export type QueryRootSellingPlanGroupsArgs = {
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootShopLocalesArgs = {
   published?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootShopPayPaymentRequestReceiptArgs = {
-  token: Scalars['String']['input'];
-};
-
-
-/** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
-export type QueryRootShopPayPaymentRequestReceiptsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<ShopPayPaymentRequestReceiptsSortKeys>;
 };
 
 
@@ -52072,7 +50051,6 @@ export type QueryRootUrlRedirectsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootUrlRedirectsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
   savedSearchId?: InputMaybe<Scalars['ID']['input']>;
 };
@@ -52133,7 +50111,6 @@ export type QueryRootWebhookSubscriptionsArgs = {
 
 /** The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRootWebhookSubscriptionsCountArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
   query?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -52482,8 +50459,6 @@ export type RefundEdge = {
 
 /** The input fields to create a refund. */
 export type RefundInput = {
-  /** Whether to allow the total refunded amount to surpass the amount paid for the order. */
-  allowOverRefunding?: InputMaybe<Scalars['Boolean']['input']>;
   /** The currency that is used to refund the order. This must be the presentment currency, which is the currency used by the customer. This is a required field for orders where the currency and presentment currency differ. */
   currency?: InputMaybe<CurrencyCode>;
   /** An optional reason for a discrepancy between calculated and actual refund amounts. */
@@ -52498,8 +50473,6 @@ export type RefundInput = {
   refundDuties?: InputMaybe<Array<RefundDutyInput>>;
   /** A list of line items to refund. */
   refundLineItems?: InputMaybe<Array<RefundLineItemInput>>;
-  /** A list of instructions to process the financial outcome of the refund. */
-  refundMethods?: InputMaybe<Array<RefundMethodInput>>;
   /** The input fields that are required to reimburse shipping costs. */
   shipping?: InputMaybe<ShippingRefundInput>;
   /** A list of transactions involved in the refund. */
@@ -52587,31 +50560,6 @@ export enum RefundLineItemRestockType {
   /** The refund line item was returned. Use this when restocking line items that were fulfilled. */
   Return = 'RETURN'
 }
-
-/** The different methods that a refund amount can be allocated to. */
-export enum RefundMethodAllocation {
-  /** The refund is to original payment methods. */
-  OriginalPaymentMethods = 'ORIGINAL_PAYMENT_METHODS',
-  /** The refund is to store credit. */
-  StoreCredit = 'STORE_CREDIT'
-}
-
-/** The input fields for processing the financial outcome of a refund. */
-export type RefundMethodInput = {
-  /** The details of the refund to store credit. */
-  storeCreditRefund?: InputMaybe<StoreCreditRefundInput>;
-};
-
-/** The financial transfer details for a return outcome that results in a refund. */
-export type RefundReturnOutcome = {
-  __typename?: 'RefundReturnOutcome';
-  /** The total monetary value to be refunded in shop and presentment currencies. */
-  amount: MoneyBag;
-  /** A list of suggested refund methods. */
-  suggestedRefundMethods: Array<SuggestedRefundMethod>;
-  /** A list of suggested order transactions. */
-  suggestedTransactions: Array<SuggestedOrderTransaction>;
-};
 
 /** The input fields for the shipping cost to refund. */
 export type RefundShippingInput = {
@@ -52708,24 +50656,6 @@ export type RemoteStripePaymentMethodInput = {
    * payment_method_id will become mandatory for all API versions.
    */
   paymentMethodId?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** Return type for `removeFromReturn` mutation. */
-export type RemoveFromReturnPayload = {
-  __typename?: 'RemoveFromReturnPayload';
-  /** The modified return. */
-  return?: Maybe<Return>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<ReturnUserError>;
-};
-
-/** The resolved price inclusivity attributes. */
-export type ResolvedPriceInclusivity = {
-  __typename?: 'ResolvedPriceInclusivity';
-  /** Whether duties are included in the price. */
-  dutiesIncluded: Scalars['Boolean']['output'];
-  /** Whether taxes are included in the price. */
-  taxesIncluded: Scalars['Boolean']['output'];
 };
 
 /**
@@ -52997,10 +50927,6 @@ export type RestrictedForResource = {
  */
 export type Return = Node & {
   __typename?: 'Return';
-  /** The date and time when the return was closed. */
-  closedAt?: Maybe<Scalars['DateTime']['output']>;
-  /** The date and time when the return was created. */
-  createdAt: Scalars['DateTime']['output'];
   /** Additional information about the declined return. */
   decline?: Maybe<ReturnDecline>;
   /** The exchange line items attached to the return. */
@@ -53013,8 +50939,6 @@ export type Return = Node & {
   order: Order;
   /** The list of refunds associated with the return. */
   refunds: RefundConnection;
-  /** The date and time when the return was approved. */
-  requestApprovedAt?: Maybe<Scalars['DateTime']['output']>;
   /** The return line items attached to the return. */
   returnLineItems: ReturnLineItemTypeConnection;
   /** The return shipping fees for the return. */
@@ -53023,8 +50947,6 @@ export type Return = Node & {
   reverseFulfillmentOrders: ReverseFulfillmentOrderConnection;
   /** The status of the return. */
   status: ReturnStatus;
-  /** A suggested financial outcome for the return. */
-  suggestedFinancialOutcome?: Maybe<SuggestedReturnFinancialOutcome>;
   /**
    * A suggested refund for the return.
    * @deprecated Use `suggestedFinancialOutcome` instead.
@@ -53141,33 +51063,6 @@ export type ReturnReverseFulfillmentOrdersArgs = {
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   reverse?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-
-/**
- * The `Return` object represents the intent of a buyer to ship one or more items from an order back to a merchant
- * or a third-party fulfillment location. A return is associated with an [order](https://shopify.dev/docs/api/admin-graphql/latest/objects/Order)
- * and can include multiple return [line items](https://shopify.dev/docs/api/admin-graphql/latest/objects/LineItem).
- * Each return has a [status](https://shopify.dev/docs/apps/build/orders-fulfillment/returns-apps#return-statuses),
- * which indicates the state of the return.
- *
- * Use the `Return` object to capture the financial, logistical,
- * and business intent of a return. For example, you can identify eligible items for a return and issue customers
- * a refund for returned items on behalf of the merchant.
- *
- * Learn more about providing a
- * [return management workflow](https://shopify.dev/docs/apps/build/orders-fulfillment/returns-apps/build-return-management)
- * for merchants. You can also manage [exchanges](https://shopify.dev/docs/apps/build/orders-fulfillment/returns-apps/manage-exchanges),
- * [reverse fulfillment orders](https://shopify.dev/docs/apps/build/orders-fulfillment/returns-apps/manage-reverse-fulfillment-orders),
- * and [reverse deliveries](https://shopify.dev/docs/apps/build/orders-fulfillment/returns-apps/manage-reverse-deliveries)
- * on behalf of merchants.
- */
-export type ReturnSuggestedFinancialOutcomeArgs = {
-  exchangeLineItems: Array<SuggestedOutcomeExchangeLineItemInput>;
-  refundDuties?: InputMaybe<Array<RefundDutyInput>>;
-  refundMethodAllocation?: InputMaybe<RefundMethodAllocation>;
-  refundShipping?: InputMaybe<RefundShippingInput>;
-  returnLineItems: Array<SuggestedOutcomeReturnLineItemInput>;
 };
 
 
@@ -53417,10 +51312,6 @@ export type ReturnLineItem = Node & ReturnLineItemType & {
   fulfillmentLineItem: FulfillmentLineItem;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
-  /** The quantity that can be processed. */
-  processableQuantity: Scalars['Int']['output'];
-  /** The quantity that has been processed. */
-  processedQuantity: Scalars['Int']['output'];
   /** The quantity being returned. */
   quantity: Scalars['Int']['output'];
   /** The quantity that can be refunded. */
@@ -53435,8 +51326,6 @@ export type ReturnLineItem = Node & ReturnLineItemType & {
   returnReasonNote: Scalars['String']['output'];
   /** The total weight of the item. */
   totalWeight?: Maybe<Weight>;
-  /** The quantity that has't been processed. */
-  unprocessedQuantity: Scalars['Int']['output'];
   /** The total line price after all discounts on the line item, including both line item level discounts and code-based line item discounts, are applied. */
   withCodeDiscountedTotalPriceSet: MoneyBag;
 };
@@ -53484,10 +51373,6 @@ export type ReturnLineItemType = {
   customerNote?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
-  /** The quantity that can be processed. */
-  processableQuantity: Scalars['Int']['output'];
-  /** The quantity that has been processed. */
-  processedQuantity: Scalars['Int']['output'];
   /** The quantity being returned. */
   quantity: Scalars['Int']['output'];
   /** The quantity that can be refunded. */
@@ -53498,8 +51383,6 @@ export type ReturnLineItemType = {
   returnReason: ReturnReason;
   /** Additional information about the reason for the return. Maximum length: 255 characters. */
   returnReasonNote: Scalars['String']['output'];
-  /** The quantity that has't been processed. */
-  unprocessedQuantity: Scalars['Int']['output'];
 };
 
 /** An auto-generated type for paginating through multiple ReturnLineItemTypes. */
@@ -53520,74 +51403,6 @@ export type ReturnLineItemTypeEdge = {
   cursor: Scalars['String']['output'];
   /** The item at the end of ReturnLineItemTypeEdge. */
   node: ReturnLineItemType;
-};
-
-/** The financial transfer details for the return outcome. */
-export type ReturnOutcomeFinancialTransfer = InvoiceReturnOutcome | RefundReturnOutcome;
-
-/** The input fields for an exchange line item. */
-export type ReturnProcessExchangeLineItemInput = {
-  /** The ID of the exchange line item. */
-  id: Scalars['ID']['input'];
-  /** The quantity of the exchange line item. */
-  quantity: Scalars['Int']['input'];
-};
-
-/** The input fields for the financial transfer for the return. */
-export type ReturnProcessFinancialTransferInput = {
-  /** Issue a refund for the return. */
-  issueRefund?: InputMaybe<ReturnProcessRefundInput>;
-};
-
-/** The input fields for processing a return. */
-export type ReturnProcessInput = {
-  /** The exchange line items list to be handled. */
-  exchangeLineItems?: InputMaybe<Array<ReturnProcessExchangeLineItemInput>>;
-  /** The financial transfer for the return. */
-  financialTransfer?: InputMaybe<ReturnProcessFinancialTransferInput>;
-  /** The note for the return. */
-  note?: InputMaybe<Scalars['String']['input']>;
-  /** Whether to notify the customer about the return. */
-  notifyCustomer?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The refund duties list to be handled. */
-  refundDuties?: InputMaybe<Array<RefundDutyInput>>;
-  /** The shipping cost to refund. */
-  refundShipping?: InputMaybe<RefundShippingInput>;
-  /** The ID of the return to be processed. */
-  returnId: Scalars['ID']['input'];
-  /** The return line items list to be handled. */
-  returnLineItems?: InputMaybe<Array<ReturnProcessReturnLineItemInput>>;
-  /** ID of the tip line item. */
-  tipLineId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-/** Return type for `returnProcess` mutation. */
-export type ReturnProcessPayload = {
-  __typename?: 'ReturnProcessPayload';
-  /** The processed return. */
-  return?: Maybe<Return>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<ReturnUserError>;
-};
-
-/** The input fields for the refund for the return. */
-export type ReturnProcessRefundInput = {
-  /** Whether to allow the total refunded amount to surpass the amount paid for the order. */
-  allowOverRefunding?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The order transactions for the refund. */
-  orderTransactions: Array<ReturnRefundOrderTransactionInput>;
-  /** A list of instructions to process the financial outcome of the refund. */
-  refundMethods?: InputMaybe<Array<RefundMethodInput>>;
-};
-
-/** The input fields for a return line item. */
-export type ReturnProcessReturnLineItemInput = {
-  /** The dispositions for the return line item. */
-  dispositions?: InputMaybe<Array<ReverseFulfillmentOrderDisposeInput>>;
-  /** The ID of the return line item. */
-  id: Scalars['ID']['input'];
-  /** The quantity of the return line item. */
-  quantity: Scalars['Int']['input'];
 };
 
 /** The reason for returning the return line item. */
@@ -54067,8 +51882,6 @@ export type ReverseFulfillmentOrderDisposePayload = {
 /** The details of the arrangement of an item. */
 export type ReverseFulfillmentOrderDisposition = Node & {
   __typename?: 'ReverseFulfillmentOrderDisposition';
-  /** The date and time when the disposition was created. */
-  createdAt: Scalars['DateTime']['output'];
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
   /** The location where the disposition occurred. */
@@ -54828,10 +52641,6 @@ export type SegmentEventFilterParameter = {
   localizedDescription: Scalars['String']['output'];
   /** The localized name of the parameter. */
   localizedName: Scalars['String']['output'];
-  /** The parameter maximum value range. */
-  maxRange?: Maybe<Scalars['Float']['output']>;
-  /** The parameter minimum value range. */
-  minRange?: Maybe<Scalars['Float']['output']>;
   /** Whether the parameter is optional. */
   optional: Scalars['Boolean']['output'];
   /** The type of the parameter. */
@@ -54875,10 +52684,6 @@ export type SegmentFloatFilter = SegmentFilter & {
   __typename?: 'SegmentFloatFilter';
   /** The localized name of the filter. */
   localizedName: Scalars['String']['output'];
-  /** The maximum range a filter can have. */
-  maxRange?: Maybe<Scalars['Float']['output']>;
-  /** The minimum range a filter can have. */
-  minRange?: Maybe<Scalars['Float']['output']>;
   /** Whether a file can have multiple values for a single customer. */
   multiValue: Scalars['Boolean']['output'];
   /** The query name of the filter. */
@@ -54890,10 +52695,6 @@ export type SegmentIntegerFilter = SegmentFilter & {
   __typename?: 'SegmentIntegerFilter';
   /** The localized name of the filter. */
   localizedName: Scalars['String']['output'];
-  /** The maximum range a filter can have. */
-  maxRange?: Maybe<Scalars['Float']['output']>;
-  /** The minimum range a filter can have. */
-  minRange?: Maybe<Scalars['Float']['output']>;
   /** Whether a file can have multiple values for a single customer. */
   multiValue: Scalars['Boolean']['output'];
   /** The query name of the filter. */
@@ -56185,12 +53986,6 @@ export enum ServerPixelStatus {
   DisconnectedUnconfigured = 'DISCONNECTED_UNCONFIGURED'
 }
 
-/** The set of valid sort keys for the ShipmentLineItem query. */
-export enum ShipmentLineItemSortKeys {
-  /** Sort by the `id` value. */
-  Id = 'ID'
-}
-
 /**
  * The [discount class](https://help.shopify.com/manual/discounts/combining-discounts/discount-combinations)
  * that's used to control how discounts can be combined.
@@ -56404,7 +54199,7 @@ export type ShippingRefundInput = {
 };
 
 /** Represents a collection of general settings and information about the shop. */
-export type Shop = HasMetafieldDefinitions & HasMetafields & HasPublishedTranslations & Node & {
+export type Shop = HasMetafields & HasPublishedTranslations & Node & {
   __typename?: 'Shop';
   /** Account owner information. */
   accountOwner: StaffMember;
@@ -56551,11 +54346,6 @@ export type Shop = HasMetafieldDefinitions & HasMetafields & HasPublishedTransla
    * for the purposes of adding and storing additional information.
    */
   metafield?: Maybe<Metafield>;
-  /**
-   * List of metafield definitions.
-   * @deprecated This field will be removed in a future version. Use `QueryRoot.metafieldDefinitions` instead.
-   */
-  metafieldDefinitions: MetafieldDefinitionConnection;
   /**
    * A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
    * that a merchant associates with a Shopify resource.
@@ -56806,20 +54596,6 @@ export type ShopLocationsArgs = {
 export type ShopMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-/** Represents a collection of general settings and information about the shop. */
-export type ShopMetafieldDefinitionsArgs = {
-  after?: InputMaybe<Scalars['String']['input']>;
-  before?: InputMaybe<Scalars['String']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  namespace?: InputMaybe<Scalars['String']['input']>;
-  pinnedStatus?: InputMaybe<MetafieldDefinitionPinnedStatus>;
-  query?: InputMaybe<Scalars['String']['input']>;
-  reverse?: InputMaybe<Scalars['Boolean']['input']>;
-  sortKey?: InputMaybe<MetafieldDefinitionSortKeys>;
 };
 
 
@@ -57218,257 +54994,6 @@ export type ShopPayInstallmentsPaymentDetails = BasePaymentDetails & {
   paymentMethodName?: Maybe<Scalars['String']['output']>;
 };
 
-/** Represents a Shop Pay payment request. */
-export type ShopPayPaymentRequest = {
-  __typename?: 'ShopPayPaymentRequest';
-  /** The discounts for the payment request order. */
-  discounts?: Maybe<Array<ShopPayPaymentRequestDiscount>>;
-  /** The line items for the payment request. */
-  lineItems: Array<ShopPayPaymentRequestLineItem>;
-  /** The presentment currency for the payment request. */
-  presentmentCurrency: CurrencyCode;
-  /** The delivery method type for the payment request. */
-  selectedDeliveryMethodType: ShopPayPaymentRequestDeliveryMethodType;
-  /** The shipping address for the payment request. */
-  shippingAddress?: Maybe<ShopPayPaymentRequestContactField>;
-  /** The shipping lines for the payment request. */
-  shippingLines: Array<ShopPayPaymentRequestShippingLine>;
-  /** The subtotal amount for the payment request. */
-  subtotal: MoneyV2;
-  /** The total amount for the payment request. */
-  total: MoneyV2;
-  /** The total shipping price for the payment request. */
-  totalShippingPrice?: Maybe<ShopPayPaymentRequestTotalShippingPrice>;
-  /** The total tax for the payment request. */
-  totalTax?: Maybe<MoneyV2>;
-};
-
-/** Represents a contact field for a Shop Pay payment request. */
-export type ShopPayPaymentRequestContactField = {
-  __typename?: 'ShopPayPaymentRequestContactField';
-  /** The first address line of the contact field. */
-  address1: Scalars['String']['output'];
-  /** The second address line of the contact field. */
-  address2?: Maybe<Scalars['String']['output']>;
-  /** The city of the contact field. */
-  city: Scalars['String']['output'];
-  /** The company name of the contact field. */
-  companyName?: Maybe<Scalars['String']['output']>;
-  /** The country of the contact field. */
-  countryCode: Scalars['String']['output'];
-  /** The email of the contact field. */
-  email?: Maybe<Scalars['String']['output']>;
-  /** The first name of the contact field. */
-  firstName: Scalars['String']['output'];
-  /** The last name of the contact field. */
-  lastName: Scalars['String']['output'];
-  /** The phone number of the contact field. */
-  phone?: Maybe<Scalars['String']['output']>;
-  /** The postal code of the contact field. */
-  postalCode?: Maybe<Scalars['String']['output']>;
-  /** The province of the contact field. */
-  provinceCode?: Maybe<Scalars['String']['output']>;
-};
-
-/** Represents the delivery method type for a Shop Pay payment request. */
-export enum ShopPayPaymentRequestDeliveryMethodType {
-  /** The delivery method type is pickup. */
-  Pickup = 'PICKUP',
-  /** The delivery method type is shipping. */
-  Shipping = 'SHIPPING'
-}
-
-/** Represents a discount for a Shop Pay payment request. */
-export type ShopPayPaymentRequestDiscount = {
-  __typename?: 'ShopPayPaymentRequestDiscount';
-  /** The amount of the discount. */
-  amount: MoneyV2;
-  /** The label of the discount. */
-  label: Scalars['String']['output'];
-};
-
-/** Represents an image for a Shop Pay payment request line item. */
-export type ShopPayPaymentRequestImage = {
-  __typename?: 'ShopPayPaymentRequestImage';
-  /** The alt text of the image. */
-  alt?: Maybe<Scalars['String']['output']>;
-  /** The source URL of the image. */
-  url: Scalars['String']['output'];
-};
-
-/** Represents a line item for a Shop Pay payment request. */
-export type ShopPayPaymentRequestLineItem = {
-  __typename?: 'ShopPayPaymentRequestLineItem';
-  /** The final item price for the line item. */
-  finalItemPrice: MoneyV2;
-  /** The final line price for the line item. */
-  finalLinePrice: MoneyV2;
-  /** The image of the line item. */
-  image?: Maybe<ShopPayPaymentRequestImage>;
-  /** The item discounts for the line item. */
-  itemDiscounts?: Maybe<Array<ShopPayPaymentRequestDiscount>>;
-  /** The label of the line item. */
-  label: Scalars['String']['output'];
-  /** The line discounts for the line item. */
-  lineDiscounts?: Maybe<Array<ShopPayPaymentRequestDiscount>>;
-  /** The original item price for the line item. */
-  originalItemPrice?: Maybe<MoneyV2>;
-  /** The original line price for the line item. */
-  originalLinePrice?: Maybe<MoneyV2>;
-  /** The quantity of the line item. */
-  quantity: Scalars['Int']['output'];
-  /** Whether the line item requires shipping. */
-  requiresShipping?: Maybe<Scalars['Boolean']['output']>;
-  /** The SKU of the line item. */
-  sku?: Maybe<Scalars['String']['output']>;
-};
-
-/** The receipt of Shop Pay payment request session submission. */
-export type ShopPayPaymentRequestReceipt = {
-  __typename?: 'ShopPayPaymentRequestReceipt';
-  /** The date and time when the payment request receipt was created. */
-  createdAt: Scalars['DateTime']['output'];
-  /** The order that's associated with the payment request receipt. */
-  order?: Maybe<Order>;
-  /** The shop pay payment request object. */
-  paymentRequest: ShopPayPaymentRequest;
-  /** The status of the payment request session submission. */
-  processingStatus: ShopPayPaymentRequestReceiptProcessingStatus;
-  /** The source identifier provided in the `ShopPayPaymentRequestSessionCreate` mutation. */
-  sourceIdentifier: Scalars['String']['output'];
-  /** The token of the receipt, initially returned by an `ShopPayPaymentRequestSessionSubmit` mutation. */
-  token: Scalars['String']['output'];
-};
-
-/** An auto-generated type for paginating through multiple ShopPayPaymentRequestReceipts. */
-export type ShopPayPaymentRequestReceiptConnection = {
-  __typename?: 'ShopPayPaymentRequestReceiptConnection';
-  /** The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node. */
-  edges: Array<ShopPayPaymentRequestReceiptEdge>;
-  /** A list of nodes that are contained in ShopPayPaymentRequestReceiptEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve. */
-  nodes: Array<ShopPayPaymentRequestReceipt>;
-  /** An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page. */
-  pageInfo: PageInfo;
-};
-
-/** An auto-generated type which holds one ShopPayPaymentRequestReceipt and a cursor during pagination. */
-export type ShopPayPaymentRequestReceiptEdge = {
-  __typename?: 'ShopPayPaymentRequestReceiptEdge';
-  /** The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql). */
-  cursor: Scalars['String']['output'];
-  /** The item at the end of ShopPayPaymentRequestReceiptEdge. */
-  node: ShopPayPaymentRequestReceipt;
-};
-
-/**
- * The processing status of a Shop Pay payment request.
- * Represents the different states a payment request can be in during its lifecycle,
- * from initial creation through to completion or failure.
- */
-export type ShopPayPaymentRequestReceiptProcessingStatus = {
-  __typename?: 'ShopPayPaymentRequestReceiptProcessingStatus';
-  /** A standardized error code, independent of the payment provider. */
-  errorCode?: Maybe<ShopPayPaymentRequestReceiptProcessingStatusErrorCode>;
-  /** The message of the payment request receipt. */
-  message?: Maybe<Scalars['String']['output']>;
-  /** The state of the payment request receipt. */
-  state: ShopPayPaymentRequestReceiptProcessingStatusState;
-};
-
-/** A standardized error code, independent of the payment provider. */
-export enum ShopPayPaymentRequestReceiptProcessingStatusErrorCode {
-  /** The amount is too small. */
-  AmountTooSmall = 'AMOUNT_TOO_SMALL',
-  /** Call the card issuer. */
-  CallIssuer = 'CALL_ISSUER',
-  /** The card was declined. */
-  CardDeclined = 'CARD_DECLINED',
-  /** There is an error in the gateway or merchant configuration. */
-  ConfigError = 'CONFIG_ERROR',
-  /** The card is expired. */
-  ExpiredCard = 'EXPIRED_CARD',
-  /** The card issuer has flagged the transaction as potentially fraudulent. */
-  FraudSuspected = 'FRAUD_SUSPECTED',
-  /** There was an unknown error with processing the payment. */
-  GenericError = 'GENERIC_ERROR',
-  /** The address does not match the card number. */
-  IncorrectAddress = 'INCORRECT_ADDRESS',
-  /** The CVC does not match the card number. */
-  IncorrectCvc = 'INCORRECT_CVC',
-  /** The card number is incorrect. */
-  IncorrectNumber = 'INCORRECT_NUMBER',
-  /** The entered PIN is incorrect. */
-  IncorrectPin = 'INCORRECT_PIN',
-  /** The ZIP or postal code does not match the card number. */
-  IncorrectZip = 'INCORRECT_ZIP',
-  /** The amount is either too high or too low for the provider. */
-  InvalidAmount = 'INVALID_AMOUNT',
-  /** The payment method is not available in the customer's country. */
-  InvalidCountry = 'INVALID_COUNTRY',
-  /** The format of the CVC is incorrect. */
-  InvalidCvc = 'INVALID_CVC',
-  /** The format of the expiry date is incorrect. */
-  InvalidExpiryDate = 'INVALID_EXPIRY_DATE',
-  /** The format of the card number is incorrect. */
-  InvalidNumber = 'INVALID_NUMBER',
-  /** The payment method is momentarily unavailable. */
-  PaymentMethodUnavailable = 'PAYMENT_METHOD_UNAVAILABLE',
-  /** The card has been reported as lost or stolen, and the card issuer has requested that the merchant keep the card and call the number on the back. */
-  PickUpCard = 'PICK_UP_CARD',
-  /** There was an error while processing the payment. */
-  ProcessingError = 'PROCESSING_ERROR',
-  /** A real card was used but the gateway was in test mode. */
-  TestModeLiveCard = 'TEST_MODE_LIVE_CARD',
-  /** The 3D Secure check failed. */
-  ThreeDSecureFailed = 'THREE_D_SECURE_FAILED',
-  /** The gateway or merchant configuration doesn't support a feature, such as network tokenization. */
-  UnsupportedFeature = 'UNSUPPORTED_FEATURE'
-}
-
-/** The state of the payment request receipt. */
-export enum ShopPayPaymentRequestReceiptProcessingStatusState {
-  /** The payment request requires action from the buyer. */
-  ActionRequired = 'ACTION_REQUIRED',
-  /** The payment request processing completed successfully. */
-  Completed = 'COMPLETED',
-  /** The payment request processing failed. */
-  Failed = 'FAILED',
-  /** The payment request currently being processed. */
-  Processing = 'PROCESSING',
-  /** The payment request is ready and queued to be processed. */
-  Ready = 'READY'
-}
-
-/** The set of valid sort keys for the ShopPayPaymentRequestReceipts query. */
-export enum ShopPayPaymentRequestReceiptsSortKeys {
-  /** Sort by the `created_at` value. */
-  CreatedAt = 'CREATED_AT',
-  /** Sort by the `id` value. */
-  Id = 'ID'
-}
-
-/** Represents a shipping line for a Shop Pay payment request. */
-export type ShopPayPaymentRequestShippingLine = {
-  __typename?: 'ShopPayPaymentRequestShippingLine';
-  /** The amount for the shipping line. */
-  amount: MoneyV2;
-  /** The code of the shipping line. */
-  code: Scalars['String']['output'];
-  /** The label of the shipping line. */
-  label: Scalars['String']['output'];
-};
-
-/** Represents a shipping total for a Shop Pay payment request. */
-export type ShopPayPaymentRequestTotalShippingPrice = {
-  __typename?: 'ShopPayPaymentRequestTotalShippingPrice';
-  /** The discounts for the shipping total. */
-  discounts: Array<ShopPayPaymentRequestDiscount>;
-  /** The final total for the shipping line. */
-  finalTotal: MoneyV2;
-  /** The original total for the shipping line. */
-  originalTotal?: Maybe<MoneyV2>;
-};
-
 /** The billing plan of the shop. */
 export type ShopPlan = {
   __typename?: 'ShopPlan';
@@ -57479,8 +55004,6 @@ export type ShopPlan = {
   displayName: Scalars['String']['output'];
   /** Whether the shop is a partner development shop for testing purposes. */
   partnerDevelopment: Scalars['Boolean']['output'];
-  /** The public display name of the shop's billing plan. Possible values are: Advanced, Basic, Development, Grow, Inactive, Lite, Other, Paused, Plus, Plus Trial, Retail, Shop Component, Staff Business, Starter, and Trial. */
-  publicDisplayName: Scalars['String']['output'];
   /** Whether the shop has a Shopify Plus subscription. */
   shopifyPlus: Scalars['Boolean']['output'];
 };
@@ -59706,14 +57229,6 @@ export type StoreCreditAccountTransactionEdge = {
 /** The origin of a store credit account transaction. */
 export type StoreCreditAccountTransactionOrigin = OrderTransaction;
 
-/** The input fields to process a refund to store credit. */
-export type StoreCreditRefundInput = {
-  /** The amount to be issued as store credit. */
-  amount: MoneyInput;
-  /** An optional expiration date for the store credit being issued. */
-  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
-};
-
 /** The event that caused the store credit account transaction. */
 export enum StoreCreditSystemEvent {
   /** An adjustment was made to the store credit account. */
@@ -61032,7 +58547,7 @@ export type SubscriptionDeliveryMethodInput = {
 export type SubscriptionDeliveryMethodLocalDelivery = {
   __typename?: 'SubscriptionDeliveryMethodLocalDelivery';
   /** The address to deliver to. */
-  address: MailingAddress;
+  address: SubscriptionMailingAddress;
   /** The details of the local delivery method to use. */
   localDeliveryOption: SubscriptionDeliveryMethodLocalDeliveryOption;
 };
@@ -61140,7 +58655,7 @@ export type SubscriptionDeliveryMethodPickupOptionInput = {
 export type SubscriptionDeliveryMethodShipping = {
   __typename?: 'SubscriptionDeliveryMethodShipping';
   /** The address to ship to. */
-  address: MailingAddress;
+  address: SubscriptionMailingAddress;
   /** The details of the shipping method to use. */
   shippingOption: SubscriptionDeliveryMethodShippingOption;
 };
@@ -62217,6 +59732,45 @@ export type SubscriptionLocalDeliveryOption = {
   title: Scalars['String']['output'];
 };
 
+/** Represents a Mailing Address on a Subscription. */
+export type SubscriptionMailingAddress = {
+  __typename?: 'SubscriptionMailingAddress';
+  /** The first line of the address. Typically the street address or PO Box number. */
+  address1?: Maybe<Scalars['String']['output']>;
+  /** The second line of the address. Typically the number of the apartment, suite, or unit. */
+  address2?: Maybe<Scalars['String']['output']>;
+  /** The name of the city, district, village, or town. */
+  city?: Maybe<Scalars['String']['output']>;
+  /** The name of the customer's company or organization. */
+  company?: Maybe<Scalars['String']['output']>;
+  /** The name of the country. */
+  country?: Maybe<Scalars['String']['output']>;
+  /**
+   * The two-letter code for the country of the address.
+   *
+   * For example, US.
+   */
+  countryCode?: Maybe<CountryCode>;
+  /** The first name of the customer. */
+  firstName?: Maybe<Scalars['String']['output']>;
+  /** The last name of the customer. */
+  lastName?: Maybe<Scalars['String']['output']>;
+  /** The full name of the customer, based on firstName and lastName. */
+  name?: Maybe<Scalars['String']['output']>;
+  /** A unique phone number for the customer. Formatted using E.164 standard. For example, _+16135551111_. */
+  phone?: Maybe<Scalars['String']['output']>;
+  /** The region of the address, such as the province, state, or district. */
+  province?: Maybe<Scalars['String']['output']>;
+  /**
+   * The alphanumeric code for the region.
+   *
+   * For example, ON.
+   */
+  provinceCode?: Maybe<Scalars['String']['output']>;
+  /** The zip or postal code of the address. */
+  zip?: Maybe<Scalars['String']['output']>;
+};
+
 /** Custom subscription discount. */
 export type SubscriptionManualDiscount = {
   __typename?: 'SubscriptionManualDiscount';
@@ -62434,22 +59988,6 @@ export enum SuggestedOrderTransactionKind {
   SuggestedRefund = 'SUGGESTED_REFUND'
 }
 
-/** The input fields for an exchange line item. */
-export type SuggestedOutcomeExchangeLineItemInput = {
-  /** The ID of the exchange line item. */
-  id: Scalars['ID']['input'];
-  /** The quantity of the exchange line item. */
-  quantity: Scalars['Int']['input'];
-};
-
-/** The input fields for a return line item. */
-export type SuggestedOutcomeReturnLineItemInput = {
-  /** The ID of the return line item. */
-  id: Scalars['ID']['input'];
-  /** The quantity of the return line item. */
-  quantity: Scalars['Int']['input'];
-};
-
 /** Represents a refund suggested by Shopify based on the items being reimbursed. You can then use the suggested refund object to generate an actual refund. */
 export type SuggestedRefund = {
   __typename?: 'SuggestedRefund';
@@ -62482,8 +60020,6 @@ export type SuggestedRefund = {
   subtotal: Scalars['Money']['output'];
   /** The sum of all the prices of the line items being refunded in shop and presentment currencies. */
   subtotalSet: MoneyBag;
-  /** A list of suggested refund methods. */
-  suggestedRefundMethods: Array<SuggestedRefundMethod>;
   /** A list of suggested order transactions. */
   suggestedTransactions: Array<SuggestedOrderTransaction>;
   /** The total cart discount amount that was applied to all line items in this refund. */
@@ -62497,37 +60033,6 @@ export type SuggestedRefund = {
    * @deprecated Use `totalTaxSet` instead.
    */
   totalTaxes: Scalars['Money']['output'];
-};
-
-/** Generic attributes of a suggested refund method. */
-export type SuggestedRefundMethod = {
-  /** The suggested amount to refund in shop and presentment currencies. */
-  amount: MoneyBag;
-  /** The maximum available amount to refund in shop and presentment currencies. */
-  maximumRefundable: MoneyBag;
-};
-
-/** Represents a return financial outcome suggested by Shopify based on the items being reimbursed. You can then use the suggested outcome object to generate an actual refund or invoice for the return. */
-export type SuggestedReturnFinancialOutcome = {
-  __typename?: 'SuggestedReturnFinancialOutcome';
-  /** The sum of all the discounted prices of the line items being refunded. */
-  discountedSubtotal: MoneyBag;
-  /** The financial transfer details for the return outcome. */
-  financialTransfer?: Maybe<ReturnOutcomeFinancialTransfer>;
-  /** The total monetary value available to refund in shop and presentment currencies. */
-  maximumRefundable: MoneyBag;
-  /** A list of duties to be refunded from the order. */
-  refundDuties: Array<RefundDuty>;
-  /** The shipping costs to be refunded from the order. */
-  shipping: ShippingRefund;
-  /** The sum of all the additional fees being refunded in shop and presentment currencies. The value must be positive. */
-  totalAdditionalFees: MoneyBag;
-  /** The total cart discount amount that was applied to all line items in this refund. */
-  totalCartDiscountAmount: MoneyBag;
-  /** The sum of all the duties being refunded from the order in shop and presentment currencies. The value must be positive. */
-  totalDuties: MoneyBag;
-  /** The sum of the taxes being refunded in shop and presentment currencies. The value must be positive. */
-  totalTax: MoneyBag;
 };
 
 /** Represents a return refund suggested by Shopify based on the items being reimbursed. You can then use the suggested refund object to generate an actual refund for the return. */
@@ -62553,17 +60058,6 @@ export type SuggestedReturnRefund = {
   totalDuties: MoneyBag;
   /** The sum of the taxes being refunded in shop and presentment currencies. The value must be positive. */
   totalTax: MoneyBag;
-};
-
-/** The suggested values for a refund to store credit. */
-export type SuggestedStoreCreditRefund = SuggestedRefundMethod & {
-  __typename?: 'SuggestedStoreCreditRefund';
-  /** The suggested amount to refund in shop and presentment currencies. */
-  amount: MoneyBag;
-  /** The suggested expiration date for the store credit. */
-  expiresAt?: Maybe<Scalars['DateTime']['output']>;
-  /** The maximum available amount to refund in shop and presentment currencies. */
-  maximumRefundable: MoneyBag;
 };
 
 /** Return type for `tagsAdd` mutation. */
@@ -63300,26 +60794,6 @@ export enum TransactionVoidUserErrorCode {
   TransactionNotFound = 'TRANSACTION_NOT_FOUND'
 }
 
-/** The set of valid sort keys for the Transfer query. */
-export enum TransferSortKeys {
-  /** Sort by the `created_at` value. */
-  CreatedAt = 'CREATED_AT',
-  /** Sort by the `destination_name` value. */
-  DestinationName = 'DESTINATION_NAME',
-  /** Sort by the `expected_shipment_arrival` value. */
-  ExpectedShipmentArrival = 'EXPECTED_SHIPMENT_ARRIVAL',
-  /** Sort by the `id` value. */
-  Id = 'ID',
-  /** Sort by the `name` value. */
-  Name = 'NAME',
-  /** Sort by the `origin_name` value. */
-  OriginName = 'ORIGIN_NAME',
-  /** Sort by the `source_name` value. */
-  SourceName = 'SOURCE_NAME',
-  /** Sort by the `status` value. */
-  Status = 'STATUS'
-}
-
 /** Translatable content of a resource's field. */
 export type TranslatableContent = {
   __typename?: 'TranslatableContent';
@@ -63621,28 +61095,12 @@ export type UnitPriceMeasurement = {
   referenceValue: Scalars['Int']['output'];
 };
 
-/** The input fields for the measurement used to calculate a unit price for a product variant (e.g. $9.99 / 100ml). */
-export type UnitPriceMeasurementInput = {
-  /** The quantity unit for the unit price measurement. */
-  quantityUnit?: InputMaybe<UnitPriceMeasurementMeasuredUnit>;
-  /** The quantity value for the unit price measurement. */
-  quantityValue?: InputMaybe<Scalars['Float']['input']>;
-  /** The reference unit for the unit price measurement. */
-  referenceUnit?: InputMaybe<UnitPriceMeasurementMeasuredUnit>;
-  /** The reference value for the unit price measurement. */
-  referenceValue?: InputMaybe<Scalars['Int']['input']>;
-};
-
 /** The accepted types of unit of measurement. */
 export enum UnitPriceMeasurementMeasuredType {
   /** Unit of measurements representing areas. */
   Area = 'AREA',
-  /** Unit of measurements representing counts. */
-  Count = 'COUNT',
   /** Unit of measurements representing lengths. */
   Length = 'LENGTH',
-  /** The type of measurement is unknown. Upgrade to the latest version of the API to resolve this type. */
-  Unknown = 'UNKNOWN',
   /** Unit of measurements representing volumes. */
   Volume = 'VOLUME',
   /** Unit of measurements representing weights. */
@@ -63655,26 +61113,12 @@ export enum UnitPriceMeasurementMeasuredUnit {
   Cl = 'CL',
   /** 100 centimeters equals 1 meter. */
   Cm = 'CM',
-  /** Imperial system unit of volume (U.S. customary unit). */
-  Floz = 'FLOZ',
-  /** 1 foot equals 12 inches. */
-  Ft = 'FT',
-  /** Imperial system unit of area. */
-  Ft2 = 'FT2',
   /** Metric system unit of weight. */
   G = 'G',
-  /** 1 gallon equals 128 fluid ounces (U.S. customary unit). */
-  Gal = 'GAL',
-  /** Imperial system unit of length. */
-  In = 'IN',
-  /** 1 item, a unit of count. */
-  Item = 'ITEM',
   /** 1 kilogram equals 1000 grams. */
   Kg = 'KG',
   /** Metric system unit of volume. */
   L = 'L',
-  /** Imperial system unit of weight. */
-  Lb = 'LB',
   /** Metric system unit of length. */
   M = 'M',
   /** Metric system unit of area. */
@@ -63686,17 +61130,7 @@ export enum UnitPriceMeasurementMeasuredUnit {
   /** 1000 milliliters equals 1 liter. */
   Ml = 'ML',
   /** 1000 millimeters equals 1 meter. */
-  Mm = 'MM',
-  /** 16 ounces equals 1 pound. */
-  Oz = 'OZ',
-  /** 1 pint equals 16 fluid ounces (U.S. customary unit). */
-  Pt = 'PT',
-  /** 1 quart equals 32 fluid ounces (U.S. customary unit). */
-  Qt = 'QT',
-  /** The unit of measurement is unknown. Upgrade to the latest version of the API to resolve this unit. */
-  Unknown = 'UNKNOWN',
-  /** 1 yard equals 36 inches. */
-  Yd = 'YD'
+  Mm = 'MM'
 }
 
 /** Systems of weights and measures. */
@@ -63737,10 +61171,6 @@ export type UnverifiedReturnLineItem = Node & ReturnLineItemType & {
   customerNote?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
-  /** The quantity that can be processed. */
-  processableQuantity: Scalars['Int']['output'];
-  /** The quantity that has been processed. */
-  processedQuantity: Scalars['Int']['output'];
   /** The quantity being returned. */
   quantity: Scalars['Int']['output'];
   /** The quantity that can be refunded. */
@@ -63753,8 +61183,6 @@ export type UnverifiedReturnLineItem = Node & ReturnLineItemType & {
   returnReasonNote: Scalars['String']['output'];
   /** The unit price of the unverified return line item. */
   unitPrice: MoneyV2;
-  /** The quantity that has't been processed. */
-  unprocessedQuantity: Scalars['Int']['output'];
 };
 
 /** The input fields required to update a media object. */
@@ -64904,34 +62332,6 @@ export enum WebhookSubscriptionTopic {
   InventoryLevelsDisconnect = 'INVENTORY_LEVELS_DISCONNECT',
   /** The webhook topic for `inventory_levels/update` events. Occurs whenever an inventory level is updated. Requires the `read_inventory` scope. */
   InventoryLevelsUpdate = 'INVENTORY_LEVELS_UPDATE',
-  /** The webhook topic for `inventory_shipments/add_items` events. Occurs whenever items are added to a shipment. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsAddItems = 'INVENTORY_SHIPMENTS_ADD_ITEMS',
-  /** The webhook topic for `inventory_shipments/create` events. Triggers when a shipment is created. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsCreate = 'INVENTORY_SHIPMENTS_CREATE',
-  /** The webhook topic for `inventory_shipments/delete` events. Triggers when a shipment is deleted. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsDelete = 'INVENTORY_SHIPMENTS_DELETE',
-  /** The webhook topic for `inventory_shipments/mark_in_transit` events. Triggers when a shipment is marked as in transit. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsMarkInTransit = 'INVENTORY_SHIPMENTS_MARK_IN_TRANSIT',
-  /** The webhook topic for `inventory_shipments/receive_items` events. Triggers when items on a shipment are received. Requires the `read_inventory_shipments_received_items` scope. */
-  InventoryShipmentsReceiveItems = 'INVENTORY_SHIPMENTS_RECEIVE_ITEMS',
-  /** The webhook topic for `inventory_shipments/remove_items` events. Occurs whenever items are removed from a shipment. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsRemoveItems = 'INVENTORY_SHIPMENTS_REMOVE_ITEMS',
-  /** The webhook topic for `inventory_shipments/update_item_quantities` events. Occurs whenever quantities change on a shipment. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsUpdateItemQuantities = 'INVENTORY_SHIPMENTS_UPDATE_ITEM_QUANTITIES',
-  /** The webhook topic for `inventory_shipments/update_tracking` events. Triggers when tracking info on a shipment is updated. Requires the `read_inventory_shipments` scope. */
-  InventoryShipmentsUpdateTracking = 'INVENTORY_SHIPMENTS_UPDATE_TRACKING',
-  /** The webhook topic for `inventory_transfers/add_items` events. Occurs any time items are added to a transfer. Requires the `read_inventory_transfers` scope. */
-  InventoryTransfersAddItems = 'INVENTORY_TRANSFERS_ADD_ITEMS',
-  /** The webhook topic for `inventory_transfers/cancel` events. Triggers when a transfer is canceled. Requires the `read_inventory_transfers` scope. */
-  InventoryTransfersCancel = 'INVENTORY_TRANSFERS_CANCEL',
-  /** The webhook topic for `inventory_transfers/complete` events. Triggers when a transfer is completed. Requires the `read_inventory_transfers` scope. */
-  InventoryTransfersComplete = 'INVENTORY_TRANSFERS_COMPLETE',
-  /** The webhook topic for `inventory_transfers/ready_to_ship` events. Triggers when a transfer is marked as ready to ship. Requires the `read_inventory_transfers` scope. */
-  InventoryTransfersReadyToShip = 'INVENTORY_TRANSFERS_READY_TO_SHIP',
-  /** The webhook topic for `inventory_transfers/remove_items` events. Occurs any time items are removed from a transfer. Requires the `read_inventory_transfers` scope. */
-  InventoryTransfersRemoveItems = 'INVENTORY_TRANSFERS_REMOVE_ITEMS',
-  /** The webhook topic for `inventory_transfers/update_item_quantities` events. Occurs whenever the quantity of transfer line items changes. Requires the `read_inventory_transfers` scope. */
-  InventoryTransfersUpdateItemQuantities = 'INVENTORY_TRANSFERS_UPDATE_ITEM_QUANTITIES',
   /** The webhook topic for `locales/create` events. Occurs whenever a shop locale is created Requires the `read_locales` scope. */
   LocalesCreate = 'LOCALES_CREATE',
   /** The webhook topic for `locales/update` events. Occurs whenever a shop locale is updated, such as published or unpublished Requires the `read_locales` scope. */
@@ -65051,8 +62451,6 @@ export enum WebhookSubscriptionTopic {
   ReturnsClose = 'RETURNS_CLOSE',
   /** The webhook topic for `returns/decline` events. Occurs whenever a return is declined. This means `Return.status` is `DECLINED`. Requires at least one of the following scopes: read_returns, read_marketplace_returns, read_buyer_membership_orders. */
   ReturnsDecline = 'RETURNS_DECLINE',
-  /** The webhook topic for `returns/process` events. Occurs whenever a return is processed. Requires at least one of the following scopes: read_returns, read_marketplace_returns, read_buyer_membership_orders. */
-  ReturnsProcess = 'RETURNS_PROCESS',
   /** The webhook topic for `returns/reopen` events. Occurs whenever a closed return is reopened. Requires at least one of the following scopes: read_orders, read_marketplace_orders, read_returns, read_marketplace_returns, read_buyer_membership_orders. */
   ReturnsReopen = 'RETURNS_REOPEN',
   /** The webhook topic for `returns/request` events. Occurs whenever a return is requested. This means `Return.status` is `REQUESTED`. Requires at least one of the following scopes: read_returns, read_marketplace_returns, read_buyer_membership_orders. */
@@ -65517,7 +62915,7 @@ export type BulkOperationByShopifyIdQueryVariables = Exact<{
 }>;
 
 
-export type BulkOperationByShopifyIdQuery = { __typename?: 'QueryRoot', node?: { __typename?: 'AbandonedCheckout' } | { __typename?: 'AbandonedCheckoutLineItem' } | { __typename?: 'Abandonment' } | { __typename?: 'AddAllProductsOperation' } | { __typename?: 'AdditionalFee' } | { __typename?: 'App' } | { __typename?: 'AppCatalog' } | { __typename?: 'AppCredit' } | { __typename?: 'AppInstallation' } | { __typename?: 'AppPurchaseOneTime' } | { __typename?: 'AppRevenueAttributionRecord' } | { __typename?: 'AppSubscription' } | { __typename?: 'AppUsageRecord' } | { __typename?: 'Article' } | { __typename?: 'BasicEvent' } | { __typename?: 'Blog' } | { __typename?: 'BulkOperation', id: string, status: BulkOperationStatus, errorCode?: BulkOperationErrorCode | null, createdAt: any, completedAt?: any | null, objectCount: any, fileSize?: any | null, url?: any | null, partialDataUrl?: any | null } | { __typename?: 'BusinessEntity' } | { __typename?: 'CalculatedOrder' } | { __typename?: 'CartTransform' } | { __typename?: 'CashTrackingAdjustment' } | { __typename?: 'CashTrackingSession' } | { __typename?: 'CatalogCsvOperation' } | { __typename?: 'Channel' } | { __typename?: 'ChannelDefinition' } | { __typename?: 'ChannelInformation' } | { __typename?: 'CheckoutProfile' } | { __typename?: 'Collection' } | { __typename?: 'Comment' } | { __typename?: 'CommentEvent' } | { __typename?: 'Company' } | { __typename?: 'CompanyAddress' } | { __typename?: 'CompanyContact' } | { __typename?: 'CompanyContactRole' } | { __typename?: 'CompanyContactRoleAssignment' } | { __typename?: 'CompanyLocation' } | { __typename?: 'CompanyLocationCatalog' } | { __typename?: 'CompanyLocationStaffMemberAssignment' } | { __typename?: 'ConsentPolicy' } | { __typename?: 'CurrencyExchangeAdjustment' } | { __typename?: 'Customer' } | { __typename?: 'CustomerAccountAppExtensionPage' } | { __typename?: 'CustomerAccountNativePage' } | { __typename?: 'CustomerPaymentMethod' } | { __typename?: 'CustomerSegmentMembersQuery' } | { __typename?: 'CustomerVisit' } | { __typename?: 'DeliveryCarrierService' } | { __typename?: 'DeliveryCondition' } | { __typename?: 'DeliveryCountry' } | { __typename?: 'DeliveryCustomization' } | { __typename?: 'DeliveryLocationGroup' } | { __typename?: 'DeliveryMethod' } | { __typename?: 'DeliveryMethodDefinition' } | { __typename?: 'DeliveryParticipant' } | { __typename?: 'DeliveryProfile' } | { __typename?: 'DeliveryProfileItem' } | { __typename?: 'DeliveryPromiseParticipant' } | { __typename?: 'DeliveryPromiseProvider' } | { __typename?: 'DeliveryProvince' } | { __typename?: 'DeliveryRateDefinition' } | { __typename?: 'DeliveryZone' } | { __typename?: 'DiscountAutomaticBxgy' } | { __typename?: 'DiscountAutomaticNode' } | { __typename?: 'DiscountCodeNode' } | { __typename?: 'DiscountNode' } | { __typename?: 'DiscountRedeemCodeBulkCreation' } | { __typename?: 'Domain' } | { __typename?: 'DraftOrder' } | { __typename?: 'DraftOrderLineItem' } | { __typename?: 'DraftOrderTag' } | { __typename?: 'Duty' } | { __typename?: 'ExchangeLineItem' } | { __typename?: 'ExchangeV2' } | { __typename?: 'ExternalVideo' } | { __typename?: 'Fulfillment' } | { __typename?: 'FulfillmentConstraintRule' } | { __typename?: 'FulfillmentEvent' } | { __typename?: 'FulfillmentHold' } | { __typename?: 'FulfillmentLineItem' } | { __typename?: 'FulfillmentOrder' } | { __typename?: 'FulfillmentOrderDestination' } | { __typename?: 'FulfillmentOrderLineItem' } | { __typename?: 'FulfillmentOrderMerchantRequest' } | { __typename?: 'GenericFile' } | { __typename?: 'GiftCard' } | { __typename?: 'GiftCardCreditTransaction' } | { __typename?: 'GiftCardDebitTransaction' } | { __typename?: 'InventoryAdjustmentGroup' } | { __typename?: 'InventoryItem' } | { __typename?: 'InventoryItemMeasurement' } | { __typename?: 'InventoryLevel' } | { __typename?: 'InventoryQuantity' } | { __typename?: 'InventoryShipment' } | { __typename?: 'InventoryShipmentLineItem' } | { __typename?: 'InventoryTransfer' } | { __typename?: 'InventoryTransferLineItem' } | { __typename?: 'LineItem' } | { __typename?: 'LineItemGroup' } | { __typename?: 'Location' } | { __typename?: 'MailingAddress' } | { __typename?: 'Market' } | { __typename?: 'MarketCatalog' } | { __typename?: 'MarketRegionCountry' } | { __typename?: 'MarketWebPresence' } | { __typename?: 'MarketingActivity' } | { __typename?: 'MarketingEvent' } | { __typename?: 'MediaImage' } | { __typename?: 'Menu' } | { __typename?: 'Metafield' } | { __typename?: 'MetafieldDefinition' } | { __typename?: 'Metaobject' } | { __typename?: 'MetaobjectDefinition' } | { __typename?: 'Model3d' } | { __typename?: 'OnlineStoreTheme' } | { __typename?: 'Order' } | { __typename?: 'OrderAdjustment' } | { __typename?: 'OrderDisputeSummary' } | { __typename?: 'OrderTransaction' } | { __typename?: 'Page' } | { __typename?: 'PaymentCustomization' } | { __typename?: 'PaymentMandate' } | { __typename?: 'PaymentSchedule' } | { __typename?: 'PaymentTerms' } | { __typename?: 'PaymentTermsTemplate' } | { __typename?: 'PointOfSaleDevice' } | { __typename?: 'PriceList' } | { __typename?: 'PriceRule' } | { __typename?: 'PriceRuleDiscountCode' } | { __typename?: 'Product' } | { __typename?: 'ProductBundleOperation' } | { __typename?: 'ProductDeleteOperation' } | { __typename?: 'ProductDuplicateOperation' } | { __typename?: 'ProductFeed' } | { __typename?: 'ProductOption' } | { __typename?: 'ProductOptionValue' } | { __typename?: 'ProductSetOperation' } | { __typename?: 'ProductTaxonomyNode' } | { __typename?: 'ProductVariant' } | { __typename?: 'ProductVariantComponent' } | { __typename?: 'Publication' } | { __typename?: 'PublicationResourceOperation' } | { __typename?: 'QuantityPriceBreak' } | { __typename?: 'Refund' } | { __typename?: 'RefundShippingLine' } | { __typename?: 'Return' } | { __typename?: 'ReturnLineItem' } | { __typename?: 'ReturnableFulfillment' } | { __typename?: 'ReverseDelivery' } | { __typename?: 'ReverseDeliveryLineItem' } | { __typename?: 'ReverseFulfillmentOrder' } | { __typename?: 'ReverseFulfillmentOrderDisposition' } | { __typename?: 'ReverseFulfillmentOrderLineItem' } | { __typename?: 'SaleAdditionalFee' } | { __typename?: 'SavedSearch' } | { __typename?: 'ScriptTag' } | { __typename?: 'Segment' } | { __typename?: 'SellingPlan' } | { __typename?: 'SellingPlanGroup' } | { __typename?: 'ServerPixel' } | { __typename?: 'Shop' } | { __typename?: 'ShopAddress' } | { __typename?: 'ShopPolicy' } | { __typename?: 'ShopifyPaymentsAccount' } | { __typename?: 'ShopifyPaymentsBalanceTransaction' } | { __typename?: 'ShopifyPaymentsBankAccount' } | { __typename?: 'ShopifyPaymentsDispute' } | { __typename?: 'ShopifyPaymentsDisputeEvidence' } | { __typename?: 'ShopifyPaymentsDisputeFileUpload' } | { __typename?: 'ShopifyPaymentsDisputeFulfillment' } | { __typename?: 'ShopifyPaymentsPayout' } | { __typename?: 'StaffMember' } | { __typename?: 'StandardMetafieldDefinitionTemplate' } | { __typename?: 'StoreCreditAccount' } | { __typename?: 'StoreCreditAccountCreditTransaction' } | { __typename?: 'StoreCreditAccountDebitRevertTransaction' } | { __typename?: 'StoreCreditAccountDebitTransaction' } | { __typename?: 'StorefrontAccessToken' } | { __typename?: 'SubscriptionBillingAttempt' } | { __typename?: 'SubscriptionContract' } | { __typename?: 'SubscriptionDraft' } | { __typename?: 'TaxonomyAttribute' } | { __typename?: 'TaxonomyCategory' } | { __typename?: 'TaxonomyChoiceListAttribute' } | { __typename?: 'TaxonomyMeasurementAttribute' } | { __typename?: 'TaxonomyValue' } | { __typename?: 'TenderTransaction' } | { __typename?: 'TransactionFee' } | { __typename?: 'UnverifiedReturnLineItem' } | { __typename?: 'UrlRedirect' } | { __typename?: 'UrlRedirectImport' } | { __typename?: 'Validation' } | { __typename?: 'Video' } | { __typename?: 'WebPixel' } | { __typename?: 'WebhookSubscription' } | null };
+export type BulkOperationByShopifyIdQuery = { __typename?: 'QueryRoot', node?: { __typename?: 'AbandonedCheckout' } | { __typename?: 'AbandonedCheckoutLineItem' } | { __typename?: 'Abandonment' } | { __typename?: 'AddAllProductsOperation' } | { __typename?: 'AdditionalFee' } | { __typename?: 'App' } | { __typename?: 'AppCatalog' } | { __typename?: 'AppCredit' } | { __typename?: 'AppInstallation' } | { __typename?: 'AppPurchaseOneTime' } | { __typename?: 'AppRevenueAttributionRecord' } | { __typename?: 'AppSubscription' } | { __typename?: 'AppUsageRecord' } | { __typename?: 'Article' } | { __typename?: 'BasicEvent' } | { __typename?: 'Blog' } | { __typename?: 'BulkOperation', id: string, status: BulkOperationStatus, errorCode?: BulkOperationErrorCode | null, createdAt: any, completedAt?: any | null, objectCount: any, fileSize?: any | null, url?: any | null, partialDataUrl?: any | null } | { __typename?: 'BusinessEntity' } | { __typename?: 'CalculatedOrder' } | { __typename?: 'CartTransform' } | { __typename?: 'CashTrackingAdjustment' } | { __typename?: 'CashTrackingSession' } | { __typename?: 'CatalogCsvOperation' } | { __typename?: 'Channel' } | { __typename?: 'ChannelDefinition' } | { __typename?: 'ChannelInformation' } | { __typename?: 'CheckoutProfile' } | { __typename?: 'Collection' } | { __typename?: 'Comment' } | { __typename?: 'CommentEvent' } | { __typename?: 'Company' } | { __typename?: 'CompanyAddress' } | { __typename?: 'CompanyContact' } | { __typename?: 'CompanyContactRole' } | { __typename?: 'CompanyContactRoleAssignment' } | { __typename?: 'CompanyLocation' } | { __typename?: 'CompanyLocationCatalog' } | { __typename?: 'CompanyLocationStaffMemberAssignment' } | { __typename?: 'ConsentPolicy' } | { __typename?: 'Customer' } | { __typename?: 'CustomerAccountAppExtensionPage' } | { __typename?: 'CustomerAccountNativePage' } | { __typename?: 'CustomerPaymentMethod' } | { __typename?: 'CustomerSegmentMembersQuery' } | { __typename?: 'CustomerVisit' } | { __typename?: 'DeliveryCarrierService' } | { __typename?: 'DeliveryCondition' } | { __typename?: 'DeliveryCountry' } | { __typename?: 'DeliveryCustomization' } | { __typename?: 'DeliveryLocationGroup' } | { __typename?: 'DeliveryMethod' } | { __typename?: 'DeliveryMethodDefinition' } | { __typename?: 'DeliveryParticipant' } | { __typename?: 'DeliveryProfile' } | { __typename?: 'DeliveryProfileItem' } | { __typename?: 'DeliveryPromiseParticipant' } | { __typename?: 'DeliveryPromiseProvider' } | { __typename?: 'DeliveryProvince' } | { __typename?: 'DeliveryRateDefinition' } | { __typename?: 'DeliveryZone' } | { __typename?: 'DiscountAutomaticBxgy' } | { __typename?: 'DiscountAutomaticNode' } | { __typename?: 'DiscountCodeNode' } | { __typename?: 'DiscountNode' } | { __typename?: 'DiscountRedeemCodeBulkCreation' } | { __typename?: 'Domain' } | { __typename?: 'DraftOrder' } | { __typename?: 'DraftOrderLineItem' } | { __typename?: 'DraftOrderTag' } | { __typename?: 'Duty' } | { __typename?: 'ExchangeLineItem' } | { __typename?: 'ExchangeV2' } | { __typename?: 'ExternalVideo' } | { __typename?: 'Fulfillment' } | { __typename?: 'FulfillmentConstraintRule' } | { __typename?: 'FulfillmentEvent' } | { __typename?: 'FulfillmentHold' } | { __typename?: 'FulfillmentLineItem' } | { __typename?: 'FulfillmentOrder' } | { __typename?: 'FulfillmentOrderDestination' } | { __typename?: 'FulfillmentOrderLineItem' } | { __typename?: 'FulfillmentOrderMerchantRequest' } | { __typename?: 'GenericFile' } | { __typename?: 'GiftCard' } | { __typename?: 'GiftCardCreditTransaction' } | { __typename?: 'GiftCardDebitTransaction' } | { __typename?: 'InventoryAdjustmentGroup' } | { __typename?: 'InventoryItem' } | { __typename?: 'InventoryItemMeasurement' } | { __typename?: 'InventoryLevel' } | { __typename?: 'InventoryQuantity' } | { __typename?: 'LineItem' } | { __typename?: 'LineItemGroup' } | { __typename?: 'Location' } | { __typename?: 'MailingAddress' } | { __typename?: 'Market' } | { __typename?: 'MarketCatalog' } | { __typename?: 'MarketRegionCountry' } | { __typename?: 'MarketWebPresence' } | { __typename?: 'MarketingActivity' } | { __typename?: 'MarketingEvent' } | { __typename?: 'MediaImage' } | { __typename?: 'Menu' } | { __typename?: 'Metafield' } | { __typename?: 'MetafieldDefinition' } | { __typename?: 'Metaobject' } | { __typename?: 'MetaobjectDefinition' } | { __typename?: 'Model3d' } | { __typename?: 'OnlineStoreTheme' } | { __typename?: 'Order' } | { __typename?: 'OrderAdjustment' } | { __typename?: 'OrderDisputeSummary' } | { __typename?: 'OrderTransaction' } | { __typename?: 'Page' } | { __typename?: 'PaymentCustomization' } | { __typename?: 'PaymentMandate' } | { __typename?: 'PaymentSchedule' } | { __typename?: 'PaymentTerms' } | { __typename?: 'PaymentTermsTemplate' } | { __typename?: 'PriceList' } | { __typename?: 'PriceRule' } | { __typename?: 'PriceRuleDiscountCode' } | { __typename?: 'Product' } | { __typename?: 'ProductBundleOperation' } | { __typename?: 'ProductDeleteOperation' } | { __typename?: 'ProductDuplicateOperation' } | { __typename?: 'ProductFeed' } | { __typename?: 'ProductOption' } | { __typename?: 'ProductOptionValue' } | { __typename?: 'ProductSetOperation' } | { __typename?: 'ProductTaxonomyNode' } | { __typename?: 'ProductVariant' } | { __typename?: 'ProductVariantComponent' } | { __typename?: 'Publication' } | { __typename?: 'PublicationResourceOperation' } | { __typename?: 'QuantityPriceBreak' } | { __typename?: 'Refund' } | { __typename?: 'RefundShippingLine' } | { __typename?: 'Return' } | { __typename?: 'ReturnLineItem' } | { __typename?: 'ReturnableFulfillment' } | { __typename?: 'ReverseDelivery' } | { __typename?: 'ReverseDeliveryLineItem' } | { __typename?: 'ReverseFulfillmentOrder' } | { __typename?: 'ReverseFulfillmentOrderDisposition' } | { __typename?: 'ReverseFulfillmentOrderLineItem' } | { __typename?: 'SaleAdditionalFee' } | { __typename?: 'SavedSearch' } | { __typename?: 'ScriptTag' } | { __typename?: 'Segment' } | { __typename?: 'SellingPlan' } | { __typename?: 'SellingPlanGroup' } | { __typename?: 'ServerPixel' } | { __typename?: 'Shop' } | { __typename?: 'ShopAddress' } | { __typename?: 'ShopPolicy' } | { __typename?: 'ShopifyPaymentsAccount' } | { __typename?: 'ShopifyPaymentsBalanceTransaction' } | { __typename?: 'ShopifyPaymentsBankAccount' } | { __typename?: 'ShopifyPaymentsDispute' } | { __typename?: 'ShopifyPaymentsDisputeEvidence' } | { __typename?: 'ShopifyPaymentsDisputeFileUpload' } | { __typename?: 'ShopifyPaymentsDisputeFulfillment' } | { __typename?: 'ShopifyPaymentsPayout' } | { __typename?: 'StaffMember' } | { __typename?: 'StandardMetafieldDefinitionTemplate' } | { __typename?: 'StoreCreditAccount' } | { __typename?: 'StoreCreditAccountCreditTransaction' } | { __typename?: 'StoreCreditAccountDebitRevertTransaction' } | { __typename?: 'StoreCreditAccountDebitTransaction' } | { __typename?: 'StorefrontAccessToken' } | { __typename?: 'SubscriptionBillingAttempt' } | { __typename?: 'SubscriptionContract' } | { __typename?: 'SubscriptionDraft' } | { __typename?: 'TaxonomyAttribute' } | { __typename?: 'TaxonomyCategory' } | { __typename?: 'TaxonomyChoiceListAttribute' } | { __typename?: 'TaxonomyMeasurementAttribute' } | { __typename?: 'TaxonomyValue' } | { __typename?: 'TenderTransaction' } | { __typename?: 'TransactionFee' } | { __typename?: 'UnverifiedReturnLineItem' } | { __typename?: 'UrlRedirect' } | { __typename?: 'UrlRedirectImport' } | { __typename?: 'Validation' } | { __typename?: 'Video' } | { __typename?: 'WebPixel' } | { __typename?: 'WebhookSubscription' } | null };
 
 export type CurrentBulkOperationQueryVariables = Exact<{ [key: string]: never; }>;
 

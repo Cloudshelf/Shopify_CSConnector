@@ -1,14 +1,14 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
+import { InjectShopify } from '@nestjs-shopify/core';
+import { Shopify } from '@shopify/shopify-api';
+import { NextFunction, Request, Response } from 'express';
+import { Telemetry } from 'src/decorators/telemetry';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { HtmlUtils } from '../../../utils/HtmlUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
-import { InjectShopify } from '@nestjs-shopify/core';
-import { Shopify } from '@shopify/shopify-api';
-import { NextFunction, Request, Response } from 'express';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
@@ -73,7 +73,7 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
                 // return res.redirect(`/shopify/offline/auth?shop=${shop}`);
             }
 
-            const hasAllRequiredScopes = this.shopifyApiService.config.scopes.equals(offlineSession.scope);
+            const hasAllRequiredScopes = this.shopifyApiService.config.scopes?.equals(offlineSession.scope);
 
             if (!hasAllRequiredScopes) {
                 if (queryHasSession) {

@@ -3,9 +3,9 @@ import {
     RegisterWebhookMutation,
     RegisterWebhookMutationVariables,
     WebhookSubscriptionFormat,
-    WebhookSubscriptionInput,
     WebhookSubscriptionTopic,
 } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import { WebhookSubscriptionInputWithCallback } from '../../../graphql/shopifyAdmin/types/webhook-extensions';
 import { ShopifyGraphqlUtil } from '../../shopify/shopify.graphql.util';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
 import { RetailerEntity } from '../../retailer/retailer.entity';
@@ -20,7 +20,7 @@ export async function registerWebhookForRetailer(
         logs?.info(`Creating webook ${topic} to host ${url}`);
         const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
 
-        const subscription: WebhookSubscriptionInput = {
+        const subscription: WebhookSubscriptionInputWithCallback = {
             callbackUrl: url,
             format: WebhookSubscriptionFormat.Json,
             includeFields: [],
@@ -31,7 +31,7 @@ export async function registerWebhookForRetailer(
             mutation: RegisterWebhookDocument,
             variables: {
                 topic,
-                subscription,
+                subscription: subscription as unknown as WebhookSubscriptionInputWithCallback,
             },
         });
 
