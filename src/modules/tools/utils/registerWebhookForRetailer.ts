@@ -31,7 +31,7 @@ export async function registerWebhookForRetailer(
             mutation: RegisterWebhookDocument,
             variables: {
                 topic,
-                subscription: subscription as any, // Type assertion needed due to missing callbackUrl in generated types
+                subscription: subscription as unknown as WebhookSubscriptionInputWithCallback,
             },
         });
 
