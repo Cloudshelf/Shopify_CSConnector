@@ -53,7 +53,7 @@ export class ShopifyModule {
                     sessionStorage: sessionStorage,
                     apiKey: shopifyConfigService.get<string>('SHOPIFY_API_KEY')!,
                     apiSecretKey: shopifyConfigService.get<string>('SHOPIFY_API_SECRET_KEY')!,
-                    apiVersion: ApiVersion.January24,
+                    apiVersion: ApiVersion.October25,
                     hostName: runtimeConfigService.get('HOST')!.replace(/https:\/\//, ''),
                     isEmbeddedApp: true,
                     restResources,
