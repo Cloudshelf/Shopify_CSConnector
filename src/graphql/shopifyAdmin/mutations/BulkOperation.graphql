@@ -11,9 +11,7 @@ mutation CancelBulkOp($id: ID!) {
 }
 
 mutation CreateShopifyBulkOperation($queryString: String!) {
-    bulkOperationRunQuery(
-        query: $queryString
-    ) {
+    bulkOperationRunQuery(query: $queryString) {
         bulkOperation {
             id
             status
@@ -21,6 +19,7 @@ mutation CreateShopifyBulkOperation($queryString: String!) {
         userErrors {
             field
             message
+            code
         }
     }
 }

@@ -1,5 +1,10 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ShopifyAuthModule } from '@nestjs-shopify/auth';
+import { ShopifyCoreModule } from '@nestjs-shopify/core';
+import { ShopifyWebhooksModule } from '@nestjs-shopify/webhooks';
+import { ApiVersion, LogSeverity } from '@shopify/shopify-api';
+import { restResources } from '@shopify/shopify-api/dist/ts/rest/admin/2025-07';
 import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { shopifySchema } from '../configuration/schemas/shopify.schema';
@@ -21,11 +26,6 @@ import { ProductsDeleteWebhookHandler } from './webhooks/product.delete.webhook.
 import { RequiredWebhooksController } from './webhooks/required.webhooks.controller';
 import { SubscriptionUpdateWebhookHandler } from './webhooks/subscription.update.webhook.handler';
 import { UninstalledWebhookHandler } from './webhooks/uninstall.webhook.handler';
-import { ShopifyAuthModule } from '@nestjs-shopify/auth';
-import { ShopifyCoreModule } from '@nestjs-shopify/core';
-import { ShopifyWebhooksModule } from '@nestjs-shopify/webhooks';
-import { ApiVersion, LogSeverity } from '@shopify/shopify-api';
-import { restResources } from '@shopify/shopify-api/rest/admin/2024-01';
 
 export type ShopifyRestResources = typeof restResources;
 @Module({})

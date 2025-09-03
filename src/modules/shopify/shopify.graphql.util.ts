@@ -18,7 +18,7 @@ export class ShopifyGraphqlUtil {
         logs?: LogsInterface,
     ): Promise<ApolloClient<NormalizedCacheObject>> {
         const endpoint = createHttpLink({
-            uri: `https://${domain}/admin/api/2024-01/graphql.json`,
+            uri: `https://${domain}/admin/api/2025-07/graphql.json`,
             headers: {
                 'Content-Type': 'application/json',
                 'X-Shopify-Access-Token': accessToken,
@@ -43,7 +43,7 @@ export class ShopifyGraphqlUtil {
 
     static async getShopifyStorefrontApolloClient(domain: string, accessToken: string) {
         const endpoint = createHttpLink({
-            uri: `https://${domain}/api/2024-01/graphql.json`,
+            uri: `https://${domain}/api/2025-07/graphql.json`,
             headers: {
                 'Content-Type': 'application/json',
                 'X-Shopify-Storefront-Access-Token': accessToken,
