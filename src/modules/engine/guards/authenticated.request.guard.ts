@@ -8,7 +8,6 @@ import {
     createParamDecorator,
     forwardRef,
 } from '@nestjs/common';
-import { legacyUrlToShopAdminUrl } from '@shopify/shopify-api/lib/utils/shop-admin-url-helper';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerService } from 'src/modules/retailer/retailer.service';
 

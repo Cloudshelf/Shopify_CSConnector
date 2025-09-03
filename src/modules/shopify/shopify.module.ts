@@ -1,10 +1,9 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ShopifyAuthModule } from '@nestjs-shopify/auth';
-import { ShopifyCoreModule } from '@nestjs-shopify/core';
+import { ShopifyExpressModule } from '@nestjs-shopify/express';
 import { ShopifyWebhooksModule } from '@nestjs-shopify/webhooks';
 import { ApiVersion, LogSeverity } from '@shopify/shopify-api';
-import { restResources } from '@shopify/shopify-api/dist/ts/rest/admin/2025-07';
 import { CloudshelfModule } from '../cloudshelf/cloudshelf.module';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { shopifySchema } from '../configuration/schemas/shopify.schema';
@@ -27,11 +26,14 @@ import { RequiredWebhooksController } from './webhooks/required.webhooks.control
 import { SubscriptionUpdateWebhookHandler } from './webhooks/subscription.update.webhook.handler';
 import { UninstalledWebhookHandler } from './webhooks/uninstall.webhook.handler';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { restResources } = require('@shopify/shopify-api/rest/admin/2025-07');
+
 export type ShopifyRestResources = typeof restResources;
 @Module({})
 export class ShopifyModule {
     static register(): DynamicModule {
-        const nestjsShopifyCore = ShopifyCoreModule.forRootAsync({
+        const nestjsShopifyCore = ShopifyExpressModule.forRootAsync({
             imports: [ConfigModule, SessionModule, RetailerModule],
             inject: [
                 ConfigService<typeof shopifySchema>,

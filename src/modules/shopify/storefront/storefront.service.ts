@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ExtendedLogger } from '../../../utils/ExtendedLogger';
-import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
-import { ShopifyRestResources } from '../shopify.module';
 import { InjectShopify } from '@nestjs-shopify/core';
 import { Shopify } from '@shopify/shopify-api';
 import { Telemetry } from 'src/decorators/telemetry';
+import { ExtendedLogger } from '../../../utils/ExtendedLogger';
+import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
+import { ShopifyRestResources } from '../shopify.module';
 
 @Injectable()
 export class StorefrontService {
@@ -20,7 +20,9 @@ export class StorefrontService {
                 session,
             });
 
-            const foundToken = allTokens.data.find(({ title }) => title === StorefrontService.TOKEN_TITLE);
+            const foundToken = allTokens.data.find(
+                ({ title }: { title: string | null }) => title === StorefrontService.TOKEN_TITLE,
+            );
             if (foundToken) {
                 return foundToken.access_token;
             }

@@ -5840,18 +5840,6 @@
             "deprecationReason": null
           },
           {
-            "name": "BUYER_CANNOT_PURCHASE_FOR_COMPANY_LOCATION",
-            "description": "Buyer cannot purchase for company location.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "CART_TOO_LARGE",
-            "description": "The cart is too large to save.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "INVALID",
             "description": "The input value is invalid.",
             "isDeprecated": false,
@@ -5902,12 +5890,6 @@
           {
             "name": "INVALID_PAYMENT",
             "description": "The payment wasn't valid.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "INVALID_PAYMENT_DEFERRED_PAYMENT_REQUIRED",
-            "description": "The payment is invalid. Deferred payment is required.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -6038,38 +6020,14 @@
             "deprecationReason": null
           },
           {
-            "name": "PAYMENT_METHOD_NOT_APPLICABLE",
-            "description": "The payment method is not applicable.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "PAYMENT_METHOD_NOT_SUPPORTED",
             "description": "The payment method is not supported.",
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "PENDING_DELIVERY_GROUPS",
-            "description": "The delivery group is in a pending state.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "PROVINCE_NOT_FOUND",
             "description": "The given province cannot be found.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "SELLING_PLAN_NOT_APPLICABLE",
-            "description": "Selling plan is not applicable.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "SERVICE_UNAVAILABLE",
-            "description": "An error occurred while saving the cart.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -6088,12 +6046,6 @@
           {
             "name": "VALIDATION_CUSTOM",
             "description": "Validation failed.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "VARIANT_REQUIRES_SELLING_PLAN",
-            "description": "Variant can only be purchased with a selling plan.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -7927,78 +7879,6 @@
       },
       {
         "kind": "OBJECT",
-        "name": "CartRemovePersonalDataPayload",
-        "description": "Return type for `cartRemovePersonalData` mutation.",
-        "isOneOf": null,
-        "fields": [
-          {
-            "name": "cart",
-            "description": "The updated cart.",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "Cart",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "userErrors",
-            "description": "The list of errors that occurred from executing the mutation.",
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "CartUserError",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "warnings",
-            "description": "A list of warnings that occurred during the mutation.",
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "CartWarning",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
         "name": "CartSelectableAddress",
         "description": "A selectable delivery address for a cart.\n",
         "isOneOf": null,
@@ -8692,78 +8572,6 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
-          {
-            "name": "DISCOUNT_CODE_NOT_HONOURED",
-            "description": "The discount code cannot be honored.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_CURRENTLY_INACTIVE",
-            "description": "The discount is currently inactive.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_CUSTOMER_NOT_ELIGIBLE",
-            "description": "The customer is not eligible for this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_CUSTOMER_USAGE_LIMIT_REACHED",
-            "description": "The customer's discount usage limit has been reached.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_ELIGIBLE_CUSTOMER_MISSING",
-            "description": "An eligible customer is missing for this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_INCOMPATIBLE_PURCHASE_TYPE",
-            "description": "The purchase type is incompatible with this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_NOT_FOUND",
-            "description": "The discount was not found.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_NO_ENTITLED_LINE_ITEMS",
-            "description": "There are no entitled line items for this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_NO_ENTITLED_SHIPPING_LINES",
-            "description": "There are no entitled shipping lines for this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_PURCHASE_NOT_IN_RANGE",
-            "description": "The purchase is not in range for this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_QUANTITY_NOT_IN_RANGE",
-            "description": "The quantity is not in range for this discount.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "DISCOUNT_USAGE_LIMIT_REACHED",
-            "description": "The discount usage limit has been reached.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
           {
             "name": "DUPLICATE_DELIVERY_ADDRESS",
             "description": "A delivery address with the same details already exists on this cart.",
@@ -17301,18 +17109,6 @@
             "deprecationReason": "Use `url` instead."
           },
           {
-            "name": "thumbhash",
-            "description": "The ThumbHash of the image.\n\nUseful to display placeholder images while the original image is loading.\n\nSee https://evanw.github.io/thumbhash/ for details on how to use it.\n",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "transformedSrc",
             "description": "The location of the transformed image as a URL.\n\nAll transformation arguments are considered \"best-effort\". If they can be applied to an image, they will be.\nOtherwise any transformations which an image type doesn't support will be ignored.\n",
             "args": [
@@ -23348,35 +23144,6 @@
             "type": {
               "kind": "OBJECT",
               "name": "CartPrepareForCompletionPayload",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "cartRemovePersonalData",
-            "description": "Removes personally identifiable information from the cart.",
-            "args": [
-              {
-                "name": "cartId",
-                "description": "The ID of the cart.",
-                "type": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "SCALAR",
-                    "name": "ID",
-                    "ofType": null
-                  }
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              }
-            ],
-            "type": {
-              "kind": "OBJECT",
-              "name": "CartRemovePersonalDataPayload",
               "ofType": null
             },
             "isDeprecated": false,
@@ -34136,18 +33903,6 @@
             "deprecationReason": null
           },
           {
-            "name": "customerAccountUrl",
-            "description": "The URL for the customer account (only present if shop has a customer account vanity domain).",
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "description",
             "description": "A description of the shop.",
             "args": [],
@@ -38688,20 +38443,8 @@
             "deprecationReason": null
           },
           {
-            "name": "COUNT",
-            "description": "Unit of measurements representing counts.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "LENGTH",
             "description": "Unit of measurements representing lengths.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "UNKNOWN",
-            "description": "The type of measurement is unknown. Upgrade to the latest version of the API to resolve this type.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -38742,44 +38485,8 @@
             "deprecationReason": null
           },
           {
-            "name": "FLOZ",
-            "description": "Imperial system unit of volume (U.S. customary unit).",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "FT",
-            "description": "1 foot equals 12 inches.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "FT2",
-            "description": "Imperial system unit of area.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "G",
             "description": "Metric system unit of weight.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "GAL",
-            "description": "1 gallon equals 128 fluid ounces (U.S. customary unit).",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "IN",
-            "description": "Imperial system unit of length.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "ITEM",
-            "description": "1 item, a unit of count.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -38792,12 +38499,6 @@
           {
             "name": "L",
             "description": "Metric system unit of volume.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "LB",
-            "description": "Imperial system unit of weight.",
             "isDeprecated": false,
             "deprecationReason": null
           },
@@ -38834,36 +38535,6 @@
           {
             "name": "MM",
             "description": "1000 millimeters equals 1 meter.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "OZ",
-            "description": "16 ounces equals 1 pound.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "PT",
-            "description": "1 pint equals 16 fluid ounces (U.S. customary unit).",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "QT",
-            "description": "1 quart equals 32 fluid ounces (U.S. customary unit).",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "UNKNOWN",
-            "description": "The unit of measurement is unknown. Upgrade to the latest version of the API to resolve this unit.",
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "YD",
-            "description": "1 yard equals 36 inches.",
             "isDeprecated": false,
             "deprecationReason": null
           }

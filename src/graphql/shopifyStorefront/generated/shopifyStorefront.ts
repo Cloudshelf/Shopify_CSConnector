@@ -1298,10 +1298,6 @@ export enum CartErrorCode {
   AddressFieldIsRequired = 'ADDRESS_FIELD_IS_REQUIRED',
   /** The specified address field is too long. */
   AddressFieldIsTooLong = 'ADDRESS_FIELD_IS_TOO_LONG',
-  /** Buyer cannot purchase for company location. */
-  BuyerCannotPurchaseForCompanyLocation = 'BUYER_CANNOT_PURCHASE_FOR_COMPANY_LOCATION',
-  /** The cart is too large to save. */
-  CartTooLarge = 'CART_TOO_LARGE',
   /** The input value is invalid. */
   Invalid = 'INVALID',
   /** Company location not found or not allowed. */
@@ -1320,8 +1316,6 @@ export enum CartErrorCode {
   InvalidMetafields = 'INVALID_METAFIELDS',
   /** The payment wasn't valid. */
   InvalidPayment = 'INVALID_PAYMENT',
-  /** The payment is invalid. Deferred payment is required. */
-  InvalidPaymentDeferredPaymentRequired = 'INVALID_PAYMENT_DEFERRED_PAYMENT_REQUIRED',
   /** Cannot update payment on an empty cart */
   InvalidPaymentEmptyCart = 'INVALID_PAYMENT_EMPTY_CART',
   /** The given zip code is invalid for the provided country. */
@@ -1364,26 +1358,16 @@ export enum CartErrorCode {
   PaymentsCreditCardYearExpired = 'PAYMENTS_CREDIT_CARD_YEAR_EXPIRED',
   /** Credit card expiry year is invalid. */
   PaymentsCreditCardYearInvalidExpiryYear = 'PAYMENTS_CREDIT_CARD_YEAR_INVALID_EXPIRY_YEAR',
-  /** The payment method is not applicable. */
-  PaymentMethodNotApplicable = 'PAYMENT_METHOD_NOT_APPLICABLE',
   /** The payment method is not supported. */
   PaymentMethodNotSupported = 'PAYMENT_METHOD_NOT_SUPPORTED',
-  /** The delivery group is in a pending state. */
-  PendingDeliveryGroups = 'PENDING_DELIVERY_GROUPS',
   /** The given province cannot be found. */
   ProvinceNotFound = 'PROVINCE_NOT_FOUND',
-  /** Selling plan is not applicable. */
-  SellingPlanNotApplicable = 'SELLING_PLAN_NOT_APPLICABLE',
-  /** An error occurred while saving the cart. */
-  ServiceUnavailable = 'SERVICE_UNAVAILABLE',
   /** Too many delivery addresses on Cart. */
   TooManyDeliveryAddresses = 'TOO_MANY_DELIVERY_ADDRESSES',
   /** A general error occurred during address validation. */
   UnspecifiedAddressError = 'UNSPECIFIED_ADDRESS_ERROR',
   /** Validation failed. */
   ValidationCustom = 'VALIDATION_CUSTOM',
-  /** Variant can only be purchased with a selling plan. */
-  VariantRequiresSellingPlan = 'VARIANT_REQUIRES_SELLING_PLAN',
   /** The given zip code is unsupported. */
   ZipCodeNotSupported = 'ZIP_CODE_NOT_SUPPORTED'
 }
@@ -1780,17 +1764,6 @@ export type CartPrepareForCompletionPayload = {
 /** The result of cart preparation. */
 export type CartPrepareForCompletionResult = CartStatusNotReady | CartStatusReady | CartThrottled;
 
-/** Return type for `cartRemovePersonalData` mutation. */
-export type CartRemovePersonalDataPayload = {
-  __typename?: 'CartRemovePersonalDataPayload';
-  /** The updated cart. */
-  cart?: Maybe<Cart>;
-  /** The list of errors that occurred from executing the mutation. */
-  userErrors: Array<CartUserError>;
-  /** A list of warnings that occurred during the mutation. */
-  warnings: Array<CartWarning>;
-};
-
 /**
  * A selectable delivery address for a cart.
  *
@@ -1931,30 +1904,6 @@ export type CartWarning = {
 
 /** The code for the cart warning. */
 export enum CartWarningCode {
-  /** The discount code cannot be honored. */
-  DiscountCodeNotHonoured = 'DISCOUNT_CODE_NOT_HONOURED',
-  /** The discount is currently inactive. */
-  DiscountCurrentlyInactive = 'DISCOUNT_CURRENTLY_INACTIVE',
-  /** The customer is not eligible for this discount. */
-  DiscountCustomerNotEligible = 'DISCOUNT_CUSTOMER_NOT_ELIGIBLE',
-  /** The customer's discount usage limit has been reached. */
-  DiscountCustomerUsageLimitReached = 'DISCOUNT_CUSTOMER_USAGE_LIMIT_REACHED',
-  /** An eligible customer is missing for this discount. */
-  DiscountEligibleCustomerMissing = 'DISCOUNT_ELIGIBLE_CUSTOMER_MISSING',
-  /** The purchase type is incompatible with this discount. */
-  DiscountIncompatiblePurchaseType = 'DISCOUNT_INCOMPATIBLE_PURCHASE_TYPE',
-  /** The discount was not found. */
-  DiscountNotFound = 'DISCOUNT_NOT_FOUND',
-  /** There are no entitled line items for this discount. */
-  DiscountNoEntitledLineItems = 'DISCOUNT_NO_ENTITLED_LINE_ITEMS',
-  /** There are no entitled shipping lines for this discount. */
-  DiscountNoEntitledShippingLines = 'DISCOUNT_NO_ENTITLED_SHIPPING_LINES',
-  /** The purchase is not in range for this discount. */
-  DiscountPurchaseNotInRange = 'DISCOUNT_PURCHASE_NOT_IN_RANGE',
-  /** The quantity is not in range for this discount. */
-  DiscountQuantityNotInRange = 'DISCOUNT_QUANTITY_NOT_IN_RANGE',
-  /** The discount usage limit has been reached. */
-  DiscountUsageLimitReached = 'DISCOUNT_USAGE_LIMIT_REACHED',
   /** A delivery address with the same details already exists on this cart. */
   DuplicateDeliveryAddress = 'DUPLICATE_DELIVERY_ADDRESS',
   /** The merchandise does not have enough stock. */
@@ -4062,15 +4011,6 @@ export type Image = {
    */
   src: Scalars['URL']['output'];
   /**
-   * The ThumbHash of the image.
-   *
-   * Useful to display placeholder images while the original image is loading.
-   *
-   * See https://evanw.github.io/thumbhash/ for details on how to use it.
-   *
-   */
-  thumbhash?: Maybe<Scalars['String']['output']>;
-  /**
    * The location of the transformed image as a URL.
    *
    * All transformation arguments are considered "best-effort". If they can be applied to an image, they will be.
@@ -5355,8 +5295,6 @@ export type Mutation = {
   cartPaymentUpdate?: Maybe<CartPaymentUpdatePayload>;
   /** Prepare the cart for cart checkout completion. */
   cartPrepareForCompletion?: Maybe<CartPrepareForCompletionPayload>;
-  /** Removes personally identifiable information from the cart. */
-  cartRemovePersonalData?: Maybe<CartRemovePersonalDataPayload>;
   /** Update the selected delivery options for a delivery group. */
   cartSelectedDeliveryOptionsUpdate?: Maybe<CartSelectedDeliveryOptionsUpdatePayload>;
   /** Submit the cart for checkout completion. */
@@ -5552,12 +5490,6 @@ export type MutationCartPaymentUpdateArgs = {
 
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type MutationCartPrepareForCompletionArgs = {
-  cartId: Scalars['ID']['input'];
-};
-
-
-/** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
-export type MutationCartRemovePersonalDataArgs = {
   cartId: Scalars['ID']['input'];
 };
 
@@ -8034,8 +7966,6 @@ export type Shop = HasMetafields & Node & {
   __typename?: 'Shop';
   /** The shop's branding configuration. */
   brand?: Maybe<Brand>;
-  /** The URL for the customer account (only present if shop has a customer account vanity domain). */
-  customerAccountUrl?: Maybe<Scalars['String']['output']>;
   /** A description of the shop. */
   description?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
@@ -8910,12 +8840,8 @@ export type UnitPriceMeasurement = {
 export enum UnitPriceMeasurementMeasuredType {
   /** Unit of measurements representing areas. */
   Area = 'AREA',
-  /** Unit of measurements representing counts. */
-  Count = 'COUNT',
   /** Unit of measurements representing lengths. */
   Length = 'LENGTH',
-  /** The type of measurement is unknown. Upgrade to the latest version of the API to resolve this type. */
-  Unknown = 'UNKNOWN',
   /** Unit of measurements representing volumes. */
   Volume = 'VOLUME',
   /** Unit of measurements representing weights. */
@@ -8928,26 +8854,12 @@ export enum UnitPriceMeasurementMeasuredUnit {
   Cl = 'CL',
   /** 100 centimeters equals 1 meter. */
   Cm = 'CM',
-  /** Imperial system unit of volume (U.S. customary unit). */
-  Floz = 'FLOZ',
-  /** 1 foot equals 12 inches. */
-  Ft = 'FT',
-  /** Imperial system unit of area. */
-  Ft2 = 'FT2',
   /** Metric system unit of weight. */
   G = 'G',
-  /** 1 gallon equals 128 fluid ounces (U.S. customary unit). */
-  Gal = 'GAL',
-  /** Imperial system unit of length. */
-  In = 'IN',
-  /** 1 item, a unit of count. */
-  Item = 'ITEM',
   /** 1 kilogram equals 1000 grams. */
   Kg = 'KG',
   /** Metric system unit of volume. */
   L = 'L',
-  /** Imperial system unit of weight. */
-  Lb = 'LB',
   /** Metric system unit of length. */
   M = 'M',
   /** Metric system unit of area. */
@@ -8959,17 +8871,7 @@ export enum UnitPriceMeasurementMeasuredUnit {
   /** 1000 milliliters equals 1 liter. */
   Ml = 'ML',
   /** 1000 millimeters equals 1 meter. */
-  Mm = 'MM',
-  /** 16 ounces equals 1 pound. */
-  Oz = 'OZ',
-  /** 1 pint equals 16 fluid ounces (U.S. customary unit). */
-  Pt = 'PT',
-  /** 1 quart equals 32 fluid ounces (U.S. customary unit). */
-  Qt = 'QT',
-  /** The unit of measurement is unknown. Upgrade to the latest version of the API to resolve this unit. */
-  Unknown = 'UNKNOWN',
-  /** 1 yard equals 36 inches. */
-  Yd = 'YD'
+  Mm = 'MM'
 }
 
 /** Systems of weights and measures. */
