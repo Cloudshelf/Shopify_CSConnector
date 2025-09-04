@@ -2,12 +2,6 @@ import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopif
 import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
-import { RetailerEntity } from '../../modules/retailer/retailer.entity';
-import { GlobalIDUtils } from '../../utils/GlobalIDUtils';
-import { JsonLUtils } from '../../utils/JsonLUtils';
-import { S3Utils } from '../../utils/S3Utils';
-import { getDbForTrigger } from '../reuseables/db';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import axios from 'axios';
 import { createWriteStream, promises as fsPromises } from 'fs';
@@ -21,6 +15,12 @@ import { TriggerWaitForNobleReschedule, setDifference } from 'src/trigger/reusea
 import * as stream from 'stream';
 import { ulid } from 'ulid';
 import { promisify } from 'util';
+import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
+import { RetailerEntity } from '../../modules/retailer/retailer.entity';
+import { GlobalIDUtils } from '../../utils/GlobalIDUtils';
+import { JsonLUtils } from '../../utils/JsonLUtils';
+import { S3Utils } from '../../utils/S3Utils';
+import { getDbForTrigger } from '../reuseables/db';
 
 const finished = promisify(stream.finished);
 
