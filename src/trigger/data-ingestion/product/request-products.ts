@@ -1,5 +1,8 @@
 import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
+import { logger, task } from '@trigger.dev/sdk';
+import { subDays, subMinutes } from 'date-fns';
+import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { CloudshelfApiOrganisationUtils } from '../../../modules/cloudshelf/cloudshelf.api.organisation.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
@@ -8,93 +11,7 @@ import { registerAllWebhooksForRetailer } from '../../../modules/tools/utils/reg
 import { IngestionQueue } from '../../../trigger/queues';
 import { getDbForTrigger } from '../../reuseables/db';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
-import { logger, task } from '@trigger.dev/sdk';
-import { subDays, subMinutes } from 'date-fns';
-import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
-
-async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
-    const withPublicationStatus = await retailer.supportsWithPublicationStatus();
-    let queryString = '';
-    const queryParts: string[] = [];
-
-    queryParts.push('status:ACTIVE');
-
-    if (changesSince !== undefined) {
-        queryParts.push(`updated_at:>'${changesSince.toISOString()}'`);
-    }
-
-    if (queryParts.length > 0) {
-        queryString = `(query: \"${queryParts.join(' AND ')}\")`;
-    }
-
-    return `{
-          products${queryString} {
-            edges {
-              node {
-                id
-                featuredImage {
-                  url
-                  id
-                }
-                images {
-                  edges {
-                    node {
-                      id
-                      url
-                    }
-                  }
-                }
-                status
-                ${withPublicationStatus ? 'publishedOnCurrentPublication' : ''}
-                storefrontId
-                title
-                descriptionHtml
-                handle
-                productType
-                tags
-                vendor
-                totalVariants
-                updatedAt
-                metafields {
-                  edges {
-                    node {
-                      id
-                      namespace
-                      key
-                      value
-                      description
-                      createdAt
-                      updatedAt
-                    }
-                  }
-                }
-                variants {
-                  edges {
-                    node {
-                      id
-                      title
-                      image {
-                        id
-                        url
-                      }
-                      price
-                      sku
-                      barcode
-                      compareAtPrice
-                      availableForSale
-                      sellableOnlineQuantity
-                      selectedOptions {
-                        name
-                        value
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }`;
-}
+import { buildProductTriggerQueryPayload } from '../retailer_sync/buildProductTriggerQueryPayload';
 
 export const RequestProductsTask = task({
     id: 'request-products',
@@ -120,9 +37,8 @@ export const RequestProductsTask = task({
             logger.error(`SHOPIFY_CONNECTOR_HOST is not set`);
             throw new Error(`SHOPIFY_CONNECTOR_HOST is not set`);
         }
-        const em = AppDataSource.em.fork({
-            flushMode: FlushMode.COMMIT,
-        });
+        const em = AppDataSource;
+
         const retailer = await em.findOne(RetailerEntity, { id: payload.organisationId });
         if (!retailer) {
             logger.error(`Retailer does not exist for id "${payload.organisationId}"`);

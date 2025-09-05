@@ -1,18 +1,17 @@
 import * as Joi from 'joi';
 import { ProductGroupInput, ProductGroupUpdateBatchItem, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { CloudshelfApiOrganisationUtils } from '../../../modules/cloudshelf/cloudshelf.api.organisation.util';
+import { logger } from '@trigger.dev/sdk';
+import axios from 'axios';
+import { createWriteStream } from 'fs';
+import { finished } from 'stream/promises';
+import { ulid } from 'ulid';
 import { CloudshelfApiProductUtils } from '../../../modules/cloudshelf/cloudshelf.api.products.util';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
 import { PostSyncJobUtils } from '../../../modules/data-ingestion/sync.job.utils';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../../utils/JsonLUtils';
-import { logger } from '@trigger.dev/sdk';
-import axios from 'axios';
-import { createWriteStream } from 'fs';
-import { finished } from 'stream/promises';
-import { ulid } from 'ulid';
 
 const SCHEMA = Joi.object({
     SHOPIFY_CONNECTOR_HOST: Joi.string().required().uri(),

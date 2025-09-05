@@ -21,51 +21,10 @@ import { GlobalIDUtils } from '../../utils/GlobalIDUtils';
 import { JsonLUtils } from '../../utils/JsonLUtils';
 import { S3Utils } from '../../utils/S3Utils';
 import { getDbForTrigger } from '../reuseables/db';
+import { buildQueryCollectionIds } from './retailer_sync/buildQueryCollectionIds';
+import { buildQueryProductIds } from './retailer_sync/buildQueryProductIds';
 
 const finished = promisify(stream.finished);
-
-async function buildCollectionIdsQuery(retailer: RetailerEntity): Promise<string> {
-    const withPublicationStatus = await retailer.supportsWithPublicationStatus();
-    return `{
-        collections {
-          edges {
-            node {
-              id
-              ${withPublicationStatus ? 'publishedOnCurrentPublication' : ''}
-            }
-          }
-        }
-      }`;
-}
-
-async function buildProductIdsQuery(retailer: RetailerEntity): Promise<string> {
-    const withPublicationStatus = await retailer.supportsWithPublicationStatus();
-    let queryString = '';
-    const queryParts: string[] = [];
-
-    queryParts.push('status:ACTIVE');
-
-    if (queryParts.length > 0) {
-        queryString = `(query: \"${queryParts.join(' AND ')}\")`;
-    }
-    return `{
-        products${queryString} {
-          edges {
-            node {
-              id
-              ${withPublicationStatus ? 'publishedOnCurrentPublication' : ''}
-              variants {
-                  edges {
-                    node {
-                      id
-                    }
-                }
-              }
-            }
-          }
-        }
-      }`;
-}
 
 async function handleCollections(
     em: EntityManager,
@@ -80,7 +39,7 @@ async function handleCollections(
     logger.warn(`STARTING HandleCollections`);
     //request data from shopify for products.
     logger.info(`Building query payload`);
-    const collectionQueryPayload = await buildCollectionIdsQuery(retailer);
+    const collectionQueryPayload = await buildQueryCollectionIds(retailer);
 
     logger.info(`Requesting bulk operation with payload`, { data: collectionQueryPayload });
     let collectionBuildOperation = await BulkOperationUtils.requestBulkOperation(
@@ -218,7 +177,7 @@ async function handleProducts(
     logger.warn(`STARTING handleProducts`);
 
     logger.info(`Building query payload`);
-    const productQueryPayload = await buildProductIdsQuery(retailer);
+    const productQueryPayload = await buildQueryProductIds(retailer);
 
     logger.info(`Requesting bulk operation with payload`, { data: JSON.stringify(productQueryPayload) });
     let productBulkOperation = await BulkOperationUtils.requestBulkOperation(

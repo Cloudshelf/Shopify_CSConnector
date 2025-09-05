@@ -1,12 +1,19 @@
-import { LoadStrategy, MikroORM } from '@mikro-orm/postgresql';
+import { EntityManager, FlushMode, LoadStrategy, MikroORM } from '@mikro-orm/postgresql';
+import { locals, logger, tasks } from '@trigger.dev/sdk';
 import { AllDatabaseEntities } from '../../modules/database/entities';
 import { buildDatabaseConfig } from '../../modules/database/mikro-orm.config';
-import { locals, tasks } from '@trigger.dev/sdk';
 
-const DbLocal = locals.create<MikroORM | undefined>('db');
+const DbLocal = locals.create<EntityManager | undefined>('db');
 
 export function getDbForTrigger() {
-    return locals.getOrThrow(DbLocal);
+    const appDataSource = locals.getOrThrow(DbLocal);
+
+    if (!appDataSource) {
+        logger.error(`AppDataSource is not set`);
+        throw new Error(`AppDataSource is not set`);
+    }
+
+    return appDataSource;
 }
 
 tasks.middleware('db', async ({ ctx, payload, next, task }) => {
@@ -39,7 +46,11 @@ export const StartMikroORMForTrigger = async () => {
             autoJoinRefsForFilters: false,
         });
 
-        return mikro;
+        const forkedMikro = mikro.em.fork({
+            flushMode: FlushMode.COMMIT,
+        });
+
+        return forkedMikro;
     } catch (e: any) {
         console.error('Unable to build data source', e);
         throw new Error('Unable to build data source');

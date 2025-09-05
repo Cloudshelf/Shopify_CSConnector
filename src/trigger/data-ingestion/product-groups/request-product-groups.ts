@@ -1,5 +1,8 @@
 import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { FlushMode } from '@mikro-orm/core';
+import { logger, task } from '@trigger.dev/sdk';
+import { subDays } from 'date-fns';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from '../../../modules/cloudshelf/cloudshelf.api.report.util';
 import { BulkOperationType } from '../../../modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from '../../../modules/data-ingestion/bulk.operation.utils';
@@ -7,55 +10,6 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { IngestionQueue } from '../../queues';
 import { getDbForTrigger } from '../../reuseables/db';
 import { TriggerWaitForNobleReschedule } from '../../reuseables/noble_pollfills';
-import { logger, task } from '@trigger.dev/sdk';
-import { subDays } from 'date-fns';
-import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
-
-async function buildCollectionTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
-    const withPublicationStatus = await retailer.supportsWithPublicationStatus();
-    let queryString = '';
-    const queryParts: string[] = [];
-
-    //Status does not exist on collections
-    // queryParts.push('status:ACTIVE');
-
-    if (changesSince !== undefined) {
-        queryParts.push(`updated_at:>'${changesSince.toISOString()}'`);
-    }
-
-    if (queryParts.length > 0) {
-        queryString = `(query: \"${queryParts.join(' AND ')}\")`;
-    }
-
-    return `{
-        collections${queryString}  {
-          edges {
-            node {
-              id
-              ${withPublicationStatus ? 'publishedOnCurrentPublication' : ''}
-              title
-              handle
-              image {
-                url
-              }
-              storefrontId
-              updatedAt
-              products {
-                edges {
-                  node {
-                    id
-                    featuredImage {
-                          url
-                          id
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }`;
-}
 
 export const RequestProductGroupsTask = task({
     id: 'request-product-groups',
