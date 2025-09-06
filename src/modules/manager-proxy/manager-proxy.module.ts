@@ -15,27 +15,27 @@ export class ManagerProxyModule implements NestModule {
         consumer
             .apply(EnsureInstalledOnShopMiddleware)
             .exclude(
-                { path: '/shopify/(.*)', method: RequestMethod.ALL },
+                { path: '/shopify/*path', method: RequestMethod.ALL },
                 { path: '/graphql', method: RequestMethod.ALL },
-                { path: '/_next/(.*)', method: RequestMethod.ALL },
-                { path: '/static/(.*)', method: RequestMethod.ALL },
-                { path: '/api-health(.*)', method: RequestMethod.ALL },
+                { path: '/_next/*path', method: RequestMethod.ALL },
+                { path: '/static/*path', method: RequestMethod.ALL },
+                { path: '/api-health*path', method: RequestMethod.ALL },
                 { path: '/favicon.ico', method: RequestMethod.ALL },
                 { path: '/stock-levels', method: RequestMethod.ALL },
                 { path: '/pos', method: RequestMethod.ALL },
             )
-            .forRoutes({ path: '/**', method: RequestMethod.ALL });
+            .forRoutes({ path: '/*path', method: RequestMethod.ALL });
 
         consumer
             .apply(ManagerProxyMiddleware)
             .exclude(
-                { path: '/shopify/(.*)', method: RequestMethod.ALL },
+                { path: '/shopify/*path', method: RequestMethod.ALL },
                 { path: '/graphql', method: RequestMethod.ALL },
-                { path: '/api-health(.*)', method: RequestMethod.ALL },
+                { path: '/api-health*path', method: RequestMethod.ALL },
                 { path: '/stock-levels', method: RequestMethod.ALL },
                 { path: '/pos', method: RequestMethod.ALL },
             )
 
-            .forRoutes({ path: '/**', method: RequestMethod.ALL });
+            .forRoutes({ path: '/*path', method: RequestMethod.ALL });
     }
 }

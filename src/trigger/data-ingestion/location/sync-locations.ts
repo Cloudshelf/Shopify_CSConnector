@@ -8,39 +8,25 @@ import {
 } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.util';
 import { FlushMode } from '@mikro-orm/core';
+import { logger, task, wait } from '@trigger.dev/sdk';
+import { CloudshelfApiLocationUtils } from 'src/modules/cloudshelf/cloudshelf.api.location.util';
+import { IngestionQueue } from 'src/trigger/queues';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { GlobalIDUtils } from '../../../utils/GlobalIDUtils';
 import { MiscellaneousUtils } from '../../../utils/MiscellaneousUtils';
-import { getDbForTrigger } from '../../reuseables/db';
-import { logger, task } from '@trigger.dev/sdk';
-import { CloudshelfApiLocationUtils } from 'src/modules/cloudshelf/cloudshelf.api.location.util';
-import { IngestionQueue } from 'src/trigger/queues';
+import { getDbForTrigger, getEnvConfig } from '../../reuseables/initialization';
 
 export const SyncLocationsTask = task({
     id: 'sync-locations',
     queue: IngestionQueue,
     machine: 'small-1x',
     run: async (payload: { organisationId: string }, { ctx }) => {
+        const env = getEnvConfig();
         const AppDataSource = getDbForTrigger();
-        if (!AppDataSource) {
-            logger.error(`AppDataSource is not set`);
-            throw new Error(`AppDataSource is not set`);
-        }
 
-        const cloudshelfAPI = process.env.CLOUDSHELF_API_URL;
+        await wait.for({ seconds: 10 });
 
-        if (!cloudshelfAPI) {
-            logger.error(`CLOUDSHELF_API_URL is not set`);
-            throw new Error(`CLOUDSHELF_API_URL is not set`);
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 10000));
-
-        const em = AppDataSource.em.fork({
-            flushMode: FlushMode.COMMIT,
-        });
-
-        const retailer = await em.findOne(RetailerEntity, { id: payload.organisationId });
+        const retailer = await AppDataSource.findOne(RetailerEntity, { id: payload.organisationId });
 
         if (!retailer) {
             logger.error(`Retailer does not exist for id "${payload.organisationId}"`);
@@ -103,7 +89,7 @@ export const SyncLocationsTask = task({
 
         logger.info('Creating location in Cloudshelf with data:', { locationInputs });
 
-        await CloudshelfApiLocationUtils.upsertLocations(cloudshelfAPI, retailer, locationInputs, {
+        await CloudshelfApiLocationUtils.upsertLocations(env.CLOUDSHELF_API_URL, retailer, locationInputs, {
             info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
             warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
             error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),

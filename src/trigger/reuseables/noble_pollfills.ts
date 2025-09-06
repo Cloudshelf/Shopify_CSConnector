@@ -1,7 +1,7 @@
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
+import { logger, wait } from '@trigger.dev/sdk';
 import { BulkOperationUtils } from '../../modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
-import { logger, wait } from '@trigger.dev/sdk';
 
 export const TriggerWaitForNobleReschedule = async (retailer: RetailerEntity) => {
     let shouldBeWaitingForQueue = true;

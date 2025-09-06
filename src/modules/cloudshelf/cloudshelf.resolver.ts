@@ -1,12 +1,12 @@
 import { Inject, forwardRef } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean } from 'graphql';
+import { Telemetry } from 'src/decorators/telemetry';
+import { RetailerSyncJob } from 'src/trigger/data-ingestion/retailer_sync/retailer-sync-job';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { VerifyRequestIsFromCloudshelfAPI } from '../auth/verify-request-is-from-cloudshelf-api';
 import { RetailerService } from '../retailer/retailer.service';
 import { CloudshelfSyncOrganisationInput } from './types/cloudshelf.sync.organisation.input';
-import { Telemetry } from 'src/decorators/telemetry';
-import { RequestProductsTask } from 'src/trigger/data-ingestion/product/request-products';
-import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 @Resolver()
 export class CloudshelfResolver {
@@ -32,7 +32,7 @@ export class CloudshelfResolver {
             throw new Error(`Retailer not found for domain ${input.domainName}`);
         }
 
-        await RequestProductsTask.trigger(
+        await RetailerSyncJob.trigger(
             {
                 organisationId: retailer.id,
                 fullSync: !!input.fullSync,

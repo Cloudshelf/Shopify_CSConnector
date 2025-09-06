@@ -1,38 +1,30 @@
-import { ProcessProductsTask } from '../../trigger/data-ingestion/product/process-products';
-import { RequestProductsTask } from '../../trigger/data-ingestion/product/request-products';
+import { ListRunsQueryParams } from '@trigger.dev/core/v3';
+import { runs } from '@trigger.dev/sdk/v3';
+import { RetailerSyncJob } from 'src/trigger/data-ingestion/retailer_sync/retailer-sync-job';
+import { TRIGGER_RUNS_STATUSES } from 'src/trigger/reuseables/runStatus';
+import { SyncStyle } from 'src/trigger/syncOptions.type';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { RetailerStatus } from '../retailer/retailer.status.enum';
-import { BulkOperation } from './bulk.operation.entity';
-import { ListRunsQueryParams } from '@trigger.dev/core/v3';
-import { idempotencyKeys, runs } from '@trigger.dev/sdk';
-import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
-const TRIGGER_RUNS_STATUSES: ListRunsQueryParams['status'][] = [
-    'PENDING_VERSION',
-    'DELAYED',
-    'EXECUTING',
-    'WAITING',
-    'QUEUED',
-];
-
-export class ProductJobUtils {
+export class RetailerSyncJobUtils {
     static async scheduleTriggerJob(
         retailer: RetailerEntity,
-        fullSync?: boolean,
+        syncStyle: SyncStyle,
         delayOverride?: number,
         reason?: string,
         logs?: LogsInterface,
+        currentJobId?: string,
     ) {
         const tags = TriggerTagsUtils.createTags({
             domain: retailer.domain,
             retailerId: retailer.id,
-            syncType: fullSync ? 'type_full' : 'type_partial',
+            syncType: syncStyle === SyncStyle.FULL ? 'type_full' : 'type_partial',
             reason,
         });
         let delay = '60m';
 
-        if (fullSync) {
+        if (syncStyle === SyncStyle.FULL) {
             delay = '10s';
         }
 
@@ -49,7 +41,7 @@ export class ProductJobUtils {
 
         for await (const run of runs.list({
             status: TRIGGER_RUNS_STATUSES,
-            taskIdentifier: [RequestProductsTask.id],
+            taskIdentifier: [RetailerSyncJob.id],
             tag: searchTags,
         } as ListRunsQueryParams)) {
             const i: { id: string; type: 'type_full' | 'type_partial' } = {
@@ -61,8 +53,12 @@ export class ProductJobUtils {
         }
         logs?.info(`Found ${pendingRuns.length} existing jobs...`);
 
-        if (fullSync) {
+        if (syncStyle === SyncStyle.FULL) {
             for (const runToCancel of pendingRuns) {
+                if (currentJobId && runToCancel.id === currentJobId) {
+                    logs?.info(`Skipping cancellation of current job ${runToCancel.id}`, runToCancel);
+                    continue;
+                }
                 logs?.info(`Cancelling ${runToCancel.id}`, runToCancel);
                 await runs.cancel(runToCancel.id);
             }
@@ -71,6 +67,10 @@ export class ProductJobUtils {
             const partialSyncRuns = pendingRuns.filter(f => f.type === 'type_partial');
             if (hasAnyFullSyncs) {
                 for (const runToCancel of partialSyncRuns) {
+                    if (currentJobId && runToCancel.id === currentJobId) {
+                        logs?.info(`Skipping cancellation of current job ${runToCancel.id}`, runToCancel);
+                        continue;
+                    }
                     logs?.info(`Cancelling ${runToCancel.id}`, runToCancel);
                     await runs.cancel(runToCancel.id);
                 }
@@ -86,66 +86,19 @@ export class ProductJobUtils {
             }
         }
 
-        await RequestProductsTask.trigger(
+        await RetailerSyncJob.trigger(
             {
                 organisationId: retailer.id,
-                fullSync: fullSync ?? false,
+                fullSync: syncStyle === SyncStyle.FULL,
             },
             {
-                delay,
+                delay: delay,
                 queue: `ingestion`,
-                tags,
+                tags: tags,
                 concurrencyKey: retailer.id,
+                machine: retailer.triggerMachineSizeProducts ?? undefined,
+                maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
             },
         );
-    }
-
-    static async scheduleConsumerJob(
-        retailer: RetailerEntity,
-        bulkOp: BulkOperation,
-        reason?: string,
-        logs?: LogsInterface,
-    ) {
-        const delay = '1s';
-        const tags = TriggerTagsUtils.createTags({
-            domain: retailer.domain,
-            retailerId: retailer.id,
-            syncType: bulkOp.installSync ? 'type_full' : 'type_partial',
-            reason,
-        });
-
-        logs?.info(
-            `Asking trigger to schedule product consumer job for retailer ${retailer.domain} and bulk op ${bulkOp.shopifyBulkOpId}`,
-        );
-        try {
-            const idempotencyKey = await idempotencyKeys.create(bulkOp.shopifyBulkOpId);
-
-            if (retailer.status === RetailerStatus.IDLE) {
-                logs?.info(`ProductJobUtils: ${retailer.domain} is idle, skipping job`);
-                return;
-            }
-
-            const newTaskID = await ProcessProductsTask.trigger(
-                {
-                    remoteBulkOperationId: bulkOp.shopifyBulkOpId,
-                    fullSync: bulkOp.installSync ?? false,
-                },
-                {
-                    delay,
-                    queue: `ingestion`,
-                    tags,
-                    concurrencyKey: retailer.id,
-                    idempotencyKey: idempotencyKey,
-                    machine: retailer.triggerMachineSizeProducts ?? undefined,
-                    maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
-                },
-            );
-
-            logs?.info(`product consumer id: ${newTaskID.id}. idempotencyKey: ${idempotencyKey}`);
-        } catch (err: any) {
-            logs?.error(`Error in product consumer scheduler.`);
-            logs?.error(`err`, err);
-            throw err;
-        }
     }
 }

@@ -1,5 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ShopifyAuthAfterHandler } from '@nestjs-shopify/auth';
+import { InjectShopify } from '@nestjs-shopify/core';
+import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
+import { Shopify } from '@shopify/shopify-api';
+import { Request, Response } from 'express';
+import { Telemetry } from 'src/decorators/telemetry';
+import { RetailerSyncJobUtils } from 'src/modules/data-ingestion/retailersync.job.utils';
+import { SyncStyle } from 'src/trigger/syncOptions.type';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { RequestUtils } from '../../../utils/RequestUtils';
@@ -8,17 +16,10 @@ import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { slackSchema } from '../../configuration/schemas/slack.schema';
 import { LocationJobUtils } from '../../data-ingestion/location.job.utils';
-import { ProductJobUtils } from '../../data-ingestion/product.job.utils';
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
 import { StorefrontService } from '../storefront/storefront.service';
-import { ShopifyAuthAfterHandler } from '@nestjs-shopify/auth';
-import { InjectShopify } from '@nestjs-shopify/core';
-import { ShopifyWebhooksService } from '@nestjs-shopify/webhooks';
-import { Shopify } from '@shopify/shopify-api';
-import { Request, Response } from 'express';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
@@ -129,7 +130,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
 
         //queue a sync job
 
-        await ProductJobUtils.scheduleTriggerJob(entity, true, undefined, 'install');
+        await RetailerSyncJobUtils.scheduleTriggerJob(entity, SyncStyle.FULL, undefined, 'install');
         //queue a location job
         await LocationJobUtils.schedule(entity, 'install');
 

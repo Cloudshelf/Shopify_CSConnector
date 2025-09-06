@@ -14,6 +14,9 @@ import {
     OrderUpdateMutationVariables,
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { FlushMode } from '@mikro-orm/core';
+import { logger, task } from '@trigger.dev/sdk';
+import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
+import { OrderProcessingQueue } from 'src/trigger/queues';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import {
     CLOUDSHELF_DEVICE_ATTRIBUTE,
@@ -25,10 +28,7 @@ import {
     CLOUDSHELF_SESSION_ATTRIBUTE,
     OrderUpdateWebhookPayload,
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
-import { getDbForTrigger } from '../../reuseables/db';
-import { logger, task } from '@trigger.dev/sdk';
-import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
-import { OrderProcessingQueue } from 'src/trigger/queues';
+import { getDbForTrigger } from '../../reuseables/initialization';
 
 export const ProcessOrderTask = task({
     id: 'process-order',
@@ -48,7 +48,7 @@ export const ProcessOrderTask = task({
             throw new Error(`CLOUDSHELF_API_URL is not set`);
         }
 
-        const em = AppDataSource.em.fork({
+        const em = AppDataSource.fork({
             flushMode: FlushMode.COMMIT,
         });
 
