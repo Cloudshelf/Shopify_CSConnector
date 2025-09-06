@@ -1,11 +1,12 @@
-import { FlushMode } from '@mikro-orm/core';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { ProductJobUtils } from '../../modules/data-ingestion/product.job.utils';
+import { logger, schedules } from '@trigger.dev/sdk';
+import { RetailerSyncJobUtils } from 'src/modules/data-ingestion/retailersync.job.utils';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { RetailerStatus } from '../../modules/retailer/retailer.status.enum';
 import { CreateSafetySyncsQueue } from '../queues';
-import { getDbForTrigger } from '../reuseables/db';
-import { logger, schedules } from '@trigger.dev/sdk';
+import { getDbForTrigger } from '../reuseables/initialization';
+import { getLoggerHelper } from '../reuseables/loggerObject';
+import { SyncStyle } from '../syncOptions.type';
 
 export const CreateSafetySyncs = schedules.task({
     id: 'create-safety-syncs',
@@ -19,16 +20,8 @@ export const CreateSafetySyncs = schedules.task({
     queue: CreateSafetySyncsQueue,
     run: async () => {
         const AppDataSource = getDbForTrigger();
-        if (!AppDataSource) {
-            logger.error(`AppDataSource is not set`);
-            throw new Error(`AppDataSource is not set`);
-        }
 
-        const em = AppDataSource.em.fork({
-            flushMode: FlushMode.COMMIT,
-        });
-
-        await internalScheduleTriggerJobs(em);
+        await internalScheduleTriggerJobs(AppDataSource);
     },
 });
 
@@ -43,11 +36,13 @@ export async function internalScheduleTriggerJobs(em: EntityManager) {
             continue;
         }
 
-        await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'safetySync', {
-            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
-            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
-            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
-        });
+        await RetailerSyncJobUtils.scheduleTriggerJob(
+            retailer,
+            SyncStyle.FULL,
+            undefined,
+            'safetySync',
+            getLoggerHelper(),
+        );
         retailer.lastSafetySyncRequested = new Date();
     }
 

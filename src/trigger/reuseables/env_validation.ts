@@ -5,6 +5,8 @@ export interface RetailerSyncEnvironmentConfig {
     SHOPIFY_CONNECTOR_HOST: string;
     CLOUDFLARE_R2_PUBLIC_ENDPOINT: string;
     FILE_PREFIX: string;
+    SLACK_TOKEN: string;
+    SLACK_HEALTH_NOTIFICATION_CHANNEL: string;
 }
 
 export function validateEnvironmentForRetailerSync(): RetailerSyncEnvironmentConfig {
@@ -12,6 +14,8 @@ export function validateEnvironmentForRetailerSync(): RetailerSyncEnvironmentCon
     const SHOPIFY_CONNECTOR_HOST = process.env.SHOPIFY_CONNECTOR_HOST;
     const CLOUDFLARE_R2_PUBLIC_ENDPOINT = process.env.CLOUDFLARE_R2_PUBLIC_ENDPOINT;
     const FILE_PREFIX = process.env.FILE_PREFIX;
+    const SLACK_TOKEN = process.env.SLACK_TOKEN;
+    const SLACK_HEALTH_NOTIFICATION_CHANNEL = process.env.SLACK_HEALTH_NOTIFICATION_CHANNEL;
 
     if (!CLOUDSHELF_API_URL) {
         throw new AbortTaskRunError('CLOUDSHELF_API_URL missing from ENV');
@@ -29,10 +33,20 @@ export function validateEnvironmentForRetailerSync(): RetailerSyncEnvironmentCon
         throw new AbortTaskRunError('FILE_PREFIX missing from ENV');
     }
 
+    if (!SLACK_TOKEN) {
+        throw new AbortTaskRunError('SLACK_TOKEN missing from ENV');
+    }
+
+    if (!SLACK_HEALTH_NOTIFICATION_CHANNEL) {
+        throw new AbortTaskRunError('SLACK_HEALTH_NOTIFICATION_CHANNEL missing from ENV');
+    }
+
     return {
         CLOUDSHELF_API_URL,
         SHOPIFY_CONNECTOR_HOST,
         CLOUDFLARE_R2_PUBLIC_ENDPOINT,
         FILE_PREFIX,
+        SLACK_TOKEN,
+        SLACK_HEALTH_NOTIFICATION_CHANNEL,
     };
 }

@@ -10,24 +10,22 @@ import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerSyncEnvironmentConfig } from 'src/trigger/reuseables/env_validation';
 import { getLoggerHelper } from 'src/trigger/reuseables/loggerObject';
 import { setDifference } from 'src/trigger/reuseables/noble_pollfills';
+import { SyncOptions } from 'src/trigger/syncOptions.type';
 import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
 import { JsonLUtils } from 'src/utils/JsonLUtils';
 import { S3Utils } from 'src/utils/S3Utils';
 import { ulid } from 'ulid';
-import { buildQueryCollectionIds } from './buildQueryCollectionIds';
-import { buildQueryProductIds } from './buildQueryProductIds';
-import { handleStoreClosedError } from './handleStoreClosedError';
-import { requestAndWaitForBulkOperation } from './requestAndWaitForBulkOperation';
-import { deleteTempFile, downloadTempFile } from './tempFileUtils';
+import { handleStoreClosedError } from '../../../reuseables/handleStoreClosedError';
+import { requestAndWaitForBulkOperation } from '../../../reuseables/requestAndWaitForBulkOperation';
+import { deleteTempFile, downloadTempFile } from '../../../reuseables/tempFileUtils';
+import { buildQueryCollectionIds } from '../queries/buildQueryCollectionIds';
+import { buildQueryProductIds } from '../queries/buildQueryProductIds';
 
 async function handleSyncCleanupCollections(
     env: RetailerSyncEnvironmentConfig,
     appDataSource: EntityManager,
     retailer: RetailerEntity,
-    syncOptions: {
-        style: 'full' | 'partial';
-        changesSince?: Date;
-    },
+    syncOptions: SyncOptions,
 ): Promise<{ collectionTotal: number } | undefined> {
     const queryPayload = await buildQueryCollectionIds(retailer);
     let requestedBulkOperationCollections: BulkOperation | undefined = undefined;
@@ -149,10 +147,7 @@ async function handleSyncCleanupProductsAndVariants(
     env: RetailerSyncEnvironmentConfig,
     appDataSource: EntityManager,
     retailer: RetailerEntity,
-    syncOptions: {
-        style: 'full' | 'partial';
-        changesSince?: Date;
-    },
+    syncOptions: SyncOptions,
 ): Promise<{ productTotal: number; variantTotal: number } | undefined> {
     const queryPayload = await buildQueryProductIds(retailer);
     let requestedBulkOperation: BulkOperation | undefined = undefined;
@@ -332,10 +327,7 @@ export async function handleSyncCleanup(
     env: RetailerSyncEnvironmentConfig,
     appDataSource: EntityManager,
     retailer: RetailerEntity,
-    syncOptions: {
-        style: 'full' | 'partial';
-        changesSince?: Date;
-    },
+    syncOptions: SyncOptions,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
@@ -374,12 +366,10 @@ export async function handleSyncCleanup(
         input,
         getLoggerHelper(),
     );
-    //
+
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
         syncStage: SyncStage.Done,
     });
-
-    //todo: we should retrigger the job here.
 }

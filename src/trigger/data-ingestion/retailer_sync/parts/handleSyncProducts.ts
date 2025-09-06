@@ -21,10 +21,10 @@ import { RetailerSyncEnvironmentConfig } from 'src/trigger/reuseables/env_valida
 import { getLoggerHelper } from 'src/trigger/reuseables/loggerObject';
 import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
 import { JsonLUtils } from 'src/utils/JsonLUtils';
-import { buildProductTriggerQueryPayload } from './buildProductTriggerQueryPayload';
-import { handleStoreClosedError } from './handleStoreClosedError';
-import { requestAndWaitForBulkOperation } from './requestAndWaitForBulkOperation';
-import { deleteTempFile, downloadTempFile } from './tempFileUtils';
+import { handleStoreClosedError } from '../../../reuseables/handleStoreClosedError';
+import { requestAndWaitForBulkOperation } from '../../../reuseables/requestAndWaitForBulkOperation';
+import { deleteTempFile, downloadTempFile } from '../../../reuseables/tempFileUtils';
+import { buildQueryProductInfo } from '../queries/buildQueryProductInfo';
 
 export const PROCESS_PRODUCTS_JSONL_CHUNK_SIZE = 1000;
 export const PRODUCT_CHUNK_UPLOAD_SIZE = 1000;
@@ -55,7 +55,7 @@ export async function handleSyncProducts(
         );
     }
 
-    const queryPayload = await buildProductTriggerQueryPayload(retailer, syncOptions.changesSince);
+    const queryPayload = await buildQueryProductInfo(retailer, syncOptions.changesSince);
     let requestedBulkOperation: BulkOperation | undefined = undefined;
     try {
         requestedBulkOperation = await requestAndWaitForBulkOperation({

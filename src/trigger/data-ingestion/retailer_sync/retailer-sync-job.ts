@@ -1,28 +1,29 @@
 import { AbortTaskRunError, logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
+import { RetailerSyncJobUtils } from 'src/modules/data-ingestion/retailersync.job.utils';
 import { registerAllWebhooksForRetailer } from 'src/modules/tools/utils/registerAllWebhooksForRetailer';
 import { IngestionQueue } from 'src/trigger/queues';
 import { TriggerWaitForNobleReschedule } from 'src/trigger/reuseables/noble_pollfills';
+import { SyncStyle } from 'src/trigger/syncOptions.type';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
-import { getDbForTrigger } from '../../reuseables/db';
-import { validateEnvironmentForRetailerSync } from '../../reuseables/env_validation';
+import { getDbForTrigger, getEnvConfig } from '../../reuseables/initialization';
 import { getLoggerHelper } from '../../reuseables/loggerObject';
-import { handleSyncCleanup } from './handleSyncCleanup';
-import { handleSyncProductGroups } from './handleSyncProductGroups';
-import { handleSyncProducts } from './handleSyncProducts';
+import { handleSyncCleanup } from './parts/handleSyncCleanup';
+import { handleSyncProductGroups } from './parts/handleSyncProductGroups';
+import { handleSyncProducts } from './parts/handleSyncProducts';
 
 export const RetailerSyncJob = task({
-    id: 'reailer-sync-job',
+    id: 'retailer-sync-job',
     queue: IngestionQueue,
     machine: { preset: `small-2x` },
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info(
             `Starting Retailer Sync for OrgId: ${payload.organisationId} Sync Style: ${
-                payload.fullSync ? 'Full' : 'Partial'
+                payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL
             }`,
         );
 
-        const env = validateEnvironmentForRetailerSync();
+        const env = getEnvConfig();
         const AppDataSource = getDbForTrigger();
 
         const retailer = await AppDataSource.findOne(RetailerEntity, { id: payload.organisationId });
@@ -51,17 +52,17 @@ export const RetailerSyncJob = task({
         await TriggerWaitForNobleReschedule(retailer);
 
         await handleSyncProducts(env, AppDataSource, retailer, {
-            style: payload.fullSync ? 'full' : 'partial',
+            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
             changesSince,
         });
 
         await handleSyncProductGroups(env, AppDataSource, retailer, {
-            style: payload.fullSync ? 'full' : 'partial',
+            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
             changesSince,
         });
 
         await handleSyncCleanup(env, AppDataSource, retailer, {
-            style: payload.fullSync ? 'full' : 'partial',
+            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
             changesSince,
         });
 
@@ -69,6 +70,33 @@ export const RetailerSyncJob = task({
         logger.info('Setting nextPartialSyncRequestTime', {
             lastPartialSyncRequestTime: retailer.nextPartialSyncRequestTime,
         });
+
+        if (payload.fullSync) {
+            retailer.lastSafetySyncCompleted = new Date();
+        }
         await AppDataSource.flush();
+    },
+    onComplete: async ({ payload, result, ctx }) => {
+        // if (result.ok) {
+        //     //task succeded
+        // } else {
+        //     //task failed
+        // }
+
+        const AppDataSource = getDbForTrigger();
+
+        const retailer = await AppDataSource.findOne(RetailerEntity, { id: payload.organisationId });
+        if (!retailer) {
+            throw new AbortTaskRunError('No organisation found for the provided organsation id');
+        }
+
+        await RetailerSyncJobUtils.scheduleTriggerJob(
+            retailer,
+            SyncStyle.PARTIAL,
+            undefined,
+            undefined,
+            getLoggerHelper(),
+            ctx.run.id,
+        );
     },
 });

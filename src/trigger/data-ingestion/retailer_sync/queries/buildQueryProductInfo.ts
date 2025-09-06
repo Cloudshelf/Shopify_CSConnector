@@ -1,6 +1,6 @@
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 
-export async function buildProductTriggerQueryPayload(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
+export async function buildQueryProductInfo(retailer: RetailerEntity, changesSince?: Date): Promise<string> {
     const withPublicationStatus = await retailer.supportsWithPublicationStatus();
     let queryString = '';
     const queryParts: string[] = [];

@@ -7,11 +7,7 @@ import { promisify } from 'util';
 
 const finished = promisify(stream.finished);
 
-export async function downloadTempFile(
-    dataUrl: string,
-    tempFilePath?: string,
-    maxRetries = 3,
-): Promise<string> {
+export async function downloadTempFile(dataUrl: string, tempFilePath?: string, maxRetries = 3): Promise<string> {
     const tempFile = tempFilePath || `/tmp/${ulid()}.jsonl`;
     logger.info(`Downloading data url: ${dataUrl} to ${tempFile}`);
 

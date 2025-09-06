@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
+import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { Telemetry } from 'src/decorators/telemetry';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { RetailerService } from '../../retailer/retailer.service';
-import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
-import { Telemetry } from 'src/decorators/telemetry';
 
 export interface AppSubscriptionUpdateWebhookPayload {
     app_subscription: {

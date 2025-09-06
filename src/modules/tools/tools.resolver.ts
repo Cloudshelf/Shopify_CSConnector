@@ -2,14 +2,13 @@ import { Logger } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { GraphQLBoolean, GraphQLInt } from 'graphql';
 import { GraphQLString } from 'graphql/type';
-import { BulkOperationService } from '../data-ingestion/bulk.operation.service';
-import { BulkOperationType } from '../data-ingestion/bulk.operation.type';
-import { CollectionJobUtils } from '../data-ingestion/collection.job.utils';
-import { ProductJobUtils } from '../data-ingestion/product.job.utils';
-import { RetailerService } from '../retailer/retailer.service';
-import { ToolsService } from './tools.service';
 import { auth } from '@trigger.dev/sdk';
 import { Telemetry } from 'src/decorators/telemetry';
+import { SyncStyle } from 'src/trigger/syncOptions.type';
+import { BulkOperationService } from '../data-ingestion/bulk.operation.service';
+import { RetailerSyncJobUtils } from '../data-ingestion/retailersync.job.utils';
+import { RetailerService } from '../retailer/retailer.service';
+import { ToolsService } from './tools.service';
 
 @Resolver()
 export class ToolsResolver {
@@ -111,13 +110,13 @@ export class ToolsResolver {
         }
 
         if (partial) {
-            await ProductJobUtils.scheduleTriggerJob(retailer, false, 10, 'forceViaGql', {
+            await RetailerSyncJobUtils.scheduleTriggerJob(retailer, SyncStyle.PARTIAL, 10, 'forceViaGql', {
                 info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
             });
         } else {
-            await ProductJobUtils.scheduleTriggerJob(retailer, true, undefined, 'forceViaGql', {
+            await RetailerSyncJobUtils.scheduleTriggerJob(retailer, SyncStyle.FULL, undefined, 'forceViaGql', {
                 info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
@@ -147,39 +146,6 @@ export class ToolsResolver {
         const webhooksForDomain = await this.toolsService.getWebhooks(retailer);
 
         return 'OK: ' + JSON.stringify(webhooksForDomain);
-    }
-
-    @Telemetry('graphql.query.reprocessBulkOperation', { isGraphQL: true })
-    @Mutation(() => GraphQLBoolean)
-    async reprocessBulkOperation(
-        @Args({ name: 'token', type: () => GraphQLString })
-        token: string,
-        @Args({ name: 'opId', type: () => GraphQLString })
-        opId: string,
-    ): Promise<boolean> {
-        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
-            throw new Error('Unauthorized access to tools graphql');
-        }
-
-        const bulkOperation = await this.bulkOperationService.getOneById(opId);
-
-        if (!bulkOperation) {
-            console.info(`Bulk operation with id ${opId} not found`);
-            return false;
-        }
-
-        const retailer = await this.retailerService.getByDomain(bulkOperation.domain);
-        if (!retailer) {
-            console.info(`Retailer with domain ${bulkOperation.domain} not found`);
-            return false;
-        }
-
-        if (bulkOperation.type === BulkOperationType.ProductSync) {
-            await ProductJobUtils.scheduleConsumerJob(retailer, bulkOperation);
-        } else if (bulkOperation.type === BulkOperationType.ProductGroupSync) {
-            await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOperation, 'reprocessViaGql');
-        }
-        return true;
     }
 
     @Telemetry('graphql.mutation.deleteAllWebhooks', { isGraphQL: true })
