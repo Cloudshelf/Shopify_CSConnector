@@ -14,9 +14,9 @@ export class JsonLUtils {
 
             // eslint-disable-next-line no-await-in-loop
             const allocatedBuffer = new Uint8Array(length);
-            const { buffer } = await fd.read(allocatedBuffer, 0, length, position);
+            const { bytesRead } = await fd.read(allocatedBuffer, 0, length, position);
 
-            const lines: string[] = (Buffer.from(buffer).toString() + partial).split('\n').reverse();
+            const lines: string[] = (Buffer.from(allocatedBuffer.subarray(0, bytesRead)).toString() + partial).split('\n').reverse();
 
             partial = lines.pop();
 

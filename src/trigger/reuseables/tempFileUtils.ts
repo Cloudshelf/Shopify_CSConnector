@@ -18,7 +18,7 @@ export async function downloadTempFile(dataUrl: string, tempFilePath?: string, m
         const writer = createWriteStream(tempFile);
 
         try {
-            await axios.get(dataUrl, { responseType: 'stream' }).then(response => {
+            await axios.get(dataUrl, { responseType: 'stream', timeout: 60000 }).then(response => {
                 response.data.pipe(writer);
                 return finished(writer);
             });
