@@ -1,6 +1,7 @@
 import { AbortTaskRunError, logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
 import { RetailerSyncJobUtils } from 'src/modules/data-ingestion/retailersync.job.utils';
+import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 import { registerAllWebhooksForRetailer } from 'src/modules/tools/utils/registerAllWebhooksForRetailer';
 import { IngestionQueue } from 'src/trigger/queues';
 import { TriggerWaitForNobleReschedule } from 'src/trigger/reuseables/noble_pollfills';
@@ -29,6 +30,11 @@ export const RetailerSyncJob = task({
         const retailer = await AppDataSource.findOne(RetailerEntity, { id: payload.organisationId });
         if (!retailer) {
             throw new AbortTaskRunError('No organisation found for the provided organsation id');
+        }
+
+        if (retailer.status === RetailerStatus.IDLE) {
+            logger.info(`Retailer is hibernated, job should not have been scheduled; finishing early.`);
+            return;
         }
 
         let changesSince: Date | undefined = undefined;
@@ -88,6 +94,13 @@ export const RetailerSyncJob = task({
         const retailer = await AppDataSource.findOne(RetailerEntity, { id: payload.organisationId });
         if (!retailer) {
             throw new AbortTaskRunError('No organisation found for the provided organsation id');
+        }
+
+        if (retailer.status === RetailerStatus.IDLE) {
+            logger.info(
+                `Retailer is hibernated, job should not have been scheduled; not allowing another job to be scheduled.`,
+            );
+            return;
         }
 
         await RetailerSyncJobUtils.scheduleTriggerJob(
