@@ -94,7 +94,7 @@ async function handleSyncCleanupCollections(
             //We will NOT DELETE data from shopify
             return undefined;
         } else {
-            logger.log(`Seen Collection Id & Object count MATCH!`);
+            logger.info(`Seen Collection Id & Object count MATCH!`);
         }
     } catch (err) {
         logger.error(err);
@@ -238,7 +238,7 @@ async function handleSyncCleanupProductsAndVariants(
             //We will not delete data
             return undefined;
         } else {
-            logger.log(`Seen Id & Object count MATCH!`);
+            logger.info(`Seen Id & Object count MATCH!`);
         }
     } catch (err) {
         logger.error(err);

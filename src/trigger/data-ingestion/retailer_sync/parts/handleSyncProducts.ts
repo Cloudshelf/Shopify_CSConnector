@@ -113,7 +113,7 @@ export async function handleSyncProducts(
             for (const productInJsonL of productsInJsonLChunk) {
                 const product = productInJsonL as any;
                 const productId = GlobalIDUtils.gidConverter(product.id, 'ShopifyProduct')!;
-                if (!product.publishedOnCurrentPublication) {
+                if ('publishedOnCurrentPublication' in product && product.publishedOnCurrentPublication === false) {
                     logger.info(
                         `Product is not published. Skipping. Prod: ${product.handle}, publishedOnCurrentPublication: ${product.publishedOnCurrentPublication}`,
                     );

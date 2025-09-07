@@ -1,5 +1,7 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { AbortTaskRunError, logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { RetailerSyncJobUtils } from 'src/modules/data-ingestion/retailersync.job.utils';
 import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 import { registerAllWebhooksForRetailer } from 'src/modules/tools/utils/registerAllWebhooksForRetailer';
@@ -57,20 +59,29 @@ export const RetailerSyncJob = task({
 
         await TriggerWaitForNobleReschedule(retailer);
 
-        await handleSyncProducts(env, AppDataSource, retailer, {
-            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-            changesSince,
-        });
+        try {
+            await handleSyncProducts(env, AppDataSource, retailer, {
+                style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                changesSince,
+            });
 
-        await handleSyncProductGroups(env, AppDataSource, retailer, {
-            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-            changesSince,
-        });
+            await handleSyncProductGroups(env, AppDataSource, retailer, {
+                style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                changesSince,
+            });
 
-        await handleSyncCleanup(env, AppDataSource, retailer, {
-            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-            changesSince,
-        });
+            await handleSyncCleanup(env, AppDataSource, retailer, {
+                style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                changesSince,
+            });
+        } catch (err) {
+            logger.error(err);
+            await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
+                apiUrl: env.CLOUDSHELF_API_URL,
+                retailer,
+                syncStage: SyncStage.Failed,
+            });
+        }
 
         retailer.nextPartialSyncRequestTime = startedAtTime;
         logger.info('Setting nextPartialSyncRequestTime', {

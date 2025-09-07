@@ -1,7 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { GraphQLBoolean, GraphQLInt } from 'graphql';
-import { GraphQLString } from 'graphql/type';
+import { GraphQLBoolean, GraphQLInt, GraphQLString } from 'graphql';
 import { auth } from '@trigger.dev/sdk';
 import { Telemetry } from 'src/decorators/telemetry';
 import { SyncStyle } from 'src/trigger/syncOptions.type';

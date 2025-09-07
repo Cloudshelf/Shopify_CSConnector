@@ -29,7 +29,7 @@ async function readJsonl(
 
     for await (const collectionObj of JsonLUtils.readJsonl(tempFile)) {
         const collectionId = GlobalIDUtils.gidConverter(collectionObj.id, 'ShopifyCollection')!;
-        if (!collectionObj.publishedOnCurrentPublication) {
+        if ('publishedOnCurrentPublication' in collectionObj && collectionObj.publishedOnCurrentPublication === false) {
             logger.info(`Skipping collection ${collectionId} as it is not published on current publication`);
             continue;
         }

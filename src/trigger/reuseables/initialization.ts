@@ -10,30 +10,28 @@ const DbLocal = locals.create<EntityManager | undefined>('db');
 
 // Single initialization middleware that handles both env and db
 tasks.middleware('initialization', async ({ next }) => {
-    // Step 1: Validate and set environment configuration
-    const env = validateEnvironmentForRetailerSync();
-    locals.set(EnvConfigLocal, env);
-    logger.info('[Initialization]: Environment validated and stored');
-
-    // Step 2: Initialize database connection
     let mikro: MikroORM | undefined;
     let em: EntityManager | undefined;
 
     try {
+        // Step 1: Validate and set environment configuration
+        const env = validateEnvironmentForRetailerSync();
+        locals.set(EnvConfigLocal, env);
+        logger.info('[Initialization]: Environment validated and stored');
+
+        // Step 2: Initialize database connection
         const dbResult = await StartMikroORMForTrigger();
         mikro = dbResult.mikro;
         em = dbResult.em;
         locals.set(MikroORMLocal, mikro);
         locals.set(DbLocal, em);
         logger.info('[Initialization]: Database connection established');
-    } catch (error) {
-        logger.error('[Initialization]: Failed to initialize database', { error });
-        throw error;
-    }
 
-    try {
         // Execute the task
         await next();
+    } catch (error) {
+        logger.error('[Initialization]: Failed during initialization or task execution', { error });
+        throw error;
     } finally {
         // Cleanup in reverse order
         const mikroInstance = locals.get(MikroORMLocal);
@@ -57,7 +55,7 @@ tasks.onWait('initialization', async () => {
         const isConnected = await connection.isConnected();
         if (isConnected) {
             await connection.close();
-            logger.log('[Initialization]: Database connection closed (onWait)');
+            logger.info('[Initialization]: Database connection closed (onWait)');
         }
     }
 });
@@ -69,7 +67,7 @@ tasks.onResume('initialization', async () => {
         const isConnected = await connection.isConnected();
         if (!isConnected) {
             await connection.connect();
-            logger.log('[Initialization]: Database connection re-established (onResume)');
+            logger.info('[Initialization]: Database connection re-established (onResume)');
         }
     }
 });

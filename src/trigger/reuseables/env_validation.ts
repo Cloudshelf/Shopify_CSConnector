@@ -13,6 +13,8 @@ export function validateEnvironmentForRetailerSync(): RetailerSyncEnvironmentCon
     const CLOUDSHELF_API_URL = process.env.CLOUDSHELF_API_URL;
     const SHOPIFY_CONNECTOR_HOST = process.env.SHOPIFY_CONNECTOR_HOST;
     const CLOUDFLARE_R2_PUBLIC_ENDPOINT = process.env.CLOUDFLARE_R2_PUBLIC_ENDPOINT;
+    const CLOUDFLARE_R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
+    const CLOUDFLARE_R2_ACCESS_KEY_SECRET = process.env.CLOUDFLARE_R2_ACCESS_KEY_SECRET;
     const FILE_PREFIX = process.env.FILE_PREFIX;
     const SLACK_TOKEN = process.env.SLACK_TOKEN;
     const SLACK_HEALTH_NOTIFICATION_CHANNEL = process.env.SLACK_HEALTH_NOTIFICATION_CHANNEL;
@@ -27,6 +29,14 @@ export function validateEnvironmentForRetailerSync(): RetailerSyncEnvironmentCon
 
     if (!CLOUDFLARE_R2_PUBLIC_ENDPOINT) {
         throw new AbortTaskRunError('CLOUDFLARE_R2_PUBLIC_ENDPOINT missing from ENV');
+    }
+
+    if (!CLOUDFLARE_R2_ACCESS_KEY_ID) {
+        throw new AbortTaskRunError('CLOUDFLARE_R2_ACCESS_KEY_ID missing from ENV');
+    }
+
+    if (!CLOUDFLARE_R2_ACCESS_KEY_SECRET) {
+        throw new AbortTaskRunError('CLOUDFLARE_R2_ACCESS_KEY_SECRET missing from ENV');
     }
 
     if (!FILE_PREFIX) {

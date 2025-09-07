@@ -95,7 +95,10 @@ export async function requestAndWaitForBulkOperation(
         }
 
         // If waitpoint expired but operation is not running, we're done
-        if (bulkOperation.status !== BulkOperationStatus.Running) {
+        if (
+            bulkOperation.status !== BulkOperationStatus.Created &&
+            bulkOperation.status !== BulkOperationStatus.Running
+        ) {
             logger.info(`Bulk operation status is ${bulkOperation.status}, stopping wait loop`);
             isComplete = true;
             break;
