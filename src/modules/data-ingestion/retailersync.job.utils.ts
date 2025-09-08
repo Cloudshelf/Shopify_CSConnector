@@ -44,21 +44,19 @@ export class RetailerSyncJobUtils {
             taskIdentifier: [RetailerSyncJob.id],
             tag: searchTags,
         } as ListRunsQueryParams)) {
-            const i: { id: string; type: 'type_full' | 'type_partial' } = {
-                id: run.id,
-                type: run.tags.includes('type_full') ? 'type_full' : 'type_partial',
-            };
-            pendingRuns.push(i);
-            console.log(`pushing pending run`, i);
+            if (!currentJobId || run.id !== currentJobId) {
+                const i: { id: string; type: 'type_full' | 'type_partial' } = {
+                    id: run.id,
+                    type: run.tags.includes('type_full') ? 'type_full' : 'type_partial',
+                };
+                pendingRuns.push(i);
+                console.log(`pushing pending run`, i);
+            }
         }
         logs?.info(`Found ${pendingRuns.length} existing jobs...`);
 
         if (syncStyle === SyncStyle.FULL) {
             for (const runToCancel of pendingRuns) {
-                if (currentJobId && runToCancel.id === currentJobId) {
-                    logs?.info(`Skipping cancellation of current job ${runToCancel.id}`, runToCancel);
-                    continue;
-                }
                 logs?.info(`Cancelling ${runToCancel.id}`, runToCancel);
                 await runs.cancel(runToCancel.id);
             }
@@ -67,10 +65,6 @@ export class RetailerSyncJobUtils {
             const partialSyncRuns = pendingRuns.filter(f => f.type === 'type_partial');
             if (hasAnyFullSyncs) {
                 for (const runToCancel of partialSyncRuns) {
-                    if (currentJobId && runToCancel.id === currentJobId) {
-                        logs?.info(`Skipping cancellation of current job ${runToCancel.id}`, runToCancel);
-                        continue;
-                    }
                     logs?.info(`Cancelling ${runToCancel.id}`, runToCancel);
                     await runs.cancel(runToCancel.id);
                 }

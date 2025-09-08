@@ -60,19 +60,25 @@ export const RetailerSyncJob = task({
         await TriggerWaitForNobleReschedule(retailer);
 
         try {
-            await handleSyncProducts(env, AppDataSource, retailer, {
-                style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                changesSince,
+            await logger.trace(`Sync Products`, async () => {
+                await handleSyncProducts(env, AppDataSource, retailer, {
+                    style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                    changesSince,
+                });
             });
 
-            await handleSyncProductGroups(env, AppDataSource, retailer, {
-                style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                changesSince,
+            await logger.trace(`Sync Product groups`, async () => {
+                await handleSyncProductGroups(env, AppDataSource, retailer, {
+                    style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                    changesSince,
+                });
             });
 
-            await handleSyncCleanup(env, AppDataSource, retailer, {
-                style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                changesSince,
+            await logger.trace(`Post Cleanup`, async () => {
+                await handleSyncCleanup(env, AppDataSource, retailer, {
+                    style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                    changesSince,
+                });
             });
         } catch (err) {
             logger.error(err);
@@ -94,12 +100,6 @@ export const RetailerSyncJob = task({
         await AppDataSource.flush();
     },
     onComplete: async ({ payload, result, ctx }) => {
-        // if (result.ok) {
-        //     //task succeded
-        // } else {
-        //     //task failed
-        // }
-
         const AppDataSource = getDbForTrigger();
 
         const retailer = await AppDataSource.findOne(RetailerEntity, { id: payload.organisationId });
