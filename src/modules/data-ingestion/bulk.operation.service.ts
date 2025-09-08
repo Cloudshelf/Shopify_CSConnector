@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { EntityManager } from '@mikro-orm/core';
+import { Telemetry } from 'src/decorators/telemetry';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
 import { BulkOperationType } from './bulk.operation.type';
 import { BulkOperationUtils } from './bulk.operation.utils';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class BulkOperationService {
