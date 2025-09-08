@@ -1,15 +1,15 @@
 import { ConfigService } from '@nestjs/config';
+import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { Telemetry } from 'src/decorators/telemetry';
+import { TriggerHandlersService } from 'src/modules/trigger-handlers/trigger-handlers.service';
 import { slackSchema } from '../../../modules/configuration/schemas/slack.schema';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { NotificationUtils } from '../../../utils/NotificationUtils';
 import { SlackUtils } from '../../../utils/SlackUtils';
+import { TelemetryUtil } from '../../../utils/TelemetryUtil';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { RetailerService } from '../../retailer/retailer.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
-import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
-import { Telemetry } from 'src/decorators/telemetry';
-import { TriggerHandlersService } from 'src/modules/trigger-handlers/trigger-handlers.service';
-import { TelemetryUtil } from '../../../utils/TelemetryUtil';
 
 @WebhookHandler('APP_UNINSTALLED')
 export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -30,13 +30,18 @@ export class UninstalledWebhookHandler extends ShopifyWebhookHandler<unknown> {
         this.logger.debug(`Webhook ${webhookId} called for shop ID ${domain}`);
         this.logger.debug(data);
 
-        TelemetryUtil.InformationalTransaction('Webhook:Received', 'APP_UNINSTALLED', {
-            webhookId,
-            domain,
-        }, {
-            id: domain,
-            username: domain,
-        });
+        TelemetryUtil.InformationalTransaction(
+            'Webhook:Received',
+            'APP_UNINSTALLED',
+            {
+                webhookId,
+                domain,
+            },
+            {
+                id: domain,
+                username: domain,
+            },
+        );
 
         const slackToken = this.slackConfigService.get<string>('SLACK_TOKEN');
         const slackNotificationChannel = this.slackConfigService.get<string>('SLACK_GENERAL_NOTIFICATION_CHANNEL');

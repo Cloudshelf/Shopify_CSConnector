@@ -1,15 +1,15 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { GraphQLModule } from './modules/graphql/graphql.module';
 import { MikroORM } from '@mikro-orm/core';
+import { Request } from 'express';
+import { ClsModule } from 'nestjs-cls';
+import { ulid } from 'ulid';
 import { ApiHealthModule } from './modules/api-health/api-health.module';
 import { ConfigurationModule } from './modules/configuration/configuration.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { RetailerModule } from './modules/retailer/retailer.module';
 import { ShopifyModule } from './modules/shopify/shopify.module';
 import { ExtendedLogger } from './utils/ExtendedLogger';
-import { Request } from 'express';
-import { ClsModule } from 'nestjs-cls';
-import { ulid } from 'ulid';
 import '@shopify/shopify-api/adapters/node';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MikroOrmModule } from '@mikro-orm/nestjs';

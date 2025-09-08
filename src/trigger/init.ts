@@ -1,4 +1,5 @@
 import { logger, tasks, usage } from '@trigger.dev/sdk';
+import './reuseables/initialization';
 
 tasks.onStart(async ({ ctx, payload, task }) => {
     console.log('onstart');

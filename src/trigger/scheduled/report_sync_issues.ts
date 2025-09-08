@@ -1,11 +1,10 @@
-import { FlushMode } from '@mikro-orm/core';
+import { schedules } from '@trigger.dev/sdk';
+import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 import { RetailerEntity } from '../../modules/retailer/retailer.entity';
 import { NotificationUtils } from '../../utils/NotificationUtils';
 import { SlackUtils } from '../../utils/SlackUtils';
 import { ReportSyncIssuesQueue } from '../queues';
-import { getDbForTrigger } from '../reuseables/db';
-import { logger, schedules } from '@trigger.dev/sdk';
-import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
+import { getDbForTrigger, getEnvConfig } from '../reuseables/initialization';
 
 export const ReportSyncIssues = schedules.task({
     id: 'report-sync-issues',
@@ -18,29 +17,10 @@ export const ReportSyncIssues = schedules.task({
     },
     queue: ReportSyncIssuesQueue,
     run: async () => {
+        const env = getEnvConfig();
         const AppDataSource = getDbForTrigger();
-        if (!AppDataSource) {
-            logger.error(`AppDataSource is not set`);
-            throw new Error(`AppDataSource is not set`);
-        }
 
-        const slackToken = process.env.SLACK_TOKEN;
-        if (!slackToken) {
-            logger.error(`SLACK_TOKEN is not set`);
-            throw new Error(`SLACK_TOKEN is not set`);
-        }
-
-        const slackHealthChannel = process.env.SLACK_HEALTH_NOTIFICATION_CHANNEL;
-        if (!slackHealthChannel) {
-            logger.error(`SLACK_HEALTH_NOTIFICATION_CHANNEL is not set`);
-            throw new Error(`SLACK_HEALTH_NOTIFICATION_CHANNEL is not set`);
-        }
-
-        const em = AppDataSource.em.fork({
-            flushMode: FlushMode.COMMIT,
-        });
-
-        const retailers = await em.find(RetailerEntity, {
+        const retailers = await AppDataSource.find(RetailerEntity, {
             $or: [
                 {
                     lastSafetySyncCompleted: {
@@ -63,8 +43,8 @@ export const ReportSyncIssues = schedules.task({
 
         if (data.length > 0) {
             await SlackUtils.SendNotification(
-                slackToken,
-                slackHealthChannel,
+                env.SLACK_TOKEN,
+                env.SLACK_HEALTH_NOTIFICATION_CHANNEL,
                 NotificationUtils.buildSyncIssueNotifications(data),
             );
         }
