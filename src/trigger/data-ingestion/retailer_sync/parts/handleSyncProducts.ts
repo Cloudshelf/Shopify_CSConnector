@@ -19,6 +19,7 @@ import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.typ
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerSyncEnvironmentConfig } from 'src/trigger/reuseables/env_validation';
 import { getLoggerHelper } from 'src/trigger/reuseables/loggerObject';
+import { SyncOptions, SyncStyle } from 'src/trigger/syncOptions.type';
 import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
 import { JsonLUtils } from 'src/utils/JsonLUtils';
 import { handleStoreClosedError } from '../../../reuseables/handleStoreClosedError';
@@ -34,10 +35,7 @@ export async function handleSyncProducts(
     env: RetailerSyncEnvironmentConfig,
     appDataSource: EntityManager,
     retailer: RetailerEntity,
-    syncOptions: {
-        style: 'full' | 'partial';
-        changesSince?: Date;
-    },
+    syncOptions: SyncOptions,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
@@ -45,7 +43,7 @@ export async function handleSyncProducts(
         syncStage: SyncStage.RequestProducts,
     });
 
-    if (syncOptions.style === 'full') {
+    if (syncOptions.style === SyncStyle.FULL) {
         logger.info('Building Product Data Bulk Operation Payload; Entire Store');
     } else {
         logger.info(
@@ -256,7 +254,7 @@ export async function handleSyncProducts(
         retailer.lastProductSync = new Date();
         await appDataSource.flush();
 
-        if (syncOptions.style === 'full') {
+        if (syncOptions.style === SyncStyle.FULL) {
             const sumOfVariants = variantInputs.reduce((acc, val) => acc + val.variants.length, 0);
             const input = {
                 knownNumberOfProductGroups: undefined,

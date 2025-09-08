@@ -6,13 +6,14 @@ import { BulkOperation } from 'src/modules/data-ingestion/bulk.operation.entity'
 import { BulkOperationType } from 'src/modules/data-ingestion/bulk.operation.type';
 import { BulkOperationUtils } from 'src/modules/data-ingestion/bulk.operation.utils';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
+import { SyncStyle } from '../syncOptions.type';
 
 export interface RequestAndWaitForBulkOperationParams {
     appDataSource: EntityManager;
     retailer: RetailerEntity;
     operationType: BulkOperationType;
     queryPayload: string;
-    syncStyle: 'full' | 'partial';
+    syncStyle: SyncStyle;
     timeoutSeconds: number;
     maxWaits: number;
     logs?: LogsInterface;
