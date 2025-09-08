@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { BulkOperationStatus } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { wait } from '@trigger.dev/sdk';
 import { Telemetry } from 'src/decorators/telemetry';
 import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
@@ -83,28 +84,30 @@ export class BulkOperationFinishedWebhookHandler extends ShopifyWebhookHandler<u
         if (bulkOp?.status === BulkOperationStatus.Completed) {
             this.logger.debug('Bulk operation completed successfully', { bulkOp });
 
-            //TODO: Handle completing the waitpoint, but for now we can ignore to test it works without webhooks
-            // if (bulkOp.type === BulkOperationType.ProductSync) {
-            //     //create the product consumer
-            //     await ProductJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
-            //         info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-            //         warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-            //         error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-            //     });
-            // } else if (bulkOp.type === BulkOperationType.ProductGroupSync) {
-            //     //create the product group consumer
-            //     await CollectionJobUtils.scheduleConsumerJob(retailer, bulkOp, `webhook`, {
-            //         info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-            //         warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-            //         error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-            //     });
-            // } else if (bulkOp.type === BulkOperationType.ProductGroupDeleteSync) {
-            //     //we just ignore this as its only here for histroical data purposes
-            // } else if (bulkOp.type === BulkOperationType.PostSync) {
-            //     //we just ignore this one as we hae trigger handle it
-            // } else {
-            //     this.logger.error('Unknown bulk operation type ' + bulkOp.type);
-            // }
+            // Find and complete any waiting tokens for this bulk operation
+            try {
+                this.logger.debug(`Looking for waiting tokens with idempotencyKey: ${bulkOp.shopifyBulkOpId}`);
+
+                // List tokens with the bulk operation ID as the idempotency key
+                const tokens = await wait.listTokens({
+                    idempotencyKey: bulkOp.shopifyBulkOpId,
+                    status: 'WAITING',
+                });
+
+                // Complete the first waiting token found
+                for await (const token of tokens) {
+                    this.logger.log(
+                        `Found waiting token ${token.id} for bulk operation ${bulkOp.shopifyBulkOpId}, completing it`,
+                    );
+
+                    await wait.completeToken(token.id, {});
+
+                    this.logger.log(`Successfully completed waitpoint token ${token.id}`);
+                }
+            } catch (error) {
+                this.logger.error(`Failed to complete waitpoint for bulk operation ${bulkOp.shopifyBulkOpId}`, error);
+                // Don't throw - we don't want to fail the webhook handler
+            }
         }
     }
 }

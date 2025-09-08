@@ -14,6 +14,7 @@ import { SyncOptions } from 'src/trigger/syncOptions.type';
 import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
 import { JsonLUtils } from 'src/utils/JsonLUtils';
 import { S3Utils } from 'src/utils/S3Utils';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { ulid } from 'ulid';
 import { handleStoreClosedError } from '../../../reuseables/handleStoreClosedError';
 import { requestAndWaitForBulkOperation } from '../../../reuseables/requestAndWaitForBulkOperation';
@@ -27,6 +28,12 @@ async function handleSyncCleanupCollections(
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
 ): Promise<{ collectionTotal: number } | undefined> {
+    const tags = TriggerTagsUtils.createTags({
+        domain: retailer.domain,
+        retailerId: retailer.id,
+        syncStage: SyncStage.CleanUp,
+    });
+
     const queryPayload = await buildQueryCollectionIds(retailer);
     let requestedBulkOperationCollections: BulkOperation | undefined = undefined;
     try {
@@ -39,7 +46,7 @@ async function handleSyncCleanupCollections(
             timeoutSeconds: 20,
             maxWaits: 100,
             logs: getLoggerHelper(),
-            waitpointTags: [], //todo: waitpoint tags
+            waitpointTags: tags,
         });
     } catch (err) {
         await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL);
@@ -149,6 +156,12 @@ async function handleSyncCleanupProductsAndVariants(
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
 ): Promise<{ productTotal: number; variantTotal: number } | undefined> {
+    const tags = TriggerTagsUtils.createTags({
+        domain: retailer.domain,
+        retailerId: retailer.id,
+        syncStage: SyncStage.CleanUp,
+    });
+
     const queryPayload = await buildQueryProductIds(retailer);
     let requestedBulkOperation: BulkOperation | undefined = undefined;
     try {
@@ -161,7 +174,7 @@ async function handleSyncCleanupProductsAndVariants(
             timeoutSeconds: 20,
             maxWaits: 100,
             logs: getLoggerHelper(),
-            waitpointTags: [], //todo: waitpoint tags
+            waitpointTags: tags,
         });
     } catch (err) {
         await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL);
