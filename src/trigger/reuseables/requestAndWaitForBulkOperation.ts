@@ -28,111 +28,110 @@ export interface RequestAndWaitForBulkOperationParams {
 export async function requestAndWaitForBulkOperation(
     params: RequestAndWaitForBulkOperationParams,
 ): Promise<BulkOperation | undefined> {
-    const {
-        appDataSource,
-        retailer,
-        operationType,
-        queryPayload,
-        syncStyle,
-        timeoutSeconds,
-        maxWaits,
-        logs,
-        waitpointTags = [],
-    } = params;
-    let idempotencyKeyTTL = timeoutSeconds - 20;
-    if (idempotencyKeyTTL <= 0) {
-        idempotencyKeyTTL = 1;
-    }
-
-    // Request the bulk operation
-    let bulkOperation: BulkOperation | undefined;
-    try {
-        bulkOperation = await BulkOperationUtils.requestBulkOperation(
+    return await logger.trace('Requesting bulk operation and waiting', async () => {
+        const {
             appDataSource,
             retailer,
             operationType,
             queryPayload,
-            syncStyle === 'full',
+            syncStyle,
+            timeoutSeconds,
+            maxWaits,
             logs,
-        );
-    } catch (err) {
-        logger.error('Failed to request bulk operation', { error: err });
-        throw err;
-    }
+            waitpointTags = [],
+        } = params;
+        const idempotencyKeyTTL = timeoutSeconds >= 10 ? 10 : 1;
 
-    if (!bulkOperation) {
-        return undefined;
-    }
-
-    let currentWaitCount = 0;
-    let isComplete = false;
-
-    while (currentWaitCount < maxWaits && !isComplete) {
-        // Create wait token with specified timeout
-        const waitpointToken = await wait.createToken({
-            timeout: `${timeoutSeconds}s`,
-            tags: waitpointTags,
-            idempotencyKey: `${bulkOperation.shopifyBulkOpId}`,
-            idempotencyKeyTTL: `${idempotencyKeyTTL}s`,
-        });
-
-        // Wait for the token
-        const waitpointResult = await wait.forToken(waitpointToken.id);
-
-        logger.info(
-            waitpointResult.ok
-                ? `Waitpoint completed (wait ${currentWaitCount + 1}/${maxWaits})`
-                : `Waitpoint expired (wait ${currentWaitCount + 1}/${maxWaits})`,
-        );
-
-        // Update bulk operation status from Shopify
-        bulkOperation = await BulkOperationUtils.updateFromShopify(appDataSource, retailer, bulkOperation, logs);
-
-        // If waitpoint.ok is true, we're done - DO NOT wait again
-        if (waitpointResult.ok) {
-            logger.info('Waitpoint completed successfully, returning bulk operation');
-            isComplete = true;
-            break;
-        }
-
-        // If waitpoint expired but operation is not running, we're done
-        if (
-            bulkOperation.status !== BulkOperationStatus.Created &&
-            bulkOperation.status !== BulkOperationStatus.Running
-        ) {
-            logger.info(`Bulk operation status is ${bulkOperation.status}, stopping wait loop`);
-            isComplete = true;
-            break;
-        }
-
-        // Operation is still running, increment wait count
-        currentWaitCount++;
-
-        // If we haven't reached max waits, continue the loop
-        if (currentWaitCount < maxWaits) {
-            logger.info(`Bulk operation still running, waiting again (${currentWaitCount + 1}/${maxWaits})`);
-        } else {
-            logger.warn(`Reached maximum number of waits (${maxWaits}), bulk operation still running`);
-        }
-    }
-
-    // Log how long Shopify took to process the bulk operation
-    if (bulkOperation.startedAt && bulkOperation.endedAt) {
-        const durationMs = bulkOperation.endedAt.getTime() - bulkOperation.startedAt.getTime();
-        const durationSeconds = Math.round(durationMs / 1000);
-        logger.info(`Shopify bulk operation processing time: ${durationSeconds} seconds`, {
-            data: {
+        // Request the bulk operation
+        let bulkOperation: BulkOperation | undefined;
+        try {
+            bulkOperation = await BulkOperationUtils.requestBulkOperation(
+                appDataSource,
+                retailer,
                 operationType,
-                retailerDomain: retailer.domain,
-                bulkOpId: bulkOperation.shopifyBulkOpId,
-                startedAt: bulkOperation.startedAt.toISOString(),
-                endedAt: bulkOperation.endedAt.toISOString(),
-                durationSeconds,
-                objectCount: bulkOperation.objectCount,
-                status: bulkOperation.status,
-            },
-        });
-    }
+                queryPayload,
+                syncStyle === 'full',
+                logs,
+            );
+        } catch (err) {
+            logger.error('Failed to request bulk operation', { error: err });
+            throw err;
+        }
 
-    return bulkOperation;
+        if (!bulkOperation) {
+            return undefined;
+        }
+
+        let currentWaitCount = 0;
+        let isComplete = false;
+
+        while (currentWaitCount < maxWaits && !isComplete) {
+            // Create wait token with specified timeout
+            const waitpointToken = await wait.createToken({
+                timeout: `${timeoutSeconds}s`,
+                tags: waitpointTags,
+                idempotencyKey: `${bulkOperation.shopifyBulkOpId}`,
+                idempotencyKeyTTL: `${idempotencyKeyTTL}s`,
+            });
+
+            // Wait for the token
+            const waitpointResult = await wait.forToken(waitpointToken.id);
+
+            logger.info(
+                waitpointResult.ok
+                    ? `Waitpoint completed (wait ${currentWaitCount + 1}/${maxWaits})`
+                    : `Waitpoint expired (wait ${currentWaitCount + 1}/${maxWaits})`,
+            );
+
+            // Update bulk operation status from Shopify
+            bulkOperation = await BulkOperationUtils.updateFromShopify(appDataSource, retailer, bulkOperation, logs);
+
+            // If waitpoint.ok is true, we're done - DO NOT wait again
+            if (waitpointResult.ok) {
+                logger.info('Waitpoint completed successfully, returning bulk operation');
+                isComplete = true;
+                break;
+            }
+
+            // If waitpoint expired but operation is not running, we're done
+            if (
+                bulkOperation.status !== BulkOperationStatus.Created &&
+                bulkOperation.status !== BulkOperationStatus.Running
+            ) {
+                logger.info(`Bulk operation status is ${bulkOperation.status}, stopping wait loop`);
+                isComplete = true;
+                break;
+            }
+
+            // Operation is still running, increment wait count
+            currentWaitCount++;
+
+            // If we haven't reached max waits, continue the loop
+            if (currentWaitCount < maxWaits) {
+                logger.info(`Bulk operation still running, waiting again (${currentWaitCount + 1}/${maxWaits})`);
+            } else {
+                logger.warn(`Reached maximum number of waits (${maxWaits}), bulk operation still running`);
+            }
+        }
+
+        // Log how long Shopify took to process the bulk operation
+        if (bulkOperation.startedAt && bulkOperation.endedAt) {
+            const durationMs = bulkOperation.endedAt.getTime() - bulkOperation.startedAt.getTime();
+            const durationSeconds = Math.round(durationMs / 1000);
+            logger.info(`Shopify bulk operation processing time: ${durationSeconds} seconds`, {
+                data: {
+                    operationType,
+                    retailerDomain: retailer.domain,
+                    bulkOpId: bulkOperation.shopifyBulkOpId,
+                    startedAt: bulkOperation.startedAt.toISOString(),
+                    endedAt: bulkOperation.endedAt.toISOString(),
+                    durationSeconds,
+                    objectCount: bulkOperation.objectCount,
+                    status: bulkOperation.status,
+                },
+            });
+        }
+
+        return bulkOperation;
+    });
 }
