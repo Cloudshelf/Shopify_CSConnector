@@ -1,3 +1,5 @@
+import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
+
 export class TriggerTagsUtils {
     static createRetailerTag(retailerId?: string): string {
         if (!retailerId) {
@@ -14,15 +16,21 @@ export class TriggerTagsUtils {
         return `reason_${reason}`;
     }
 
+    static createSyncStageTag(stage: SyncStage): string {
+        return `syncStage_${stage.toLowerCase()}`;
+    }
+
     static createTags({
         domain,
         retailerId,
         syncType,
+        syncStage,
         reason,
     }: {
         domain: string;
         retailerId?: string;
         syncType?: 'type_full' | 'type_partial';
+        syncStage?: SyncStage.RequestProducts | SyncStage.RequestProductGroups | SyncStage.CleanUp;
         reason?: string;
     }): string[] {
         const tags = [TriggerTagsUtils.createDomainTag(domain)];
@@ -34,6 +42,10 @@ export class TriggerTagsUtils {
         }
         if (syncType) {
             tags.push(syncType);
+        }
+
+        if (syncStage) {
+            tags.push(TriggerTagsUtils.createSyncStageTag(syncStage));
         }
         return tags;
     }

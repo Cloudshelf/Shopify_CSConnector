@@ -116,5 +116,23 @@ export async function requestAndWaitForBulkOperation(
         }
     }
 
+    // Log how long Shopify took to process the bulk operation
+    if (bulkOperation.startedAt && bulkOperation.endedAt) {
+        const durationMs = bulkOperation.endedAt.getTime() - bulkOperation.startedAt.getTime();
+        const durationSeconds = Math.round(durationMs / 1000);
+        logger.info(`Shopify bulk operation processing time: ${durationSeconds} seconds`, {
+            data: {
+                operationType,
+                retailerDomain: retailer.domain,
+                bulkOpId: bulkOperation.shopifyBulkOpId,
+                startedAt: bulkOperation.startedAt.toISOString(),
+                endedAt: bulkOperation.endedAt.toISOString(),
+                durationSeconds,
+                objectCount: bulkOperation.objectCount,
+                status: bulkOperation.status,
+            },
+        });
+    }
+
     return bulkOperation;
 }

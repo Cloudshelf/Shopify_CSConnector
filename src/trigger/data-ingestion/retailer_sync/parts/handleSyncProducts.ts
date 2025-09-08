@@ -22,6 +22,7 @@ import { getLoggerHelper } from 'src/trigger/reuseables/loggerObject';
 import { SyncOptions, SyncStyle } from 'src/trigger/syncOptions.type';
 import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
 import { JsonLUtils } from 'src/utils/JsonLUtils';
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { handleStoreClosedError } from '../../../reuseables/handleStoreClosedError';
 import { requestAndWaitForBulkOperation } from '../../../reuseables/requestAndWaitForBulkOperation';
 import { deleteTempFile, downloadTempFile } from '../../../reuseables/tempFileUtils';
@@ -53,6 +54,12 @@ export async function handleSyncProducts(
         );
     }
 
+    const tags = TriggerTagsUtils.createTags({
+        domain: retailer.domain,
+        retailerId: retailer.id,
+        syncStage: SyncStage.RequestProducts,
+    });
+
     const queryPayload = await buildQueryProductInfo(retailer, syncOptions.changesSince);
     let requestedBulkOperation: BulkOperation | undefined = undefined;
     try {
@@ -65,7 +72,7 @@ export async function handleSyncProducts(
             timeoutSeconds: 600,
             maxWaits: 100,
             logs: getLoggerHelper(),
-            waitpointTags: [], //todo: waitpoint tags
+            waitpointTags: tags,
         });
     } catch (err) {
         await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL);
