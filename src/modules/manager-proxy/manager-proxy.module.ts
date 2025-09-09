@@ -24,7 +24,7 @@ export class ManagerProxyModule implements NestModule {
                 { path: '/stock-levels', method: RequestMethod.ALL },
                 { path: '/pos', method: RequestMethod.ALL },
             )
-            .forRoutes({ path: '/*path', method: RequestMethod.ALL });
+            .forRoutes({ path: '{*splat}', method: RequestMethod.ALL });
 
         consumer
             .apply(ManagerProxyMiddleware)
@@ -36,6 +36,6 @@ export class ManagerProxyModule implements NestModule {
                 { path: '/pos', method: RequestMethod.ALL },
             )
 
-            .forRoutes({ path: '/*path', method: RequestMethod.ALL });
+            .forRoutes({ path: '{*splat}', method: RequestMethod.ALL });
     }
 }

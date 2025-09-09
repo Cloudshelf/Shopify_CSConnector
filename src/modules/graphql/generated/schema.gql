@@ -27,7 +27,6 @@ type Mutation {
   getRetailerInfoWhereNull(token: String!): Boolean!
   markRetailersAsActive(domain: String!): Boolean!
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
-  reprocessBulkOperation(opId: String!, token: String!): Boolean!
   sendAllRetailerToCloudshelf(token: String!): Boolean!
   syncOrganisation(input: CloudshelfSyncOrganisationInput!): Boolean!
 }
