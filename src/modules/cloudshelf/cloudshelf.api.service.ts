@@ -9,6 +9,7 @@ import {
     UpsertVariantsInput,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
+import { Telemetry } from 'src/decorators/telemetry';
 import { cloudshelfSchema } from '../configuration/schemas/cloudshelf.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
@@ -20,7 +21,6 @@ import { CloudshelfApiStoreUtils } from './cloudshelf.api.store.util';
 import { CloudshelfApiSubscriptionUtils } from './cloudshelf.api.subscription.util';
 import { CloudshelfApiThemeUtils } from './cloudshelf.api.theme.util';
 import { LogsInterface } from './logs.interface';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class CloudshelfApiService {
@@ -33,6 +33,7 @@ export class CloudshelfApiService {
 
     @Telemetry('service.cloudshelf.getCloudshelfAuthToken')
     async getCloudshelfAuthToken(domain: string): Promise<string | undefined> {
+        this.logger.log('getAuthToken', this.configService.get<string>('CLOUDSHELF_API_URL'));
         return CloudshelfApiAuthUtils.getCloudshelfAuthToken(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
