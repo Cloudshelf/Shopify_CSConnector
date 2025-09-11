@@ -10,7 +10,6 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { BatchSpanProcessor, TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-base';
 import * as process from 'process';
 import { CrawlerErrorSampler } from './crawler-error-sampler';
-import { UserAgentFilterSpanProcessor } from './user-agent-filter-span-processor';
 
 const traceExporter = new OTLPTraceExporter({
     url: 'https://api.axiom.co/v1/traces',
@@ -67,20 +66,9 @@ const customHttpInstrumentation = new HttpInstrumentation({
     },
 });
 
-// Filter out spans from these user agents
-const filteredUserAgents = [
-    'aikido-scan-agent', // Aikido security scanner
-];
-
-// Create span processors
-// 1. Filter processor: drops spans from filtered user agents
-const filterProcessor = new UserAgentFilterSpanProcessor(filteredUserAgents);
-// 2. Batch processor: batches and exports remaining spans to Axiom
-const batchProcessor = new BatchSpanProcessor(traceExporter);
-
 const otelSDK = new NodeSDK({
     metricReader: undefined, //not yet supported by axiom, we could use something like prometheus
-    spanProcessors: [filterProcessor, batchProcessor],
+    spanProcessors: [new BatchSpanProcessor(traceExporter)],
     contextManager: new AsyncLocalStorageContextManager(),
     textMapPropagator: new CompositePropagator({
         propagators: [
