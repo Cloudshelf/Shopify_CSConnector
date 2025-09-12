@@ -26,7 +26,10 @@ export class CrawlerErrorSampler implements Sampler {
         links: Link[] = [],
     ): SamplingResult {
         // Check for filtered user agents
-        const userAgent = attributes['http.user_agent'] as string;
+        const userAgent =
+            (attributes['http.user_agent'] as string) ??
+            (attributes['user_agent.original'] as string) ??
+            (attributes['http.request.header.user-agent'] as string);
         if (userAgent && this.filteredUserAgents.some(pattern => userAgent.includes(pattern))) {
             return { decision: SamplingDecision.NOT_RECORD };
         }
