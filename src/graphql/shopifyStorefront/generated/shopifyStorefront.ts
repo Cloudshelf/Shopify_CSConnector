@@ -4983,6 +4983,8 @@ export type MetafieldReferencesArgs = {
 
 /** Possible error codes that can be returned by `MetafieldDeleteUserError`. */
 export enum MetafieldDeleteErrorCode {
+  /** The current app is not authorized to perform this action. */
+  AppNotAuthorized = 'APP_NOT_AUTHORIZED',
   /** The owner ID is invalid. */
   InvalidOwner = 'INVALID_OWNER',
   /** Metafield not found. */
@@ -5069,6 +5071,8 @@ export type MetafieldsSetUserError = DisplayableError & {
 
 /** Possible error codes that can be returned by `MetafieldsSetUserError`. */
 export enum MetafieldsSetUserErrorCode {
+  /** The current app is not authorized to perform this action. */
+  AppNotAuthorized = 'APP_NOT_AUTHORIZED',
   /** The input value is blank. */
   Blank = 'BLANK',
   /** The input value isn't included in the list. */
