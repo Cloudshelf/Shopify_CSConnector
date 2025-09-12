@@ -4,13 +4,10 @@ import {
     GetDraftOrdersDocument,
     GetDraftOrdersQuery,
     GetDraftOrdersQueryVariables,
-    StockViaProductVariantAllLocationsDocument,
-    StockViaProductVariantAllLocationsQuery,
-    StockViaProductVariantAllLocationsQueryVariables,
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
+import { Telemetry } from 'src/decorators/telemetry';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfDraftOrder, CloudshelfDraftOrdersPayload } from './payloads/CloudshelfDraftOrdersPayload';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @Injectable()
 export class POSService {

@@ -1,10 +1,12 @@
 {
   "__schema": {
     "queryType": {
-      "name": "QueryRoot"
+      "name": "QueryRoot",
+      "kind": "OBJECT"
     },
     "mutationType": {
-      "name": "Mutation"
+      "name": "Mutation",
+      "kind": "OBJECT"
     },
     "subscriptionType": null,
     "types": [
@@ -21001,6 +21003,12 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "APP_NOT_AUTHORIZED",
+            "description": "The current app is not authorized to perform this action.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "INVALID_OWNER",
             "description": "The owner ID is invalid.",
             "isDeprecated": false,
@@ -21492,6 +21500,12 @@
         "inputFields": null,
         "interfaces": null,
         "enumValues": [
+          {
+            "name": "APP_NOT_AUTHORIZED",
+            "description": "The current app is not authorized to perform this action.",
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "BLANK",
             "description": "The input value is blank.",
