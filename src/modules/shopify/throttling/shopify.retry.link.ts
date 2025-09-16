@@ -6,14 +6,14 @@ import { GraphQLError } from 'graphql';
 import * as _ from 'lodash';
 import { Observable } from 'zen-observable-ts';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
-import { CostExtension, ShopifyExecutionResult } from './shopify.throttling.extension';
 import {
-    ShopifyRetryConfig,
     DEFAULT_RETRY_CONFIG,
+    ShopifyRetryConfig,
     calculateExponentialBackoff,
     isRetryableNetworkError,
     isRetryableStatusCode,
 } from './shopify.retry.config';
+import { CostExtension, ShopifyExecutionResult } from './shopify.throttling.extension';
 
 const logger = new Logger('ShopifyRetryLink');
 
@@ -47,14 +47,19 @@ function calculateThrottleDelay(cost: CostExtension): number {
         throttleStatus: { currentlyAvailable, restoreRate },
     } = cost;
 
+    if (restoreRate <= 0) {
+        logger.warn(`Invalid restore rate: ${restoreRate}, using default delay`);
+        return DEFAULT_RETRY_CONFIG.initialDelay;
+    }
+
     const requested = actualQueryCost || requestedQueryCost;
     const restoreAmount = Math.max(0, requested - currentlyAvailable);
     const rawMsToWait = Math.ceil(restoreAmount / restoreRate);
 
     const msToWait = Math.ceil(rawMsToWait) * 1000;
     logger.warn(
-        `Throttle delay calculation - Raw: ${rawMsToWait}s, Delay: ${msToWait}ms, ` +
-        `Requested: ${requested}, Short: ${restoreAmount}, Restore/Sec: ${restoreRate}`,
+        `Throttle delay calculation - Raw: ${rawMsToWait}ms, Delay: ${msToWait}ms, ` +
+            `Requested: ${requested}, Short: ${restoreAmount}, Restore/Sec: ${restoreRate}`,
     );
     return msToWait;
 }
@@ -87,7 +92,10 @@ export function delay(msToWait: number): Observable<any> {
 /**
  * Creates a retry link that handles both network errors and Shopify throttling
  */
-export function createShopifyRetryLink(logs?: LogsInterface, config: ShopifyRetryConfig = DEFAULT_RETRY_CONFIG): ApolloLink {
+export function createShopifyRetryLink(
+    logs?: LogsInterface,
+    config: ShopifyRetryConfig = DEFAULT_RETRY_CONFIG,
+): ApolloLink {
     // RetryLink for network errors with exponential backoff
     const retryLink = new RetryLink({
         delay: {
@@ -99,13 +107,15 @@ export function createShopifyRetryLink(logs?: LogsInterface, config: ShopifyRetr
             max: config.maxAttempts,
             retryIf: (error, operation) => {
                 const context = operation.getContext();
-                const retryContext: RetryContext = context.retryContext || { attempt: 0, maxAttempts: config.maxAttempts };
+                const retryContext: RetryContext = context.retryContext || {
+                    attempt: 0,
+                    maxAttempts: config.maxAttempts,
+                };
 
                 // Extract network error and status code
                 const networkError = error?.networkError || error;
-                const statusCode = networkError?.statusCode ||
-                                  networkError?.response?.status ||
-                                  (networkError as any)?.status;
+                const statusCode =
+                    networkError?.statusCode || networkError?.response?.status || (networkError as any)?.status;
 
                 // Check if it's a retryable network error
                 if (isRetryableNetworkError(networkError, config)) {
@@ -116,11 +126,11 @@ export function createShopifyRetryLink(logs?: LogsInterface, config: ShopifyRetr
 
                     logger.warn(
                         `Retrying due to network error (attempt ${retryContext.attempt}/${config.maxAttempts}): ` +
-                        `${networkError.code || networkError.message}. Waiting ${retryDelay}ms`,
+                            `${networkError.code || networkError.message}. Waiting ${retryDelay}ms`,
                     );
                     logs?.warn?.(
                         `[ShopifyRetryLink] Network retry (${retryContext.attempt}/${config.maxAttempts}): ` +
-                        `${networkError.code || networkError.message}, delay: ${retryDelay}ms`,
+                            `${networkError.code || networkError.message}, delay: ${retryDelay}ms`,
                     );
 
                     operation.setContext({ ...context, retryContext });
@@ -136,11 +146,11 @@ export function createShopifyRetryLink(logs?: LogsInterface, config: ShopifyRetr
 
                     logger.warn(
                         `Retrying due to HTTP ${statusCode} (attempt ${retryContext.attempt}/${config.maxAttempts}). ` +
-                        `Waiting ${retryDelay}ms`,
+                            `Waiting ${retryDelay}ms`,
                     );
                     logs?.warn?.(
                         `[ShopifyRetryLink] HTTP retry (${retryContext.attempt}/${config.maxAttempts}): ` +
-                        `Status ${statusCode}, delay: ${retryDelay}ms`,
+                            `Status ${statusCode}, delay: ${retryDelay}ms`,
                     );
 
                     operation.setContext({ ...context, retryContext });
@@ -221,7 +231,12 @@ export function createShopifyRetryLink(logs?: LogsInterface, config: ShopifyRetr
         logger.warn(`Shopify throttled, waiting ${finalDelay}ms (calculated: ${msToWait}ms)`);
         logs?.warn?.(`[ShopifyRetryLink] Throttled, waiting ${finalDelay}ms`);
 
-        operation.setContext({ ...context, throttleRetryCount: throttleRetryCount + 1, retry: true, msToWait: finalDelay });
+        operation.setContext({
+            ...context,
+            throttleRetryCount: throttleRetryCount + 1,
+            retry: true,
+            msToWait: finalDelay,
+        });
 
         return delay(finalDelay).concat(forward(operation));
     });
@@ -229,4 +244,3 @@ export function createShopifyRetryLink(logs?: LogsInterface, config: ShopifyRetr
     // Combine retry link and error link
     return ApolloLink.from([retryLink, errorLink]);
 }
-
