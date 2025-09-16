@@ -81,7 +81,7 @@ export const RetailerSyncJob = task({
                 });
             });
         } catch (err) {
-            logger.error(err);
+            logger.error(`There was a problem with the sync: ${JSON.stringify(err)}`);
             await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
                 apiUrl: env.CLOUDSHELF_API_URL,
                 retailer,

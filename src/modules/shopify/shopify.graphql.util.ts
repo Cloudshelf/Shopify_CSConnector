@@ -2,7 +2,7 @@ import { ApolloClient, InMemoryCache, NormalizedCacheObject, createHttpLink, fro
 import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { createShopifyRetryLink } from './throttling/shopify.throttling.error.link';
+import { createShopifyRetryLink } from './throttling/shopify.retry.link';
 
 export class ShopifyGraphqlUtil {
     static async getShopifyAdminApolloClientByRetailer(retailer: RetailerEntity, logs?: LogsInterface) {
@@ -23,13 +23,17 @@ export class ShopifyGraphqlUtil {
                 'Content-Type': 'application/json',
                 'X-Shopify-Access-Token': accessToken,
             },
+            fetchOptions: {
+                timeout: 60000, // 60 seconds timeout for individual requests
+            },
         });
 
-        const rateLimit = createShopifyRetryLink(logs);
+        // Enhanced retry link handles both network errors and throttling
+        const retryLink = createShopifyRetryLink(logs);
 
         return new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([rateLimit, endpoint]),
+            link: from([retryLink, endpoint]),
             defaultOptions: graphqlDefaultOptions,
         });
     }
@@ -48,11 +52,17 @@ export class ShopifyGraphqlUtil {
                 'Content-Type': 'application/json',
                 'X-Shopify-Storefront-Access-Token': accessToken,
             },
+            fetchOptions: {
+                timeout: 60000, // 60 seconds timeout for individual requests
+            },
         });
+
+        // Enhanced retry link for storefront API as well
+        const retryLink = createShopifyRetryLink();
 
         return new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([endpoint]),
+            link: from([retryLink, endpoint]),
             defaultOptions: graphqlDefaultOptions,
         });
     }
