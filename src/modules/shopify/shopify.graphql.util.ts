@@ -3,7 +3,7 @@ import { graphqlDefaultOptions } from '../graphql/graphql.default.options';
 import { EntityManager } from '@mikro-orm/core';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
-import { createShopifyRetryLink } from './throttling/shopify.throttling.error.link';
+import { createShopifyRetryLink } from './throttling/shopify.retry.link';
 
 export class ShopifyGraphqlUtil {
     static async getShopifyAdminApolloClientByRetailer({
@@ -44,13 +44,18 @@ export class ShopifyGraphqlUtil {
                 'Content-Type': 'application/json',
                 'X-Shopify-Access-Token': accessToken,
             },
+            fetchOptions: {
+                timeout: 60000, // 60 seconds timeout for individual requests
+            },
         });
 
-        const rateLimit = createShopifyRetryLink({ logs, statusCodesToNotRetry, retailer, em });
+        // const rateLimit = createShopifyRetryLink({ logs, statusCodesToNotRetry, retailer, em });
+        // Enhanced retry link handles both network errors and throttling
+        const retryLink = createShopifyRetryLink({ logs, retailer, em });
 
         return new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([rateLimit, endpoint]),
+            link: from([retryLink, endpoint]),
             defaultOptions: graphqlDefaultOptions,
         });
     }
@@ -69,11 +74,17 @@ export class ShopifyGraphqlUtil {
                 'Content-Type': 'application/json',
                 'X-Shopify-Storefront-Access-Token': accessToken,
             },
+            fetchOptions: {
+                timeout: 60000, // 60 seconds timeout for individual requests
+            },
         });
+
+        // Enhanced retry link for storefront API as well
+        const retryLink = createShopifyRetryLink();
 
         return new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([endpoint]),
+            link: from([retryLink, endpoint]),
             defaultOptions: graphqlDefaultOptions,
         });
     }

@@ -11,6 +11,10 @@ export class CrawlerErrorSampler implements Sampler {
         /browserconfig\.xml/i,
     ];
 
+    private filteredUserAgents = [
+        'aikido-scan-agent', // Aikido security scanner
+    ];
+
     constructor(private fallbackSampler: Sampler) {}
 
     shouldSample(
@@ -21,7 +25,16 @@ export class CrawlerErrorSampler implements Sampler {
         attributes: Attributes = {},
         links: Link[] = [],
     ): SamplingResult {
-        // Check HTTP attributes
+        // Check for filtered user agents
+        const userAgent =
+            (attributes['http.user_agent'] as string) ??
+            (attributes['user_agent.original'] as string) ??
+            (attributes['http.request.header.user-agent'] as string);
+        if (userAgent && this.filteredUserAgents.some(pattern => userAgent.includes(pattern))) {
+            return { decision: SamplingDecision.NOT_RECORD };
+        }
+
+        // Check HTTP URL patterns
         const url =
             (attributes['http.url'] as string) ??
             (attributes['http.target'] as string) ??

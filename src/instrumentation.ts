@@ -29,7 +29,7 @@ const EXCLUDED_PROXY_PATHS = [/^\/shopify\/.*/, /^\/graphql/, /^\/api-health.*/,
 
 function isProxyRequest(url: string | undefined): boolean {
     if (!url) return false;
-    
+
     let path: string;
     try {
         // Try to parse as a URL (handles absolute URLs)
@@ -40,12 +40,12 @@ function isProxyRequest(url: string | undefined): boolean {
         // Remove query string and hash if present
         path = url.split('?')[0].split('#')[0];
     }
-    
+
     // Ensure path is not empty, default to root
     if (!path) {
         path = '/';
     }
-    
+
     // Check if the path matches any excluded patterns
     return !EXCLUDED_PROXY_PATHS.some(pattern => pattern.test(path));
 }

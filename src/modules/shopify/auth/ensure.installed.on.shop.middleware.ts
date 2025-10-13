@@ -5,7 +5,6 @@ import { NextFunction, Request, Response } from 'express';
 import { Telemetry } from 'src/decorators/telemetry';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { HtmlUtils } from '../../../utils/HtmlUtils';
-import { RequestUtils } from '../../../utils/RequestUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { DatabaseSessionStorage } from '../sessions/database.session.storage';
@@ -32,13 +31,31 @@ export class EnsureInstalledOnShopMiddleware implements NestMiddleware {
             return;
         }
 
-        const shop = req.query['shop'] as string;
+        const shopParam = req.query['shop'] as string;
 
-        if (!shop) {
+        if (!shopParam) {
             this.logger.debug(`No shop found in query params, skipping`);
             next();
             return;
         }
+        // Validate shop domain to prevent open redirect vulnerability
+        // Using Shopify SDK's built-in sanitizeShop utility
+        let shop: string | null;
+        try {
+            shop = this.shopifyApiService.utils.sanitizeShop(shopParam, true);
+        } catch (error) {
+            // Log the validation error but don't send response here
+            this.logger.warn(`Shop validation failed for: ${shopParam}`, error);
+            shop = null;
+        }
+
+        if (!shop) {
+            this.logger.warn(`Invalid shop domain attempted: ${shopParam}`);
+            res.status(400).send('Invalid shop domain');
+            return;
+        }
+
+        this.logger.debug(`Shop domain validated: ${shop}`);
 
         const shopifySession = req.query['session'];
         const queryHasSession = shopifySession !== undefined;

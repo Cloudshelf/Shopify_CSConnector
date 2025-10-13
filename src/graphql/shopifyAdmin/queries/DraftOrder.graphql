@@ -1,5 +1,5 @@
 query GetDraftOrders($after: String, $query: String) {
-    draftOrders(first: 10, after: $after, query: $query) {
+    draftOrders(first: 10, after: $after, query: $query, reverse: true) {
         edges {
             cursor
             node {
