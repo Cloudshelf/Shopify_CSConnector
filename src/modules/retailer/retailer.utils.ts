@@ -10,14 +10,14 @@ import {
 } from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager, MikroORM } from '@mikro-orm/core';
+import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
+import { Telemetry } from 'src/decorators/telemetry';
 import { app } from '../../main';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { UpdateOrCreateStatusType } from '../database/update.or.create.status.type';
 import { ShopifySessionEntity } from '../shopify/sessions/shopify.session.entity';
 import { RetailerEntity } from './retailer.entity';
 import { RetailerStatus } from './retailer.status.enum';
-import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
-import { Telemetry } from 'src/decorators/telemetry';
 
 export class RetailerUtils {
     @Telemetry('utils.retailer.updateOrCreate')
@@ -47,6 +47,7 @@ export class RetailerUtils {
                 createdAt: now,
                 updatedAt: now,
                 status: RetailerStatus.ACTIVE,
+                closed: false,
             });
             status = 'created';
         }
@@ -146,11 +147,11 @@ export class RetailerUtils {
         retailer: RetailerEntity,
         logs?: LogsInterface,
     ) {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClient(
-            retailer.domain,
-            retailer.accessToken,
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClient({
+            domain: retailer.domain,
+            accessToken: retailer.accessToken,
             logs,
-        );
+        });
 
         const query = await graphqlClient.query<GetShopInformationQuery, GetShopInformationQueryVariables>({
             query: GetShopInformationDocument,

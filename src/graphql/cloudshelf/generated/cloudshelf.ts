@@ -47,6 +47,18 @@ export enum AcquisitionType {
   StoreCollection = 'STORE_COLLECTION'
 }
 
+export enum AiGenerationStatus {
+  Generating = 'GENERATING',
+  Idle = 'IDLE'
+}
+
+export type AiStartedPayload = {
+  __typename?: 'AiStartedPayload';
+  scheduled: Scalars['Boolean']['output'];
+  /** An array of errors that occurred during the operation */
+  userErrors: Array<UserError>;
+};
+
 /** How to align the entity in the parent's space. */
 export enum Alignment {
   /** Align the entity to the center of the parent. */
@@ -147,6 +159,150 @@ export enum BarcodeDetectionMethod {
   None = 'NONE'
 }
 
+export type BuyersGuide = {
+  __typename?: 'BuyersGuide';
+  categoryDescription: Scalars['String']['output'];
+  categoryDescriptionAIGenerated: Scalars['Boolean']['output'];
+  cloudshelf: Cloudshelf;
+  contextGeneratingStatus: AiGenerationStatus;
+  /** The date and time this entity was created. */
+  createdAt: Scalars['UTCDateTime']['output'];
+  disabled: Scalars['Boolean']['output'];
+  filterStrictLevel: BuyersGuideFilterStrictLevel;
+  /** A unique internal GlobalId for this entity. */
+  id: Scalars['GlobalId']['output'];
+  includeExtraProducts: Scalars['Boolean']['output'];
+  keyDecisionFactors: Scalars['String']['output'];
+  keyDecisionFactorsAIGenerated: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  numberOfHighlightedResults: Scalars['Int']['output'];
+  personaAndNeeds: Array<BuyersGuidePersona>;
+  personaAndNeedsAIGenerated: Scalars['Boolean']['output'];
+  productGroups: Array<Scalars['GlobalId']['output']>;
+  productTaggingStatus: AiGenerationStatus;
+  questionGeneratingStatus: AiGenerationStatus;
+  questionGeneratingStep: BuyersGuideQuestionGenerationStep;
+  questions: Array<BuyersGuideQuestion>;
+  resultType: BuyersGuideResultType;
+  /** The date and time this entity was last updated. */
+  updatedAt: Scalars['UTCDateTime']['output'];
+};
+
+export type BuyersGuideAiGenerationStatusPayload = {
+  __typename?: 'BuyersGuideAiGenerationStatusPayload';
+  status: AiGenerationStatus;
+};
+
+export type BuyersGuideAiProductTaggingStatusPayload = {
+  __typename?: 'BuyersGuideAiProductTaggingStatusPayload';
+  status: AiGenerationStatus;
+};
+
+export type BuyersGuideAiQuestionGenerationStatusPayload = {
+  __typename?: 'BuyersGuideAiQuestionGenerationStatusPayload';
+  status: AiGenerationStatus;
+  step: BuyersGuideQuestionGenerationStep;
+};
+
+export type BuyersGuideAnswer = {
+  __typename?: 'BuyersGuideAnswer';
+  answer: Scalars['String']['output'];
+  answerDetails?: Maybe<Scalars['String']['output']>;
+  goToMarker?: Maybe<Scalars['String']['output']>;
+  id: Scalars['GlobalId']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  position: Scalars['Int']['output'];
+  tags: Array<Scalars['String']['output']>;
+};
+
+export type BuyersGuideAnswerInput = {
+  answer: Scalars['String']['input'];
+  answerDetails?: InputMaybe<Scalars['String']['input']>;
+  goToMarker?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['GlobalId']['input'];
+  image?: InputMaybe<Scalars['String']['input']>;
+  position: Scalars['Int']['input'];
+  tags: Array<Scalars['String']['input']>;
+};
+
+export enum BuyersGuideAnswerType {
+  Filter = 'FILTER',
+  Points = 'POINTS',
+  PointsHeavy = 'POINTS_HEAVY'
+}
+
+export enum BuyersGuideFilterStrictLevel {
+  Soft = 'SOFT',
+  Strict = 'STRICT'
+}
+
+export type BuyersGuideInput = {
+  categoryDescription: Scalars['String']['input'];
+  disabled: Scalars['Boolean']['input'];
+  filterStrictLevel: BuyersGuideFilterStrictLevel;
+  id: Scalars['GlobalId']['input'];
+  includeExtraProducts: Scalars['Boolean']['input'];
+  keyDecisionFactors: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  numberOfHighlightedResults: Scalars['Int']['input'];
+  personaAndNeeds: Array<BuyersGuidePersonaInput>;
+  productGroups: Array<Scalars['GlobalId']['input']>;
+  questions: Array<BuyersGuideQuestionInput>;
+  resultType: BuyersGuideResultType;
+};
+
+export type BuyersGuidePersona = {
+  __typename?: 'BuyersGuidePersona';
+  id: Scalars['GlobalId']['output'];
+  needs: Scalars['String']['output'];
+  persona: Scalars['String']['output'];
+};
+
+export type BuyersGuidePersonaInput = {
+  id: Scalars['GlobalId']['input'];
+  needs: Scalars['String']['input'];
+  persona: Scalars['String']['input'];
+};
+
+export type BuyersGuideQuestion = {
+  __typename?: 'BuyersGuideQuestion';
+  answerType: BuyersGuideAnswerType;
+  answers: Array<BuyersGuideAnswer>;
+  contentAIGenerated: Scalars['Boolean']['output'];
+  id: Scalars['GlobalId']['output'];
+  marker?: Maybe<Scalars['String']['output']>;
+  maxAnswers: Scalars['Int']['output'];
+  minAnswers: Scalars['Int']['output'];
+  numberOfAnswersPerRow: Scalars['Int']['output'];
+  position: Scalars['Int']['output'];
+  question: Scalars['String']['output'];
+};
+
+export enum BuyersGuideQuestionGenerationStep {
+  Idle = 'IDLE',
+  One = 'ONE',
+  Tagging = 'TAGGING',
+  Three = 'THREE',
+  Two = 'TWO'
+}
+
+export type BuyersGuideQuestionInput = {
+  answerType: BuyersGuideAnswerType;
+  answers: Array<BuyersGuideAnswerInput>;
+  id: Scalars['GlobalId']['input'];
+  marker?: InputMaybe<Scalars['String']['input']>;
+  maxAnswers: Scalars['Int']['input'];
+  minAnswers: Scalars['Int']['input'];
+  numberOfAnswersPerRow: Scalars['Int']['input'];
+  position: Scalars['Int']['input'];
+  question: Scalars['String']['input'];
+};
+
+export enum BuyersGuideResultType {
+  BestMatchOnly = 'BEST_MATCH_ONLY',
+  BestMatchWithCostOptions = 'BEST_MATCH_WITH_COST_OPTIONS'
+}
+
 export enum CapitalisationStyle {
   Capitalised = 'CAPITALISED',
   Original = 'ORIGINAL',
@@ -227,6 +383,8 @@ export type CheckoutFlowAcquisitionOption = {
   availabilityTag?: Maybe<Scalars['String']['output']>;
   basketValueThreshold: Scalars['Float']['output'];
   displayName: Scalars['String']['output'];
+  /** The countries where home delivery is available. If empty, then no geofencing will be applied */
+  homeDeliveryGeoFencing: Array<CountryCode>;
   id: Scalars['GlobalId']['output'];
   internalName: Scalars['String']['output'];
   position: Scalars['Int']['output'];
@@ -242,6 +400,7 @@ export type CheckoutFlowAcquisitionOptionInput = {
   availabilityTag?: InputMaybe<Scalars['String']['input']>;
   basketValueThreshold: Scalars['Float']['input'];
   displayName: Scalars['String']['input'];
+  homeDeliveryGeoFencing: Array<CountryCode>;
   /** Use this field to provide either a Cloudshelf gid */
   id: Scalars['GlobalId']['input'];
   internalName: Scalars['String']['input'];
@@ -380,6 +539,7 @@ export type Cloudshelf = {
   attractLoopProductIncludeQRDisplay: Scalars['Boolean']['output'];
   attractLoopProductSelectionMethod: AttractLoopProductSelectionMethod;
   banners: Array<Banner>;
+  buyersGuides: Array<BuyersGuide>;
   checkoutExperience: CheckoutExperience;
   checkoutFlow: CheckoutFlowOptions;
   content: Array<CloudshelfContent>;
@@ -464,8 +624,6 @@ export type CloudshelfContent = {
   productGroupIsUpsellContent?: Maybe<Scalars['Boolean']['output']>;
   productGroupUseAlternativeImage?: Maybe<Scalars['Boolean']['output']>;
   productGroupVisibleInAttractLoop?: Maybe<Scalars['Boolean']['output']>;
-  /** TileSize.Mixed will not be accepted for this field. */
-  tileSize: TileSize;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
 };
@@ -494,7 +652,6 @@ export type CloudshelfContentInput = {
   productGroupIsUpsellContent?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupUseAlternativeImage?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupVisibleInAttractLoop?: InputMaybe<Scalars['Boolean']['input']>;
-  tileSize: TileSize;
 };
 
 export type CloudshelfDeletePayload = {
@@ -574,6 +731,7 @@ export type CloudshelfInput = {
   attractLoopProductIncludeQRDisplay?: InputMaybe<Scalars['Boolean']['input']>;
   attractLoopProductSelectionMethod?: InputMaybe<AttractLoopProductSelectionMethod>;
   banners?: InputMaybe<Array<BannerInput>>;
+  buyersGuides?: InputMaybe<Array<BuyersGuideInput>>;
   checkoutExperience?: InputMaybe<CheckoutExperience>;
   /** The GlobalID of the checkout flow to apply to this Cloudshelf */
   checkoutFlowId?: InputMaybe<Scalars['GlobalId']['input']>;
@@ -1239,6 +1397,8 @@ export type CreateDraftOrderInput = {
   attemptId: Scalars['String']['input'];
   attributes?: InputMaybe<Array<CreateDraftOrderAttributeInput>>;
   basketId: Scalars['GlobalId']['input'];
+  deliveryAddress?: InputMaybe<DeliveryAddressInput>;
+  discountCodes: Array<Scalars['String']['input']>;
   emailAddress: Scalars['String']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
@@ -1454,12 +1614,25 @@ export type CustomCssInput = {
   id: Scalars['GlobalId']['input'];
 };
 
+export type DeliveryAddressInput = {
+  address1: Scalars['String']['input'];
+  address2?: InputMaybe<Scalars['String']['input']>;
+  city: Scalars['String']['input'];
+  countryCode: CountryCode;
+  firstName: Scalars['String']['input'];
+  lastName: Scalars['String']['input'];
+  provinceCode: Scalars['String']['input'];
+  zip: Scalars['String']['input'];
+};
+
 export type Device = {
   __typename?: 'Device';
   barcodeDetectionMethod: BarcodeDetectionMethod;
   cloudshelf?: Maybe<Cloudshelf>;
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
+  /** The date and time this device should enable the debug panel until */
+  debugModeUntil: Scalars['UTCDateTime']['output'];
   /** The uptime records which belong to this organisation. */
   deviceUptimeRecords: Array<DeviceUptimeRecord>;
   displayName: Scalars['String']['output'];
@@ -1528,6 +1701,8 @@ export type DeviceInput = {
   registrationCode?: InputMaybe<Scalars['String']['input']>;
   /** The display name of the device */
   screenSizeInInches?: InputMaybe<Scalars['Int']['input']>;
+  /** If the device should have debug mode turned on for the next period of time */
+  shouldSetDebugMode?: InputMaybe<Scalars['Boolean']['input']>;
   /** An array of variables of the device */
   variables?: InputMaybe<Array<KeyValuePairInput>>;
   /** The event type used by the virtual keyboard */
@@ -1640,6 +1815,7 @@ export type EngineProductBlock = {
   __typename?: 'EngineProductBlock';
   anyVariantAvailableForSale: Scalars['Boolean']['output'];
   anyVariantIsInStock: Scalars['Boolean']['output'];
+  buyersGuideTags: Array<Scalars['String']['output']>;
   descriptionHtml: Scalars['String']['output'];
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   handle: Scalars['String']['output'];
@@ -2061,6 +2237,8 @@ export type LabelRuleInput = {
 
 /** Selects the type of label rule */
 export enum LabelRuleType {
+  /** Check against a buyers guide */
+  BuyersGuide = 'BUYERS_GUIDE',
   /** Check if the product is discounted */
   Discounted = 'DISCOUNTED',
   /** Check against a products metadata */
@@ -2267,6 +2445,12 @@ export type Mutation = {
   abortPaymentRequest: PaymentGenericPayload;
   /** Adds the given list of products to the product group, if they are not already part of the product group */
   addProductsToProductGroup: Scalars['Boolean']['output'];
+  /** Starts a background job to generate buyers guide context */
+  aiGenerateBuyersGuideContext: AiStartedPayload;
+  /** Starts a background job to generate buyers guide questions */
+  aiGenerateBuyersGuideQuestions: AiStartedPayload;
+  /** Starts a background job to generate buyers guide tag products */
+  aiGenerateBuyersGuideTagProducts: AiStartedPayload;
   cancelHandoff: MobileHandoff;
   completeDraftOrder: DraftOrderPayload;
   createDraftOrder: DraftOrderPayload;
@@ -2332,11 +2516,12 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
+  setOrganisationClosed: Scalars['Boolean']['output'];
   setOrganisationSyncStatus: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
   startPaymentRequest: PaymentGenericPayload;
-  startSync: Scalars['Boolean']['output'];
+  startSync: OrganisationSyncStatusPayload;
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
   transferToShopifyPOS: TransferedOrderPayload;
@@ -2346,13 +2531,14 @@ export type Mutation = {
   updateCustomCSSRules: Scalars['Boolean']['output'];
   /** Allows updating basic user information */
   updateMyUser: User;
+  updateProductTags: Scalars['Boolean']['output'];
   /** Sets the products in the product group to the given list of products */
   updateProductsInProductGroup: Scalars['Boolean']['output'];
   /** Sets the products in the product group to the given list of products */
   updateProductsInProductGroupInBatch: Array<ProductGroupUpdateBatchPayload>;
   updateSalesAssistantRules: Scalars['Boolean']['output'];
   updateSession: Session;
-  updateUserLastAccess: Scalars['Boolean']['output'];
+  updateUserLastAccess?: Maybe<PreviousOrganisationDataPayload>;
   /** Allows upserting of checkout flows */
   upsertCheckoutFlows: CheckoutFlowUpsertPayload;
   /** Allows upserting of Cloudshelves */
@@ -2396,6 +2582,21 @@ export type MutationAbortPaymentRequestArgs = {
 export type MutationAddProductsToProductGroupArgs = {
   productGroupId: Scalars['GlobalId']['input'];
   productIds: Array<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationAiGenerateBuyersGuideContextArgs = {
+  guideId: Scalars['GlobalId']['input'];
+};
+
+
+export type MutationAiGenerateBuyersGuideQuestionsArgs = {
+  guideId: Scalars['GlobalId']['input'];
+};
+
+
+export type MutationAiGenerateBuyersGuideTagProductsArgs = {
+  guideId: Scalars['GlobalId']['input'];
 };
 
 
@@ -2654,6 +2855,12 @@ export type MutationSetHandoffImageUrlArgs = {
 };
 
 
+export type MutationSetOrganisationClosedArgs = {
+  closed: Scalars['Boolean']['input'];
+  domainName: Scalars['String']['input'];
+};
+
+
 export type MutationSetOrganisationSyncStatusArgs = {
   domainName: Scalars['String']['input'];
   syncStage: SyncStage;
@@ -2696,6 +2903,11 @@ export type MutationUpdateCustomCssRulesArgs = {
 
 export type MutationUpdateMyUserArgs = {
   input: UserInput;
+};
+
+
+export type MutationUpdateProductTagsArgs = {
+  changes: Array<ProductTagChangeInput>;
 };
 
 
@@ -2860,6 +3072,7 @@ export type OrderLine = {
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   currencyCode: CurrencyCode;
+  customAttributes: Array<KeyValuePair>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   order: Order;
@@ -2880,15 +3093,16 @@ export type OrderLine = {
 };
 
 export type OrderLineInput = {
-  currencyCode: CurrencyCode;
+  currencyCode?: InputMaybe<CurrencyCode>;
+  customAttributes?: InputMaybe<Array<KeyValuePairInput>>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
-  price: Scalars['Float']['input'];
+  price?: InputMaybe<Scalars['Float']['input']>;
   /** The GlobalID of the product this order line is for */
   productID?: InputMaybe<Scalars['GlobalId']['input']>;
   /** The GlobalID of the product variant this order line is for */
   productVariantID?: InputMaybe<Scalars['GlobalId']['input']>;
-  quantity: Scalars['Int']['input'];
+  quantity?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type OrderPageInfo = {
@@ -2967,6 +3181,7 @@ export type Organisation = {
   eCommercePlatformConfiguration: Array<KeyValuePair>;
   /** The display name for the eCommerce platform, this is used for display purposes only when eCommercePlatform is custom. */
   eCommercePlatformDisplayName: Scalars['String']['output'];
+  effectiveFeatures: Array<SubscriptionFeature>;
   engagements: Array<Session>;
   fullTextSearchLanguage?: Maybe<ProductLanguage>;
   /**
@@ -3106,14 +3321,14 @@ export type OrganisationSortOptionsInput = {
 
 export enum OrganisationStatus {
   Active = 'ACTIVE',
-  Idle = 'IDLE',
-  Processing = 'PROCESSING'
+  Idle = 'IDLE'
 }
 
 export type OrganisationSyncStatusPayload = {
   __typename?: 'OrganisationSyncStatusPayload';
   lastSyncedAt?: Maybe<Scalars['String']['output']>;
   nextSyncAt?: Maybe<Scalars['String']['output']>;
+  organisationId: Scalars['ID']['output'];
   status: OrganisationStatus;
   syncStage: SyncStage;
 };
@@ -3321,6 +3536,16 @@ export type PrecutPrinterBlock = {
   printerBlockDiscriminator: Scalars['String']['output'];
 };
 
+export type PreviousOrganisationDataPayload = {
+  __typename?: 'PreviousOrganisationDataPayload';
+  /** The previous last access of the organisation */
+  previousLastAccess?: Maybe<Scalars['String']['output']>;
+  /** The previous status of the organisation */
+  previousStatus?: Maybe<OrganisationStatus>;
+  /** The previous sync stage of the organisation */
+  previousSyncStage?: Maybe<SyncStage>;
+};
+
 export type PrinterBlockInput = {
   alignment?: InputMaybe<Alignment>;
   id: Scalars['GlobalId']['input'];
@@ -3334,6 +3559,8 @@ export type PrinterBlocksUnion = CloudshelfDetailsPrinterBlock | DeviceDetailsPr
 /** This object represents a product, which will always contain at least one variant */
 export type Product = {
   __typename?: 'Product';
+  /** An array of tags which are associated with the product for use with a buyers guide only */
+  buyersGuideTags: Array<Scalars['String']['output']>;
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   /** The description of the product */
@@ -3401,7 +3628,7 @@ export type ProductGroup = {
   /** The name of the product group. */
   displayName: Scalars['String']['output'];
   featuredImage?: Maybe<Metaimage>;
-  /** The handle of the product, which is the original display name in all lower case, and with all non-alphanumeric characters removed and spaces replaced with hyphens. */
+  /** The handle of the product group, which is the original display name in all lower case, and with all non-alphanumeric characters removed and spaces replaced with hyphens. */
   handle: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
@@ -3482,9 +3709,9 @@ export type ProductGroupUpdateBatch = {
 
 export type ProductGroupUpdateBatchItem = {
   /** The ID of the product group that was updated */
-  productGroupId: Scalars['ID']['input'];
+  productGroupId: Scalars['GlobalId']['input'];
   /** The IDs of the products that were updated */
-  productIds: Array<Scalars['ID']['input']>;
+  productIds: Array<Scalars['GlobalId']['input']>;
 };
 
 export type ProductGroupUpdateBatchPayload = {
@@ -3492,7 +3719,7 @@ export type ProductGroupUpdateBatchPayload = {
   /** The number of products */
   number: Scalars['Int']['output'];
   /** The ID of the product group that was updated */
-  productGroupId: Scalars['ID']['output'];
+  productGroupId: Scalars['GlobalId']['output'];
   /** Whether the update was successful */
   success: Scalars['Boolean']['output'];
 };
@@ -3575,6 +3802,13 @@ export type ProductPaginatedPayload = {
   pageInfo?: Maybe<ProductPageInfo>;
   /** The total number of items available */
   totalCount: Scalars['Int']['output'];
+};
+
+export type ProductTagChangeInput = {
+  /** The ID of the product to update */
+  id: Scalars['GlobalId']['input'];
+  /** The tags to update the product with */
+  tags: Array<Scalars['String']['input']>;
 };
 
 export type ProductUpsertPayload = {
@@ -3694,6 +3928,7 @@ export type Query = {
   allIngestionStats: Array<IngestionStatsPayload>;
   /** Returns an array of PDP Blocks that are available to add to the PDP */
   availablePDPBlocks: Array<IncludablePdpBlock>;
+  buyersGuide?: Maybe<BuyersGuide>;
   /** Returns a boolean value which indicates if the organisation can register a new device */
   canRegisterDevice: Scalars['Boolean']['output'];
   chartAverageSaleValueRecords: Array<ChartTotalAndCountRecord>;
@@ -3785,6 +4020,9 @@ export type Query = {
   /** Returns a list of currently available subscription plans */
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
   syncStats: SyncStatsPayload;
+  tagsInBuyersGuide: Array<Scalars['String']['output']>;
+  /** Test AI functionality with optional chat ID and message */
+  testAI2: Scalars['String']['output'];
   /** Returns a theme entity */
   theme?: Maybe<Theme>;
   /** Returns a paginated array of Themes */
@@ -3804,6 +4042,11 @@ export type Query = {
 
 export type QueryAvailablePdpBlocksArgs = {
   id: Scalars['GlobalId']['input'];
+};
+
+
+export type QueryBuyersGuideArgs = {
+  buyersGuideId: Scalars['GlobalId']['input'];
 };
 
 
@@ -4056,6 +4299,11 @@ export type QueryOrganisationSyncStatusByDomainArgs = {
 };
 
 
+export type QueryOrganisationSyncStatusByIdArgs = {
+  organisationId: Scalars['String']['input'];
+};
+
+
 export type QueryOrganisationUsersArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -4110,6 +4358,7 @@ export type QueryProductsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+  productGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
   sortBy?: InputMaybe<SortOptionsInput>;
   textSearch?: InputMaybe<Scalars['String']['input']>;
 };
@@ -4159,6 +4408,11 @@ export type QuerySubscriptionArgs = {
 
 export type QuerySyncStatsArgs = {
   id?: InputMaybe<Scalars['GlobalId']['input']>;
+};
+
+
+export type QueryTagsInBuyersGuideArgs = {
+  id: Scalars['GlobalId']['input'];
 };
 
 
@@ -4410,17 +4664,68 @@ export type StockLevelOptions = {
   useLocalStock: Scalars['Boolean']['output'];
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  buyersGuideContextStatusUpdated?: Maybe<BuyersGuideAiGenerationStatusPayload>;
+  buyersGuideProductTaggingStatusUpdated?: Maybe<BuyersGuideAiProductTaggingStatusPayload>;
+  buyersGuideQuestionsStatusUpdated?: Maybe<BuyersGuideAiQuestionGenerationStatusPayload>;
+  organisationSyncStatusUpdated: OrganisationSyncStatusPayload;
+};
+
+
+export type SubscriptionBuyersGuideContextStatusUpdatedArgs = {
+  guideId: Scalars['String']['input'];
+};
+
+
+export type SubscriptionBuyersGuideProductTaggingStatusUpdatedArgs = {
+  guideId: Scalars['String']['input'];
+};
+
+
+export type SubscriptionBuyersGuideQuestionsStatusUpdatedArgs = {
+  guideId: Scalars['String']['input'];
+};
+
+
+export type SubscriptionOrganisationSyncStatusUpdatedArgs = {
+  organisationId: Scalars['String']['input'];
+};
+
+export enum SubscriptionFeature {
+  AdvancedAttractLoop = 'ADVANCED_ATTRACT_LOOP',
+  AdvancedConnectors = 'ADVANCED_CONNECTORS',
+  AdvancedCustomisation = 'ADVANCED_CUSTOMISATION',
+  AdvancedFulfilment = 'ADVANCED_FULFILMENT',
+  AdvancedProductGuide = 'ADVANCED_PRODUCT_GUIDE',
+  AdvancedRoles = 'ADVANCED_ROLES',
+  AnalyticsExport = 'ANALYTICS_EXPORT',
+  BasicAnalytics = 'BASIC_ANALYTICS',
+  BasicCustomisation = 'BASIC_CUSTOMISATION',
+  CardPayment = 'CARD_PAYMENT',
+  CustomApps = 'CUSTOM_APPS',
+  CustomBanner = 'CUSTOM_BANNER',
+  LanguageSwitcher = 'LANGUAGE_SWITCHER',
+  LiveProductGuide = 'LIVE_PRODUCT_GUIDE',
+  Metadata = 'METADATA',
+  Peripherals = 'PERIPHERALS',
+  RemovableCloudshelfLogo = 'REMOVABLE_CLOUDSHELF_LOGO',
+  StaffAllocation = 'STAFF_ALLOCATION',
+  SupportDedicated = 'SUPPORT_DEDICATED',
+  SupportEmail = 'SUPPORT_EMAIL',
+  SupportLive = 'SUPPORT_LIVE'
+}
+
+export type SubscriptionFeatureSetting = {
+  __typename?: 'SubscriptionFeatureSetting';
+  enabled: Scalars['Boolean']['output'];
+  feature: SubscriptionFeature;
+};
+
 export type SubscriptionFeaturesInput = {
-  accessToDisplayScheduling?: InputMaybe<Scalars['Boolean']['input']>;
-  accessToImageBanners?: InputMaybe<Scalars['Boolean']['input']>;
-  accessToProductCustomisation?: InputMaybe<Scalars['Boolean']['input']>;
-  accessToSalesPersonAttribution?: InputMaybe<Scalars['Boolean']['input']>;
-  accessToStoreAttribution?: InputMaybe<Scalars['Boolean']['input']>;
-  accessToSyncAttractLoops?: InputMaybe<Scalars['Boolean']['input']>;
-  accessToVideoBanners?: InputMaybe<Scalars['Boolean']['input']>;
   bypassEcommerceProvider?: InputMaybe<Scalars['Boolean']['input']>;
-  canRemoveCloudshelfBranding?: InputMaybe<Scalars['Boolean']['input']>;
   devicesPerLocation?: InputMaybe<Scalars['Float']['input']>;
+  featureKeys?: InputMaybe<Array<SubscriptionFeature>>;
   freeLocations?: InputMaybe<Scalars['Float']['input']>;
   hubspotDealNumber?: InputMaybe<Scalars['String']['input']>;
   liveLocations: Scalars['Float']['input'];
@@ -4435,19 +4740,12 @@ export enum SubscriptionInterval {
 
 export type SubscriptionPlan = {
   __typename?: 'SubscriptionPlan';
-  accessToDisplayScheduling: Scalars['Boolean']['output'];
-  accessToImageBanners: Scalars['Boolean']['output'];
-  accessToProductCustomisation: Scalars['Boolean']['output'];
-  accessToSalesPersonAttribution: Scalars['Boolean']['output'];
-  accessToStoreAttribution: Scalars['Boolean']['output'];
-  accessToSyncAttractLoops: Scalars['Boolean']['output'];
-  accessToVideoBanners: Scalars['Boolean']['output'];
-  cloudshelfBranded: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   displayName: Scalars['String']['output'];
   displayOrder: Scalars['Int']['output'];
   englishDisplayName: Scalars['String']['output'];
+  features: Array<SubscriptionFeatureSetting>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   information: Array<Scalars['String']['output']>;
@@ -4467,23 +4765,18 @@ export type SubscriptionPlanUsage = {
 
 export type SubscriptionRecord = {
   __typename?: 'SubscriptionRecord';
-  accessToDisplayScheduling: Scalars['Boolean']['output'];
-  accessToImageBanners: Scalars['Boolean']['output'];
-  accessToProductCustomisation: Scalars['Boolean']['output'];
-  accessToSalesPersonAttribution: Scalars['Boolean']['output'];
-  accessToStoreAttribution: Scalars['Boolean']['output'];
-  accessToSyncAttractLoops: Scalars['Boolean']['output'];
-  accessToVideoBanners: Scalars['Boolean']['output'];
   amountUSD: Scalars['Float']['output'];
   billingInterval: SubscriptionInterval;
-  canRemoveCloudshelfBranding: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   devicesPerLocation: Scalars['Int']['output'];
+  effectiveFeatures: Array<SubscriptionFeatureSetting>;
+  featureOverrides: Array<SubscriptionFeatureSetting>;
   freeLocations: Scalars['Int']['output'];
   hubspotDealNumber?: Maybe<Scalars['String']['output']>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
+  isModified: Scalars['Boolean']['output'];
   liveLocations: Scalars['Int']['output'];
   owningOrganisation: Organisation;
   plan: SubscriptionPlan;
@@ -5183,6 +5476,11 @@ export const SetOrganisationSyncStatusDocument = gql`
   setOrganisationSyncStatus(domainName: $domainName, syncStage: $syncStage)
 }
     `;
+export const SetOrganisationClosedDocument = gql`
+    mutation SetOrganisationClosed($domainName: String!, $closed: Boolean!) {
+  setOrganisationClosed(domainName: $domainName, closed: $closed)
+}
+    `;
 export const UpsertProductGroupsDocument = gql`
     mutation upsertProductGroups($input: [ProductGroupInput!]!) {
   upsertProductGroups(input: $input) {
@@ -5396,6 +5694,14 @@ export type SetOrganisationSyncStatusMutationVariables = Exact<{
 
 export type SetOrganisationSyncStatusMutation = { __typename?: 'Mutation', setOrganisationSyncStatus: boolean };
 
+export type SetOrganisationClosedMutationVariables = Exact<{
+  domainName: Scalars['String']['input'];
+  closed: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetOrganisationClosedMutation = { __typename?: 'Mutation', setOrganisationClosed: boolean };
+
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;
 }>;
@@ -5430,7 +5736,7 @@ export type UpdateProductsInProductGroupInBatchMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: string, number: number }> };
+export type UpdateProductsInProductGroupInBatchMutation = { __typename?: 'Mutation', updateProductsInProductGroupInBatch: Array<{ __typename?: 'ProductGroupUpdateBatchPayload', success: boolean, productGroupId: any, number: number }> };
 
 export type UpsertProductsMutationVariables = Exact<{
   input: Array<ProductInput> | ProductInput;

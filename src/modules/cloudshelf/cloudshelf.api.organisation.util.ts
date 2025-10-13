@@ -3,6 +3,9 @@ import {
     OrganisationSyncStatusByDomainDocument,
     OrganisationSyncStatusByDomainQuery,
     OrganisationSyncStatusByDomainQueryVariables,
+    SetOrganisationClosedDocument,
+    SetOrganisationClosedMutation,
+    SetOrganisationClosedMutationVariables,
     SetOrganisationSyncStatusDocument,
     SetOrganisationSyncStatusMutation,
     SetOrganisationSyncStatusMutationVariables,
@@ -38,6 +41,34 @@ export class CloudshelfApiOrganisationUtils {
         });
 
         if (setOrganisationSyncStatusMutation.errors) {
+            logs?.error?.(`Failed to set organisation sync status ${retailer.domain}`);
+            return;
+        }
+    }
+
+    static async setOrganisationClosed({
+        apiUrl,
+        retailer,
+        logs,
+    }: {
+        apiUrl: string;
+        retailer: RetailerEntity;
+        logs?: LogsInterface;
+    }): Promise<void> {
+        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
+
+        const setOrganisationClosedMutation = await authedClient.mutate<
+            SetOrganisationClosedMutation,
+            SetOrganisationClosedMutationVariables
+        >({
+            mutation: SetOrganisationClosedDocument,
+            variables: {
+                domainName: retailer.domain,
+                closed,
+            },
+        });
+
+        if (setOrganisationClosedMutation.errors) {
             logs?.error?.(`Failed to set organisation sync status ${retailer.domain}`);
             return;
         }

@@ -12,6 +12,7 @@ import {
 } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { EntityManager } from '@mikro-orm/core';
+import { STORE_CLOSED_ERROR_CODE } from 'src/utils/ShopifyConstants';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { BulkOperation } from './bulk.operation.entity';
@@ -41,15 +42,31 @@ export class BulkOperationUtils {
         return op;
     }
 
-    static async checkForRunningBulkOperationByRetailer(
-        retailer: RetailerEntity,
-        logs?: LogsInterface,
-    ): Promise<{ status: BulkOperationStatus; id: string } | undefined> {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer, logs);
+    static async checkForRunningBulkOperationByRetailer({
+        retailer,
+        logs,
+        em,
+    }: {
+        retailer: RetailerEntity;
+        logs?: LogsInterface;
+        em?: EntityManager;
+    }): Promise<{ status: BulkOperationStatus; id: string; shouldTerminateTaskRun?: boolean } | undefined> {
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({
+            retailer,
+            logs,
+            statusCodesToNotRetry: [STORE_CLOSED_ERROR_CODE],
+            em,
+        });
 
         const result = await graphqlClient.query<CurrentBulkOperationQuery, CurrentBulkOperationQueryVariables>({
             query: CurrentBulkOperationDocument,
         });
+
+        // @ts-ignore
+        if ((result.error as any)?.networkError?.statusCode === STORE_CLOSED_ERROR_CODE) {
+            logs?.warn(`[BulkOperationUtils] store closed error, returning undefined`);
+            return { status: BulkOperationStatus.Created, id: '', shouldTerminateTaskRun: true };
+        }
 
         if (result.errors || result.error) {
             logs?.error?.(`Failed to get current bulk operation: ${JSON.stringify(result)}`);
@@ -71,7 +88,7 @@ export class BulkOperationUtils {
         installSync?: boolean,
         logs?: LogsInterface,
     ): Promise<BulkOperation> {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer, logs);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer, logs });
 
         const results = await graphqlClient.mutate<
             CreateShopifyBulkOperationMutation,
@@ -147,7 +164,7 @@ export class BulkOperationUtils {
         bulkOp: BulkOperation,
         logs?: LogsInterface,
     ) {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
 
         const query = await graphqlClient.query<BulkOperationByShopifyIdQuery, BulkOperationByShopifyIdQueryVariables>({
             query: BulkOperationByShopifyIdDocument,

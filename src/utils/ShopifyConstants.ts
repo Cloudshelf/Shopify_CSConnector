@@ -1,0 +1,1 @@
+export const STORE_CLOSED_ERROR_CODE = 402;

@@ -1,6 +1,7 @@
 import { Entity, Index, Property, types } from '@mikro-orm/core';
 import { MachineSize } from '../../trigger/reuseables/machines_size';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
+import { RetailerStatus } from './retailer.status.enum';
 
 @Entity({ tableName: 'retailer_entity' })
 export class RetailerEntity extends BaseEntity {
@@ -69,7 +70,10 @@ export class RetailerEntity extends BaseEntity {
     triggerMaxDurationProductGroups: number | null;
 
     @Property({ type: 'text', default: 'active' })
-    status: string;
+    status: RetailerStatus;
+
+    @Property({ type: types.boolean, default: false })
+    closed: boolean;
 
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');

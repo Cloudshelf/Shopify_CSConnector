@@ -22,7 +22,7 @@ export class BulkOperationService {
         retailer: RetailerEntity,
         logFn?: LogsInterface,
     ): Promise<{ status: BulkOperationStatus; id: string } | undefined> {
-        return BulkOperationUtils.checkForRunningBulkOperationByRetailer(retailer, logFn);
+        return BulkOperationUtils.checkForRunningBulkOperationByRetailer({ retailer, logs: logFn });
     }
 
     @Telemetry('service.bulk-operation.requestBulkOperation')

@@ -1,10 +1,17 @@
 import { Logger } from '@nestjs/common';
 import { onError } from '@apollo/client/link/error';
 import { GraphQLError } from 'graphql';
+import { EntityManager } from '@mikro-orm/core';
 import * as _ from 'lodash';
+import { env } from 'process';
+import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
+import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
+import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
+import { RetailerUtils } from 'src/modules/retailer/retailer.utils';
+import { STORE_CLOSED_ERROR_CODE } from 'src/utils/ShopifyConstants';
+import { Observable } from 'zen-observable-ts';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
 import { CostExtension, ShopifyExecutionResult } from './shopify.throttling.extension';
-import { Observable } from 'zen-observable-ts';
 
 const logger = new Logger('ShopifyThrottlingErrorLink');
 
@@ -89,8 +96,39 @@ function debugLog(networkError: any, graphQLErrors: any) {
     }
 }
 
-export function createShopifyRetryLink(logs?: LogsInterface) {
+async function updateRetailerStatusToClosed(retailer: RetailerEntity, em: EntityManager, logs?: LogsInterface) {
+    try {
+        logs?.warn(`[ShopifyRetryLink] updating retailer status to closed`);
+        retailer.closed = true;
+        await em.persistAndFlush(retailer);
+        await CloudshelfApiOrganisationUtils.setOrganisationClosed({
+            apiUrl: process.env.CLOUDSHELF_API_URL as string,
+            retailer,
+            logs,
+        });
+    } catch (error) {
+        logs?.error(`[ShopifyRetryLink] error updating retailer status to closed: ${JSON.stringify(error)}`);
+    }
+}
+
+export function createShopifyRetryLink({
+    logs,
+    statusCodesToNotRetry,
+    retailer,
+    em,
+}: {
+    logs?: LogsInterface;
+    statusCodesToNotRetry?: number[];
+    retailer?: RetailerEntity;
+    em?: EntityManager;
+}) {
     return onError(({ graphQLErrors, networkError, forward, operation, response }) => {
+        if (statusCodesToNotRetry?.includes((networkError as any)?.statusCode ?? 0)) {
+            // @ts-ignore
+            logs?.warn(`[ShopifyRetryLink] statusCodeToNotRetry: ${networkError?.statusCode}`);
+            return;
+        }
+
         if (networkError) {
             logs?.warn(
                 `[ShopifyRetryLink] networkError: ${JSON.stringify(
@@ -99,6 +137,10 @@ export function createShopifyRetryLink(logs?: LogsInterface) {
                     2,
                 )}`,
             );
+
+            if ((networkError as any)?.statusCode === STORE_CLOSED_ERROR_CODE && retailer && em) {
+                updateRetailerStatusToClosed(retailer, em, logs);
+            }
         }
 
         if (graphQLErrors) {
