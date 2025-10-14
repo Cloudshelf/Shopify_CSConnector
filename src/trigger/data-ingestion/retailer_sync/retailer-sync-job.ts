@@ -91,11 +91,17 @@ export const RetailerSyncJob = task({
             });
         } catch (err) {
             logger.error(`There was a problem with the sync: ${JSON.stringify(err)}`);
-            await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
-                apiUrl: env.CLOUDSHELF_API_URL,
-                retailer,
-                syncStage: SyncStage.Failed,
-            });
+            try {
+                await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
+                    apiUrl: env.CLOUDSHELF_API_URL,
+                    retailer,
+                    syncStage: SyncStage.Failed,
+                });
+            } catch (error) {
+                logger.error(`There was a problem with the sync: ${JSON.stringify(error)}`);
+                throw new AbortTaskRunError(`There was a problem with the sync: ${JSON.stringify(error)}`);
+            }
+            throw new AbortTaskRunError(`There was a problem with the sync: ${JSON.stringify(err)}`);
         }
 
         retailer.nextPartialSyncRequestTime = startedAtTime;

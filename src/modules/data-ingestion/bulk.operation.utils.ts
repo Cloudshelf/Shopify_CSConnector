@@ -60,9 +60,12 @@ export class BulkOperationUtils {
             query: CurrentBulkOperationDocument,
         });
 
-        if (result.errors || result.error) {
+        if (result.errors?.length || result.error) {
             logs?.error?.(`Failed to get current bulk operation: ${JSON.stringify(result)}`);
-            throw result.errors || result.error;
+            const errorToThrow = result.error ?? result.errors?.[0];
+            throw errorToThrow instanceof Error
+                ? errorToThrow
+                : new Error(`Failed to get current bulk operation: ${JSON.stringify(result.errors)}`);
         }
 
         if (!result.data || !result.data.currentBulkOperation) {
