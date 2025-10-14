@@ -3,10 +3,10 @@ import {
     OrganisationSyncStatusByDomainQuery,
     OrganisationSyncStatusByDomainQueryVariables,
     OrganisationSyncUpdateReason,
-    SetOrganisationSyncStatusDocument,
-    SetOrganisationSyncStatusMutation,
-    SetOrganisationSyncStatusMutationVariables,
     SyncStage,
+    UpdateOrganisationSyncStatusDocument,
+    UpdateOrganisationSyncStatusMutation,
+    UpdateOrganisationSyncStatusMutationVariables,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
@@ -29,10 +29,10 @@ export class CloudshelfApiOrganisationUtils {
         const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
 
         const setOrganisationSyncStatusMutation = await authedClient.mutate<
-            SetOrganisationSyncStatusMutation,
-            SetOrganisationSyncStatusMutationVariables
+            UpdateOrganisationSyncStatusMutation,
+            UpdateOrganisationSyncStatusMutationVariables
         >({
-            mutation: SetOrganisationSyncStatusDocument,
+            mutation: UpdateOrganisationSyncStatusDocument,
             variables: {
                 input: {
                     domainName: retailer.domain,

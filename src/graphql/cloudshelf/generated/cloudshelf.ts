@@ -2516,6 +2516,7 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
+  /** @deprecated Use updateOrganisationSyncStatus instead */
   setOrganisationSyncStatus: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
@@ -2530,6 +2531,7 @@ export type Mutation = {
   updateCustomCSSRules: Scalars['Boolean']['output'];
   /** Allows updating basic user information */
   updateMyUser: User;
+  updateOrganisationSyncStatus: Scalars['Boolean']['output'];
   updateProductTags: Scalars['Boolean']['output'];
   /** Sets the products in the product group to the given list of products */
   updateProductsInProductGroup: Scalars['Boolean']['output'];
@@ -2855,7 +2857,8 @@ export type MutationSetHandoffImageUrlArgs = {
 
 
 export type MutationSetOrganisationSyncStatusArgs = {
-  input: OrganisationSyncUpdateInput;
+  domainName: Scalars['String']['input'];
+  syncStage: SyncStage;
 };
 
 
@@ -2895,6 +2898,11 @@ export type MutationUpdateCustomCssRulesArgs = {
 
 export type MutationUpdateMyUserArgs = {
   input: UserInput;
+};
+
+
+export type MutationUpdateOrganisationSyncStatusArgs = {
+  input: OrganisationSyncUpdateInput;
 };
 
 
@@ -3318,10 +3326,10 @@ export enum OrganisationStatus {
 
 export type OrganisationSyncStatusPayload = {
   __typename?: 'OrganisationSyncStatusPayload';
+  lastSyncStatusUpdateReason?: Maybe<OrganisationSyncUpdateReason>;
   lastSyncedAt?: Maybe<Scalars['String']['output']>;
   nextSyncAt?: Maybe<Scalars['String']['output']>;
   organisationId: Scalars['ID']['output'];
-  platformPaymentRequired?: Maybe<Scalars['Boolean']['output']>;
   status: OrganisationStatus;
   syncStage: SyncStage;
 };
@@ -5475,9 +5483,9 @@ export const UpsertOrdersDocument = gql`
   }
 }
     `;
-export const SetOrganisationSyncStatusDocument = gql`
-    mutation SetOrganisationSyncStatus($input: OrganisationSyncUpdateInput!) {
-  setOrganisationSyncStatus(input: $input)
+export const UpdateOrganisationSyncStatusDocument = gql`
+    mutation UpdateOrganisationSyncStatus($input: OrganisationSyncUpdateInput!) {
+  updateOrganisationSyncStatus(input: $input)
 }
     `;
 export const UpsertProductGroupsDocument = gql`
@@ -5685,12 +5693,12 @@ export type UpsertOrdersMutationVariables = Exact<{
 
 export type UpsertOrdersMutation = { __typename?: 'Mutation', upsertOrders: { __typename?: 'OrderUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, orders: Array<{ __typename?: 'Order', id: any }> } };
 
-export type SetOrganisationSyncStatusMutationVariables = Exact<{
+export type UpdateOrganisationSyncStatusMutationVariables = Exact<{
   input: OrganisationSyncUpdateInput;
 }>;
 
 
-export type SetOrganisationSyncStatusMutation = { __typename?: 'Mutation', setOrganisationSyncStatus: boolean };
+export type UpdateOrganisationSyncStatusMutation = { __typename?: 'Mutation', updateOrganisationSyncStatus: boolean };
 
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;
