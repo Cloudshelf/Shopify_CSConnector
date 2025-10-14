@@ -1,1 +1,1 @@
-export const STORE_CLOSED_ERROR_CODE = 402;
+export const PAYMENT_REQUIRED_ERROR_CODE = '402';
