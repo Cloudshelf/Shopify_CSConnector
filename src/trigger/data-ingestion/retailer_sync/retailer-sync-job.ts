@@ -6,6 +6,7 @@ import { RetailerSyncJobUtils } from 'src/modules/data-ingestion/retailersync.jo
 import { RetailerStatus } from 'src/modules/retailer/retailer.status.enum';
 import { registerAllWebhooksForRetailer } from 'src/modules/tools/utils/registerAllWebhooksForRetailer';
 import { IngestionQueue } from 'src/trigger/queues';
+import { handleStoreClosedError } from 'src/trigger/reuseables/handleStoreClosedError';
 import { TriggerWaitForNobleReschedule } from 'src/trigger/reuseables/noble_pollfills';
 import { SyncStyle } from 'src/trigger/syncOptions.type';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
@@ -57,7 +58,15 @@ export const RetailerSyncJob = task({
             });
         }
 
-        await TriggerWaitForNobleReschedule(retailer);
+        try {
+            await TriggerWaitForNobleReschedule(retailer);
+        } catch (err) {
+            logger.error(`There was a problem with the wait for noble reschedule: ${JSON.stringify(err)}`);
+            handleStoreClosedError(AppDataSource, err, retailer, env.CLOUDSHELF_API_URL);
+            throw new AbortTaskRunError(
+                `There was a problem with the wait for noble reschedule: ${JSON.stringify(err)}`,
+            );
+        }
 
         try {
             await logger.trace(`Sync Products`, async () => {

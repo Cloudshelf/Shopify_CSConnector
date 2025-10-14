@@ -72,9 +72,6 @@ export class RetailerEntity extends BaseEntity {
     @Property({ type: 'text', default: 'active' })
     status: RetailerStatus;
 
-    @Property({ type: types.boolean, default: false })
-    closed: boolean;
-
     async supportsWithPublicationStatus(): Promise<boolean> {
         return this.scopes.includes('read_product_listings');
     }

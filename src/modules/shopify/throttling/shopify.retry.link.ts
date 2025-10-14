@@ -5,9 +5,7 @@ import { RetryLink } from '@apollo/client/link/retry';
 import { GraphQLError } from 'graphql';
 import { EntityManager } from '@mikro-orm/core';
 import * as _ from 'lodash';
-import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { STORE_CLOSED_ERROR_CODE } from 'src/utils/ShopifyConstants';
 import { Observable } from 'zen-observable-ts';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
 import {
@@ -81,21 +79,6 @@ function exceedsMaximumCost(cost: CostExtension): boolean {
 
     const requested = actualQueryCost || requestedQueryCost;
     return requested > maximumAvailable;
-}
-
-async function updateRetailerStatusToClosed(retailer: RetailerEntity, em: EntityManager, logs?: LogsInterface) {
-    try {
-        logs?.warn(`[ShopifyRetryLink] updating retailer status to closed`);
-        retailer.closed = true;
-        await em.persistAndFlush(retailer);
-        await CloudshelfApiOrganisationUtils.setOrganisationClosed({
-            apiUrl: process.env.CLOUDSHELF_API_URL as string,
-            retailer,
-            logs,
-        });
-    } catch (error) {
-        logs?.error(`[ShopifyRetryLink] error updating retailer status to closed: ${JSON.stringify(error)}`);
-    }
 }
 
 export function delay(msToWait: number): Observable<any> {
@@ -200,12 +183,6 @@ export function createShopifyRetryLink({
                     2,
                 )}`,
             );
-
-            if ((networkError as any)?.statusCode === STORE_CLOSED_ERROR_CODE && retailer && em) {
-                updateRetailerStatusToClosed(retailer, em, logs);
-                return;
-            }
-            // Let RetryLink handle network errors
             return;
         }
 

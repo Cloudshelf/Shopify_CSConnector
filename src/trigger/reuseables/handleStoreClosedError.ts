@@ -1,7 +1,9 @@
+import { OrganisationSyncUpdateReason } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/core';
 import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
+import { LogsInterface } from 'src/modules/cloudshelf/logs.interface';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 
 const STORE_CLOSED_ERRORS: Record<string, string> = {
@@ -32,6 +34,7 @@ export async function handleStoreClosedError(
     await CloudshelfApiOrganisationUtils.failOrganisationSync({
         apiUrl: cloudshelfApiUrl,
         domainName: retailer.domain,
+        reason: errorCode === '402' ? OrganisationSyncUpdateReason.PlatformPaymentRequired : undefined,
     });
 
     await appDataSource.flush();

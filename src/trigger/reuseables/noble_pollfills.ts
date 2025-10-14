@@ -16,12 +16,6 @@ export const TriggerWaitForNobleReschedule = async (retailer: RetailerEntity) =>
             },
         });
 
-        if (currentBulkOperation?.shouldTerminateTaskRun) {
-            shouldBeWaitingForQueue = false;
-            logger.info(`Bulk operation should terminate task run, returning`);
-            return;
-        }
-
         if (currentBulkOperation) {
             if (
                 currentBulkOperation.status === BulkOperationStatus.Running ||

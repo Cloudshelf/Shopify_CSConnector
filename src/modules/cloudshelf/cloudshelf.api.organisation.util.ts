@@ -1,11 +1,8 @@
 import {
-    OrganisationStatus,
     OrganisationSyncStatusByDomainDocument,
     OrganisationSyncStatusByDomainQuery,
     OrganisationSyncStatusByDomainQueryVariables,
-    SetOrganisationClosedDocument,
-    SetOrganisationClosedMutation,
-    SetOrganisationClosedMutationVariables,
+    OrganisationSyncUpdateReason,
     SetOrganisationSyncStatusDocument,
     SetOrganisationSyncStatusMutation,
     SetOrganisationSyncStatusMutationVariables,
@@ -21,11 +18,13 @@ export class CloudshelfApiOrganisationUtils {
         retailer,
         logs,
         syncStage,
+        reason,
     }: {
         apiUrl: string;
         retailer: RetailerEntity;
         logs?: LogsInterface;
         syncStage: SyncStage;
+        reason?: OrganisationSyncUpdateReason;
     }): Promise<void> {
         const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
 
@@ -35,8 +34,11 @@ export class CloudshelfApiOrganisationUtils {
         >({
             mutation: SetOrganisationSyncStatusDocument,
             variables: {
-                domainName: retailer.domain,
-                syncStage,
+                input: {
+                    domainName: retailer.domain,
+                    syncStage,
+                    reason,
+                },
             },
         });
 
@@ -45,35 +47,6 @@ export class CloudshelfApiOrganisationUtils {
             return;
         }
     }
-
-    static async setOrganisationClosed({
-        apiUrl,
-        retailer,
-        logs,
-    }: {
-        apiUrl: string;
-        retailer: RetailerEntity;
-        logs?: LogsInterface;
-    }): Promise<void> {
-        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
-
-        const setOrganisationClosedMutation = await authedClient.mutate<
-            SetOrganisationClosedMutation,
-            SetOrganisationClosedMutationVariables
-        >({
-            mutation: SetOrganisationClosedDocument,
-            variables: {
-                domainName: retailer.domain,
-                closed,
-            },
-        });
-
-        if (setOrganisationClosedMutation.errors) {
-            logs?.error?.(`Failed to set organisation sync status ${retailer.domain}`);
-            return;
-        }
-    }
-
     static async getOrganisationStatusByDomain({
         apiUrl,
         domainName,
@@ -111,10 +84,12 @@ export class CloudshelfApiOrganisationUtils {
         apiUrl,
         domainName,
         logs,
+        reason,
     }: {
         apiUrl: string;
         domainName: string;
         logs?: LogsInterface;
+        reason?: OrganisationSyncUpdateReason;
     }): Promise<void> {
         try {
             await this.setOrganisationSyncStatus({
@@ -122,6 +97,7 @@ export class CloudshelfApiOrganisationUtils {
                 retailer: { domain: domainName } as RetailerEntity,
                 logs,
                 syncStage: SyncStage.Failed,
+                reason,
             });
         } catch (error) {
             logs?.error(`Error in failOrganisationSync - ${domainName}`, error);

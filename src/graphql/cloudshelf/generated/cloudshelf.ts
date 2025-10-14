@@ -2516,7 +2516,6 @@ export type Mutation = {
   setActingAs: Scalars['Boolean']['output'];
   setActiveVersion: Scalars['Boolean']['output'];
   setHandoffImageUrl: MobileHandoff;
-  setOrganisationClosed: Scalars['Boolean']['output'];
   setOrganisationSyncStatus: Scalars['Boolean']['output'];
   /** Allows settings of an variables */
   setVariables: Scalars['Boolean']['output'];
@@ -2855,15 +2854,8 @@ export type MutationSetHandoffImageUrlArgs = {
 };
 
 
-export type MutationSetOrganisationClosedArgs = {
-  closed: Scalars['Boolean']['input'];
-  domainName: Scalars['String']['input'];
-};
-
-
 export type MutationSetOrganisationSyncStatusArgs = {
-  domainName: Scalars['String']['input'];
-  syncStage: SyncStage;
+  input: OrganisationSyncUpdateInput;
 };
 
 
@@ -3329,9 +3321,21 @@ export type OrganisationSyncStatusPayload = {
   lastSyncedAt?: Maybe<Scalars['String']['output']>;
   nextSyncAt?: Maybe<Scalars['String']['output']>;
   organisationId: Scalars['ID']['output'];
+  platformPaymentRequired?: Maybe<Scalars['Boolean']['output']>;
   status: OrganisationStatus;
   syncStage: SyncStage;
 };
+
+export type OrganisationSyncUpdateInput = {
+  domainName: Scalars['String']['input'];
+  reason?: InputMaybe<OrganisationSyncUpdateReason>;
+  syncStage: SyncStage;
+};
+
+/** The reason for updating the organisation sync status. */
+export enum OrganisationSyncUpdateReason {
+  PlatformPaymentRequired = 'PLATFORM_PAYMENT_REQUIRED'
+}
 
 export type OrganisationUpsertPayload = {
   __typename?: 'OrganisationUpsertPayload';
@@ -5472,13 +5476,8 @@ export const UpsertOrdersDocument = gql`
 }
     `;
 export const SetOrganisationSyncStatusDocument = gql`
-    mutation SetOrganisationSyncStatus($domainName: String!, $syncStage: SyncStage!) {
-  setOrganisationSyncStatus(domainName: $domainName, syncStage: $syncStage)
-}
-    `;
-export const SetOrganisationClosedDocument = gql`
-    mutation SetOrganisationClosed($domainName: String!, $closed: Boolean!) {
-  setOrganisationClosed(domainName: $domainName, closed: $closed)
+    mutation SetOrganisationSyncStatus($input: OrganisationSyncUpdateInput!) {
+  setOrganisationSyncStatus(input: $input)
 }
     `;
 export const UpsertProductGroupsDocument = gql`
@@ -5687,20 +5686,11 @@ export type UpsertOrdersMutationVariables = Exact<{
 export type UpsertOrdersMutation = { __typename?: 'Mutation', upsertOrders: { __typename?: 'OrderUpsertPayload', userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }>, orders: Array<{ __typename?: 'Order', id: any }> } };
 
 export type SetOrganisationSyncStatusMutationVariables = Exact<{
-  domainName: Scalars['String']['input'];
-  syncStage: SyncStage;
+  input: OrganisationSyncUpdateInput;
 }>;
 
 
 export type SetOrganisationSyncStatusMutation = { __typename?: 'Mutation', setOrganisationSyncStatus: boolean };
-
-export type SetOrganisationClosedMutationVariables = Exact<{
-  domainName: Scalars['String']['input'];
-  closed: Scalars['Boolean']['input'];
-}>;
-
-
-export type SetOrganisationClosedMutation = { __typename?: 'Mutation', setOrganisationClosed: boolean };
 
 export type UpsertProductGroupsMutationVariables = Exact<{
   input: Array<ProductGroupInput> | ProductGroupInput;

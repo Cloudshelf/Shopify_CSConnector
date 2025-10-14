@@ -54,7 +54,6 @@ export class BulkOperationUtils {
         const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({
             retailer,
             logs,
-            statusCodesToNotRetry: [STORE_CLOSED_ERROR_CODE],
             em,
         });
 
@@ -62,15 +61,9 @@ export class BulkOperationUtils {
             query: CurrentBulkOperationDocument,
         });
 
-        // @ts-ignore
-        if ((result.error as any)?.networkError?.statusCode === STORE_CLOSED_ERROR_CODE) {
-            logs?.warn(`[BulkOperationUtils] store closed error, returning undefined`);
-            return { status: BulkOperationStatus.Created, id: '', shouldTerminateTaskRun: true };
-        }
-
         if (result.errors || result.error) {
             logs?.error?.(`Failed to get current bulk operation: ${JSON.stringify(result)}`);
-            throw new Error(`Error getting current bulk operation: ${JSON.stringify(result)}`);
+            throw result.errors || result.error;
         }
 
         if (!result.data || !result.data.currentBulkOperation) {

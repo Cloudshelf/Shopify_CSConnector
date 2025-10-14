@@ -1,6 +1,3 @@
-mutation SetOrganisationSyncStatus($domainName: String!, $syncStage: SyncStage!) {
-    setOrganisationSyncStatus(domainName: $domainName, syncStage: $syncStage)
-}
-mutation SetOrganisationClosed($domainName: String!, $closed: Boolean!) {
-    setOrganisationClosed(domainName: $domainName, closed: $closed)
+mutation SetOrganisationSyncStatus($input: OrganisationSyncUpdateInput!) {
+    setOrganisationSyncStatus(input: $input)
 }

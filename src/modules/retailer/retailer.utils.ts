@@ -47,7 +47,6 @@ export class RetailerUtils {
                 createdAt: now,
                 updatedAt: now,
                 status: RetailerStatus.ACTIVE,
-                closed: false,
             });
             status = 'created';
         }

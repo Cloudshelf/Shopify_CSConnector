@@ -9,32 +9,28 @@ export class ShopifyGraphqlUtil {
     static async getShopifyAdminApolloClientByRetailer({
         retailer,
         logs,
-        statusCodesToNotRetry,
         em,
     }: {
         retailer: RetailerEntity;
         logs?: LogsInterface;
-        statusCodesToNotRetry?: number[];
         em?: EntityManager;
     }) {
         const domain = retailer.domain;
         const accessToken = retailer.accessToken;
 
-        return this.getShopifyAdminApolloClient({ domain, accessToken, logs, statusCodesToNotRetry, retailer, em });
+        return this.getShopifyAdminApolloClient({ domain, accessToken, logs, retailer, em });
     }
 
     static async getShopifyAdminApolloClient({
         domain,
         accessToken,
-        logs,
-        statusCodesToNotRetry,
         retailer,
         em,
+        logs,
     }: {
         domain: string;
         accessToken: string;
         logs?: LogsInterface;
-        statusCodesToNotRetry?: number[];
         retailer?: RetailerEntity;
         em?: EntityManager;
     }): Promise<ApolloClient<NormalizedCacheObject>> {
@@ -49,7 +45,6 @@ export class ShopifyGraphqlUtil {
             },
         });
 
-        // const rateLimit = createShopifyRetryLink({ logs, statusCodesToNotRetry, retailer, em });
         // Enhanced retry link handles both network errors and throttling
         const retryLink = createShopifyRetryLink({ logs, retailer, em });
 
