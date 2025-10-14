@@ -1,8 +1,8 @@
 import { OrganisationStatus, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
-import { CloudshelfApiAuthUtils } from '../cloudshelf.api.auth.util';
-import { CloudshelfApiOrganisationUtils } from '../cloudshelf.api.organisation.util';
 import { LogsInterface } from 'src/modules/cloudshelf/logs.interface';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
+import { CloudshelfApiAuthUtils } from '../cloudshelf.api.auth.util';
+import { CloudshelfApiOrganisationUtils } from '../cloudshelf.api.organisation.util';
 
 jest.mock('src/modules/cloudshelf/cloudshelf.api.auth.util');
 
@@ -52,8 +52,10 @@ describe('CloudshelfApiOrganisationUtils - setOrganisationSyncStatus', () => {
             expect.objectContaining({
                 mutation: expect.anything(),
                 variables: {
-                    domainName: domainName,
-                    syncStage: SyncStage.ProcessProductGroups,
+                    input: {
+                        domainName: domainName,
+                        syncStage: SyncStage.ProcessProductGroups,
+                    },
                 },
             }),
         );

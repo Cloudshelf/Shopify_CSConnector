@@ -160,7 +160,7 @@ describe('ShopifyRetryLink', () => {
                 });
             });
 
-            const retryLink = createShopifyRetryLink(mockLogs);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`
@@ -258,7 +258,7 @@ describe('ShopifyRetryLink', () => {
         });
 
         it('should not retry on non-retryable errors', async () => {
-            const retryLink = createShopifyRetryLink(mockLogs);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`

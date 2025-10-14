@@ -3,9 +3,7 @@ import { ApolloLink } from '@apollo/client/core';
 import { onError } from '@apollo/client/link/error';
 import { RetryLink } from '@apollo/client/link/retry';
 import { GraphQLError } from 'graphql';
-import { EntityManager } from '@mikro-orm/core';
 import * as _ from 'lodash';
-import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { Observable } from 'zen-observable-ts';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
 import {
