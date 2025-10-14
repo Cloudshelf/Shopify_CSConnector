@@ -1,6 +1,6 @@
 import { OrganisationSyncUpdateReason } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/core';
-import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
+import { AbortTaskRunError, logger, runs } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
@@ -17,6 +17,7 @@ export async function handleStoreClosedError(
     err: any,
     retailer: RetailerEntity,
     cloudshelfApiUrl: string,
+    runId?: string,
 ): Promise<void> {
     const errorCode = Object.keys(STORE_CLOSED_ERRORS).find(
         code => typeof err.message === 'string' && err.message.includes(`status code ${code}`),
@@ -41,13 +42,21 @@ export async function handleStoreClosedError(
     };
 
     logger.info(`Request to API to fail organisation sync: ${JSON.stringify(input)}`);
-    await CloudshelfApiOrganisationUtils.failOrganisationSync(input);
+    try {
+        await CloudshelfApiOrganisationUtils.failOrganisationSync(input);
+    } catch (error) {
+        logger.error(`Error in failOrganisationSync - ${retailer.domain}`, error);
+    }
 
     await appDataSource.flush();
 
     if (errorCode) {
-        // Throw AbortTaskRunError to prevent retries for known store closed scenarios
-        throw new AbortTaskRunError(`Store closed: ${STORE_CLOSED_ERRORS[errorCode]} (${errorCode})`);
+        if (runId) {
+            logger.info(`Ending task run early because retailer is closed`);
+            await runs.cancel(runId);
+        } else {
+            throw new AbortTaskRunError(`Store closed: ${STORE_CLOSED_ERRORS[errorCode]} (${errorCode})`);
+        }
     } else {
         throw err;
     }
