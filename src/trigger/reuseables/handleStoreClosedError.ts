@@ -31,14 +31,17 @@ export async function handleStoreClosedError(
         await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfApiUrl, retailer.domain, input);
     }
 
-    await CloudshelfApiOrganisationUtils.failOrganisationSync({
+    const input = {
         apiUrl: cloudshelfApiUrl,
         domainName: retailer.domain,
         reason:
             errorCode === PAYMENT_REQUIRED_ERROR_CODE
                 ? OrganisationSyncUpdateReason.PlatformPaymentRequired
                 : undefined,
-    });
+    };
+
+    logger.info(`Request to API to fail organisation sync: ${JSON.stringify(input)}`);
+    await CloudshelfApiOrganisationUtils.failOrganisationSync(input);
 
     await appDataSource.flush();
 
