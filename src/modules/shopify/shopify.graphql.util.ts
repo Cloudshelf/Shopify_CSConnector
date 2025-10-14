@@ -18,21 +18,17 @@ export class ShopifyGraphqlUtil {
         const domain = retailer.domain;
         const accessToken = retailer.accessToken;
 
-        return this.getShopifyAdminApolloClient({ domain, accessToken, logs, retailer, em });
+        return this.getShopifyAdminApolloClient({ domain, accessToken, logs });
     }
 
     static async getShopifyAdminApolloClient({
         domain,
         accessToken,
-        retailer,
-        em,
         logs,
     }: {
         domain: string;
         accessToken: string;
         logs?: LogsInterface;
-        retailer?: RetailerEntity;
-        em?: EntityManager;
     }): Promise<ApolloClient<NormalizedCacheObject>> {
         const endpoint = createHttpLink({
             uri: `https://${domain}/admin/api/2025-07/graphql.json`,
@@ -46,7 +42,7 @@ export class ShopifyGraphqlUtil {
         });
 
         // Enhanced retry link handles both network errors and throttling
-        const retryLink = createShopifyRetryLink({ logs, retailer, em });
+        const retryLink = createShopifyRetryLink({ logs });
 
         return new ApolloClient({
             cache: new InMemoryCache(),

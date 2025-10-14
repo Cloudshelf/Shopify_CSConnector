@@ -97,13 +97,9 @@ export function delay(msToWait: number): Observable<any> {
 export function createShopifyRetryLink({
     logs,
     config = DEFAULT_RETRY_CONFIG,
-    retailer,
-    em,
 }: {
     logs?: LogsInterface;
     config?: ShopifyRetryConfig;
-    retailer?: RetailerEntity;
-    em?: EntityManager;
 } = {}): ApolloLink {
     // RetryLink for network errors with exponential backoff
     const retryLink = new RetryLink({
