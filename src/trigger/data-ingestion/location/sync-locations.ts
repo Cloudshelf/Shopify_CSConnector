@@ -36,7 +36,7 @@ export const SyncLocationsTask = task({
         let hasNextPage = true;
         let cursor: string | null = null;
         const shopifyLocationData: LocationDetailsFragment[] = [];
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
 
         do {
             const result: ApolloQueryResult<GetLocationsQuery> = await graphqlClient.query<

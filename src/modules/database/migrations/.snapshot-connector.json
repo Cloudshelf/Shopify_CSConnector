@@ -479,6 +479,16 @@
           "nullable": false,
           "default": "'active'",
           "mappedType": "text"
+        },
+        "closed": {
+          "name": "closed",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
         }
       },
       "name": "retailer_entity",

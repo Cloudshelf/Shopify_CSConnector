@@ -92,10 +92,13 @@ export function delay(msToWait: number): Observable<any> {
 /**
  * Creates a retry link that handles both network errors and Shopify throttling
  */
-export function createShopifyRetryLink(
-    logs?: LogsInterface,
-    config: ShopifyRetryConfig = DEFAULT_RETRY_CONFIG,
-): ApolloLink {
+export function createShopifyRetryLink({
+    logs,
+    config = DEFAULT_RETRY_CONFIG,
+}: {
+    logs?: LogsInterface;
+    config?: ShopifyRetryConfig;
+} = {}): ApolloLink {
     // RetryLink for network errors with exponential backoff
     const retryLink = new RetryLink({
         delay: {
@@ -165,6 +168,7 @@ export function createShopifyRetryLink(
     // Error link for Shopify-specific throttling ONLY
     const errorLink = onError(({ graphQLErrors, networkError, forward, operation, response }) => {
         // Log network errors but don't handle them here (RetryLink handles them)
+
         if (networkError) {
             logs?.warn?.(
                 `[ShopifyRetryLink] Network error (handled by RetryLink): ${JSON.stringify(
@@ -173,7 +177,6 @@ export function createShopifyRetryLink(
                     2,
                 )}`,
             );
-            // Let RetryLink handle network errors
             return;
         }
 

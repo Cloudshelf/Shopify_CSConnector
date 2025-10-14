@@ -9,7 +9,7 @@ import { LogsInterface } from '../../cloudshelf/logs.interface';
 import { RetailerEntity } from '../../retailer/retailer.entity';
 
 export async function getWebhooks(retailer: RetailerEntity, logs?: LogsInterface) {
-    const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+    const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer, logs });
 
     const webhooks: Array<{
         __typename?: 'WebhookSubscriptionEdge';

@@ -41,19 +41,31 @@ export class BulkOperationUtils {
         return op;
     }
 
-    static async checkForRunningBulkOperationByRetailer(
-        retailer: RetailerEntity,
-        logs?: LogsInterface,
-    ): Promise<{ status: BulkOperationStatus; id: string } | undefined> {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer, logs);
+    static async checkForRunningBulkOperationByRetailer({
+        retailer,
+        logs,
+        em,
+    }: {
+        retailer: RetailerEntity;
+        logs?: LogsInterface;
+        em?: EntityManager;
+    }): Promise<{ status: BulkOperationStatus; id: string; shouldTerminateTaskRun?: boolean } | undefined> {
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({
+            retailer,
+            logs,
+            em,
+        });
 
         const result = await graphqlClient.query<CurrentBulkOperationQuery, CurrentBulkOperationQueryVariables>({
             query: CurrentBulkOperationDocument,
         });
 
-        if (result.errors || result.error) {
+        if (result.errors?.length || result.error) {
             logs?.error?.(`Failed to get current bulk operation: ${JSON.stringify(result)}`);
-            throw new Error(`Error getting current bulk operation: ${JSON.stringify(result)}`);
+            const errorToThrow = result.error ?? result.errors?.[0];
+            throw errorToThrow instanceof Error
+                ? errorToThrow
+                : new Error(`Failed to get current bulk operation: ${JSON.stringify(result.errors)}`);
         }
 
         if (!result.data || !result.data.currentBulkOperation) {
@@ -71,7 +83,7 @@ export class BulkOperationUtils {
         installSync?: boolean,
         logs?: LogsInterface,
     ): Promise<BulkOperation> {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer, logs);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer, logs });
 
         const results = await graphqlClient.mutate<
             CreateShopifyBulkOperationMutation,
@@ -147,7 +159,7 @@ export class BulkOperationUtils {
         bulkOp: BulkOperation,
         logs?: LogsInterface,
     ) {
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
 
         const query = await graphqlClient.query<BulkOperationByShopifyIdQuery, BulkOperationByShopifyIdQueryVariables>({
             query: BulkOperationByShopifyIdDocument,

@@ -1,0 +1,1 @@
+export const PAYMENT_REQUIRED_ERROR_CODE = '402';

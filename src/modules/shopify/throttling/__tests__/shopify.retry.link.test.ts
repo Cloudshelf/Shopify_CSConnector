@@ -1,6 +1,6 @@
-import { ApolloLink, execute, gql, Observable } from '@apollo/client/core';
-import { createShopifyRetryLink } from '../shopify.retry.link';
+import { ApolloLink, Observable, execute, gql } from '@apollo/client/core';
 import { ShopifyRetryConfig } from '../shopify.retry.config';
+import { createShopifyRetryLink } from '../shopify.retry.link';
 import * as retryLinkModule from '../shopify.retry.link';
 
 // Mock logger
@@ -36,8 +36,8 @@ describe('ShopifyRetryLink', () => {
         };
 
         // Mock forward link
-        forwardLink = new ApolloLink((operation) => {
-            return new Observable((observer) => {
+        forwardLink = new ApolloLink(operation => {
+            return new Observable(observer => {
                 attemptCount++;
                 const context = operation.getContext();
 
@@ -58,10 +58,12 @@ describe('ShopifyRetryLink', () => {
                     if (!isRetry) {
                         // First attempt - throw throttling error
                         observer.error({
-                            graphQLErrors: [{
-                                message: 'Throttled',
-                                extensions: { exception: { code: 'throttled' } }
-                            }],
+                            graphQLErrors: [
+                                {
+                                    message: 'Throttled',
+                                    extensions: { exception: { code: 'throttled' } },
+                                },
+                            ],
                             response: {
                                 extensions: {
                                     cost: {
@@ -70,11 +72,11 @@ describe('ShopifyRetryLink', () => {
                                         throttleStatus: {
                                             currentlyAvailable: 50,
                                             maximumAvailable: 1000,
-                                            restoreRate: 50
-                                        }
-                                    }
-                                }
-                            }
+                                            restoreRate: 50,
+                                        },
+                                    },
+                                },
+                            },
                         });
                     } else {
                         // Retry attempt - succeed
@@ -118,7 +120,7 @@ describe('ShopifyRetryLink', () => {
                 retryableStatusCodes: [429, 502, 503, 504],
             };
 
-            const retryLink = createShopifyRetryLink(mockLogs, config);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs, config });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`
@@ -130,7 +132,7 @@ describe('ShopifyRetryLink', () => {
             const result = await new Promise((resolve, reject) => {
                 execute(link, {
                     query,
-                    context: { testScenario: 'network-timeout' }
+                    context: { testScenario: 'network-timeout' },
                 }).subscribe({
                     next: resolve,
                     error: reject,
@@ -140,14 +142,12 @@ describe('ShopifyRetryLink', () => {
 
             expect(result).toEqual({ data: { success: true } });
             expect(attemptCount).toBe(3); // Initial + 2 retries
-            expect(mockLogs.warn).toHaveBeenCalledWith(
-                expect.stringContaining('[ShopifyRetryLink] Network retry')
-            );
+            expect(mockLogs.warn).toHaveBeenCalledWith(expect.stringContaining('[ShopifyRetryLink] Network retry'));
         });
 
         it('should retry on ECONNRESET errors', async () => {
-            forwardLink = new ApolloLink((operation) => {
-                return new Observable((observer) => {
+            forwardLink = new ApolloLink(operation => {
+                return new Observable(observer => {
                     attemptCount++;
                     if (attemptCount <= 1) {
                         const error = new Error('socket hang up');
@@ -160,7 +160,7 @@ describe('ShopifyRetryLink', () => {
                 });
             });
 
-            const retryLink = createShopifyRetryLink(mockLogs);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`
@@ -192,7 +192,7 @@ describe('ShopifyRetryLink', () => {
                 retryableStatusCodes: [429, 502, 503, 504],
             };
 
-            const retryLink = createShopifyRetryLink(mockLogs, config);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs, config });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`
@@ -204,7 +204,7 @@ describe('ShopifyRetryLink', () => {
             const result = await new Promise((resolve, reject) => {
                 execute(link, {
                     query,
-                    context: { testScenario: 'http-503' }
+                    context: { testScenario: 'http-503' },
                 }).subscribe({
                     next: resolve,
                     error: reject,
@@ -214,9 +214,7 @@ describe('ShopifyRetryLink', () => {
 
             expect(result).toEqual({ data: { success: true } });
             expect(attemptCount).toBe(3);
-            expect(mockLogs.warn).toHaveBeenCalledWith(
-                expect.stringContaining('[ShopifyRetryLink] HTTP retry')
-            );
+            expect(mockLogs.warn).toHaveBeenCalledWith(expect.stringContaining('[ShopifyRetryLink] HTTP retry'));
         });
 
         it('should respect max retry attempts', async () => {
@@ -230,7 +228,7 @@ describe('ShopifyRetryLink', () => {
                 retryableStatusCodes: [],
             };
 
-            const retryLink = createShopifyRetryLink(mockLogs, config);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs, config });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`
@@ -243,7 +241,7 @@ describe('ShopifyRetryLink', () => {
                 await new Promise((resolve, reject) => {
                     execute(link, {
                         query,
-                        context: { testScenario: 'max-retries' }
+                        context: { testScenario: 'max-retries' },
                     }).subscribe({
                         next: resolve,
                         error: reject,
@@ -260,7 +258,7 @@ describe('ShopifyRetryLink', () => {
         });
 
         it('should not retry on non-retryable errors', async () => {
-            const retryLink = createShopifyRetryLink(mockLogs);
+            const retryLink = createShopifyRetryLink({ logs: mockLogs });
             const link = ApolloLink.from([retryLink, forwardLink]);
 
             const query = gql`
@@ -273,7 +271,7 @@ describe('ShopifyRetryLink', () => {
                 await new Promise((resolve, reject) => {
                     execute(link, {
                         query,
-                        context: { testScenario: 'non-retryable' }
+                        context: { testScenario: 'non-retryable' },
                     }).subscribe({
                         next: resolve,
                         error: reject,
@@ -307,10 +305,10 @@ describe('ShopifyRetryLink', () => {
                 retryableStatusCodes: [],
             };
 
-            expect(calculateExponentialBackoff(1, config)).toBe(1000);  // 1s
-            expect(calculateExponentialBackoff(2, config)).toBe(2000);  // 2s
-            expect(calculateExponentialBackoff(3, config)).toBe(4000);  // 4s
-            expect(calculateExponentialBackoff(4, config)).toBe(8000);  // 8s
+            expect(calculateExponentialBackoff(1, config)).toBe(1000); // 1s
+            expect(calculateExponentialBackoff(2, config)).toBe(2000); // 2s
+            expect(calculateExponentialBackoff(3, config)).toBe(4000); // 4s
+            expect(calculateExponentialBackoff(4, config)).toBe(8000); // 8s
             expect(calculateExponentialBackoff(5, config)).toBe(16000); // 16s
             expect(calculateExponentialBackoff(10, config)).toBe(60000); // Capped at max
         });
@@ -339,7 +337,7 @@ describe('ShopifyRetryLink', () => {
             // All values should be within range
             delays.forEach(delay => {
                 expect(delay).toBeGreaterThanOrEqual(1000); // 2000 * 0.5
-                expect(delay).toBeLessThanOrEqual(3000);    // 2000 * 1.5
+                expect(delay).toBeLessThanOrEqual(3000); // 2000 * 1.5
             });
         });
     });

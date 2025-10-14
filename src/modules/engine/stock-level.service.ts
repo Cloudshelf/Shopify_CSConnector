@@ -5,8 +5,8 @@ import {
     StockViaProductVariantAllLocationsQuery,
     StockViaProductVariantAllLocationsQueryVariables,
 } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
-import { RetailerEntity } from '../retailer/retailer.entity';
 import { Telemetry } from 'src/decorators/telemetry';
+import { RetailerEntity } from '../retailer/retailer.entity';
 
 @Injectable()
 export class StockLevelsService {
@@ -34,7 +34,7 @@ export class StockLevelsService {
             },
         };
 
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
 
         const responseFromShopify = await graphqlClient.query<
             StockViaProductVariantAllLocationsQuery,

@@ -172,7 +172,7 @@ export const ProcessOrderTask = task({
 
         logger.info(`Reported Order Status!`);
 
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
         //Now delete the draft order from shopify (if it exists in the notes)
         if (draftorderNoteAttribute) {
             logger.info(

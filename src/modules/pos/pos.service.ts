@@ -24,7 +24,7 @@ export class POSService {
             pageInfo: { hasMore: false, nextPageCursor: undefined },
         };
 
-        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
         const queryParts: string[] = [];
 
         if (search) {

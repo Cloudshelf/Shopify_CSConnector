@@ -1,8 +1,10 @@
+import { OrganisationSyncUpdateReason } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/core';
 import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
+import { PAYMENT_REQUIRED_ERROR_CODE } from 'src/utils/ShopifyConstants';
 
 const STORE_CLOSED_ERRORS: Record<string, string> = {
     '401': 'Retailer uninstalled?',
@@ -29,10 +31,17 @@ export async function handleStoreClosedError(
         await CloudshelfApiReportUtils.reportCatalogStats(cloudshelfApiUrl, retailer.domain, input);
     }
 
-    await CloudshelfApiOrganisationUtils.failOrganisationSync({
+    const input = {
         apiUrl: cloudshelfApiUrl,
         domainName: retailer.domain,
-    });
+        reason:
+            errorCode === PAYMENT_REQUIRED_ERROR_CODE
+                ? OrganisationSyncUpdateReason.PlatformPaymentRequired
+                : undefined,
+    };
+
+    logger.info(`Request to API to fail organisation sync: ${JSON.stringify(input)}`);
+    await CloudshelfApiOrganisationUtils.failOrganisationSync(input);
 
     await appDataSource.flush();
 

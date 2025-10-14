@@ -1,12 +1,12 @@
 import {
-    OrganisationStatus,
     OrganisationSyncStatusByDomainDocument,
     OrganisationSyncStatusByDomainQuery,
     OrganisationSyncStatusByDomainQueryVariables,
-    SetOrganisationSyncStatusDocument,
-    SetOrganisationSyncStatusMutation,
-    SetOrganisationSyncStatusMutationVariables,
+    OrganisationSyncUpdateReason,
     SyncStage,
+    UpdateOrganisationSyncStatusDocument,
+    UpdateOrganisationSyncStatusMutation,
+    UpdateOrganisationSyncStatusMutationVariables,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
@@ -18,22 +18,27 @@ export class CloudshelfApiOrganisationUtils {
         retailer,
         logs,
         syncStage,
+        reason,
     }: {
         apiUrl: string;
         retailer: RetailerEntity;
         logs?: LogsInterface;
         syncStage: SyncStage;
+        reason?: OrganisationSyncUpdateReason;
     }): Promise<void> {
         const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
 
         const setOrganisationSyncStatusMutation = await authedClient.mutate<
-            SetOrganisationSyncStatusMutation,
-            SetOrganisationSyncStatusMutationVariables
+            UpdateOrganisationSyncStatusMutation,
+            UpdateOrganisationSyncStatusMutationVariables
         >({
-            mutation: SetOrganisationSyncStatusDocument,
+            mutation: UpdateOrganisationSyncStatusDocument,
             variables: {
-                domainName: retailer.domain,
-                syncStage,
+                input: {
+                    domainName: retailer.domain,
+                    syncStage,
+                    reason,
+                },
             },
         });
 
@@ -42,7 +47,6 @@ export class CloudshelfApiOrganisationUtils {
             return;
         }
     }
-
     static async getOrganisationStatusByDomain({
         apiUrl,
         domainName,
@@ -80,10 +84,12 @@ export class CloudshelfApiOrganisationUtils {
         apiUrl,
         domainName,
         logs,
+        reason,
     }: {
         apiUrl: string;
         domainName: string;
         logs?: LogsInterface;
+        reason?: OrganisationSyncUpdateReason;
     }): Promise<void> {
         try {
             await this.setOrganisationSyncStatus({
@@ -91,6 +97,7 @@ export class CloudshelfApiOrganisationUtils {
                 retailer: { domain: domainName } as RetailerEntity,
                 logs,
                 syncStage: SyncStage.Failed,
+                reason,
             });
         } catch (error) {
             logs?.error(`Error in failOrganisationSync - ${domainName}`, error);

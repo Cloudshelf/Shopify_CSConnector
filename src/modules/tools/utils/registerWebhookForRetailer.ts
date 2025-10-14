@@ -18,7 +18,7 @@ export async function registerWebhookForRetailer(
 ) {
     try {
         logs?.info(`Creating webook ${topic} to host ${url}`);
-        const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer(retailer);
+        const authedClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
 
         const subscription: WebhookSubscriptionInputWithCallback = {
             callbackUrl: url,

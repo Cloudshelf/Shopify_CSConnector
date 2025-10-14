@@ -7,10 +7,13 @@ export const TriggerWaitForNobleReschedule = async (retailer: RetailerEntity) =>
     let shouldBeWaitingForQueue = true;
     do {
         logger.info(`Checking for running bulk operation`);
-        const currentBulkOperation = await BulkOperationUtils.checkForRunningBulkOperationByRetailer(retailer, {
-            info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
-            warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
-            error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+        const currentBulkOperation = await BulkOperationUtils.checkForRunningBulkOperationByRetailer({
+            retailer,
+            logs: {
+                info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => logger.error(logMessage, ...args),
+            },
         });
 
         if (currentBulkOperation) {
