@@ -62,10 +62,8 @@ export const RetailerSyncJob = task({
             await TriggerWaitForNobleReschedule(retailer);
         } catch (err) {
             logger.error(`There was a problem with the wait for noble reschedule: ${JSON.stringify(err)}`);
-            handleStoreClosedError(AppDataSource, err, retailer, env.CLOUDSHELF_API_URL);
-            throw new AbortTaskRunError(
-                `There was a problem with the wait for noble reschedule: ${JSON.stringify(err)}`,
-            );
+            await handleStoreClosedError(AppDataSource, err, retailer, env.CLOUDSHELF_API_URL, ctx.run.id);
+            return;
         }
 
         try {
