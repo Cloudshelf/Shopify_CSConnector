@@ -54,8 +54,9 @@ export async function handleStoreClosedError(
         if (runId) {
             logger.info(`Ending task run early because retailer is closed`);
             await runs.cancel(runId);
+        } else {
+            throw new AbortTaskRunError(`Store closed: ${STORE_CLOSED_ERRORS[errorCode]} (${errorCode})`);
         }
-        return;
     } else {
         throw err;
     }
