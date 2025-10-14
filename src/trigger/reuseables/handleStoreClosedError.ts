@@ -4,7 +4,7 @@ import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { PAYMENT_REQUIRED_ERROR_CODE, STORE_CLOSED_ERROR_CODE } from 'src/utils/ShopifyConstants';
+import { PAYMENT_REQUIRED_ERROR_CODE } from 'src/utils/ShopifyConstants';
 
 const STORE_CLOSED_ERRORS: Record<string, string> = {
     '401': 'Retailer uninstalled?',
