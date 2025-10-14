@@ -130,7 +130,7 @@
     "oci-identity": "2.93.0",
     "oci-objectstorage": "2.93.0",
     "oci-secrets": "2.93.0",
-    "patch-package": "^8.0.0",
+    "patch-package": "^8.0.1",
     "prettier": "^2.3.2",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
