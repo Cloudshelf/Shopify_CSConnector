@@ -12,12 +12,18 @@ const STORE_CLOSED_ERRORS: Record<string, string> = {
     '404': 'Retailer Closed',
 };
 
+const STORE_CLOSED_ERRORS_MESSAGE: Record<string, OrganisationSyncUpdateReason> = {
+    '401': OrganisationSyncUpdateReason.Uninstalled,
+    '402': OrganisationSyncUpdateReason.PlatformPaymentRequired,
+    '404': OrganisationSyncUpdateReason.Closed,
+};
+
 export async function handleStoreClosedError(
     appDataSource: EntityManager,
     err: any,
     retailer: RetailerEntity,
     cloudshelfApiUrl: string,
-    runId?: string,
+    runId: string,
 ): Promise<void> {
     const errorCode = Object.keys(STORE_CLOSED_ERRORS).find(
         code => typeof err.message === 'string' && err.message.includes(`status code ${code}`),
@@ -35,10 +41,7 @@ export async function handleStoreClosedError(
     const input = {
         apiUrl: cloudshelfApiUrl,
         domainName: retailer.domain,
-        reason:
-            errorCode === PAYMENT_REQUIRED_ERROR_CODE
-                ? OrganisationSyncUpdateReason.PlatformPaymentRequired
-                : undefined,
+        reason: errorCode ? STORE_CLOSED_ERRORS_MESSAGE[errorCode] : undefined,
     };
 
     logger.info(`Request to API to fail organisation sync: ${JSON.stringify(input)}`);

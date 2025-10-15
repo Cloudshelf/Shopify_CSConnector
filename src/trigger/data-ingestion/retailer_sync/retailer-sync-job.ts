@@ -68,27 +68,44 @@ export const RetailerSyncJob = task({
 
         try {
             await logger.trace(`Sync Products`, async () => {
-                await handleSyncProducts(env, AppDataSource, retailer, {
-                    style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                    changesSince,
-                });
+                await handleSyncProducts(
+                    env,
+                    AppDataSource,
+                    retailer,
+                    {
+                        style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                        changesSince,
+                    },
+                    ctx.run.id,
+                );
             });
 
             await logger.trace(`Sync Product groups`, async () => {
-                await handleSyncProductGroups(env, AppDataSource, retailer, {
-                    style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                    changesSince,
-                });
+                await handleSyncProductGroups(
+                    env,
+                    AppDataSource,
+                    retailer,
+                    {
+                        style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                        changesSince,
+                    },
+                    ctx.run.id,
+                );
             });
 
             await logger.trace(`Post Cleanup`, async () => {
-                await handleSyncCleanup(env, AppDataSource, retailer, {
-                    style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                    changesSince,
-                });
+                await handleSyncCleanup(
+                    env,
+                    AppDataSource,
+                    retailer,
+                    {
+                        style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                        changesSince,
+                    },
+                    ctx.run.id,
+                );
             });
         } catch (err) {
-            logger.error(`There was a problem with the sync: ${JSON.stringify(err)}`);
             try {
                 await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
                     apiUrl: env.CLOUDSHELF_API_URL,
@@ -96,10 +113,8 @@ export const RetailerSyncJob = task({
                     syncStage: SyncStage.Failed,
                 });
             } catch (error) {
-                logger.error(`There was a problem with the sync: ${JSON.stringify(error)}`);
-                throw new AbortTaskRunError(`There was a problem with the sync: ${JSON.stringify(error)}`);
+                logger.error(`There was problems with setting sync status to failed: ${JSON.stringify(error)}`);
             }
-            throw new AbortTaskRunError(`There was a problem with the sync: ${JSON.stringify(err)}`);
         }
 
         retailer.nextPartialSyncRequestTime = startedAtTime;
