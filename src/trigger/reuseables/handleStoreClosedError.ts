@@ -1,10 +1,9 @@
 import { OrganisationSyncUpdateReason } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/core';
-import { AbortTaskRunError, logger, runs } from '@trigger.dev/sdk';
+import { logger, runs } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { PAYMENT_REQUIRED_ERROR_CODE } from 'src/utils/ShopifyConstants';
 
 const STORE_CLOSED_ERRORS: Record<string, string> = {
     '401': 'Retailer uninstalled?',
@@ -12,12 +11,18 @@ const STORE_CLOSED_ERRORS: Record<string, string> = {
     '404': 'Retailer Closed',
 };
 
+const STORE_CLOSED_ERRORS_MESSAGE: Record<string, OrganisationSyncUpdateReason> = {
+    '401': OrganisationSyncUpdateReason.Uninstalled,
+    '402': OrganisationSyncUpdateReason.PlatformPaymentRequired,
+    '404': OrganisationSyncUpdateReason.Closed,
+};
+
 export async function handleStoreClosedError(
     appDataSource: EntityManager,
     err: any,
     retailer: RetailerEntity,
     cloudshelfApiUrl: string,
-    runId?: string,
+    runId: string,
 ): Promise<void> {
     const errorCode = Object.keys(STORE_CLOSED_ERRORS).find(
         code => typeof err.message === 'string' && err.message.includes(`status code ${code}`),
@@ -35,10 +40,7 @@ export async function handleStoreClosedError(
     const input = {
         apiUrl: cloudshelfApiUrl,
         domainName: retailer.domain,
-        reason:
-            errorCode === PAYMENT_REQUIRED_ERROR_CODE
-                ? OrganisationSyncUpdateReason.PlatformPaymentRequired
-                : undefined,
+        reason: errorCode ? STORE_CLOSED_ERRORS_MESSAGE[errorCode] : undefined,
     };
 
     logger.info(`Request to API to fail organisation sync: ${JSON.stringify(input)}`);
@@ -51,12 +53,8 @@ export async function handleStoreClosedError(
     await appDataSource.flush();
 
     if (errorCode) {
-        if (runId) {
-            logger.info(`Ending task run early because retailer is closed`);
-            await runs.cancel(runId);
-        } else {
-            throw new AbortTaskRunError(`Store closed: ${STORE_CLOSED_ERRORS[errorCode]} (${errorCode})`);
-        }
+        logger.info(`Ending task run early because retailer is closed`);
+        await runs.cancel(runId);
     } else {
         throw err;
     }

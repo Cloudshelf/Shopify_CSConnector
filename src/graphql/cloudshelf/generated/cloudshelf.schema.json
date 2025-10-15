@@ -23176,6 +23176,18 @@
             "deprecationReason": null
           },
           {
+            "name": "lastSyncStatusUpdateReason",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "ENUM",
+              "name": "OrganisationSyncUpdateReason",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "locations",
             "description": "The locations which belong to this organisation.",
             "args": [],
@@ -24395,7 +24407,19 @@
         "interfaces": null,
         "enumValues": [
           {
+            "name": "CLOSED",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "PLATFORM_PAYMENT_REQUIRED",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "UNINSTALLED",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

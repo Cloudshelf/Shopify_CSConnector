@@ -3203,6 +3203,7 @@ export type Organisation = {
   lastReportedCatalogStatsForProductGroups?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForProducts?: Maybe<CatalogStats>;
   lastReportedCatalogStatsForVariants?: Maybe<CatalogStats>;
+  lastSyncStatusUpdateReason?: Maybe<OrganisationSyncUpdateReason>;
   /** The locations which belong to this organisation. */
   locations: Array<Location>;
   /** The orders which belong to this organisation. */
@@ -3342,7 +3343,9 @@ export type OrganisationSyncUpdateInput = {
 
 /** The reason for updating the organisation sync status. */
 export enum OrganisationSyncUpdateReason {
-  PlatformPaymentRequired = 'PLATFORM_PAYMENT_REQUIRED'
+  Closed = 'CLOSED',
+  PlatformPaymentRequired = 'PLATFORM_PAYMENT_REQUIRED',
+  Uninstalled = 'UNINSTALLED'
 }
 
 export type OrganisationUpsertPayload = {

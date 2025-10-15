@@ -37,6 +37,7 @@ export async function handleSyncProducts(
     appDataSource: EntityManager,
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
+    runId: string,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
@@ -75,7 +76,7 @@ export async function handleSyncProducts(
             waitpointTags: tags,
         });
     } catch (err) {
-        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL);
+        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL, runId);
     }
 
     if (!requestedBulkOperation) {

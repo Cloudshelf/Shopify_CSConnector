@@ -27,6 +27,7 @@ async function handleSyncCleanupCollections(
     appDataSource: EntityManager,
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
+    runId: string,
 ): Promise<{ collectionTotal: number } | undefined> {
     const tags = TriggerTagsUtils.createTags({
         domain: retailer.domain,
@@ -49,7 +50,7 @@ async function handleSyncCleanupCollections(
             waitpointTags: tags,
         });
     } catch (err) {
-        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL);
+        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL, runId);
     }
 
     if (!requestedBulkOperationCollections) {
@@ -155,6 +156,7 @@ async function handleSyncCleanupProductsAndVariants(
     appDataSource: EntityManager,
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
+    runId: string,
 ): Promise<{ productTotal: number; variantTotal: number } | undefined> {
     const tags = TriggerTagsUtils.createTags({
         domain: retailer.domain,
@@ -177,7 +179,7 @@ async function handleSyncCleanupProductsAndVariants(
             waitpointTags: tags,
         });
     } catch (err) {
-        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL);
+        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL, runId);
     }
 
     if (!requestedBulkOperation) {
@@ -341,6 +343,7 @@ export async function handleSyncCleanup(
     appDataSource: EntityManager,
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
+    runId: string,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
@@ -348,13 +351,14 @@ export async function handleSyncCleanup(
         syncStage: SyncStage.CleanUp,
     });
 
-    const collectionResult = await handleSyncCleanupCollections(env, appDataSource, retailer, syncOptions);
+    const collectionResult = await handleSyncCleanupCollections(env, appDataSource, retailer, syncOptions, runId);
 
     const productAndVariantResult = await handleSyncCleanupProductsAndVariants(
         env,
         appDataSource,
         retailer,
         syncOptions,
+        runId,
     );
 
     const input: {
