@@ -1,10 +1,9 @@
 import { OrganisationSyncUpdateReason } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/core';
-import { AbortTaskRunError, logger, runs } from '@trigger.dev/sdk';
+import { logger, runs } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiReportUtils } from 'src/modules/cloudshelf/cloudshelf.api.report.util';
 import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
-import { PAYMENT_REQUIRED_ERROR_CODE } from 'src/utils/ShopifyConstants';
 
 const STORE_CLOSED_ERRORS: Record<string, string> = {
     '401': 'Retailer uninstalled?',
@@ -54,12 +53,8 @@ export async function handleStoreClosedError(
     await appDataSource.flush();
 
     if (errorCode) {
-        if (runId) {
-            logger.info(`Ending task run early because retailer is closed`);
-            await runs.cancel(runId);
-        } else {
-            throw new AbortTaskRunError(`Store closed: ${STORE_CLOSED_ERRORS[errorCode]} (${errorCode})`);
-        }
+        logger.info(`Ending task run early because retailer is closed`);
+        await runs.cancel(runId);
     } else {
         throw err;
     }
