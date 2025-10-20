@@ -28,7 +28,7 @@ export async function handleStoreClosedError({
     err: any;
     retailer: RetailerEntity;
     cloudshelfApiUrl: string;
-    runId: string;
+    runId?: string;
 }): Promise<void> {
     const errorCode = Object.keys(STORE_CLOSED_ERRORS).find(
         code => typeof err.message === 'string' && err.message.includes(`status code ${code}`),
@@ -58,7 +58,7 @@ export async function handleStoreClosedError({
 
     await appDataSource.flush();
 
-    if (errorCode) {
+    if (errorCode && runId) {
         logger.info(`Ending task run early because retailer is closed`);
         await runs.cancel(runId);
     } else {

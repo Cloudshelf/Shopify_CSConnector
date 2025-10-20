@@ -18,7 +18,7 @@ export async function registerAllWebhooksForRetailer({
     appDataSource: EntityManager;
     runId?: string;
 }) {
-    const allWebhooks = await getWebhooks(retailer);
+    const allWebhooks = await getWebhooks(retailer, logs);
     const topics = allWebhooks.map(w => w.node.topic.toString());
     logs?.info(`existing webhooks`, { topics });
 

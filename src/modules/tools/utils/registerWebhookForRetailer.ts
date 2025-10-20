@@ -9,7 +9,6 @@ import { WebhookSubscriptionInputWithCallback } from '../../../graphql/shopifyAd
 import { ShopifyGraphqlUtil } from '../../shopify/shopify.graphql.util';
 import { EntityManager } from '@mikro-orm/core';
 import { handleStoreClosedError } from 'src/trigger/reuseables/handleStoreClosedError';
-import { getDbForTrigger } from 'src/trigger/reuseables/initialization';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
 import { RetailerEntity } from '../../retailer/retailer.entity';
 
@@ -54,10 +53,14 @@ export async function registerWebhookForRetailer({
 
         return true;
     } catch {
-        handleStoreClosedError({
+        if (!runId) {
+            logs?.error('Failed to register webhook and no runId available for error handling');
+            return false;
+        }
+        await handleStoreClosedError({
             appDataSource,
             cloudshelfApiUrl: process.env.CLOUDSHELF_API_URL!,
-            runId: runId!,
+            runId,
             retailer: retailer,
             err: new Error('Failed to register webhook'),
         });
