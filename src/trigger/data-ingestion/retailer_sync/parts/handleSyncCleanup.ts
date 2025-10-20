@@ -50,7 +50,13 @@ async function handleSyncCleanupCollections(
             waitpointTags: tags,
         });
     } catch (err) {
-        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL, runId);
+        await handleStoreClosedError({
+            appDataSource,
+            err,
+            retailer,
+            cloudshelfApiUrl: env.CLOUDSHELF_API_URL,
+            runId: runId,
+        });
     }
 
     if (!requestedBulkOperationCollections) {
@@ -179,7 +185,7 @@ async function handleSyncCleanupProductsAndVariants(
             waitpointTags: tags,
         });
     } catch (err) {
-        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL, runId);
+        await handleStoreClosedError({ appDataSource, err, retailer, cloudshelfApiUrl: env.CLOUDSHELF_API_URL, runId });
     }
 
     if (!requestedBulkOperation) {

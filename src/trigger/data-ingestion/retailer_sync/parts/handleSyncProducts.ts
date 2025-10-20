@@ -76,7 +76,7 @@ export async function handleSyncProducts(
             waitpointTags: tags,
         });
     } catch (err) {
-        await handleStoreClosedError(appDataSource, err, retailer, env.CLOUDSHELF_API_URL, runId);
+        await handleStoreClosedError({ appDataSource, err, retailer, cloudshelfApiUrl: env.CLOUDSHELF_API_URL, runId });
     }
 
     if (!requestedBulkOperation) {

@@ -17,13 +17,19 @@ const STORE_CLOSED_ERRORS_MESSAGE: Record<string, OrganisationSyncUpdateReason> 
     '404': OrganisationSyncUpdateReason.Closed,
 };
 
-export async function handleStoreClosedError(
-    appDataSource: EntityManager,
-    err: any,
-    retailer: RetailerEntity,
-    cloudshelfApiUrl: string,
-    runId: string,
-): Promise<void> {
+export async function handleStoreClosedError({
+    appDataSource,
+    err,
+    retailer,
+    cloudshelfApiUrl,
+    runId,
+}: {
+    appDataSource: EntityManager;
+    err: any;
+    retailer: RetailerEntity;
+    cloudshelfApiUrl: string;
+    runId: string;
+}): Promise<void> {
     const errorCode = Object.keys(STORE_CLOSED_ERRORS).find(
         code => typeof err.message === 'string' && err.message.includes(`status code ${code}`),
     );
