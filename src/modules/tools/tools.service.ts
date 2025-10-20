@@ -12,7 +12,6 @@ import { deleteWebhookForStore } from './utils/deleteWebhookForStore';
 import { getWebhooks } from './utils/getWebhooks';
 import { registerAllWebhooksForAllRetailers } from './utils/registerAllWebhooksForAllRetailers';
 import { registerAllWebhooksForRetailer } from './utils/registerAllWebhooksForRetailer';
-import { registerWebhookForRetailer } from './utils/registerWebhookForRetailer';
 import { sendAllRetailersToCloudshelf } from './utils/sendAllRetailersToCloudshelf';
 import { updateRetailerInfoWhereNull } from './utils/updateRetailerInfoWhereNull';
 
@@ -39,18 +38,15 @@ export class ToolsService {
     }
 
     async registerAllWebhooksForRetailer(retailer: RetailerEntity) {
-        return registerAllWebhooksForRetailer(retailer, process.env.HOST!, {
-            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-        });
-    }
-
-    async registerWebhookForRetailer(retailer: RetailerEntity, topic: WebhookSubscriptionTopic, url: string) {
-        return registerWebhookForRetailer(retailer, topic, url, {
-            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+        return registerAllWebhooksForRetailer({
+            retailer,
+            host: process.env.HOST!,
+            appDataSource: this.entityManager,
+            logs: {
+                info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+            },
         });
     }
 

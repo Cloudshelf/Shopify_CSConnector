@@ -19,7 +19,7 @@ export async function registerAllWebhooksForAllRetailers(
     const retailers = await em.find(RetailerEntity, {}, { offset: from, limit });
     for (const retailer of retailers) {
         try {
-            await registerAllWebhooksForRetailer(retailer, host, logs);
+            await registerAllWebhooksForRetailer({ retailer, host, logs, appDataSource: em });
             success.push(retailer.domain);
         } catch (e) {
             failed.push(retailer.domain);

@@ -44,7 +44,13 @@ export const RetailerSyncJob = task({
         const startedAtTime = subMinutes(new Date(), 1); //1 min in the past ensures we get a little overlap without massive amounts of over processing.
         if (payload.fullSync) {
             logger.info(`Registering Webhooks due to Full Sync`);
-            await registerAllWebhooksForRetailer(retailer, env.SHOPIFY_CONNECTOR_HOST, getLoggerHelper());
+            await registerAllWebhooksForRetailer({
+                retailer,
+                host: env.SHOPIFY_CONNECTOR_HOST,
+                logs: getLoggerHelper(),
+                appDataSource: AppDataSource,
+                runId: ctx.run.id,
+            });
         } else {
             changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
             if (changesSince === undefined) {
@@ -62,7 +68,13 @@ export const RetailerSyncJob = task({
             await TriggerWaitForNobleReschedule(retailer);
         } catch (err) {
             logger.error(`There was a problem with the wait for noble reschedule: ${JSON.stringify(err)}`);
-            await handleStoreClosedError(AppDataSource, err, retailer, env.CLOUDSHELF_API_URL, ctx.run.id);
+            await handleStoreClosedError({
+                appDataSource: AppDataSource,
+                err,
+                retailer,
+                cloudshelfApiUrl: env.CLOUDSHELF_API_URL,
+                runId: ctx.run.id,
+            });
             return;
         }
 
