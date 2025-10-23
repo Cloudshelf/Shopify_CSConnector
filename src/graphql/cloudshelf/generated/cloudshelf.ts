@@ -161,6 +161,7 @@ export enum BarcodeDetectionMethod {
 
 export type BuyersGuide = {
   __typename?: 'BuyersGuide';
+  aiGenerationStatus: AiGenerationStatus;
   categoryDescription: Scalars['String']['output'];
   categoryDescriptionAIGenerated: Scalars['Boolean']['output'];
   cloudshelf: Cloudshelf;
@@ -1881,6 +1882,7 @@ export type EngineProductVariantBlock = {
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   hasSalePrice?: Maybe<Scalars['Boolean']['output']>;
   id?: Maybe<Scalars['GlobalId']['output']>;
+  inventoryPolicy?: Maybe<Scalars['String']['output']>;
   options: Array<KeyValuePair>;
   originalPrice: Scalars['Float']['output'];
   position?: Maybe<Scalars['Float']['output']>;
@@ -1959,6 +1961,7 @@ export type EngineVariant = {
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   hasSalePrice?: Maybe<Scalars['Boolean']['output']>;
   id?: Maybe<Scalars['GlobalId']['output']>;
+  inventoryPolicy?: Maybe<Scalars['String']['output']>;
   options: Array<KeyValuePair>;
   originalPrice: Scalars['Float']['output'];
   position?: Maybe<Scalars['Float']['output']>;
@@ -2445,6 +2448,8 @@ export type Mutation = {
   abortPaymentRequest: PaymentGenericPayload;
   /** Adds the given list of products to the product group, if they are not already part of the product group */
   addProductsToProductGroup: Scalars['Boolean']['output'];
+  /** Starts a background job to generate buyers guide */
+  aiGenerateBuyersGuide: AiStartedPayload;
   /** Starts a background job to generate buyers guide context */
   aiGenerateBuyersGuideContext: AiStartedPayload;
   /** Starts a background job to generate buyers guide questions */
@@ -2583,6 +2588,11 @@ export type MutationAbortPaymentRequestArgs = {
 export type MutationAddProductsToProductGroupArgs = {
   productGroupId: Scalars['GlobalId']['input'];
   productIds: Array<Scalars['GlobalId']['input']>;
+};
+
+
+export type MutationAiGenerateBuyersGuideArgs = {
+  guideId: Scalars['GlobalId']['input'];
 };
 
 
@@ -3849,6 +3859,8 @@ export type ProductVariant = {
   fullTextSearchLanguage?: Maybe<ProductLanguage>;
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
+  /** The inventory policy of the product variant - Deny/Continue selling when out of stock */
+  inventoryPolicy?: Maybe<Scalars['String']['output']>;
   /** Whether this variant is in stock. */
   isInStock: Scalars['Boolean']['output'];
   /** Additional data about this entity. */
@@ -3890,6 +3902,8 @@ export type ProductVariantInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
+  /** The inventory policy of the product variant - Deny/Continue selling when out of stock */
+  inventoryPolicy?: InputMaybe<Scalars['String']['input']>;
   /** Whether the product variant is in stock */
   isInStock?: InputMaybe<Scalars['Boolean']['input']>;
   /** An array of metadata to attach to the product variant */
@@ -3995,6 +4009,7 @@ export type Query = {
   /** @deprecated use the newer onlineFilterSearchBlock */
   onlineFilterSearch: EngineProductWithAdditionalInfoPayload;
   onlineFilterSearchBlock: EngineProductBlockPayload;
+  onlineFilterSearchBlockFast: EngineProductBlockPayload;
   /** Returns an Order entity. */
   order?: Maybe<Order>;
   /** Returns a paginated array of Order entities */
@@ -4274,6 +4289,18 @@ export type QueryOnlineFilterSearchArgs = {
 
 
 export type QueryOnlineFilterSearchBlockArgs = {
+  after?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['String']['input']>;
+  cloudshelfId: Scalars['GlobalId']['input'];
+  first?: InputMaybe<Scalars['Int']['input']>;
+  includeMetafieldKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  includeMetafieldPartialKeys?: InputMaybe<Array<Scalars['String']['input']>>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  searchQuery: Scalars['String']['input'];
+};
+
+
+export type QueryOnlineFilterSearchBlockFastArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   cloudshelfId: Scalars['GlobalId']['input'];
@@ -4681,10 +4708,16 @@ export type StockLevelOptions = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  buyersGuideAiGenerationStatusUpdated?: Maybe<BuyersGuideAiGenerationStatusPayload>;
   buyersGuideContextStatusUpdated?: Maybe<BuyersGuideAiGenerationStatusPayload>;
   buyersGuideProductTaggingStatusUpdated?: Maybe<BuyersGuideAiProductTaggingStatusPayload>;
   buyersGuideQuestionsStatusUpdated?: Maybe<BuyersGuideAiQuestionGenerationStatusPayload>;
   organisationSyncStatusUpdated: OrganisationSyncStatusPayload;
+};
+
+
+export type SubscriptionBuyersGuideAiGenerationStatusUpdatedArgs = {
+  guideId: Scalars['String']['input'];
 };
 
 
@@ -5219,6 +5252,7 @@ export enum UserErrorCode {
   EntityInvalidField = 'ENTITY_INVALID_FIELD',
   EntityInUse = 'ENTITY_IN_USE',
   EntityNotFound = 'ENTITY_NOT_FOUND',
+  EntityNotInStock = 'ENTITY_NOT_IN_STOCK',
   /** An error occurred while attempting to upload an image */
   ImageUploadError = 'IMAGE_UPLOAD_ERROR',
   InvalidArgument = 'INVALID_ARGUMENT',

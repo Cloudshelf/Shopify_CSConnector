@@ -7,7 +7,7 @@ import {
     SyncStage,
     UpsertVariantsInput,
 } from 'src/graphql/cloudshelf/generated/cloudshelf';
-import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
+import { BulkOperationStatus, ProductVariantInventoryPolicy } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { EntityManager } from '@mikro-orm/postgresql';
 import _ from 'lodash';
 import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
@@ -198,6 +198,9 @@ export async function handleSyncProducts(
                             originalPrice = currentPrice;
                         }
                     }
+                    console.log('variant.inventoryPolicy ----------------------------------', variant.inventoryPolicy);
+                    logger.info('variant.inventoryPolicy ----------------------------------', variant.inventoryPolicy);
+
                     const ProductVariantInput: ProductVariantInput = {
                         id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
                         position: variantIndex,
@@ -211,6 +214,7 @@ export async function handleSyncProducts(
                         attributes: attributes,
                         availableToPurchase: variant.availableForSale,
                         metaimages: metaimages,
+                        inventoryPolicy: variant.inventoryPolicy,
                         //We don't yet support variant metadata
                         metadata: [],
                     };
