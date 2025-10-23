@@ -198,8 +198,6 @@ export async function handleSyncProducts(
                             originalPrice = currentPrice;
                         }
                     }
-                    console.log('variant.inventoryPolicy ----------------------------------', variant.inventoryPolicy);
-                    logger.info('variant.inventoryPolicy ----------------------------------', variant.inventoryPolicy);
 
                     const ProductVariantInput: ProductVariantInput = {
                         id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
