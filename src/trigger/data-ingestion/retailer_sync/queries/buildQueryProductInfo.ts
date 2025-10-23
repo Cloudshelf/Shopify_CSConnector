@@ -70,6 +70,7 @@ export async function buildQueryProductInfo(retailer: RetailerEntity, changesSin
                       barcode
                       compareAtPrice
                       availableForSale
+                      inventoryPolicy
                       sellableOnlineQuantity
                       selectedOptions {
                         name
