@@ -212,7 +212,7 @@ export async function handleSyncProducts(
                         attributes: attributes,
                         availableToPurchase: variant.availableForSale,
                         metaimages: metaimages,
-                        inventoryPolicy: variant.inventoryItem.tracked
+                        inventoryPolicy: variant.inventoryItem?.tracked
                             ? variant.inventoryPolicy
                             : ProductVariantInventoryPolicy.Continue,
                         //We don't yet support variant metadata
