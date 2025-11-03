@@ -76,6 +76,10 @@ export async function buildQueryProductInfo(retailer: RetailerEntity, changesSin
                         name
                         value
                       }
+                      inventoryItem {
+                        id
+                        tracked
+                      }
                     }
                   }
                 }
