@@ -35,13 +35,23 @@ const createOrderUpdateWebhookPayload = (payload: OrderUpdateWebhookPayload): Or
         id: payload.id,
         admin_graphql_api_id: payload.admin_graphql_api_id,
         checkout_id: payload.checkout_id,
-        cart_token: payload.cart_token,
+        cart_token: payload.cart_token ? '[REDACTED]' : '',
         financial_status: payload.financial_status,
         source_name: payload.source_name,
-        note: payload.note,
+        note: payload.note ? '[REDACTED]' : '',
         currency: payload.currency,
-        note_attributes: payload.note_attributes,
-        line_items: payload.line_items,
+        note_attributes: payload.note_attributes.map(attr => ({
+            name: attr.name,
+            value: attr.name === CLOUDSHELF_DRAFT_ORDER_ID ? '[REDACTED]' : attr.value,
+        })),
+        line_items: payload.line_items.map(item => ({
+            name: item.name,
+            product_exists: item.product_exists,
+            quantity: item.quantity,
+            product_id: item.product_id,
+            variant_id: item.variant_id,
+            price: item.price,
+        })),
     };
 };
 
