@@ -30,6 +30,21 @@ import {
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
 import { getDbForTrigger } from '../../reuseables/initialization';
 
+const createOrderUpdateWebhookPayload = (payload: OrderUpdateWebhookPayload): OrderUpdateWebhookPayload => {
+    return {
+        id: payload.id,
+        admin_graphql_api_id: payload.admin_graphql_api_id,
+        checkout_id: payload.checkout_id,
+        cart_token: payload.cart_token,
+        financial_status: payload.financial_status,
+        source_name: payload.source_name,
+        note: payload.note,
+        currency: payload.currency,
+        note_attributes: payload.note_attributes,
+        line_items: payload.line_items,
+    };
+};
+
 export const ProcessOrderTask = task({
     id: 'process-order',
     queue: OrderProcessingQueue,
@@ -77,7 +92,7 @@ export const ProcessOrderTask = task({
 
         logger.info('Order ID: ' + payload.data.admin_graphql_api_id);
         logger.info('Order for cartID: ' + shopifyCartGid);
-        logger.info('payload data', { data: payload.data });
+        logger.info('payload data', { data: createOrderUpdateWebhookPayload(payload.data) });
 
         let cloudshelfStatus: OrderStatus = OrderStatus.DraftBasket;
 
