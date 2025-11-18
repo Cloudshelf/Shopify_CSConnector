@@ -8,6 +8,7 @@ fragment LocationDetails on Location {
     id
     name
     isActive
+    fulfillsOnlineOrders
     address {
         ...LocationAddressDetails
     }

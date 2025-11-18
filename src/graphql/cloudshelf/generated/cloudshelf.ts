@@ -566,6 +566,8 @@ export type Cloudshelf = {
   inStockLabel?: Maybe<Scalars['String']['output']>;
   inStockLocalLabel?: Maybe<Scalars['String']['output']>;
   includeOnOrderProducts: Scalars['Boolean']['output'];
+  includeOutOfStockAndUnavailableProducts: Scalars['Boolean']['output'];
+  includeOutOfStockButAvailableProducts: Scalars['Boolean']['output'];
   includeOutOfStockProducts: Scalars['Boolean']['output'];
   includedFilterConfig: Array<CloudshelfIncludableFilter>;
   limitedSelectionLabel?: Maybe<Scalars['String']['output']>;
@@ -578,6 +580,7 @@ export type Cloudshelf = {
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   productGridIncludeBrand: Scalars['Boolean']['output'];
+  safetyMargin?: Maybe<Scalars['Int']['output']>;
   soldOutLabel?: Maybe<Scalars['String']['output']>;
   textSearchDescription: Scalars['Boolean']['output'];
   textSearchMetadata: Scalars['Boolean']['output'];
@@ -755,6 +758,8 @@ export type CloudshelfInput = {
   inStockLabel?: InputMaybe<Scalars['String']['input']>;
   inStockLocalLabel?: InputMaybe<Scalars['String']['input']>;
   includeOnOrderProducts?: InputMaybe<Scalars['Boolean']['input']>;
+  includeOutOfStockAndUnavailableProducts?: InputMaybe<Scalars['Boolean']['input']>;
+  includeOutOfStockButAvailableProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includeOutOfStockProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includedFilterConfig?: InputMaybe<Array<CloudshelfIncludableFilterInput>>;
   limitedSelectionLabel?: InputMaybe<Scalars['String']['input']>;
@@ -766,6 +771,7 @@ export type CloudshelfInput = {
   productGridIncludeBrand?: InputMaybe<Scalars['Boolean']['input']>;
   /** Whether or not to use randomly selected content or not. Only takes affect for newly created Cloudshelves */
   randomContent?: InputMaybe<Scalars['Boolean']['input']>;
+  safetyMargin?: InputMaybe<Scalars['Int']['input']>;
   soldOutLabel?: InputMaybe<Scalars['String']['input']>;
   textSearchDescription?: InputMaybe<Scalars['Boolean']['input']>;
   textSearchMetadata?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1876,7 +1882,7 @@ export type EngineProductMetadataBlock = {
 export type EngineProductVariantBlock = {
   __typename?: 'EngineProductVariantBlock';
   availableForSale: Scalars['Boolean']['output'];
-  barcode: Scalars['String']['output'];
+  barcode?: Maybe<Scalars['String']['output']>;
   currentlyNotInStock: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
@@ -1888,7 +1894,7 @@ export type EngineProductVariantBlock = {
   position?: Maybe<Scalars['Float']['output']>;
   price: Scalars['Float']['output'];
   sellableOnlineQuantity: Scalars['Float']['output'];
-  sku: Scalars['String']['output'];
+  sku?: Maybe<Scalars['String']['output']>;
 };
 
 export type EngineProductWithAdditionalInfo = {
@@ -2263,6 +2269,7 @@ export type Location = {
   devices: Array<Device>;
   /** The name of the location. */
   displayName: Scalars['String']['output'];
+  fulfillsOnlineOrders: Scalars['Boolean']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   /** Additional data about this entity. */
@@ -2307,6 +2314,8 @@ export type LocationInput = {
   countryCode?: InputMaybe<CountryCode>;
   /** The display name of the location */
   displayName?: InputMaybe<Scalars['String']['input']>;
+  /** Whether the location fulfills online orders */
+  fulfillsOnlineOrders?: InputMaybe<Scalars['Boolean']['input']>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   /** An array of metadata to attach to the location */
@@ -2883,6 +2892,11 @@ export type MutationStartPaymentRequestArgs = {
   organisationId: Scalars['GlobalId']['input'];
   sessionId: Scalars['GlobalId']['input'];
   token: Scalars['String']['input'];
+};
+
+
+export type MutationStartSyncArgs = {
+  fullSync?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -4813,6 +4827,8 @@ export type SubscriptionPlanUsage = {
 
 export type SubscriptionRecord = {
   __typename?: 'SubscriptionRecord';
+  /** The date and time this subscription originally went active */
+  activatedAt?: Maybe<Scalars['UTCDateTime']['output']>;
   amountUSD: Scalars['Float']['output'];
   billingInterval: SubscriptionInterval;
   /** The date and time this entity was created. */
@@ -5252,7 +5268,6 @@ export enum UserErrorCode {
   EntityInvalidField = 'ENTITY_INVALID_FIELD',
   EntityInUse = 'ENTITY_IN_USE',
   EntityNotFound = 'ENTITY_NOT_FOUND',
-  EntityNotInStock = 'ENTITY_NOT_IN_STOCK',
   /** An error occurred while attempting to upload an image */
   ImageUploadError = 'IMAGE_UPLOAD_ERROR',
   InvalidArgument = 'INVALID_ARGUMENT',

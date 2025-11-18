@@ -7,7 +7,6 @@ import {
     LocationDetailsFragment,
 } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { ShopifyGraphqlUtil } from '../../../modules/shopify/shopify.graphql.util';
-import { FlushMode } from '@mikro-orm/core';
 import { logger, task, wait } from '@trigger.dev/sdk';
 import { CloudshelfApiLocationUtils } from 'src/modules/cloudshelf/cloudshelf.api.location.util';
 import { IngestionQueue } from 'src/trigger/queues';
@@ -82,6 +81,7 @@ export const SyncLocationsTask = task({
                 displayName: shopifyLocation.name,
                 address: shopifyLocation.address.formatted.join(', '),
                 countryCode: MiscellaneousUtils.convertCountryCode(shopifyLocation.address.countryCode),
+                fulfillsOnlineOrders: shopifyLocation.fulfillsOnlineOrders,
             };
 
             locationInputs.push(csLocation);
