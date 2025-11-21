@@ -1,4 +1,9 @@
-import { ProductGroupInput, ProductGroupUpdateBatchItem, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
+import {
+    OrganisationSyncRecoveryReason,
+    ProductGroupInput,
+    ProductGroupUpdateBatchItem,
+    SyncStage,
+} from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
@@ -152,11 +157,13 @@ export async function handleSyncProductGroups(
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
     runId: string,
+    recoveryReason?: OrganisationSyncRecoveryReason,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
         syncStage: SyncStage.RequestProductGroups,
+        recoveryReason,
     });
 
     if (syncOptions.style === SyncStyle.FULL) {
@@ -217,6 +224,7 @@ export async function handleSyncProductGroups(
             apiUrl: env.CLOUDSHELF_API_URL,
             retailer,
             syncStage: SyncStage.ProcessProductGroups,
+            recoveryReason,
         });
 
         logger.info(`Reading data file`);
@@ -263,6 +271,7 @@ export async function handleSyncProductGroups(
         await CloudshelfApiOrganisationUtils.failOrganisationSync({
             apiUrl: env.CLOUDSHELF_API_URL,
             domainName: retailer.domain,
+            recoveryReason,
         });
         throw new AbortTaskRunError(`Unknown Error in handleSyncProductGroups: ${JSON.stringify(err)}`);
     } finally {

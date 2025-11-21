@@ -1876,7 +1876,7 @@ export type EngineProductMetadataBlock = {
 export type EngineProductVariantBlock = {
   __typename?: 'EngineProductVariantBlock';
   availableForSale: Scalars['Boolean']['output'];
-  barcode: Scalars['String']['output'];
+  barcode?: Maybe<Scalars['String']['output']>;
   currentlyNotInStock: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
@@ -1888,7 +1888,7 @@ export type EngineProductVariantBlock = {
   position?: Maybe<Scalars['Float']['output']>;
   price: Scalars['Float']['output'];
   sellableOnlineQuantity: Scalars['Float']['output'];
-  sku: Scalars['String']['output'];
+  sku?: Maybe<Scalars['String']['output']>;
 };
 
 export type EngineProductWithAdditionalInfo = {
@@ -2868,6 +2868,7 @@ export type MutationSetHandoffImageUrlArgs = {
 
 export type MutationSetOrganisationSyncStatusArgs = {
   domainName: Scalars['String']['input'];
+  reason?: InputMaybe<OrganisationSyncUpdateReason>;
   syncStage: SyncStage;
 };
 
@@ -2883,6 +2884,11 @@ export type MutationStartPaymentRequestArgs = {
   organisationId: Scalars['GlobalId']['input'];
   sessionId: Scalars['GlobalId']['input'];
   token: Scalars['String']['input'];
+};
+
+
+export type MutationStartSyncArgs = {
+  fullSync?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -3335,6 +3341,13 @@ export enum OrganisationStatus {
   Idle = 'IDLE'
 }
 
+/** The reason for recovering the organisation sync status. */
+export enum OrganisationSyncRecoveryReason {
+  Error = 'ERROR',
+  Resync = 'RESYNC',
+  Unblock = 'UNBLOCK'
+}
+
 export type OrganisationSyncStatusPayload = {
   __typename?: 'OrganisationSyncStatusPayload';
   lastSyncStatusUpdateReason?: Maybe<OrganisationSyncUpdateReason>;
@@ -3348,6 +3361,7 @@ export type OrganisationSyncStatusPayload = {
 export type OrganisationSyncUpdateInput = {
   domainName: Scalars['String']['input'];
   reason?: InputMaybe<OrganisationSyncUpdateReason>;
+  recoveryReason?: InputMaybe<OrganisationSyncRecoveryReason>;
   syncStage: SyncStage;
 };
 
@@ -4050,6 +4064,7 @@ export type Query = {
   /** Returns a list of currently available subscription plans */
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
   syncStats: SyncStatsPayload;
+  syncStatsToConnector: SyncStatsPayload;
   tagsInBuyersGuide: Array<Scalars['String']['output']>;
   /** Test AI functionality with optional chat ID and message */
   testAI2: Scalars['String']['output'];
@@ -4453,6 +4468,11 @@ export type QuerySyncStatsArgs = {
 };
 
 
+export type QuerySyncStatsToConnectorArgs = {
+  storeDomain: Scalars['String']['input'];
+};
+
+
 export type QueryTagsInBuyersGuideArgs = {
   id: Scalars['GlobalId']['input'];
 };
@@ -4813,6 +4833,8 @@ export type SubscriptionPlanUsage = {
 
 export type SubscriptionRecord = {
   __typename?: 'SubscriptionRecord';
+  /** The date and time this subscription originally went active */
+  activatedAt?: Maybe<Scalars['UTCDateTime']['output']>;
   amountUSD: Scalars['Float']['output'];
   billingInterval: SubscriptionInterval;
   /** The date and time this entity was created. */
@@ -5252,7 +5274,6 @@ export enum UserErrorCode {
   EntityInvalidField = 'ENTITY_INVALID_FIELD',
   EntityInUse = 'ENTITY_IN_USE',
   EntityNotFound = 'ENTITY_NOT_FOUND',
-  EntityNotInStock = 'ENTITY_NOT_IN_STOCK',
   /** An error occurred while attempting to upload an image */
   ImageUploadError = 'IMAGE_UPLOAD_ERROR',
   InvalidArgument = 'INVALID_ARGUMENT',
@@ -5631,6 +5652,34 @@ export const KeepKnownProductsViaFileDocument = gql`
   }
 }
     `;
+export const GetSyncStatsDocument = gql`
+    query GetSyncStats($storeDomain: String!) {
+  syncStatsToConnector(storeDomain: $storeDomain) {
+    lastIngestionDataDate
+    lastReportedCatalogStatsForProducts {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForVariants {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForProductGroups {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForImages {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForProductGroups {
+      reportedAt
+      asExpected
+    }
+    isClosed
+  }
+}
+    `;
 export const RequestShopifySubscriptionCheckDocument = gql`
     mutation requestShopifySubscriptionCheck($shopifyGid: String!) {
   requestShopifySubscriptionCheck(shopifyGid: $shopifyGid)
@@ -5800,6 +5849,13 @@ export type KeepKnownProductsViaFileMutationVariables = Exact<{
 
 
 export type KeepKnownProductsViaFileMutation = { __typename?: 'Mutation', keepKnownProductsViaFile: { __typename?: 'ProductDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type GetSyncStatsQueryVariables = Exact<{
+  storeDomain: Scalars['String']['input'];
+}>;
+
+
+export type GetSyncStatsQuery = { __typename?: 'Query', syncStatsToConnector: { __typename?: 'SyncStatsPayload', lastIngestionDataDate?: any | null, isClosed?: boolean | null, lastReportedCatalogStatsForProducts?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null, lastReportedCatalogStatsForVariants?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null, lastReportedCatalogStatsForProductGroups?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null, lastReportedCatalogStatsForImages?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null } };
 
 export type RequestShopifySubscriptionCheckMutationVariables = Exact<{
   shopifyGid: Scalars['String']['input'];
