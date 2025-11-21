@@ -81,7 +81,6 @@ export const SyncLocationsTask = task({
                 displayName: shopifyLocation.name,
                 address: shopifyLocation.address.formatted.join(', '),
                 countryCode: MiscellaneousUtils.convertCountryCode(shopifyLocation.address.countryCode),
-                fulfillsOnlineOrders: shopifyLocation.fulfillsOnlineOrders,
             };
 
             locationInputs.push(csLocation);
