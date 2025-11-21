@@ -47,7 +47,9 @@ export class CloudshelfApiOrganisationUtils {
         });
 
         if (setOrganisationSyncStatusMutation.errors) {
-            logs?.error?.(`Failed to set organisation sync status ${retailer.domain}`);
+            logs?.error?.(
+                `Failed to set organisation sync status ${retailer.domain}, Reason: ${reason},  Recovery Reason: ${recoveryReason}`,
+            );
             return;
         }
     }

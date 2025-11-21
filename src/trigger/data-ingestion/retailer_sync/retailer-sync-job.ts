@@ -92,6 +92,7 @@ export const RetailerSyncJob = task({
                         changesSince,
                     },
                     ctx.run.id,
+                    payload.recoveryReason,
                 );
             });
 
@@ -118,6 +119,7 @@ export const RetailerSyncJob = task({
                         changesSince,
                     },
                     ctx.run.id,
+                    payload.recoveryReason,
                 );
             });
         } catch (err) {
