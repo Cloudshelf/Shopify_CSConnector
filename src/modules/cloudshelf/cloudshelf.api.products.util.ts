@@ -20,6 +20,7 @@ import {
     ProductGroupInput,
     ProductGroupUpdateBatchItem,
     ProductInput,
+    SyncStatsPayload,
     UpdateProductsInProductGroupDocument,
     UpdateProductsInProductGroupInBatchDocument,
     UpdateProductsInProductGroupInBatchMutation,
@@ -37,7 +38,6 @@ import {
     UpsertProductsMutationVariables,
     UpsertVariantsInput,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
-import { IngestionStatsPayload, SyncStatsPayload } from 'dist/src/graphql/cloudshelf/generated/cloudshelf';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
 import { LogsInterface } from './logs.interface';

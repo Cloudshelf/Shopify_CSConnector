@@ -565,14 +565,7 @@ export type Cloudshelf = {
   id: Scalars['GlobalId']['output'];
   inStockLabel?: Maybe<Scalars['String']['output']>;
   inStockLocalLabel?: Maybe<Scalars['String']['output']>;
-  includeInStockInAnyLocation: Scalars['Boolean']['output'];
-  includeInStockInCurrentLocation: Scalars['Boolean']['output'];
-  includeInStockInWarehouse: Scalars['Boolean']['output'];
-  /** @deprecated This will no longer be supported in the future. */
   includeOnOrderProducts: Scalars['Boolean']['output'];
-  includeOutOfStockAndUnavailableProducts: Scalars['Boolean']['output'];
-  includeOutOfStockButAvailableProducts: Scalars['Boolean']['output'];
-  /** @deprecated This field is deprecated. Use includeOutOfStockButAvailableProducts instead. */
   includeOutOfStockProducts: Scalars['Boolean']['output'];
   includedFilterConfig: Array<CloudshelfIncludableFilter>;
   limitedSelectionLabel?: Maybe<Scalars['String']['output']>;
@@ -585,7 +578,6 @@ export type Cloudshelf = {
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   productGridIncludeBrand: Scalars['Boolean']['output'];
-  safetyMargin?: Maybe<Scalars['Int']['output']>;
   soldOutLabel?: Maybe<Scalars['String']['output']>;
   textSearchDescription: Scalars['Boolean']['output'];
   textSearchMetadata: Scalars['Boolean']['output'];
@@ -595,7 +587,6 @@ export type Cloudshelf = {
   updatedAt: Scalars['UTCDateTime']['output'];
   useLocalStock: Scalars['Boolean']['output'];
   useOnlineSearch: Scalars['Boolean']['output'];
-  warehouseLocation?: Maybe<Location>;
 };
 
 
@@ -763,12 +754,7 @@ export type CloudshelfInput = {
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   inStockLabel?: InputMaybe<Scalars['String']['input']>;
   inStockLocalLabel?: InputMaybe<Scalars['String']['input']>;
-  includeInStockInAnyLocation?: InputMaybe<Scalars['Boolean']['input']>;
-  includeInStockInCurrentLocation?: InputMaybe<Scalars['Boolean']['input']>;
-  includeInStockInWarehouse?: InputMaybe<Scalars['Boolean']['input']>;
   includeOnOrderProducts?: InputMaybe<Scalars['Boolean']['input']>;
-  includeOutOfStockAndUnavailableProducts?: InputMaybe<Scalars['Boolean']['input']>;
-  includeOutOfStockButAvailableProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includeOutOfStockProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includedFilterConfig?: InputMaybe<Array<CloudshelfIncludableFilterInput>>;
   limitedSelectionLabel?: InputMaybe<Scalars['String']['input']>;
@@ -780,7 +766,6 @@ export type CloudshelfInput = {
   productGridIncludeBrand?: InputMaybe<Scalars['Boolean']['input']>;
   /** Whether or not to use randomly selected content or not. Only takes affect for newly created Cloudshelves */
   randomContent?: InputMaybe<Scalars['Boolean']['input']>;
-  safetyMargin?: InputMaybe<Scalars['Int']['input']>;
   soldOutLabel?: InputMaybe<Scalars['String']['input']>;
   textSearchDescription?: InputMaybe<Scalars['Boolean']['input']>;
   textSearchMetadata?: InputMaybe<Scalars['Boolean']['input']>;
@@ -789,8 +774,6 @@ export type CloudshelfInput = {
   themeId?: InputMaybe<Scalars['GlobalId']['input']>;
   useLocalStock?: InputMaybe<Scalars['Boolean']['input']>;
   useOnlineSearch?: InputMaybe<Scalars['Boolean']['input']>;
-  /** The GlobalID of the warehouse location to apply to this Cloudshelf */
-  warehouseLocationId?: InputMaybe<Scalars['GlobalId']['input']>;
 };
 
 export type CloudshelfPageInfo = {
@@ -2280,7 +2263,6 @@ export type Location = {
   devices: Array<Device>;
   /** The name of the location. */
   displayName: Scalars['String']['output'];
-  fulfillsOnlineOrders: Scalars['Boolean']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   /** Additional data about this entity. */
@@ -2325,8 +2307,6 @@ export type LocationInput = {
   countryCode?: InputMaybe<CountryCode>;
   /** The display name of the location */
   displayName?: InputMaybe<Scalars['String']['input']>;
-  /** Whether the location fulfills online orders */
-  fulfillsOnlineOrders?: InputMaybe<Scalars['Boolean']['input']>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   /** An array of metadata to attach to the location */
@@ -4305,7 +4285,6 @@ export type QueryLocationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
-  fulfillsOnlineOrders?: InputMaybe<Scalars['Boolean']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<SortOptionsInput>;
   textSearch?: InputMaybe<Scalars['String']['input']>;

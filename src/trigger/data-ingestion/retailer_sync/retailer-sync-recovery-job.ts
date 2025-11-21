@@ -124,7 +124,16 @@ export const recoverRetailerSync = async ({
     }
 };
 
-export const runInternal = async () => {
+export const runInternal = async ({ runId }: { runId: string }) => {
+    for await (const run of runs.list({
+        status: ['DELAYED'],
+        taskIdentifier: [RetailerSyncRecoveryJob.id],
+    })) {
+        if (run.id !== runId) {
+            logger.info(`Cancelling previous scheduled retailer sync recovery job: ${run.id}`);
+            await runs.cancel(run.id);
+        }
+    }
     const env = getEnvConfig();
     const now = new Date();
 
@@ -148,16 +157,7 @@ export const RetailerSyncRecoveryJob = task({
     machine: { preset: `small-2x` },
     run: async (payload: {}, { ctx }) => {
         try {
-            for await (const run of runs.list({
-                status: ['WAITING', 'QUEUED'],
-                taskIdentifier: [RetailerSyncRecoveryJob.id],
-            })) {
-                if (run.id !== ctx.run.id) {
-                    logger.info(`Cancelling previous scheduled retailer sync recovery job: ${run.id}`);
-                    await runs.cancel(run.id);
-                }
-            }
-            await runInternal();
+            await runInternal({ runId: ctx.run.id });
         } catch (error) {
             logger.error(`Failed to run retailer sync recovery job`, { error: JSON.stringify(error) });
             throw error;
