@@ -565,9 +565,14 @@ export type Cloudshelf = {
   id: Scalars['GlobalId']['output'];
   inStockLabel?: Maybe<Scalars['String']['output']>;
   inStockLocalLabel?: Maybe<Scalars['String']['output']>;
+  includeInStockInAnyLocation: Scalars['Boolean']['output'];
+  includeInStockInCurrentLocation: Scalars['Boolean']['output'];
+  includeInStockInWarehouse: Scalars['Boolean']['output'];
+  /** @deprecated This will no longer be supported in the future. */
   includeOnOrderProducts: Scalars['Boolean']['output'];
   includeOutOfStockAndUnavailableProducts: Scalars['Boolean']['output'];
   includeOutOfStockButAvailableProducts: Scalars['Boolean']['output'];
+  /** @deprecated This field is deprecated. Use includeOutOfStockButAvailableProducts instead. */
   includeOutOfStockProducts: Scalars['Boolean']['output'];
   includedFilterConfig: Array<CloudshelfIncludableFilter>;
   limitedSelectionLabel?: Maybe<Scalars['String']['output']>;
@@ -590,6 +595,7 @@ export type Cloudshelf = {
   updatedAt: Scalars['UTCDateTime']['output'];
   useLocalStock: Scalars['Boolean']['output'];
   useOnlineSearch: Scalars['Boolean']['output'];
+  warehouseLocation?: Maybe<Location>;
 };
 
 
@@ -757,6 +763,9 @@ export type CloudshelfInput = {
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   inStockLabel?: InputMaybe<Scalars['String']['input']>;
   inStockLocalLabel?: InputMaybe<Scalars['String']['input']>;
+  includeInStockInAnyLocation?: InputMaybe<Scalars['Boolean']['input']>;
+  includeInStockInCurrentLocation?: InputMaybe<Scalars['Boolean']['input']>;
+  includeInStockInWarehouse?: InputMaybe<Scalars['Boolean']['input']>;
   includeOnOrderProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includeOutOfStockAndUnavailableProducts?: InputMaybe<Scalars['Boolean']['input']>;
   includeOutOfStockButAvailableProducts?: InputMaybe<Scalars['Boolean']['input']>;
@@ -780,6 +789,8 @@ export type CloudshelfInput = {
   themeId?: InputMaybe<Scalars['GlobalId']['input']>;
   useLocalStock?: InputMaybe<Scalars['Boolean']['input']>;
   useOnlineSearch?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The GlobalID of the warehouse location to apply to this Cloudshelf */
+  warehouseLocationId?: InputMaybe<Scalars['GlobalId']['input']>;
 };
 
 export type CloudshelfPageInfo = {
@@ -2877,6 +2888,7 @@ export type MutationSetHandoffImageUrlArgs = {
 
 export type MutationSetOrganisationSyncStatusArgs = {
   domainName: Scalars['String']['input'];
+  reason?: InputMaybe<OrganisationSyncUpdateReason>;
   syncStage: SyncStage;
 };
 
@@ -3349,6 +3361,13 @@ export enum OrganisationStatus {
   Idle = 'IDLE'
 }
 
+/** The reason for recovering the organisation sync status. */
+export enum OrganisationSyncRecoveryReason {
+  Error = 'ERROR',
+  Resync = 'RESYNC',
+  Unblock = 'UNBLOCK'
+}
+
 export type OrganisationSyncStatusPayload = {
   __typename?: 'OrganisationSyncStatusPayload';
   lastSyncStatusUpdateReason?: Maybe<OrganisationSyncUpdateReason>;
@@ -3362,6 +3381,7 @@ export type OrganisationSyncStatusPayload = {
 export type OrganisationSyncUpdateInput = {
   domainName: Scalars['String']['input'];
   reason?: InputMaybe<OrganisationSyncUpdateReason>;
+  recoveryReason?: InputMaybe<OrganisationSyncRecoveryReason>;
   syncStage: SyncStage;
 };
 
@@ -4064,6 +4084,7 @@ export type Query = {
   /** Returns a list of currently available subscription plans */
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
   syncStats: SyncStatsPayload;
+  syncStatsToConnector: SyncStatsPayload;
   tagsInBuyersGuide: Array<Scalars['String']['output']>;
   /** Test AI functionality with optional chat ID and message */
   testAI2: Scalars['String']['output'];
@@ -4284,6 +4305,7 @@ export type QueryLocationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
+  fulfillsOnlineOrders?: InputMaybe<Scalars['Boolean']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<SortOptionsInput>;
   textSearch?: InputMaybe<Scalars['String']['input']>;
@@ -4464,6 +4486,11 @@ export type QuerySubscriptionArgs = {
 
 export type QuerySyncStatsArgs = {
   id?: InputMaybe<Scalars['GlobalId']['input']>;
+};
+
+
+export type QuerySyncStatsToConnectorArgs = {
+  storeDomain: Scalars['String']['input'];
 };
 
 
@@ -5646,6 +5673,34 @@ export const KeepKnownProductsViaFileDocument = gql`
   }
 }
     `;
+export const GetSyncStatsDocument = gql`
+    query GetSyncStats($storeDomain: String!) {
+  syncStatsToConnector(storeDomain: $storeDomain) {
+    lastIngestionDataDate
+    lastReportedCatalogStatsForProducts {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForVariants {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForProductGroups {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForImages {
+      reportedAt
+      asExpected
+    }
+    lastReportedCatalogStatsForProductGroups {
+      reportedAt
+      asExpected
+    }
+    isClosed
+  }
+}
+    `;
 export const RequestShopifySubscriptionCheckDocument = gql`
     mutation requestShopifySubscriptionCheck($shopifyGid: String!) {
   requestShopifySubscriptionCheck(shopifyGid: $shopifyGid)
@@ -5815,6 +5870,13 @@ export type KeepKnownProductsViaFileMutationVariables = Exact<{
 
 
 export type KeepKnownProductsViaFileMutation = { __typename?: 'Mutation', keepKnownProductsViaFile: { __typename?: 'ProductDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type GetSyncStatsQueryVariables = Exact<{
+  storeDomain: Scalars['String']['input'];
+}>;
+
+
+export type GetSyncStatsQuery = { __typename?: 'Query', syncStatsToConnector: { __typename?: 'SyncStatsPayload', lastIngestionDataDate?: any | null, isClosed?: boolean | null, lastReportedCatalogStatsForProducts?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null, lastReportedCatalogStatsForVariants?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null, lastReportedCatalogStatsForProductGroups?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null, lastReportedCatalogStatsForImages?: { __typename?: 'CatalogStats', reportedAt?: any | null, asExpected: boolean } | null } };
 
 export type RequestShopifySubscriptionCheckMutationVariables = Exact<{
   shopifyGid: Scalars['String']['input'];

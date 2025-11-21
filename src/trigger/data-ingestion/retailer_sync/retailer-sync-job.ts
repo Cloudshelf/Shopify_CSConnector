@@ -1,4 +1,4 @@
-import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
+import { OrganisationSyncRecoveryReason, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { AbortTaskRunError, logger, task } from '@trigger.dev/sdk';
 import { subDays, subMinutes } from 'date-fns';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
@@ -20,7 +20,10 @@ export const RetailerSyncJob = task({
     id: 'retailer-sync-job',
     queue: IngestionQueue,
     machine: { preset: `small-2x` },
-    run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
+    run: async (
+        payload: { organisationId: string; fullSync: boolean; recoveryReason?: OrganisationSyncRecoveryReason },
+        { ctx },
+    ) => {
         logger.info(
             `Starting Retailer Sync for OrgId: ${payload.organisationId} Sync Style: ${
                 payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL
@@ -123,6 +126,7 @@ export const RetailerSyncJob = task({
                     apiUrl: env.CLOUDSHELF_API_URL,
                     retailer,
                     syncStage: SyncStage.Failed,
+                    recoveryReason: payload.recoveryReason,
                 });
             } catch (error) {
                 logger.error(`There was problems with setting sync status to failed: ${JSON.stringify(error)}`);

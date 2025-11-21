@@ -2,6 +2,7 @@ import {
     KeyValuePairInput,
     MetadataInput,
     MetaimageInput,
+    OrganisationSyncRecoveryReason,
     ProductInput,
     ProductVariantInput,
     SyncStage,
@@ -38,11 +39,13 @@ export async function handleSyncProducts(
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
     runId: string,
+    recoveryReason?: OrganisationSyncRecoveryReason,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
         syncStage: SyncStage.RequestProducts,
+        recoveryReason,
     });
 
     if (syncOptions.style === SyncStyle.FULL) {
@@ -103,6 +106,7 @@ export async function handleSyncProducts(
             apiUrl: env.CLOUDSHELF_API_URL,
             retailer,
             syncStage: SyncStage.ProcessProducts,
+            recoveryReason,
         });
 
         //setup some storage

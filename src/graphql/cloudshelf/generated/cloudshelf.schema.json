@@ -5180,7 +5180,7 @@
             "deprecationReason": null
           },
           {
-            "name": "includeOnOrderProducts",
+            "name": "includeInStockInAnyLocation",
             "description": null,
             "args": [],
             "type": {
@@ -5194,6 +5194,54 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "includeInStockInCurrentLocation",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "includeInStockInWarehouse",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "includeOnOrderProducts",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              }
+            },
+            "isDeprecated": true,
+            "deprecationReason": "This will no longer be supported in the future."
           },
           {
             "name": "includeOutOfStockAndUnavailableProducts",
@@ -5240,8 +5288,8 @@
                 "ofType": null
               }
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "This field is deprecated. Use includeOutOfStockButAvailableProducts instead."
           },
           {
             "name": "includedFilterConfig",
@@ -5539,6 +5587,18 @@
                 "name": "Boolean",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "warehouseLocation",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "Location",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -7237,6 +7297,42 @@
             "deprecationReason": null
           },
           {
+            "name": "includeInStockInAnyLocation",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "includeInStockInCurrentLocation",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "includeInStockInWarehouse",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "includeOnOrderProducts",
             "description": null,
             "type": {
@@ -7498,6 +7594,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "warehouseLocationId",
+            "description": "The GlobalID of the warehouse location to apply to this Cloudshelf",
+            "type": {
+              "kind": "SCALAR",
+              "name": "GlobalId",
               "ofType": null
             },
             "defaultValue": null,
@@ -20410,6 +20518,18 @@
                 "deprecationReason": null
               },
               {
+                "name": "reason",
+                "description": null,
+                "type": {
+                  "kind": "ENUM",
+                  "name": "OrganisationSyncUpdateReason",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "syncStage",
                 "description": null,
                 "type": {
@@ -24432,6 +24552,36 @@
         "possibleTypes": null
       },
       {
+        "kind": "ENUM",
+        "name": "OrganisationSyncRecoveryReason",
+        "description": "The reason for recovering the organisation sync status.",
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "ERROR",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "RESYNC",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "UNBLOCK",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "OrganisationSyncStatusPayload",
         "description": null,
@@ -24556,6 +24706,18 @@
             "type": {
               "kind": "ENUM",
               "name": "OrganisationSyncUpdateReason",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "recoveryReason",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "OrganisationSyncRecoveryReason",
               "ofType": null
             },
             "defaultValue": null,
@@ -30839,6 +31001,18 @@
                 "deprecationReason": null
               },
               {
+                "name": "fulfillsOnlineOrders",
+                "description": null,
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
                 "name": "last",
                 "description": "The number of entities to receive using backwards pagination",
                 "type": {
@@ -32460,6 +32634,39 @@
                   "kind": "SCALAR",
                   "name": "GlobalId",
                   "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "SyncStatsPayload",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "syncStatsToConnector",
+            "description": null,
+            "args": [
+              {
+                "name": "storeDomain",
+                "description": null,
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
                 },
                 "defaultValue": null,
                 "isDeprecated": false,

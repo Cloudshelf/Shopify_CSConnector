@@ -5,6 +5,9 @@ import {
     DeleteProductsDocument,
     DeleteProductsMutation,
     DeleteProductsMutationVariables,
+    GetSyncStatsDocument,
+    GetSyncStatsQuery,
+    GetSyncStatsQueryVariables,
     KeepKnownProductGroupsViaFileDocument,
     KeepKnownProductGroupsViaFileMutation,
     KeepKnownProductGroupsViaFileMutationVariables,
@@ -34,6 +37,7 @@ import {
     UpsertProductsMutationVariables,
     UpsertVariantsInput,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
+import { IngestionStatsPayload, SyncStatsPayload } from 'dist/src/graphql/cloudshelf/generated/cloudshelf';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
 import { LogsInterface } from './logs.interface';
@@ -262,5 +266,39 @@ export class CloudshelfApiProductUtils {
                 errors: JSON.stringify(mutationTuple.errors),
             });
         }
+    }
+
+    static async getSyncStatsForShopify(
+        apiURL: string,
+        domain: string,
+        logs?: LogsInterface,
+    ): Promise<SyncStatsPayload | undefined> {
+        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiURL, domain, logs);
+
+        const queryTuple = await authedClient.query<GetSyncStatsQuery, GetSyncStatsQueryVariables>({
+            query: GetSyncStatsDocument,
+            variables: {
+                storeDomain: domain,
+            },
+        });
+
+        if (queryTuple.errors) {
+            logs?.error?.(`Failed to get ingestion stats payload ${domain}`, {
+                errors: JSON.stringify(queryTuple.errors),
+            });
+            return;
+        }
+
+        return {
+            lastIngestionDataDate: queryTuple.data?.syncStatsToConnector?.lastIngestionDataDate,
+            lastReportedCatalogStatsForImages: queryTuple.data?.syncStatsToConnector?.lastReportedCatalogStatsForImages,
+            lastReportedCatalogStatsForProductGroups:
+                queryTuple.data?.syncStatsToConnector?.lastReportedCatalogStatsForProductGroups,
+            lastReportedCatalogStatsForProducts:
+                queryTuple.data?.syncStatsToConnector?.lastReportedCatalogStatsForProducts,
+            lastReportedCatalogStatsForVariants:
+                queryTuple.data?.syncStatsToConnector?.lastReportedCatalogStatsForVariants,
+            isClosed: queryTuple.data?.syncStatsToConnector?.isClosed,
+        } as SyncStatsPayload;
     }
 }

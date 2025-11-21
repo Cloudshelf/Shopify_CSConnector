@@ -1,4 +1,5 @@
 import {
+    OrganisationSyncRecoveryReason,
     OrganisationSyncStatusByDomainDocument,
     OrganisationSyncStatusByDomainQuery,
     OrganisationSyncStatusByDomainQueryVariables,
@@ -19,12 +20,14 @@ export class CloudshelfApiOrganisationUtils {
         logs,
         syncStage,
         reason,
+        recoveryReason,
     }: {
         apiUrl: string;
         retailer: RetailerEntity;
         logs?: LogsInterface;
         syncStage: SyncStage;
         reason?: OrganisationSyncUpdateReason;
+        recoveryReason?: OrganisationSyncRecoveryReason;
     }): Promise<void> {
         const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
 
@@ -38,6 +41,7 @@ export class CloudshelfApiOrganisationUtils {
                     domainName: retailer.domain,
                     syncStage,
                     reason,
+                    recoveryReason,
                 },
             },
         });
@@ -85,11 +89,13 @@ export class CloudshelfApiOrganisationUtils {
         domainName,
         logs,
         reason,
+        recoveryReason,
     }: {
         apiUrl: string;
         domainName: string;
         logs?: LogsInterface;
         reason?: OrganisationSyncUpdateReason;
+        recoveryReason?: OrganisationSyncRecoveryReason;
     }): Promise<void> {
         try {
             await this.setOrganisationSyncStatus({
@@ -98,6 +104,7 @@ export class CloudshelfApiOrganisationUtils {
                 logs,
                 syncStage: SyncStage.Failed,
                 reason,
+                recoveryReason: recoveryReason ? OrganisationSyncRecoveryReason.Error : undefined,
             });
         } catch (error) {
             logs?.error(`Error in failOrganisationSync - ${domainName}`, error);

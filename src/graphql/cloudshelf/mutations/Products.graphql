@@ -43,3 +43,30 @@ mutation keepKnownProductsViaFile($fileUrl: String!) {
         }
     }
 }
+
+query GetSyncStats($storeDomain: String!) {
+    syncStatsToConnector(storeDomain: $storeDomain) {
+        lastIngestionDataDate
+        lastReportedCatalogStatsForProducts {
+            reportedAt
+            asExpected
+        }
+        lastReportedCatalogStatsForVariants {
+            reportedAt
+            asExpected
+        }
+        lastReportedCatalogStatsForProductGroups {
+            reportedAt
+            asExpected
+        }
+        lastReportedCatalogStatsForImages {
+            reportedAt
+            asExpected
+        }
+        lastReportedCatalogStatsForProductGroups {
+            reportedAt
+            asExpected
+        }
+        isClosed
+    }
+}

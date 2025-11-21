@@ -1,4 +1,4 @@
-import { SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
+import { OrganisationSyncRecoveryReason, SyncStage } from 'src/graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
@@ -350,11 +350,13 @@ export async function handleSyncCleanup(
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
     runId: string,
+    recoveryReason?: OrganisationSyncRecoveryReason,
 ) {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
         syncStage: SyncStage.CleanUp,
+        recoveryReason,
     });
 
     const collectionResult = await handleSyncCleanupCollections(env, appDataSource, retailer, syncOptions, runId);
@@ -394,5 +396,6 @@ export async function handleSyncCleanup(
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
         syncStage: SyncStage.Done,
+        recoveryReason,
     });
 }
