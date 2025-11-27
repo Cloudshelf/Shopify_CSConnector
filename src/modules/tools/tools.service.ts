@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WebhookSubscriptionTopic } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
 import { EntityManager } from '@mikro-orm/postgresql';
-import { internalScheduleTriggerJobs } from '../../trigger/scheduled/safety_sync';
 import { cloudshelfSchema } from '../configuration/schemas/cloudshelf.schema';
 import { runtimeSchema } from '../configuration/schemas/runtime.schema';
 import { RetailerEntity } from '../retailer/retailer.entity';
@@ -24,10 +23,6 @@ export class ToolsService {
         private readonly runtimeConfigService: ConfigService<typeof runtimeSchema>,
         private readonly entityManager: EntityManager,
     ) {}
-
-    async forceASafetySyncNow() {
-        await internalScheduleTriggerJobs(this.entityManager);
-    }
 
     async getWebhooks(retailer: RetailerEntity) {
         return getWebhooks(retailer, {
