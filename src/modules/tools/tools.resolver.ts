@@ -75,20 +75,6 @@ export class ToolsResolver {
         return JSON.stringify(process.env);
     }
 
-    @Telemetry('graphql.query.forceASafetySyncNow', { isGraphQL: true })
-    @Query(() => GraphQLString)
-    async forceASafetySyncNow(
-        @Args({ name: 'token', type: () => GraphQLString })
-        token: string,
-    ): Promise<string> {
-        if (process.env.TOOLS_TOKEN === undefined || token !== process.env.TOOLS_TOKEN) {
-            throw new Error('Unauthorized access to tools graphql');
-        }
-        await this.toolsService.forceASafetySyncNow();
-
-        return 'OK';
-    }
-
     @Telemetry('graphql.query.forceSync', { isGraphQL: true })
     @Query(() => GraphQLString)
     async forceSync(
