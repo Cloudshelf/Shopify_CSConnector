@@ -32,7 +32,6 @@ type Mutation {
 }
 
 type Query {
-  forceASafetySyncNow(token: String!): String!
   forceSync(domain: String!, partial: Boolean, token: String!): String!
   getTriggerPublicToken(token: String!): String!
   getWebhooksForRetailer(domain: String!, token: String!): String!
