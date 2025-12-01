@@ -42,29 +42,30 @@ export const RetailerSyncJob = task({
 
         let changesSince: Date | undefined = undefined;
         const startedAtTime = subMinutes(new Date(), 1); //1 min in the past ensures we get a little overlap without massive amounts of over processing.
-        if (payload.fullSync) {
-            logger.info(`Registering Webhooks due to Full Sync`);
-            await registerAllWebhooksForRetailer({
-                retailer,
-                host: env.SHOPIFY_CONNECTOR_HOST,
-                logs: getLoggerHelper(),
-                appDataSource: AppDataSource,
-                runId: ctx.run.id,
-            });
-        } else {
-            changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
-            if (changesSince === undefined) {
-                //If we have never don't a partial sync, lets just get the last days worth of changes...
-                //This is just so we get something.
-                changesSince = subDays(new Date(), 1);
-            }
-            retailer.lastPartialSyncRequestTime = changesSince;
-            logger.info('Setting lastPartialSyncRequestTime', {
-                lastPartialSyncRequestTime: retailer.lastPartialSyncRequestTime,
-            });
-        }
 
         try {
+            if (payload.fullSync) {
+                logger.info(`Registering Webhooks due to Full Sync`);
+                await registerAllWebhooksForRetailer({
+                    retailer,
+                    host: env.SHOPIFY_CONNECTOR_HOST,
+                    logs: getLoggerHelper(),
+                    appDataSource: AppDataSource,
+                    runId: ctx.run.id,
+                });
+            } else {
+                changesSince = retailer.nextPartialSyncRequestTime ?? undefined;
+                if (changesSince === undefined) {
+                    //If we have never don't a partial sync, lets just get the last days worth of changes...
+                    //This is just so we get something.
+                    changesSince = subDays(new Date(), 1);
+                }
+                retailer.lastPartialSyncRequestTime = changesSince;
+                logger.info('Setting lastPartialSyncRequestTime', {
+                    lastPartialSyncRequestTime: retailer.lastPartialSyncRequestTime,
+                });
+            }
+
             await TriggerWaitForNobleReschedule(retailer);
         } catch (err) {
             logger.error(`There was a problem with the wait for noble reschedule: ${JSON.stringify(err)}`);
