@@ -108,7 +108,7 @@
     "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-resolvers": "4.0.1",
     "@ianvs/prettier-plugin-sort-imports": "3.7.2",
-    "@nestjs/cli": "^11.0.10",
+    "@nestjs/cli": "^11.0.14",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.1.6",
     "@shopify/cli": "^3.53.1",
