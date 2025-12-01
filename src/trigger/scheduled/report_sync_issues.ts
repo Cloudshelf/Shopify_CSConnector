@@ -17,6 +17,7 @@ export const ReportSyncIssues = schedules.task({
     },
     queue: ReportSyncIssuesQueue,
     run: async () => {
+        return; //DISABLE FOR NOW, as I dont think we need or want this anymore.
         const env = getEnvConfig();
         const AppDataSource = getDbForTrigger();
 
