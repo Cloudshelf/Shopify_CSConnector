@@ -13,6 +13,7 @@ import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { getDbForTrigger, getEnvConfig } from '../../reuseables/initialization';
 import { getLoggerHelper } from '../../reuseables/loggerObject';
 import { handleSyncCleanup } from './parts/handleSyncCleanup';
+import { handleSyncInventoryItems } from './parts/handleSyncInventoryItems';
 import { handleSyncProductGroups } from './parts/handleSyncProductGroups';
 import { handleSyncProducts } from './parts/handleSyncProducts';
 
@@ -82,6 +83,18 @@ export const RetailerSyncJob = task({
         try {
             await logger.trace(`Sync Products`, async () => {
                 await handleSyncProducts(
+                    env,
+                    AppDataSource,
+                    retailer,
+                    {
+                        style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                        changesSince,
+                    },
+                    ctx.run.id,
+                );
+            });
+            await logger.trace(`Sync Stock Levels`, async () => {
+                await handleSyncInventoryItems(
                     env,
                     AppDataSource,
                     retailer,

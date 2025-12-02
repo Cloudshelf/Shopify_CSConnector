@@ -322,6 +322,7 @@ export type CatalogStats = {
   __typename?: 'CatalogStats';
   asExpected: Scalars['Boolean']['output'];
   extraInformation: Scalars['String']['output'];
+  knownNumber?: Maybe<Scalars['Float']['output']>;
   numberHeldAtTimeOfReporting: Scalars['Float']['output'];
   /** The key for the value */
   reportedAt?: Maybe<Scalars['UTCDateTime']['output']>;
@@ -436,6 +437,7 @@ export type CheckoutFlowEdge = {
 export type CheckoutFlowInput = {
   acquisitionOptions?: InputMaybe<Array<CheckoutFlowAcquisitionOptionInput>>;
   collectionSlipPrinterBlocks?: InputMaybe<Array<PrinterBlockInput>>;
+  copyShippingAddressToBillingAddress?: InputMaybe<Scalars['Boolean']['input']>;
   /** The display name of the checkout flow */
   displayName?: InputMaybe<Scalars['String']['input']>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
@@ -458,6 +460,7 @@ export type CheckoutFlowOptions = {
   /** An array of Cloudshelves that use this checkout flow. */
   cloudshelves: Array<Cloudshelf>;
   collectionSlipPrinterBlocks: Array<PrinterBlocksUnion>;
+  copyShippingAddressToBillingAddress: Scalars['Boolean']['output'];
   /** The date and time this entity was created. */
   createdAt: Scalars['UTCDateTime']['output'];
   /** The name of the checkout flow. */
@@ -1876,7 +1879,7 @@ export type EngineProductMetadataBlock = {
 export type EngineProductVariantBlock = {
   __typename?: 'EngineProductVariantBlock';
   availableForSale: Scalars['Boolean']['output'];
-  barcode: Scalars['String']['output'];
+  barcode?: Maybe<Scalars['String']['output']>;
   currentlyNotInStock: Scalars['Boolean']['output'];
   displayName: Scalars['String']['output'];
   eCommercePlatformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
@@ -1888,7 +1891,7 @@ export type EngineProductVariantBlock = {
   position?: Maybe<Scalars['Float']['output']>;
   price: Scalars['Float']['output'];
   sellableOnlineQuantity: Scalars['Float']['output'];
-  sku: Scalars['String']['output'];
+  sku?: Maybe<Scalars['String']['output']>;
 };
 
 export type EngineProductWithAdditionalInfo = {
@@ -2272,6 +2275,8 @@ export type Location = {
   /** An externally provided GlobalId */
   platformProvidedId?: Maybe<Scalars['GlobalId']['output']>;
   salesAssistants: Array<SalesAssistant>;
+  /** Stock levels at this location. */
+  stockLevels: Array<StockLevel>;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
 };
@@ -2527,6 +2532,7 @@ export type Mutation = {
   setVariables: Scalars['Boolean']['output'];
   startPaymentRequest: PaymentGenericPayload;
   startSync: OrganisationSyncStatusPayload;
+  startSyncWithDomainName: OrganisationSyncStatusPayload;
   subscribe: Scalars['String']['output'];
   toggleInMaintenanceMode: Scalars['Boolean']['output'];
   transferToShopifyPOS: TransferedOrderPayload;
@@ -2571,6 +2577,8 @@ export type Mutation = {
   /** Allows upserting of sales assistants */
   upsertSalesAssistants: SalesAssistantUpsertPayload;
   upsertShopifyOrganisation: OrganisationUpsertPayload;
+  /** Upserts stock levels for product variants at specific locations. */
+  upsertStockLevels: StockLevelUpsertPayload;
   /** Allows upserting of Themes */
   upsertTheme: ThemeUpsertPayload;
   /** Allows upserting of user access to the current organisation */
@@ -2886,6 +2894,18 @@ export type MutationStartPaymentRequestArgs = {
 };
 
 
+export type MutationStartSyncArgs = {
+  fullSync?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationStartSyncWithDomainNameArgs = {
+  domainName: Scalars['String']['input'];
+  fullSync?: InputMaybe<Scalars['Boolean']['input']>;
+  recoveryReason?: InputMaybe<OrganisationSyncRecoveryReason>;
+};
+
+
 export type MutationSubscribeArgs = {
   features: SubscriptionFeaturesInput;
 };
@@ -3017,6 +3037,11 @@ export type MutationUpsertShopifyOrganisationArgs = {
   hmac: Scalars['String']['input'];
   input: ShopifyStoreInput;
   nonce: Scalars['String']['input'];
+};
+
+
+export type MutationUpsertStockLevelsArgs = {
+  input: Array<StockLevelInput>;
 };
 
 
@@ -3244,6 +3269,8 @@ export type Organisation = {
    */
   publishInProgress: Scalars['Boolean']['output'];
   rfidGS1CompanyPrefixes: Array<Scalars['String']['output']>;
+  /** The safety stock number for the organisation. Any stock level below this number will be considered out of stock. */
+  safetyStockNumber: Scalars['Int']['output'];
   salesAssistantAllocation: Scalars['Boolean']['output'];
   salesAssistantClearRule: ClearSalesAssistantRule;
   salesAssistantNameRule: SalesAssistantNameRule;
@@ -3286,6 +3313,8 @@ export type OrganisationInput = {
   fullTextSearchLanguage?: InputMaybe<ProductLanguage>;
   id: Scalars['GlobalId']['input'];
   rfidGS1CompanyPrefixes?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The safety stock number for the organisation. Any stock level below this number will be considered out of stock. */
+  safetyStockNumber?: Scalars['Int']['input'];
 };
 
 export type OrganisationPageInfo = {
@@ -3335,6 +3364,13 @@ export enum OrganisationStatus {
   Idle = 'IDLE'
 }
 
+/** The reason for recovering the organisation sync status. */
+export enum OrganisationSyncRecoveryReason {
+  Error = 'ERROR',
+  Resync = 'RESYNC',
+  Unblock = 'UNBLOCK'
+}
+
 export type OrganisationSyncStatusPayload = {
   __typename?: 'OrganisationSyncStatusPayload';
   lastSyncStatusUpdateReason?: Maybe<OrganisationSyncUpdateReason>;
@@ -3348,6 +3384,7 @@ export type OrganisationSyncStatusPayload = {
 export type OrganisationSyncUpdateInput = {
   domainName: Scalars['String']['input'];
   reason?: InputMaybe<OrganisationSyncUpdateReason>;
+  recoveryReason?: InputMaybe<OrganisationSyncRecoveryReason>;
   syncStage: SyncStage;
 };
 
@@ -3877,6 +3914,8 @@ export type ProductVariant = {
   /** The product which this variant belongs to. */
   product: Product;
   sku?: Maybe<Scalars['String']['output']>;
+  /** Stock levels for this variant. */
+  stockLevels: Array<StockLevel>;
   /** The date and time this entity was last updated. */
   updatedAt: Scalars['UTCDateTime']['output'];
 };
@@ -4050,6 +4089,7 @@ export type Query = {
   /** Returns a list of currently available subscription plans */
   subscriptionPlans?: Maybe<Array<SubscriptionPlan>>;
   syncStats: SyncStatsPayload;
+  syncStatsToConnector: SyncStatsPayload;
   tagsInBuyersGuide: Array<Scalars['String']['output']>;
   /** Test AI functionality with optional chat ID and message */
   testAI2: Scalars['String']['output'];
@@ -4453,6 +4493,11 @@ export type QuerySyncStatsArgs = {
 };
 
 
+export type QuerySyncStatsToConnectorArgs = {
+  storeDomain: Scalars['String']['input'];
+};
+
+
 export type QueryTagsInBuyersGuideArgs = {
   id: Scalars['GlobalId']['input'];
 };
@@ -4698,12 +4743,49 @@ export type SpacerPrinterBlock = {
   printerBlockDiscriminator: Scalars['String']['output'];
 };
 
+/** This object represents the stock level of a product variant at a specific location. */
+export type StockLevel = {
+  __typename?: 'StockLevel';
+  /** The date and time this entity was created. */
+  createdAt: Scalars['UTCDateTime']['output'];
+  /** A unique internal GlobalId for this entity. */
+  id: Scalars['GlobalId']['output'];
+  /** Whether this product variant is in stock at this location. */
+  isInStock: Scalars['Boolean']['output'];
+  /** The location this stock level belongs to. */
+  location: Location;
+  /** The organisation which owns this entity. */
+  owningOrganisation: Organisation;
+  /** The product variant this stock level belongs to. */
+  productVariant: ProductVariant;
+  /** The date and time this entity was last updated. */
+  updatedAt: Scalars['UTCDateTime']['output'];
+};
+
+/** Input type for upserting stock levels. */
+export type StockLevelInput = {
+  /** The ID or platformProvidedId of the location. */
+  locationId: Scalars['GlobalId']['input'];
+  /** The ID or platformProvidedId of the product variant. */
+  productVariantId: Scalars['GlobalId']['input'];
+  /** The quantity in stock. This will be compared against the organisation safetyStockNumber to determine isInStock. */
+  quantity: Scalars['Int']['input'];
+};
+
 export type StockLevelOptions = {
   __typename?: 'StockLevelOptions';
   showStockLevels: Scalars['Boolean']['output'];
   stockLevelAuthToken?: Maybe<Scalars['String']['output']>;
   stockLevelEndpoint?: Maybe<Scalars['String']['output']>;
   useLocalStock: Scalars['Boolean']['output'];
+};
+
+export type StockLevelUpsertPayload = {
+  __typename?: 'StockLevelUpsertPayload';
+  /** An array of StockLevels that were created or updated */
+  stockLevels: Array<StockLevel>;
+  /** An array of errors that occurred during the upsert operation */
+  userErrors: Array<UserError>;
 };
 
 export type Subscription = {
@@ -4813,6 +4895,8 @@ export type SubscriptionPlanUsage = {
 
 export type SubscriptionRecord = {
   __typename?: 'SubscriptionRecord';
+  /** The date and time this subscription originally went active */
+  activatedAt?: Maybe<Scalars['UTCDateTime']['output']>;
   amountUSD: Scalars['Float']['output'];
   billingInterval: SubscriptionInterval;
   /** The date and time this entity was created. */
@@ -4868,8 +4952,10 @@ export enum SyncStage {
   Failed = 'FAILED',
   ProcessProducts = 'PROCESS_PRODUCTS',
   ProcessProductGroups = 'PROCESS_PRODUCT_GROUPS',
+  ProcessStockLevels = 'PROCESS_STOCK_LEVELS',
   RequestProducts = 'REQUEST_PRODUCTS',
-  RequestProductGroups = 'REQUEST_PRODUCT_GROUPS'
+  RequestProductGroups = 'REQUEST_PRODUCT_GROUPS',
+  RequestStockLevels = 'REQUEST_STOCK_LEVELS'
 }
 
 export type SyncStatsPayload = {
@@ -5252,7 +5338,6 @@ export enum UserErrorCode {
   EntityInvalidField = 'ENTITY_INVALID_FIELD',
   EntityInUse = 'ENTITY_IN_USE',
   EntityNotFound = 'ENTITY_NOT_FOUND',
-  EntityNotInStock = 'ENTITY_NOT_IN_STOCK',
   /** An error occurred while attempting to upload an image */
   ImageUploadError = 'IMAGE_UPLOAD_ERROR',
   InvalidArgument = 'INVALID_ARGUMENT',
@@ -5631,6 +5716,19 @@ export const KeepKnownProductsViaFileDocument = gql`
   }
 }
     `;
+export const UpsertStockLevelsDocument = gql`
+    mutation UpsertStockLevels($input: [StockLevelInput!]!) {
+  upsertStockLevels(input: $input) {
+    stockLevels {
+      id
+    }
+    userErrors {
+      code
+      message
+    }
+  }
+}
+    `;
 export const RequestShopifySubscriptionCheckDocument = gql`
     mutation requestShopifySubscriptionCheck($shopifyGid: String!) {
   requestShopifySubscriptionCheck(shopifyGid: $shopifyGid)
@@ -5800,6 +5898,13 @@ export type KeepKnownProductsViaFileMutationVariables = Exact<{
 
 
 export type KeepKnownProductsViaFileMutation = { __typename?: 'Mutation', keepKnownProductsViaFile: { __typename?: 'ProductDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type UpsertStockLevelsMutationVariables = Exact<{
+  input: Array<StockLevelInput> | StockLevelInput;
+}>;
+
+
+export type UpsertStockLevelsMutation = { __typename?: 'Mutation', upsertStockLevels: { __typename?: 'StockLevelUpsertPayload', stockLevels: Array<{ __typename?: 'StockLevel', id: any }>, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
 
 export type RequestShopifySubscriptionCheckMutationVariables = Exact<{
   shopifyGid: Scalars['String']['input'];

@@ -1,0 +1,11 @@
+mutation UpsertStockLevels($input: [StockLevelInput!]!) {
+    upsertStockLevels(input: $input) {
+        stockLevels {
+            id
+        }
+        userErrors {
+            code
+            message
+        }
+    }
+}
