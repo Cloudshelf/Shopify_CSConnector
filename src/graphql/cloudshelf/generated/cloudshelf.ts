@@ -2266,6 +2266,7 @@ export type Location = {
   devices: Array<Device>;
   /** The name of the location. */
   displayName: Scalars['String']['output'];
+  fulfillsOnlineOrders: Scalars['Boolean']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
   /** Additional data about this entity. */
@@ -2312,6 +2313,8 @@ export type LocationInput = {
   countryCode?: InputMaybe<CountryCode>;
   /** The display name of the location */
   displayName?: InputMaybe<Scalars['String']['input']>;
+  /** Whether the location fulfills online orders */
+  fulfillsOnlineOrders?: InputMaybe<Scalars['Boolean']['input']>;
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
   /** An array of metadata to attach to the location */
