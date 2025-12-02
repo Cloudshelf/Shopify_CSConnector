@@ -30,7 +30,11 @@ export class TriggerTagsUtils {
         domain: string;
         retailerId?: string;
         syncType?: 'type_full' | 'type_partial';
-        syncStage?: SyncStage.RequestProducts | SyncStage.RequestProductGroups | SyncStage.CleanUp;
+        syncStage?:
+            | SyncStage.RequestProducts
+            | SyncStage.RequestProductGroups
+            | SyncStage.CleanUp
+            | SyncStage.RequestStockLevels;
         reason?: string;
     }): string[] {
         const tags = [TriggerTagsUtils.createDomainTag(domain)];

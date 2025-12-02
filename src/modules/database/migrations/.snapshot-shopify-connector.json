@@ -116,7 +116,8 @@
             "ProductGroupSync",
             "ProductSync",
             "PostSync",
-            "ProductGroupDeleteSync"
+            "ProductGroupDeleteSync",
+            "InventoryItemSync"
           ],
           "mappedType": "enum"
         },
@@ -469,6 +470,16 @@
           "primary": false,
           "nullable": true,
           "mappedType": "integer"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "'active'",
+          "mappedType": "text"
         }
       },
       "name": "retailer_entity",
