@@ -45,7 +45,7 @@ export class CatalogService {
             this.logger.log(`Catalog data: ${JSON.stringify(response.data)}`);
             // Get the first catalog's ID and extract the numeric part
             const catalogGid = catalogs[0].id;
-            const match = catalogGid.match(/gid:\/\/shopify\/Catalog\/(\d+)/);
+            const match = catalogGid.match(/gid:\/\/shopify\/AppCatalog\/(\d+)/);
 
             if (!match || !match[1]) {
                 this.logger.error(`Failed to parse catalog GID: ${catalogGid}`);
