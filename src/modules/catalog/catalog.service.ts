@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Telemetry } from 'src/decorators/telemetry';
-import { RetailerService } from '../retailer/retailer.service';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
 import { AppCatalogsDocument, AppCatalogsQuery } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
+import { Telemetry } from 'src/decorators/telemetry';
+import { RetailerService } from '../retailer/retailer.service';
 
 @Injectable()
 export class CatalogService {
@@ -41,6 +41,8 @@ export class CatalogService {
                 return '-1';
             }
 
+            this.logger.log(`Catalogs: ${JSON.stringify(catalogs)}`);
+            this.logger.log(`Catalog data: ${JSON.stringify(response.data)}`);
             // Get the first catalog's ID and extract the numeric part
             const catalogGid = catalogs[0].id;
             const match = catalogGid.match(/gid:\/\/shopify\/Catalog\/(\d+)/);
