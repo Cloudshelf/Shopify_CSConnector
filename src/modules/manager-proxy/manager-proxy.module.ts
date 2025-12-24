@@ -23,6 +23,7 @@ export class ManagerProxyModule implements NestModule {
                 { path: '/favicon.ico', method: RequestMethod.ALL },
                 { path: '/stock-levels', method: RequestMethod.ALL },
                 { path: '/pos', method: RequestMethod.ALL },
+                { path: '/catalog', method: RequestMethod.ALL },
             )
             .forRoutes({ path: '{*splat}', method: RequestMethod.ALL });
 
@@ -34,6 +35,7 @@ export class ManagerProxyModule implements NestModule {
                 { path: '/api-health*path', method: RequestMethod.ALL },
                 { path: '/stock-levels', method: RequestMethod.ALL },
                 { path: '/pos', method: RequestMethod.ALL },
+                { path: '/catalog', method: RequestMethod.ALL },
             )
 
             .forRoutes({ path: '{*splat}', method: RequestMethod.ALL });
