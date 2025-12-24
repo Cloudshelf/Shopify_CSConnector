@@ -20,6 +20,7 @@ import { EngineModule } from './modules/engine/engine.module';
 import { ManagerProxyModule } from './modules/manager-proxy/manager-proxy.module';
 import { POSModule } from './modules/pos/pos.module';
 import { ToolsModule } from './modules/tools/tools.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 
 @Module({
     imports: [
@@ -49,6 +50,7 @@ import { ToolsModule } from './modules/tools/tools.module';
         ToolsModule,
         EngineModule,
         POSModule,
+        CatalogModule,
         ScheduleModule.forRoot(),
         MikroOrmModule.forFeature(AllDatabaseEntities),
     ],

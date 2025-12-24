@@ -1,0 +1,9 @@
+query AppCatalogs {
+    catalogs(type: APP, first: 10) {
+        nodes {
+            id
+            title
+            status
+        }
+    }
+}
