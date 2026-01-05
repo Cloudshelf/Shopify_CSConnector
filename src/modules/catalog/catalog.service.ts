@@ -75,9 +75,9 @@ export class CatalogService {
 
                 this.logger.log(`Found ${catalogs.length} catalogs on current page`);
 
-                // Find matching catalog by title (case-insensitive)
+                // Find matching catalog by title (case-insensitive substring match)
                 const matchingCatalog = catalogs.find(catalog =>
-                    validTitlesLower.includes(catalog.title.toLowerCase()),
+                    validTitlesLower.some(validTitle => catalog.title.toLowerCase().includes(validTitle)),
                 );
 
                 if (matchingCatalog) {
