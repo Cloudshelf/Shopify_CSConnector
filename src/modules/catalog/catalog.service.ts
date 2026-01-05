@@ -110,7 +110,8 @@ export class CatalogService {
             return `-1/no-matching-catalog/${JSON.stringify({ validTitles, responses: allResponses })}`;
         } catch (error) {
             this.logger.error(`Error getting catalog ID for domain ${domain}:`, error);
-            return `-1/error-getting-catalog-id/${error}`;
+            const errorDetails = error instanceof Error ? { message: error.message, stack: error.stack } : error;
+            return `-1/error-getting-catalog-id/${JSON.stringify(errorDetails)}`;
         }
     }
 }
