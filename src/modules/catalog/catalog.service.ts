@@ -40,6 +40,7 @@ export class CatalogService {
 
             const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
             const validTitles = this.getValidCatalogTitles();
+            const validTitlesLower = validTitles.map(t => t.toLowerCase());
             let hasNextPage = true;
             let cursor: string | null = null;
             const allResponses: AppCatalogsQuery[] = [];
@@ -74,8 +75,10 @@ export class CatalogService {
 
                 this.logger.log(`Found ${catalogs.length} catalogs on current page`);
 
-                // Find matching catalog by title
-                const matchingCatalog = catalogs.find(catalog => validTitles.includes(catalog.title));
+                // Find matching catalog by title (case-insensitive)
+                const matchingCatalog = catalogs.find(catalog =>
+                    validTitlesLower.includes(catalog.title.toLowerCase()),
+                );
 
                 if (matchingCatalog) {
                     this.logger.log(`Found matching catalog: ${matchingCatalog.title} (${matchingCatalog.id})`);
