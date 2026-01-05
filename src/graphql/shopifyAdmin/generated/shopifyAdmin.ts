@@ -65094,12 +65094,16 @@ export const CurrentBulkOperationDocument = gql`
 }
     `;
 export const AppCatalogsDocument = gql`
-    query AppCatalogs {
-  catalogs(type: APP, first: 10) {
+    query AppCatalogs($after: String) {
+  catalogs(first: 100, after: $after, query: "STATUS:ACTIVE") {
     nodes {
       id
       title
       status
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
     }
   }
 }
@@ -65296,10 +65300,12 @@ export type CurrentBulkOperationQueryVariables = Exact<{ [key: string]: never; }
 
 export type CurrentBulkOperationQuery = { __typename?: 'QueryRoot', currentBulkOperation?: { __typename?: 'BulkOperation', id: string, status: BulkOperationStatus } | null };
 
-export type AppCatalogsQueryVariables = Exact<{ [key: string]: never; }>;
+export type AppCatalogsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type AppCatalogsQuery = { __typename?: 'QueryRoot', catalogs: { __typename?: 'CatalogConnection', nodes: Array<{ __typename?: 'AppCatalog', id: string, title: string, status: CatalogStatus } | { __typename?: 'CompanyLocationCatalog', id: string, title: string, status: CatalogStatus } | { __typename?: 'MarketCatalog', id: string, title: string, status: CatalogStatus }> } };
+export type AppCatalogsQuery = { __typename?: 'QueryRoot', catalogs: { __typename?: 'CatalogConnection', nodes: Array<{ __typename?: 'AppCatalog', id: string, title: string, status: CatalogStatus } | { __typename?: 'CompanyLocationCatalog', id: string, title: string, status: CatalogStatus } | { __typename?: 'MarketCatalog', id: string, title: string, status: CatalogStatus }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
 
 export type GetDraftOrdersQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;

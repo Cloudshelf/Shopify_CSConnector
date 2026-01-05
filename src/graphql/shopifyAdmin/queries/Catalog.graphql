@@ -1,9 +1,13 @@
-query AppCatalogs {
-    catalogs(type: APP, first: 10) {
+query AppCatalogs($after: String) {
+    catalogs(first: 100, after: $after, query: "STATUS:ACTIVE") {
         nodes {
             id
             title
             status
+        }
+        pageInfo {
+            hasNextPage
+            endCursor
         }
     }
 }
