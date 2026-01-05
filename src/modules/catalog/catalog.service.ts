@@ -1,6 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { ApolloQueryResult } from '@apollo/client';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
-import { AppCatalogsDocument, AppCatalogsQuery } from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
+import {
+    AppCatalogsDocument,
+    AppCatalogsQuery,
+    AppCatalogsQueryVariables,
+} from 'src/graphql/shopifyAdmin/generated/shopifyAdmin';
 import { Telemetry } from 'src/decorators/telemetry';
 import { RetailerService } from '../retailer/retailer.service';
 
@@ -8,7 +14,15 @@ import { RetailerService } from '../retailer/retailer.service';
 export class CatalogService {
     private readonly logger = new Logger('CatalogService');
 
-    constructor(private readonly retailerService: RetailerService) {}
+    constructor(private readonly retailerService: RetailerService, private readonly configService: ConfigService) {}
+
+    private getValidCatalogTitles(): string[] {
+        const releaseType = this.configService.get<string>('RELEASE_TYPE');
+        if (releaseType === 'production') {
+            return ['Cloudshelf', '52ed5683-9e5a-429f-8766-f5b38720e81d'];
+        }
+        return ['Kloudshelf'];
+    }
 
     @Telemetry('service.catalog.getCatalogIdForRetailer')
     async getCatalogIdForRetailer(domain: string): Promise<string> {
@@ -25,34 +39,63 @@ export class CatalogService {
             }
 
             const graphqlClient = await ShopifyGraphqlUtil.getShopifyAdminApolloClientByRetailer({ retailer });
+            const validTitles = this.getValidCatalogTitles();
+            let hasNextPage = true;
+            let cursor: string | null = null;
 
-            const response = await graphqlClient.query<AppCatalogsQuery>({
-                query: AppCatalogsDocument,
-            });
+            this.logger.log(`Searching for catalogs with titles: ${validTitles.join(', ')}`);
 
-            if (response.errors && response.errors.length > 0) {
-                this.logger.error(`GraphQL errors for domain ${domain}:`, response.errors);
-                return `-1/graphql-errors/${JSON.stringify(response.errors)}`;
-            }
+            // Pagination loop
+            do {
+                const response: ApolloQueryResult<AppCatalogsQuery> = await graphqlClient.query<
+                    AppCatalogsQuery,
+                    AppCatalogsQueryVariables
+                >({
+                    query: AppCatalogsDocument,
+                    variables: { after: cursor },
+                });
 
-            const catalogs = response.data?.catalogs?.nodes;
-            if (!catalogs || catalogs.length === 0) {
-                this.logger.warn(`No catalogs found for domain: ${domain}`);
-                return `-1/no-catalogs/${JSON.stringify(catalogs)}`;
-            }
+                if (response.errors && response.errors.length > 0) {
+                    this.logger.error(`GraphQL errors for domain ${domain}:`, response.errors);
+                    return `-1/graphql-errors/${JSON.stringify(response.errors)}`;
+                }
 
-            this.logger.log(`Catalogs: ${JSON.stringify(catalogs)}`);
-            this.logger.log(`Catalog data: ${JSON.stringify(response.data)}`);
-            // Get the first catalog's ID and extract the numeric part
-            const catalogGid = catalogs[0].id;
-            const match = catalogGid.match(/gid:\/\/shopify\/AppCatalog\/(\d+)/);
+                const catalogs = response.data?.catalogs?.nodes ?? [];
 
-            if (!match || !match[1]) {
-                this.logger.error(`Failed to parse catalog GID: ${catalogGid}`);
-                return `-1/failed-to-parse-catalog-gid/${catalogGid}`;
-            }
+                if (catalogs.length === 0 && !cursor) {
+                    this.logger.warn(`No catalogs found for domain: ${domain}`);
+                    return `-1/no-catalogs`;
+                }
 
-            return match[1];
+                this.logger.log(`Found ${catalogs.length} catalogs on current page`);
+
+                // Find matching catalog by title
+                const matchingCatalog = catalogs.find(catalog => validTitles.includes(catalog.title));
+
+                if (matchingCatalog) {
+                    this.logger.log(`Found matching catalog: ${matchingCatalog.title} (${matchingCatalog.id})`);
+
+                    // Extract ID from GID (handles AppCatalog, CompanyLocationCatalog, MarketCatalog, etc.)
+                    const match = matchingCatalog.id.match(/gid:\/\/shopify\/\w+Catalog\/(\d+)/);
+
+                    if (match?.[1]) {
+                        return match[1];
+                    }
+
+                    this.logger.error(`Failed to parse catalog GID: ${matchingCatalog.id}`);
+                    return `-1/failed-to-parse-catalog-gid/${matchingCatalog.id}`;
+                }
+
+                // Continue pagination
+                hasNextPage = response.data?.catalogs?.pageInfo?.hasNextPage ?? false;
+                cursor = response.data?.catalogs?.pageInfo?.endCursor ?? null;
+            } while (hasNextPage);
+
+            // No matching catalog found after checking all pages
+            this.logger.warn(
+                `No matching catalog found for domain: ${domain}. Valid titles: ${validTitles.join(', ')}`,
+            );
+            return `-1/no-matching-catalog/titles:${validTitles.join(',')}`;
         } catch (error) {
             this.logger.error(`Error getting catalog ID for domain ${domain}:`, error);
             return `-1/error-getting-catalog-id/${error}`;
