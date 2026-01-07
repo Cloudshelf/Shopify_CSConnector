@@ -20313,8 +20313,8 @@
                 "ofType": null
               }
             },
-            "isDeprecated": false,
-            "deprecationReason": null
+            "isDeprecated": true,
+            "deprecationReason": "MediaPresentation IDs are being deprecated. Access the data directly via the asJson field on the Media type."
           }
         ],
         "inputFields": null,
@@ -21680,7 +21680,7 @@
           },
           {
             "name": "type",
-            "description": "The type of the metaobject. Defines the namespace of its associated metafields.",
+            "description": "The type of the metaobject.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -36943,7 +36943,7 @@
           },
           {
             "name": "type",
-            "description": "The type of the metaobject. Defines the namespace of its associated metafields.",
+            "description": "The type of the metaobject.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
