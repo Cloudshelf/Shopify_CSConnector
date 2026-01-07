@@ -64315,7 +64315,7 @@ export type WebhookSubscription = LegacyInteroperability & Node & {
   format: WebhookSubscriptionFormat;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
-  /** The list of fields to be included in the webhook subscription. Only the fields specified will be included in the webhook payload. If null, then all fields will be included. Learn more about [modifying webhook payloads](https://shopify.dev/docs/apps/build/webhooks/customize/modify_payloads). */
+  /** The list of fields to be included in the webhook subscription. Only the fields specified will be included in the webhook payload. If null, then all fields will be included. Learn more about [modifying webhook payloads](https://shopify.dev/docs/apps/build/webhooks/customize/modify-payloads). */
   includeFields: Array<Scalars['String']['output']>;
   /** The ID of the corresponding resource in the REST Admin API. */
   legacyResourceId: Scalars['UnsignedInt64']['output'];
@@ -64959,6 +64959,7 @@ export const LocationDetails = gql`
   id
   name
   isActive
+  fulfillsOnlineOrders
   address {
     ...LocationAddressDetails
   }
@@ -65317,14 +65318,14 @@ export type GetDraftOrdersQuery = { __typename?: 'QueryRoot', draftOrders: { __t
 
 export type LocationAddressDetailsFragment = { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null };
 
-export type LocationDetailsFragment = { __typename?: 'Location', id: string, name: string, isActive: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } };
+export type LocationDetailsFragment = { __typename?: 'Location', id: string, name: string, isActive: boolean, fulfillsOnlineOrders: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } };
 
 export type GetLocationsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetLocationsQuery = { __typename?: 'QueryRoot', locations: { __typename?: 'LocationConnection', edges: Array<{ __typename?: 'LocationEdge', cursor: string, node: { __typename?: 'Location', id: string, name: string, isActive: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
+export type GetLocationsQuery = { __typename?: 'QueryRoot', locations: { __typename?: 'LocationConnection', edges: Array<{ __typename?: 'LocationEdge', cursor: string, node: { __typename?: 'Location', id: string, name: string, isActive: boolean, fulfillsOnlineOrders: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
 
 export type GetShopInformationQueryVariables = Exact<{ [key: string]: never; }>;
 

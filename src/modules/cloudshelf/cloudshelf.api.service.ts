@@ -6,6 +6,7 @@ import {
     OrderStatus,
     ProductGroupInput,
     ProductInput,
+    StockLevelInput,
     UpsertVariantsInput,
 } from '../../graphql/cloudshelf/generated/cloudshelf';
 import { EntityManager } from '@mikro-orm/postgresql';
@@ -17,6 +18,7 @@ import { CloudshelfApiCloudshelfUtils } from './cloudshelf.api.cloudshelf.util';
 import { CloudshelfApiLocationUtils } from './cloudshelf.api.location.util';
 import { CloudshelfApiProductUtils } from './cloudshelf.api.products.util';
 import { CloudshelfApiReportUtils } from './cloudshelf.api.report.util';
+import { CloudshelfApiStockLevelsUtils } from './cloudshelf.api.stocklevels.util';
 import { CloudshelfApiStoreUtils } from './cloudshelf.api.store.util';
 import { CloudshelfApiSubscriptionUtils } from './cloudshelf.api.subscription.util';
 import { CloudshelfApiThemeUtils } from './cloudshelf.api.theme.util';
@@ -53,6 +55,16 @@ export class CloudshelfApiService {
     @Telemetry('service.cloudshelf.upsertProducts')
     async upsertProducts(domain: string, input: ProductInput[], logs?: LogsInterface) {
         return CloudshelfApiProductUtils.upsertProducts(
+            this.configService.get<string>('CLOUDSHELF_API_URL')!,
+            domain,
+            input,
+            logs,
+        );
+    }
+
+    @Telemetry('service.cloudshelf.upsertStockLevels')
+    async upsertStockLevels(domain: string, input: StockLevelInput[], logs?: LogsInterface) {
+        return CloudshelfApiStockLevelsUtils.upsertStockLevels(
             this.configService.get<string>('CLOUDSHELF_API_URL')!,
             domain,
             input,
