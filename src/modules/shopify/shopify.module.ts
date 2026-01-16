@@ -87,6 +87,7 @@ export class ShopifyModule {
                         'write_third_party_fulfillment_orders',
                         'write_orders',
                         'write_customers',
+                        'write_resource_feedbacks',
                     ],
                 };
             },
