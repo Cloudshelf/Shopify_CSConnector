@@ -14179,7 +14179,7 @@ export type DeliveryProfile = Node & {
   id: Scalars['ID']['output'];
   /**
    * Whether this shop has enabled legacy compatibility mode for delivery profiles.
-   * @deprecated Legacy mode profiles are no longer supported.
+   * @deprecated Legacy mode profiles are no longer supported. This will be removed in 2026-04.
    */
   legacyMode: Scalars['Boolean']['output'];
   /** The number of locations without rates defined. */
@@ -14593,11 +14593,7 @@ export type DeliveryRateDefinitionInput = {
 /** A rate provided by a merchant-defined rate or a participant. */
 export type DeliveryRateProvider = DeliveryParticipant | DeliveryRateDefinition;
 
-/**
- * The `DeliverySetting` object enables you to manage shop-wide shipping settings.
- * You can enable legacy compatibility mode for the multi-location delivery profiles feature
- * if the legacy mode isn't blocked.
- */
+/** The `DeliverySetting` object enables you to manage shop-wide shipping settings. */
 export type DeliverySetting = {
   __typename?: 'DeliverySetting';
   /** Whether the shop is blocked from converting to full multi-location delivery profiles mode. If the shop is blocked, then the blocking reasons are also returned. Note: this field is effectively deprecated and will be removed in a future version of the API. */
@@ -21854,6 +21850,7 @@ export type FulfillmentOrderLineItemsInput = {
   /**
    * The fulfillment order line items to be fulfilled.
    * If left blank, all line items of the fulfillment order will be fulfilled.
+   * Accepts a maximum of 512 line items.
    */
   fulfillmentOrderLineItems?: InputMaybe<Array<FulfillmentOrderLineItemInput>>;
 };
@@ -26000,7 +25997,7 @@ export type Location = HasMetafieldDefinitions & HasMetafields & LegacyInteroper
   metafields: MetafieldConnection;
   /** The name of the location. */
   name: Scalars['String']['output'];
-  /** Whether this location is used for calculating shipping rates. In multi-origin shipping mode, this flag is ignored. */
+  /** Legacy field indicating this location was designated for shipping. All locations with valid addresses can now ship. */
   shipsInventory: Scalars['Boolean']['output'];
   /** List of suggested addresses for this location (empty if none). */
   suggestedAddresses: Array<LocationSuggestedAddress>;
@@ -29861,6 +29858,8 @@ export enum MetafieldDefinitionCreateUserErrorCode {
   LimitExceeded = 'LIMIT_EXCEEDED',
   /** You have reached the maximum allowed definitions for automated collections. */
   OwnerTypeLimitExceededForAutomatedCollections = 'OWNER_TYPE_LIMIT_EXCEEDED_FOR_AUTOMATED_COLLECTIONS',
+  /** You have reached the maximum allowed definitions to be used as admin filters. */
+  OwnerTypeLimitExceededForUseAsAdminFilters = 'OWNER_TYPE_LIMIT_EXCEEDED_FOR_USE_AS_ADMIN_FILTERS',
   /** The pinned limit has been reached for the owner type. */
   PinnedLimitReached = 'PINNED_LIMIT_REACHED',
   /** The input value needs to be blank. */
@@ -30248,6 +30247,8 @@ export enum MetafieldDefinitionUpdateUserErrorCode {
   NotFound = 'NOT_FOUND',
   /** You have reached the maximum allowed definitions for automated collections. */
   OwnerTypeLimitExceededForAutomatedCollections = 'OWNER_TYPE_LIMIT_EXCEEDED_FOR_AUTOMATED_COLLECTIONS',
+  /** You have reached the maximum allowed definitions to be used as admin filters. */
+  OwnerTypeLimitExceededForUseAsAdminFilters = 'OWNER_TYPE_LIMIT_EXCEEDED_FOR_USE_AS_ADMIN_FILTERS',
   /** The pinned limit has been reached for the owner type. */
   PinnedLimitReached = 'PINNED_LIMIT_REACHED',
   /** The input value needs to be blank. */
@@ -32480,7 +32481,11 @@ export type Mutation = {
   deliveryPromiseProviderUpsert?: Maybe<DeliveryPromiseProviderUpsertPayload>;
   /** Set the delivery settings for a shop. */
   deliverySettingUpdate?: Maybe<DeliverySettingUpdatePayload>;
-  /** Assigns a location as the shipping origin while using legacy compatibility mode for multi-location delivery profiles. */
+  /**
+   * Assigns a location as the shipping origin while using legacy compatibility mode for multi-location delivery profiles.
+   * Deprecated as of 2026-04 and will be removed in a future version as single origin shipping mode has been retired.
+   * @deprecated Single origin shipping mode is no longer supported.
+   */
   deliveryShippingOriginAssign?: Maybe<DeliveryShippingOriginAssignPayload>;
   /** Activates an automatic discount. */
   discountAutomaticActivate?: Maybe<DiscountAutomaticActivatePayload>;
@@ -41675,7 +41680,7 @@ export enum OrderTransactionErrorCode {
   AmazonPaymentsOrderReferenceCanceled = 'AMAZON_PAYMENTS_ORDER_REFERENCE_CANCELED',
   /** The order was not confirmed within three hours. */
   AmazonPaymentsStale = 'AMAZON_PAYMENTS_STALE',
-  /** Call the card issuer. */
+  /** The issuer declined the transaction, the customer should contact their issuer for more details. */
   CallIssuer = 'CALL_ISSUER',
   /** The card was declined. */
   CardDeclined = 'CARD_DECLINED',
@@ -41685,17 +41690,17 @@ export enum OrderTransactionErrorCode {
   ExpiredCard = 'EXPIRED_CARD',
   /** There was an unknown error with processing the payment. */
   GenericError = 'GENERIC_ERROR',
-  /** The address does not match the card number. */
+  /** The address is incorrect. */
   IncorrectAddress = 'INCORRECT_ADDRESS',
-  /** The CVC does not match the card number. */
+  /** The card security code (CVC/CVV) is incorrect. */
   IncorrectCvc = 'INCORRECT_CVC',
   /** The card number is incorrect. */
   IncorrectNumber = 'INCORRECT_NUMBER',
-  /** The entered PIN is incorrect. */
+  /** The PIN entered is incorrect. */
   IncorrectPin = 'INCORRECT_PIN',
-  /** The ZIP or postal code does not match the card number. */
+  /** The ZIP or postal code doesn't match the one on file. */
   IncorrectZip = 'INCORRECT_ZIP',
-  /** The amount is either too high or too low for the provider. */
+  /** The amount is invalid. */
   InvalidAmount = 'INVALID_AMOUNT',
   /** The payment method is not available in the customer's country. */
   InvalidCountry = 'INVALID_COUNTRY',
@@ -59025,6 +59030,8 @@ export enum StandardMetafieldDefinitionEnableUserErrorCode {
   InvalidInputCombination = 'INVALID_INPUT_COMBINATION',
   /** The maximum number of definitions per owner type has been exceeded. */
   LimitExceeded = 'LIMIT_EXCEEDED',
+  /** You have reached the maximum allowed definitions to be used as admin filters. */
+  OwnerTypeLimitExceededForUseAsAdminFilters = 'OWNER_TYPE_LIMIT_EXCEEDED_FOR_USE_AS_ADMIN_FILTERS',
   /** The input value is already taken. */
   Taken = 'TAKEN',
   /** The standard metafield definition template was not found. */
@@ -64477,7 +64484,7 @@ export enum WebhookSubscriptionTopic {
   CollectionsCreate = 'COLLECTIONS_CREATE',
   /** The webhook topic for `collections/delete` events. Occurs whenever a collection is deleted. Requires the `read_products` scope. */
   CollectionsDelete = 'COLLECTIONS_DELETE',
-  /** The webhook topic for `collections/update` events. Occurs whenever a collection is updated, including whenever products are added or removed from the collection. Occurs once if multiple products are added or removed from a collection at the same time. Requires the `read_products` scope. */
+  /** The webhook topic for `collections/update` events. Occurs whenever a collection is updated, including when a product is manually added or removed from the collection or when the collection rules change. Occurs once if multiple products are manually added or removed from a collection at the same time. Not fired when attribute changes affect whether a product matches a collection's rules. Requires the `read_products` scope. */
   CollectionsUpdate = 'COLLECTIONS_UPDATE',
   /** The webhook topic for `collection_listings/add` events. Occurs whenever a collection listing is added. Requires the `read_product_listings` scope. */
   CollectionListingsAdd = 'COLLECTION_LISTINGS_ADD',
@@ -65184,6 +65191,7 @@ export const StockViaProductVariantAllLocationsDocument = gql`
           location {
             id
             name
+            fulfillsOnlineOrders
           }
           quantities(names: ["available"]) {
             id
@@ -65337,7 +65345,7 @@ export type StockViaProductVariantAllLocationsQueryVariables = Exact<{
 }>;
 
 
-export type StockViaProductVariantAllLocationsQuery = { __typename?: 'QueryRoot', productVariant?: { __typename?: 'ProductVariant', id: string, displayName: string, inventoryQuantity?: number | null, product: { __typename?: 'Product', id: string }, inventoryItem: { __typename?: 'InventoryItem', id: string, inventoryLevels: { __typename?: 'InventoryLevelConnection', nodes: Array<{ __typename?: 'InventoryLevel', id: string, location: { __typename?: 'Location', id: string, name: string }, quantities: Array<{ __typename?: 'InventoryQuantity', id: string, name: string, quantity: number }> }> } } } | null };
+export type StockViaProductVariantAllLocationsQuery = { __typename?: 'QueryRoot', productVariant?: { __typename?: 'ProductVariant', id: string, displayName: string, inventoryQuantity?: number | null, product: { __typename?: 'Product', id: string }, inventoryItem: { __typename?: 'InventoryItem', id: string, inventoryLevels: { __typename?: 'InventoryLevelConnection', nodes: Array<{ __typename?: 'InventoryLevel', id: string, location: { __typename?: 'Location', id: string, name: string, fulfillsOnlineOrders: boolean }, quantities: Array<{ __typename?: 'InventoryQuantity', id: string, name: string, quantity: number }> }> } } } | null };
 
 export type GetStorefrontAccessTokensQueryVariables = Exact<{ [key: string]: never; }>;
 

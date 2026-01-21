@@ -1,5 +1,6 @@
 interface StockLocation {
     id: string;
+    fulfillsOnlineOrders: boolean;
     numberAvailable: number;
     displayName: string;
     // distance: string | null;
