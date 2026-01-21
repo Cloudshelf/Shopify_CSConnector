@@ -67,6 +67,7 @@ export class StockLevelsService {
             return {
                 id: iLevel.location.id,
                 displayName: iLevel.location.name,
+                fulfillsOnlineOrders: iLevel.location.fulfillsOnlineOrders,
                 numberAvailable: numberAvailable,
             };
         });
