@@ -208,7 +208,7 @@ export async function handleSyncProducts(
                         sku: variant.sku ?? '',
                         barcode: variant.barcode ?? '',
                         //We only support in stock / out of stock not stock count in v3
-                        isInStock: variant.sellableOnlineQuantity > 0,
+                        isInStock: variant.inventoryQuantity > 0,
                         attributes: attributes,
                         availableToPurchase: variant.availableForSale,
                         metaimages: metaimages,
