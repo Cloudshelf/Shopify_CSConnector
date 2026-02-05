@@ -71,7 +71,7 @@ export async function buildQueryProductInfo(retailer: RetailerEntity, changesSin
                       compareAtPrice
                       availableForSale
                       inventoryPolicy
-                      sellableOnlineQuantity
+                      inventoryQuantity
                       selectedOptions {
                         name
                         value
