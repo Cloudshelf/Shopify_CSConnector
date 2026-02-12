@@ -1,8 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { ExtendedLogger } from '../../utils/ExtendedLogger';
-import { CustomTokenService } from '../shopify/sessions/custom.token.service';
 import { NextFunction, Request, Response } from 'express';
 import { RequestHandler, createProxyMiddleware } from 'http-proxy-middleware';
+import { ExtendedLogger } from '../../utils/ExtendedLogger';
+import { CustomTokenService } from '../shopify/sessions/custom.token.service';
 
 @Injectable()
 export class ManagerProxyMiddleware implements NestMiddleware {
@@ -51,6 +51,15 @@ export class ManagerProxyMiddleware implements NestMiddleware {
             next();
             return;
         }
+
+        // Only proxy GET requests — manager doesn't accept other methods.
+        // Rejecting early prevents ERR_STREAM_WRITE_AFTER_END errors that occur
+        // when http-proxy tries to pipe a POST body into an already-ended proxy request.
+        if (req.method !== 'GET') {
+            res.status(405).send('Method Not Allowed');
+            return;
+        }
+
         this.managerProxy(req, res, next);
     }
 }
