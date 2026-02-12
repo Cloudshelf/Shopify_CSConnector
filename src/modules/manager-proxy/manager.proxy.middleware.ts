@@ -52,10 +52,22 @@ export class ManagerProxyMiddleware implements NestMiddleware {
             return;
         }
 
-        // Only proxy GET requests — manager doesn't accept other methods.
-        // Rejecting early prevents ERR_STREAM_WRITE_AFTER_END errors that occur
-        // when http-proxy tries to pipe a POST body into an already-ended proxy request.
-        if (req.method !== 'GET') {
+        const ALLOWED_METHODS = 'GET, HEAD, OPTIONS';
+
+        // Handle CORS preflight requests directly.
+        if (req.method === 'OPTIONS') {
+            res.setHeader('Allow', ALLOWED_METHODS);
+            res.status(204).end();
+            return;
+        }
+
+        // Allow GET and HEAD through to the proxy. HEAD is handled natively by
+        // http-proxy-middleware (it forwards the request and strips the body).
+        // All other methods (POST, PUT, DELETE, etc.) are rejected early to
+        // prevent ERR_STREAM_WRITE_AFTER_END errors that occur when http-proxy
+        // tries to pipe a request body into an already-ended proxy request.
+        if (req.method !== 'GET' && req.method !== 'HEAD') {
+            res.setHeader('Allow', ALLOWED_METHODS);
             res.status(405).send('Method Not Allowed');
             return;
         }
