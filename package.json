@@ -235,6 +235,9 @@
       "optional": true
     }
   },
+  "overrides": {
+    "minimatch": ">=10.2.1"
+  },
   "jest": {
     "roots": [
       "<rootDir>"
