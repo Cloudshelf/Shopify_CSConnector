@@ -912,7 +912,7 @@ export type AppInstallation = HasMetafields & Node & {
   app: App;
   /**
    * Channel associated with the installed application.
-   * @deprecated Use `publication` instead.
+   * @deprecated Use the root-level `channels` query instead.
    */
   channel?: Maybe<Channel>;
   /** Credits that can be used towards future app purchases. */
@@ -934,7 +934,10 @@ export type AppInstallation = HasMetafields & Node & {
   metafields: MetafieldConnection;
   /** One-time purchases to a shop. */
   oneTimePurchases: AppPurchaseOneTimeConnection;
-  /** The publication associated with the installed application. */
+  /**
+   * The publication associated with the installed application.
+   * @deprecated Use the root-level `publications` query instead.
+   */
   publication?: Maybe<Publication>;
   /** The records that track the externally-captured revenue for the app. The records are used for revenue attribution purposes. */
   revenueAttributionRecords: AppRevenueAttributionRecordConnection;
@@ -2515,7 +2518,7 @@ export enum BillingAttemptUserErrorCode {
   ContractPaused = 'CONTRACT_PAUSED',
   /** Subscription contract cannot be billed once terminated. */
   ContractTerminated = 'CONTRACT_TERMINATED',
-  /** Subscription contract is under review. */
+  /** Subscription contract is under review, origin order is high risk and unfulfilled. */
   ContractUnderReview = 'CONTRACT_UNDER_REVIEW',
   /** Billing cycle selector cannot select billing cycle outside of index range. */
   CycleIndexOutOfRange = 'CYCLE_INDEX_OUT_OF_RANGE',
@@ -4374,6 +4377,8 @@ export enum CashTrackingSessionsSortKeys {
 /**
  * A list of products with publishing and pricing information.
  * A catalog can be associated with a specific context, such as a [`Market`](https://shopify.dev/api/admin-graphql/current/objects/market), [`CompanyLocation`](https://shopify.dev/api/admin-graphql/current/objects/companylocation), or [`App`](https://shopify.dev/api/admin-graphql/current/objects/app).
+ *
+ * Catalogs can optionally include a publication to control product visibility and a price list to customize pricing. When a publication isn't associated with a catalog, product availability is determined by the sales channel.
  */
 export type Catalog = {
   /** A globally-unique ID. */
@@ -4424,7 +4429,7 @@ export type CatalogCreateInput = {
   context: CatalogContextInput;
   /** The ID of the price list to associate to the catalog. */
   priceListId?: InputMaybe<Scalars['ID']['input']>;
-  /** The ID of the publication to associate to the catalog. */
+  /** The ID of the publication to associate to the catalog. Only include this if you need to control which products are visible in the catalog. When omitted, product availability is determined by the sales channel. */
   publicationId?: InputMaybe<Scalars['ID']['input']>;
   /** The status of the catalog. */
   status: CatalogStatus;
@@ -6601,6 +6606,7 @@ export type Collection = HasEvents & HasMetafieldDefinitions & HasMetafields & H
    * Whether the resource is published to the app's
    * [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
    * For example, the resource might be published to the app's online store channel.
+   * @deprecated Use `publishedOnPublication` instead.
    */
   publishedOnCurrentPublication: Scalars['Boolean']['output'];
   /**
@@ -9222,7 +9228,11 @@ export type CompanyLocationAssignTaxExemptionsPayload = {
   userErrors: Array<BusinessCustomerUserError>;
 };
 
-/** A list of products with publishing and pricing information associated with company locations. */
+/**
+ * A list of products with publishing and pricing information associated with company locations.
+ *
+ * Company location catalogs can include an optional publication to control product visibility and a price list to customize pricing. When a publication isn't associated with the catalog, product availability is determined by the sales channel.
+ */
 export type CompanyLocationCatalog = Catalog & Node & {
   __typename?: 'CompanyLocationCatalog';
   /** The company locations associated with the catalog. */
@@ -9244,7 +9254,11 @@ export type CompanyLocationCatalog = Catalog & Node & {
 };
 
 
-/** A list of products with publishing and pricing information associated with company locations. */
+/**
+ * A list of products with publishing and pricing information associated with company locations.
+ *
+ * Company location catalogs can include an optional publication to control product visibility and a price list to customize pricing. When a publication isn't associated with the catalog, product availability is determined by the sales channel.
+ */
 export type CompanyLocationCatalogCompanyLocationsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -10656,8 +10670,8 @@ export type CustomShippingPackageInput = {
 export type Customer = CommentEventSubject & HasEvents & HasMetafieldDefinitions & HasMetafields & HasStoreCreditAccounts & LegacyInteroperability & Node & {
   __typename?: 'Customer';
   /**
-   * A list of addresses associated with the customer. Limited to 250 addresses. Use `addresses_v2` for paginated access to all addresses.
-   * @deprecated Limited to 250 addresses. Use `addresses_v2` for paginated access to all addresses.
+   * A list of addresses associated with the customer. Limited to 250 addresses. Use `addressesV2` for paginated access to all addresses.
+   * @deprecated Limited to 250 addresses. Use `addressesV2` for paginated access to all addresses.
    */
   addresses: Array<MailingAddress>;
   /** The addresses associated with the customer. */
@@ -11446,8 +11460,6 @@ export type CustomerIdentifierInput = {
 
 /** The input fields and values to use when creating or updating a customer. */
 export type CustomerInput = {
-  /** The addresses for a customer. */
-  addresses?: InputMaybe<Array<MailingAddressInput>>;
   /** The unique email address of the customer. */
   email?: InputMaybe<Scalars['String']['input']>;
   /**
@@ -15873,8 +15885,8 @@ export type DiscountCodeApp = {
   /** The date and time when the discount was updated. */
   updatedAt: Scalars['DateTime']['output'];
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: Maybe<Scalars['Int']['output']>;
 };
@@ -15955,8 +15967,8 @@ export type DiscountCodeAppInput = {
   /** The discount's name that displays to merchants in the Shopify admin and to customers. */
   title?: InputMaybe<Scalars['String']['input']>;
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -16104,8 +16116,8 @@ export type DiscountCodeBasic = {
   /** The date and time when the discount was updated. */
   updatedAt: Scalars['DateTime']['output'];
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: Maybe<Scalars['Int']['output']>;
 };
@@ -16188,8 +16200,8 @@ export type DiscountCodeBasicInput = {
   /** The discount's name that displays to merchants in the Shopify admin and to customers. */
   title?: InputMaybe<Scalars['String']['input']>;
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -16327,8 +16339,8 @@ export type DiscountCodeBxgy = {
   /** The date and time when the discount was updated. */
   updatedAt: Scalars['DateTime']['output'];
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: Maybe<Scalars['Int']['output']>;
   /** The maximum number of times that the discount can be applied to an order. */
@@ -16415,8 +16427,8 @@ export type DiscountCodeBxgyInput = {
   /** The discount's name that displays to merchants in the Shopify admin and to customers. */
   title?: InputMaybe<Scalars['String']['input']>;
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: InputMaybe<Scalars['Int']['input']>;
   /** The maximum number of times that the discount can be applied to an order. */
@@ -16582,8 +16594,8 @@ export type DiscountCodeFreeShipping = {
   /** The date and time when the discount was updated. */
   updatedAt: Scalars['DateTime']['output'];
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: Maybe<Scalars['Int']['output']>;
 };
@@ -16679,8 +16691,8 @@ export type DiscountCodeFreeShippingInput = {
   /** The discount's name that displays to merchants in the Shopify admin and to customers. */
   title?: InputMaybe<Scalars['String']['input']>;
   /**
-   * The maximum number of times that a customer can use the discount.
-   * For discounts with unlimited usage, specify `null`.
+   * The maximum number of times the discount can be redeemed.
+   * For unlimited usage, specify `null`.
    */
   usageLimit?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -26901,7 +26913,7 @@ export type MarketWebPresencesArgs = {
 };
 
 /**
- * A catalog for managing product availability and pricing for specific [`Market`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) contexts. Each catalog links to one or more markets and defines what [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) objects customers see through its [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) settings. The catalog can include a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for market-specific pricing adjustments.
+ * A catalog for managing product availability and pricing for specific [`Market`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) contexts. Each catalog links to one or more markets. The catalog can optionally include a [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) to control which [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) objects customers see, and a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for market-specific pricing adjustments. When a publication isn't associated with the catalog, product availability is determined by the sales channel.
  *
  * Use catalogs to create distinct shopping experiences for different geographic regions or customer segments.
  *
@@ -26929,7 +26941,7 @@ export type MarketCatalog = Catalog & Node & {
 
 
 /**
- * A catalog for managing product availability and pricing for specific [`Market`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) contexts. Each catalog links to one or more markets and defines what [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) objects customers see through its [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) settings. The catalog can include a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for market-specific pricing adjustments.
+ * A catalog for managing product availability and pricing for specific [`Market`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) contexts. Each catalog links to one or more markets. The catalog can optionally include a [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) to control which [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) objects customers see, and a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for market-specific pricing adjustments. When a publication isn't associated with the catalog, product availability is determined by the sales channel.
  *
  * Use catalogs to create distinct shopping experiences for different geographic regions or customer segments.
  *
@@ -26947,7 +26959,7 @@ export type MarketCatalogMarketsArgs = {
 
 
 /**
- * A catalog for managing product availability and pricing for specific [`Market`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) contexts. Each catalog links to one or more markets and defines what [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) objects customers see through its [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) settings. The catalog can include a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for market-specific pricing adjustments.
+ * A catalog for managing product availability and pricing for specific [`Market`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) contexts. Each catalog links to one or more markets. The catalog can optionally include a [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) to control which [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) objects customers see, and a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for market-specific pricing adjustments. When a publication isn't associated with the catalog, product availability is determined by the sales channel.
  *
  * Use catalogs to create distinct shopping experiences for different geographic regions or customer segments.
  *
@@ -27561,6 +27573,8 @@ export enum MarketUserErrorCode {
   MarketNotFound = 'MARKET_NOT_FOUND',
   /** Can't add another web presence to the market. */
   MarketReachedWebPresenceLimit = 'MARKET_REACHED_WEB_PRESENCE_LIMIT',
+  /** The country code is missing. */
+  MissingCountryCode = 'MISSING_COUNTRY_CODE',
   /** The province code is missing. */
   MissingProvinceCode = 'MISSING_PROVINCE_CODE',
   /** All retail locations in a market must be in the same country. */
@@ -31946,9 +31960,26 @@ export type Mutation = {
    */
   catalogContextUpdate?: Maybe<CatalogContextUpdatePayload>;
   /**
-   * Creates a [`Catalog`](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/Catalog) that controls product availability and pricing for specific contexts like [markets](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) or B2B [company locations](https://shopify.dev/docs/api/admin-graphql/latest/objects/CompanyLocation). Catalogs use [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) objects to determine which products are available and [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) objects to set custom pricing.
+   * Creates a [`Catalog`](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/Catalog) that controls product availability and pricing for specific contexts like [markets](https://shopify.dev/docs/api/admin-graphql/latest/objects/Market) or B2B [company locations](https://shopify.dev/docs/api/admin-graphql/latest/objects/CompanyLocation).
+   *
+   * ### Publications and Price Lists
+   *
+   * - **[`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)** objects control which products are visible in a catalog. Publications are **optional**. When a publication isn't associated with a catalog, product availability is determined by the sales channel.
+   * - **[`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList)** objects define custom pricing for products in a catalog.
    *
    * You can optionally associate a publication and price list when creating the catalog, or add them later using separate mutations.
+   *
+   * ### When to use Publications
+   *
+   * **Create a publication only if you need to:**
+   * - Limit which products are visible in a specific context (e.g., show different products to different company locations or markets)
+   * - Publish a curated subset of your product catalog
+   *
+   * **Do NOT create a publication if:**
+   * - You want product availability determined by the sales channel
+   * - You only need to customize pricing (use a price list without a publication)
+   *
+   * > **Important:** For company location catalogs that only require custom pricing, create the catalog with a price list but without a publication.
    *
    * Learn more about [managing catalog contexts](https://shopify.dev/docs/apps/build/markets/new-markets/catalogs) and [using catalogs for different markets](https://shopify.dev/docs/apps/build/markets/catalogs-different-markets).
    */
@@ -33337,6 +33368,7 @@ export type Mutation = {
    * > As of 2026-01, this mutation supports an optional idempotency key using the `@idempotent` directive.
    * > As of 2026-04, the idempotency key is required and must be provided using the `@idempotent` directive.
    * > For more information, see the [idempotency documentation](https://shopify.dev/docs/api/usage/idempotent-requests).
+   * @deprecated Scheduled changes will be phased out in a future version.
    */
   inventorySetScheduledChanges?: Maybe<InventorySetScheduledChangesPayload>;
   /**
@@ -34497,6 +34529,20 @@ export type Mutation = {
   /**
    * Creates a [`Publication`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication) that controls which [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) and [`Collection`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Collection) customers can access through a [`Catalog`](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/Catalog).
    *
+   * ### When to create a publication
+   *
+   * Publications are **optional** for catalogs. Only create a publication if you need to control which products are visible in a specific catalog context. When a publication isn't associated with a catalog, product availability is determined by the sales channel.
+   *
+   * **Create a publication if you need to:**
+   * - Restrict product visibility to a subset of your inventory for a specific market or company location
+   * - Publish different product selections to different contexts
+   *
+   * **Do NOT create a publication if:**
+   * - You want product availability determined by the sales channel
+   * - You only need custom pricing (use a price list on the catalog instead)
+   *
+   * ### Configuration options
+   *
    * You can create an empty publication and add products later, or prepopulate it with all existing products. The [`autoPublish`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/publicationCreate#arguments-input.fields.autoPublish) field determines whether the publication automatically adds newly created products.
    */
   publicationCreate?: Maybe<PublicationCreatePayload>;
@@ -34520,6 +34566,7 @@ export type Mutation = {
    * Publishes a resource to the current [`Channel`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Channel) associated with the requesting app. The system determines the current channel by the app's API client ID. Resources include [`Product`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product) and [`Collection`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Collection) objects that implement the [`Publishable`](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/Publishable) interface.
    *
    * For products to be visible in the channel, they must have an active [`ProductStatus`](https://shopify.dev/docs/api/admin-graphql/latest/enums/ProductStatus). Products sold exclusively on subscription ([`requiresSellingPlan`](https://shopify.dev/docs/api/admin-graphql/latest/objects/Product#field-Product.fields.requiresSellingPlan): `true`) can only be published to online stores.
+   * @deprecated Use `publishablePublish` instead.
    */
   publishablePublishToCurrentChannel?: Maybe<PublishablePublishToCurrentChannelPayload>;
   /**
@@ -34528,7 +34575,10 @@ export type Mutation = {
    * For products to be visible in a channel, they must have an active [`ProductStatus`](https://shopify.dev/docs/api/admin-graphql/latest/enums/ProductStatus).
    */
   publishableUnpublish?: Maybe<PublishableUnpublishPayload>;
-  /** Unpublishes a resource from the current channel. If the resource is a product, then it's visible in the channel only if the product status is `active`. */
+  /**
+   * Unpublishes a resource from the current channel. If the resource is a product, then it's visible in the channel only if the product status is `active`.
+   * @deprecated Use `publishableUnpublish` instead.
+   */
   publishableUnpublishToCurrentChannel?: Maybe<PublishableUnpublishToCurrentChannelPayload>;
   /**
    * Updates quantity pricing on a [`PriceList`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceList) for specific [`ProductVariant`](https://shopify.dev/docs/api/admin-graphql/latest/objects/ProductVariant) objects. You can set fixed prices (see [`PriceListPrice`](https://shopify.dev/docs/api/admin-graphql/latest/objects/PriceListPrice)), quantity rules, and quantity price breaks in a single operation.
@@ -41610,7 +41660,9 @@ export type OrderTransaction = Node & {
   processedAt?: Maybe<Scalars['DateTime']['output']>;
   /**
    * The transaction receipt that the payment gateway attaches to the transaction.
-   * The value of this field depends on which payment gateway processed the transaction.
+   * > **Note:** This field is **gateway-specific** and **not a stable contract**.
+   * > Its structure and contents can vary by payment gateway and may change without notice.
+   * > Apps **shouldn't parse or rely on this field for business logic**; prefer typed fields on `OrderTransaction` and related objects.
    */
   receiptJson?: Maybe<Scalars['JSON']['output']>;
   /** The settlement currency. */
@@ -44400,6 +44452,7 @@ export type Product = HasEvents & HasMetafieldDefinitions & HasMetafields & HasP
    * Whether the resource is published to the app's
    * [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
    * For example, the resource might be published to the app's online store channel.
+   * @deprecated Use `publishedOnPublication` instead.
    */
   publishedOnCurrentPublication: Scalars['Boolean']['output'];
   /**
@@ -44417,6 +44470,7 @@ export type Product = HasEvents & HasMetafieldDefinitions & HasMetafields & HasP
   /**
    * The resource that's either published or staged to be published to
    * the [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
+   * @deprecated Use `resourcePublications` instead.
    */
   resourcePublicationOnCurrentPublication?: Maybe<ResourcePublicationV2>;
   /**
@@ -48484,6 +48538,7 @@ export type Publishable = {
    * Whether the resource is published to the app's
    * [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
    * For example, the resource might be published to the app's online store channel.
+   * @deprecated Use `publishedOnPublication` instead.
    */
   publishedOnCurrentPublication: Scalars['Boolean']['output'];
   /**
@@ -59584,21 +59639,27 @@ export type SubscriptionBillingAttempt = Node & {
   createdAt: Scalars['DateTime']['output'];
   /**
    * A code corresponding to a payment error during processing.
-   * @deprecated Use `processingError.code` instead to get the errorCode
+   * @deprecated Use `state` instead.
    */
   errorCode?: Maybe<SubscriptionBillingAttemptErrorCode>;
   /**
    * A message describing a payment error during processing.
-   * @deprecated Use `processingError.message` instead to get the errorMessage
+   * @deprecated Use `state` instead.
    */
   errorMessage?: Maybe<Scalars['String']['output']>;
   /** A globally-unique ID. */
   id: Scalars['ID']['output'];
   /** A unique key generated by the client to avoid duplicate payments. */
   idempotencyKey: Scalars['String']['output'];
-  /** The URL where the customer needs to be redirected so they can complete the 3D Secure payment flow. */
+  /**
+   * The URL where the customer needs to be redirected so they can complete the 3D Secure payment flow.
+   * @deprecated Use `state` instead.
+   */
   nextActionUrl?: Maybe<Scalars['URL']['output']>;
-  /** The result of this billing attempt if completed successfully. */
+  /**
+   * The result of this billing attempt if completed successfully.
+   * @deprecated Use `state` instead.
+   */
   order?: Maybe<Order>;
   /**
    * The date and time used to calculate fulfillment intervals for a billing attempt that
@@ -59610,9 +59671,15 @@ export type SubscriptionBillingAttempt = Node & {
   paymentGroupId?: Maybe<Scalars['String']['output']>;
   /** The reference shared between payment attempts with similar payment details. */
   paymentSessionId?: Maybe<Scalars['String']['output']>;
-  /** Error information from processing the billing attempt. */
+  /**
+   * Error information from processing the billing attempt.
+   * @deprecated Use `state` instead.
+   */
   processingError?: Maybe<SubscriptionBillingAttemptProcessingError>;
-  /** Whether the billing attempt is still processing. */
+  /**
+   * Whether the billing attempt is still processing.
+   * @deprecated Use `state` instead.
+   */
   ready: Scalars['Boolean']['output'];
   /** Whether the billing attempt respects the merchant's inventory policy. */
   respectInventoryPolicy: Scalars['Boolean']['output'];
@@ -59672,7 +59739,7 @@ export type SubscriptionBillingAttemptEdge = {
 export enum SubscriptionBillingAttemptErrorCode {
   /** The amount is too small. */
   AmountTooSmall = 'AMOUNT_TOO_SMALL',
-  /** There was an error during the authentication. */
+  /** There was an error during the payment authentication. */
   AuthenticationError = 'AUTHENTICATION_ERROR',
   /** Payment method was canceled by buyer. */
   BuyerCanceledPaymentMethod = 'BUYER_CANCELED_PAYMENT_METHOD',
@@ -63173,7 +63240,7 @@ export enum TranslatableResourceType {
   Blog = 'BLOG',
   /** A product collection. Translatable fields: `title`, `body_html`, `handle`, `meta_title`, `meta_description`. */
   Collection = 'COLLECTION',
-  /** The delivery method definition. For example, "Standard", or "Expedited". Translatable fields: `name`. */
+  /** The delivery method definition. For example, "Standard", or "Expedited". Translatable fields: `name`, `description`. */
   DeliveryMethodDefinition = 'DELIVERY_METHOD_DEFINITION',
   /** An email template. Translatable fields: `title`, `body_html`. */
   EmailTemplate = 'EMAIL_TEMPLATE',

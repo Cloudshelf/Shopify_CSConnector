@@ -97,7 +97,12 @@ export type AppliedGiftCard = Node & {
   presentmentAmountUsed: MoneyV2;
 };
 
-/** An article in an online store blog. */
+/**
+ * A post that belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog). Each article includes content with optional HTML formatting, an excerpt for previews, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, and an associated [`Image`](https://shopify.dev/docs/api/storefront/current/objects/Image).
+ *
+ * Articles can be organized with tags and include [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) metadata. You can manage [comments](https://shopify.dev/docs/api/storefront/current/objects/Comment) when the blog's comment policy enables them.
+ *
+ */
 export type Article = HasMetafields & Node & OnlineStorePublishable & Trackable & {
   __typename?: 'Article';
   /**
@@ -147,7 +152,12 @@ export type Article = HasMetafields & Node & OnlineStorePublishable & Trackable 
 };
 
 
-/** An article in an online store blog. */
+/**
+ * A post that belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog). Each article includes content with optional HTML formatting, an excerpt for previews, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, and an associated [`Image`](https://shopify.dev/docs/api/storefront/current/objects/Image).
+ *
+ * Articles can be organized with tags and include [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) metadata. You can manage [comments](https://shopify.dev/docs/api/storefront/current/objects/Comment) when the blog's comment policy enables them.
+ *
+ */
 export type ArticleCommentsArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -157,26 +167,46 @@ export type ArticleCommentsArgs = {
 };
 
 
-/** An article in an online store blog. */
+/**
+ * A post that belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog). Each article includes content with optional HTML formatting, an excerpt for previews, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, and an associated [`Image`](https://shopify.dev/docs/api/storefront/current/objects/Image).
+ *
+ * Articles can be organized with tags and include [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) metadata. You can manage [comments](https://shopify.dev/docs/api/storefront/current/objects/Comment) when the blog's comment policy enables them.
+ *
+ */
 export type ArticleContentArgs = {
   truncateAt?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-/** An article in an online store blog. */
+/**
+ * A post that belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog). Each article includes content with optional HTML formatting, an excerpt for previews, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, and an associated [`Image`](https://shopify.dev/docs/api/storefront/current/objects/Image).
+ *
+ * Articles can be organized with tags and include [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) metadata. You can manage [comments](https://shopify.dev/docs/api/storefront/current/objects/Comment) when the blog's comment policy enables them.
+ *
+ */
 export type ArticleExcerptArgs = {
   truncateAt?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
-/** An article in an online store blog. */
+/**
+ * A post that belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog). Each article includes content with optional HTML formatting, an excerpt for previews, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, and an associated [`Image`](https://shopify.dev/docs/api/storefront/current/objects/Image).
+ *
+ * Articles can be organized with tags and include [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) metadata. You can manage [comments](https://shopify.dev/docs/api/storefront/current/objects/Comment) when the blog's comment policy enables them.
+ *
+ */
 export type ArticleMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** An article in an online store blog. */
+/**
+ * A post that belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog). Each article includes content with optional HTML formatting, an excerpt for previews, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, and an associated [`Image`](https://shopify.dev/docs/api/storefront/current/objects/Image).
+ *
+ * Articles can be organized with tags and include [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) metadata. You can manage [comments](https://shopify.dev/docs/api/storefront/current/objects/Comment) when the blog's comment policy enables them.
+ *
+ */
 export type ArticleMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
@@ -285,7 +315,12 @@ export type AutomaticDiscountApplication = DiscountApplication & {
   value: PricingValue;
 };
 
-/** Represents a cart line common fields. */
+/**
+ * Defines the shared fields for items in a shopping cart. Implemented by [`CartLine`](https://shopify.dev/docs/api/storefront/current/objects/CartLine) for individual merchandise and [`ComponentizableCartLine`](https://shopify.dev/docs/api/storefront/current/objects/ComponentizableCartLine) for grouped merchandise like bundles.
+ *
+ * Each implementation includes the merchandise being purchased, quantity, cost breakdown, applied discounts, custom attributes, and any associated [`SellingPlan`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlan).
+ *
+ */
 export type BaseCartLine = {
   /** An attribute associated with the cart line. */
   attribute?: Maybe<Attribute>;
@@ -311,7 +346,12 @@ export type BaseCartLine = {
 };
 
 
-/** Represents a cart line common fields. */
+/**
+ * Defines the shared fields for items in a shopping cart. Implemented by [`CartLine`](https://shopify.dev/docs/api/storefront/current/objects/CartLine) for individual merchandise and [`ComponentizableCartLine`](https://shopify.dev/docs/api/storefront/current/objects/ComponentizableCartLine) for grouped merchandise like bundles.
+ *
+ * Each implementation includes the merchandise being purchased, quantity, cost breakdown, applied discounts, custom attributes, and any associated [`SellingPlan`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlan).
+ *
+ */
 export type BaseCartLineAttributeArgs = {
   key: Scalars['String']['input'];
 };
@@ -342,7 +382,12 @@ export type BaseCartLineEdge = {
   node: BaseCartLine;
 };
 
-/** An online store blog. */
+/**
+ * A blog container for [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects. Stores can have multiple blogs, for example to organize content by topic or purpose.
+ *
+ * Each blog provides access to its articles, contributing [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) objects, and [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information. You can retrieve articles individually [by handle](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articleByHandle) or as a [paginated list](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articles).
+ *
+ */
 export type Blog = HasMetafields & Node & OnlineStorePublishable & {
   __typename?: 'Blog';
   /** Find an article by its handle. */
@@ -371,13 +416,23 @@ export type Blog = HasMetafields & Node & OnlineStorePublishable & {
 };
 
 
-/** An online store blog. */
+/**
+ * A blog container for [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects. Stores can have multiple blogs, for example to organize content by topic or purpose.
+ *
+ * Each blog provides access to its articles, contributing [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) objects, and [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information. You can retrieve articles individually [by handle](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articleByHandle) or as a [paginated list](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articles).
+ *
+ */
 export type BlogArticleByHandleArgs = {
   handle: Scalars['String']['input'];
 };
 
 
-/** An online store blog. */
+/**
+ * A blog container for [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects. Stores can have multiple blogs, for example to organize content by topic or purpose.
+ *
+ * Each blog provides access to its articles, contributing [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) objects, and [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information. You can retrieve articles individually [by handle](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articleByHandle) or as a [paginated list](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articles).
+ *
+ */
 export type BlogArticlesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -389,14 +444,24 @@ export type BlogArticlesArgs = {
 };
 
 
-/** An online store blog. */
+/**
+ * A blog container for [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects. Stores can have multiple blogs, for example to organize content by topic or purpose.
+ *
+ * Each blog provides access to its articles, contributing [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) objects, and [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information. You can retrieve articles individually [by handle](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articleByHandle) or as a [paginated list](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articles).
+ *
+ */
 export type BlogMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** An online store blog. */
+/**
+ * A blog container for [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects. Stores can have multiple blogs, for example to organize content by topic or purpose.
+ *
+ * Each blog provides access to its articles, contributing [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) objects, and [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information. You can retrieve articles individually [by handle](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articleByHandle) or as a [paginated list](https://shopify.dev/docs/api/storefront/current/objects/Blog#field-Blog.fields.articles).
+ *
+ */
 export type BlogMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
@@ -444,7 +509,7 @@ export enum BlogSortKeys {
 }
 
 /**
- * The store's [branding configuration](https://help.shopify.com/en/manual/promoting-marketing/managing-brand-assets).
+ * The store's [branding configuration](https://help.shopify.com/manual/promoting-marketing/managing-brand-assets), such as logos, colors, and slogan. Access this through the [`Shop`](https://shopify.dev/docs/api/storefront/current/objects/Shop#field-Shop.fields.brand) object to display consistent brand assets across your storefront.
  *
  */
 export type Brand = {
@@ -515,10 +580,11 @@ export enum CardBrand {
 }
 
 /**
- * A cart represents the merchandise that a buyer intends to purchase,
- * and the estimated cost associated with the cart. Learn how to
- * [interact with a cart](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * during a customer's session.
+ * A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart, throughout a customer's session.
+ *
+ * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-checkoutUrl) field to direct buyers to Shopify's web checkout to complete their purchase.
+ *
+ * Learn more about [interacting with carts](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
  *
  */
 export type Cart = HasMetafields & Node & {
@@ -572,10 +638,11 @@ export type Cart = HasMetafields & Node & {
 
 
 /**
- * A cart represents the merchandise that a buyer intends to purchase,
- * and the estimated cost associated with the cart. Learn how to
- * [interact with a cart](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * during a customer's session.
+ * A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart, throughout a customer's session.
+ *
+ * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-checkoutUrl) field to direct buyers to Shopify's web checkout to complete their purchase.
+ *
+ * Learn more about [interacting with carts](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
  *
  */
 export type CartAttributeArgs = {
@@ -584,10 +651,11 @@ export type CartAttributeArgs = {
 
 
 /**
- * A cart represents the merchandise that a buyer intends to purchase,
- * and the estimated cost associated with the cart. Learn how to
- * [interact with a cart](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * during a customer's session.
+ * A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart, throughout a customer's session.
+ *
+ * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-checkoutUrl) field to direct buyers to Shopify's web checkout to complete their purchase.
+ *
+ * Learn more about [interacting with carts](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
  *
  */
 export type CartDeliveryGroupsArgs = {
@@ -601,10 +669,11 @@ export type CartDeliveryGroupsArgs = {
 
 
 /**
- * A cart represents the merchandise that a buyer intends to purchase,
- * and the estimated cost associated with the cart. Learn how to
- * [interact with a cart](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * during a customer's session.
+ * A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart, throughout a customer's session.
+ *
+ * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-checkoutUrl) field to direct buyers to Shopify's web checkout to complete their purchase.
+ *
+ * Learn more about [interacting with carts](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
  *
  */
 export type CartLinesArgs = {
@@ -617,10 +686,11 @@ export type CartLinesArgs = {
 
 
 /**
- * A cart represents the merchandise that a buyer intends to purchase,
- * and the estimated cost associated with the cart. Learn how to
- * [interact with a cart](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * during a customer's session.
+ * A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart, throughout a customer's session.
+ *
+ * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-checkoutUrl) field to direct buyers to Shopify's web checkout to complete their purchase.
+ *
+ * Learn more about [interacting with carts](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
  *
  */
 export type CartMetafieldArgs = {
@@ -630,10 +700,11 @@ export type CartMetafieldArgs = {
 
 
 /**
- * A cart represents the merchandise that a buyer intends to purchase,
- * and the estimated cost associated with the cart. Learn how to
- * [interact with a cart](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * during a customer's session.
+ * A cart represents the merchandise that a buyer intends to purchase, and the estimated cost associated with the cart, throughout a customer's session.
+ *
+ * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-checkoutUrl) field to direct buyers to Shopify's web checkout to complete their purchase.
+ *
+ * Learn more about [interacting with carts](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
  *
  */
 export type CartMetafieldsArgs = {
@@ -643,7 +714,10 @@ export type CartMetafieldsArgs = {
 /** A delivery address of the buyer that is interacting with the cart. */
 export type CartAddress = CartDeliveryAddress;
 
-/** The input fields to provide exactly one of a variety of delivery address types. */
+/**
+ * Specifies a delivery address for a cart. Provide either a [`deliveryAddress`](https://shopify.dev/docs/api/storefront/current/input-objects/CartAddressInput#fields-deliveryAddress) with full address details, or a [`copyFromCustomerAddressId`](https://shopify.dev/docs/api/storefront/current/input-objects/CartAddressInput#fields-copyFromCustomerAddressId) to copy from an existing customer address. Used by [`CartSelectableAddressInput`](https://shopify.dev/docs/api/storefront/current/input-objects/CartSelectableAddressInput) and [`CartSelectableAddressUpdateInput`](https://shopify.dev/docs/api/storefront/current/input-objects/CartSelectableAddressUpdateInput).
+ *
+ */
 export type CartAddressInput = {
   /** Copies details from the customer address to an address on this cart. */
   copyFromCustomerAddressId?: InputMaybe<Scalars['ID']['input']>;
@@ -686,7 +760,12 @@ export type CartBillingAddressUpdatePayload = {
   warnings: Array<CartWarning>;
 };
 
-/** Represents information about the buyer that is interacting with the cart. */
+/**
+ * Contact information about the buyer interacting with a [cart](https://shopify.dev/docs/api/storefront/current/objects/Cart). The buyer's country determines [international pricing](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/markets/international-pricing) and should match their shipping address.
+ *
+ * For B2B scenarios, the [`purchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/CartBuyerIdentity#field-CartBuyerIdentity.fields.purchasingCompany) field identifies the company and location on whose behalf a business customer purchases. The [`preferences`](https://shopify.dev/docs/api/storefront/current/objects/CartBuyerIdentity#field-CartBuyerIdentity.fields.preferences) field stores delivery and wallet settings that prefill checkout fields to streamline the buying process.
+ *
+ */
 export type CartBuyerIdentity = {
   __typename?: 'CartBuyerIdentity';
   /** The country where the buyer is located. */
@@ -722,10 +801,12 @@ export type CartBuyerIdentity = {
 };
 
 /**
- * Specifies the input fields to update the buyer information associated with a cart.
- * Buyer identity is used to determine
- * [international pricing](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
- * and should match the customer's shipping address.
+ * The input fields for identifying the buyer associated with a cart. Buyer identity determines [international pricing](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/markets/international-pricing) and should match the customer's shipping address.
+ *
+ * Used by [`cartCreate`](https://shopify.dev/docs/api/storefront/current/mutations/cartCreate) and [`cartBuyerIdentityUpdate`](https://shopify.dev/docs/api/storefront/current/mutations/cartBuyerIdentityUpdate) to set contact information, location, and checkout preferences.
+ *
+ * > Note:
+ * > Preferences prefill fields at checkout but don't sync back to the cart if overwritten.
  *
  */
 export type CartBuyerIdentityInput = {
@@ -831,9 +912,9 @@ export type CartCompletionSuccess = {
 };
 
 /**
- * The costs that the buyer will pay at checkout.
- * The cart cost uses [`CartBuyerIdentity`](https://shopify.dev/api/storefront/reference/cart/cartbuyeridentity) to determine
- * [international pricing](https://shopify.dev/custom-storefronts/internationalization/international-pricing).
+ * The estimated costs that a buyer will pay at checkout. The `Cart` object's [`cost`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-Cart.fields.cost) field returns this. The costs are subject to change and changes will be reflected at checkout. Costs reflect [international pricing](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/markets/international-pricing) based on the buyer's context.
+ *
+ * Amounts include the subtotal before taxes and cart-level discounts, the checkout charge amount excluding deferred payments, and the total. The subtotal and total amounts each include a corresponding boolean field indicating whether the value is an estimate.
  *
  */
 export type CartCost = {
@@ -1090,7 +1171,12 @@ export type CartDeliveryCoordinatesPreferenceInput = {
   longitude: Scalars['Float']['input'];
 };
 
-/** Information about the options available for one or more line items to be delivered to a specific address. */
+/**
+ * Groups cart line items that share the same delivery destination. Each group provides the available [`CartDeliveryOption`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryOption) choices for that address, along with the customer's selected option.
+ *
+ * Access through the [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) object's `deliveryGroups` field. Items are grouped by merchandise type (one-time purchase vs subscription), allowing different delivery methods for each.
+ *
+ */
 export type CartDeliveryGroup = {
   __typename?: 'CartDeliveryGroup';
   /** A list of cart lines for the delivery group. */
@@ -1108,7 +1194,12 @@ export type CartDeliveryGroup = {
 };
 
 
-/** Information about the options available for one or more line items to be delivered to a specific address. */
+/**
+ * Groups cart line items that share the same delivery destination. Each group provides the available [`CartDeliveryOption`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryOption) choices for that address, along with the customer's selected option.
+ *
+ * Access through the [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) object's `deliveryGroups` field. Items are grouped by merchandise type (one-time purchase vs subscription), allowing different delivery methods for each.
+ *
+ */
 export type CartDeliveryGroupCartLinesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -1168,7 +1259,12 @@ export type CartDeliveryInput = {
   addresses?: InputMaybe<Array<CartSelectableAddressInput>>;
 };
 
-/** Information about a delivery option. */
+/**
+ * A shipping or delivery choice available to customers during checkout. Each option includes a title, estimated cost, and delivery method type such as shipping or local pickup.
+ *
+ * Returned by the [`CartDeliveryGroup`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryGroup) object's [`deliveryOptions`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryGroup#field-CartDeliveryGroup.fields.deliveryOptions) field and [`selectedDeliveryOption`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryGroup#field-CartDeliveryGroup.fields.selectedDeliveryOption) field.
+ *
+ */
 export type CartDeliveryOption = {
   __typename?: 'CartDeliveryOption';
   /** The code of the delivery option. */
@@ -1284,7 +1380,10 @@ export type CartDiscountCodesUpdatePayload = {
   warnings: Array<CartWarning>;
 };
 
-/** Possible error codes that can be returned by `CartUserError`. */
+/**
+ * Error codes returned by [`CartUserError`](https://shopify.dev/docs/api/storefront/current/objects/CartUserError) during cart mutations. Covers validation failures for addresses, quantities, delivery options, merchandise lines, discount codes, and metafields.
+ *
+ */
 export enum CartErrorCode {
   /** The specified address field contains emojis. */
   AddressFieldContainsEmojis = 'ADDRESS_FIELD_CONTAINS_EMOJIS',
@@ -1372,7 +1471,12 @@ export enum CartErrorCode {
   ZipCodeNotSupported = 'ZIP_CODE_NOT_SUPPORTED'
 }
 
-/** The estimated costs that the buyer will pay at checkout. The estimated cost uses [`CartBuyerIdentity`](https://shopify.dev/api/storefront/reference/cart/cartbuyeridentity) to determine [international pricing](https://shopify.dev/custom-storefronts/internationalization/international-pricing). */
+/**
+ * The estimated costs that the buyer pays at checkout. Uses [`CartBuyerIdentity`](https://shopify.dev/docs/api/storefront/current/objects/CartBuyerIdentity) to determine [international pricing](https://shopify.dev/docs/custom-storefronts/internationalization/international-pricing).
+ *
+ * Includes the subtotal, total amount, duties, and taxes. The [`checkoutChargeAmount`](https://shopify.dev/docs/api/storefront/current/objects/CartEstimatedCost#field-CartEstimatedCost.fields.checkoutChargeAmount) field excludes deferred payments that are charged later, making it useful for displaying what the customer pays immediately.
+ *
+ */
 export type CartEstimatedCost = {
   __typename?: 'CartEstimatedCost';
   /** The estimated amount, before taxes and discounts, for the customer to pay at checkout. The checkout charge amount doesn't include any deferred payments that'll be paid at a later date. If the cart has no deferred payments, then the checkout charge amount is equivalent to`subtotal_amount`. */
@@ -1418,7 +1522,12 @@ export type CartGiftCardCodesUpdatePayload = {
   warnings: Array<CartWarning>;
 };
 
-/** The input fields to create a cart. */
+/**
+ * The input fields for creating a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). Used by the [`cartCreate`](https://shopify.dev/docs/api/storefront/current/mutations/cartCreate) mutation.
+ *
+ * Accepts merchandise lines, discount codes, gift card codes, and a note. You can also set custom attributes, metafields, buyer identity for international pricing, and delivery addresses.
+ *
+ */
 export type CartInput = {
   /**
    * An array of key-value pairs that contains additional information about the cart.
@@ -1466,7 +1575,12 @@ export type CartInput = {
   note?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** The input fields for a cart metafield value to set. */
+/**
+ * The input fields for a cart metafield value to set.
+ *
+ * Cart metafields will be copied to order metafields at order creation time if there is a matching order metafield definition with the [`cart to order copyable`](https://shopify.dev/docs/apps/build/metafields/use-metafield-capabilities#cart-to-order-copyable) capability enabled.
+ *
+ */
 export type CartInputMetafieldInput = {
   /** The key name of the metafield. */
   key: Scalars['String']['input'];
@@ -1483,7 +1597,12 @@ export type CartInputMetafieldInput = {
   value: Scalars['String']['input'];
 };
 
-/** Represents information about the merchandise in the cart. */
+/**
+ * An item in a customer's [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) representing a product variant they intend to purchase. Each cart line tracks the merchandise, quantity, cost breakdown, and any applied discounts.
+ *
+ * Cart lines can include custom attributes for additional information like gift wrapping requests, and can be associated with a [`SellingPlanAllocation`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlanAllocation) for purchase options like subscriptions, pre-orders, or try-before-you-buy. The [`instructions`](https://shopify.dev/docs/api/storefront/current/objects/CartLine#field-CartLine.fields.instructions) field indicates whether the line can be removed or have its quantity updated.
+ *
+ */
 export type CartLine = BaseCartLine & Node & {
   __typename?: 'CartLine';
   /** An attribute associated with the cart line. */
@@ -1510,12 +1629,22 @@ export type CartLine = BaseCartLine & Node & {
 };
 
 
-/** Represents information about the merchandise in the cart. */
+/**
+ * An item in a customer's [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) representing a product variant they intend to purchase. Each cart line tracks the merchandise, quantity, cost breakdown, and any applied discounts.
+ *
+ * Cart lines can include custom attributes for additional information like gift wrapping requests, and can be associated with a [`SellingPlanAllocation`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlanAllocation) for purchase options like subscriptions, pre-orders, or try-before-you-buy. The [`instructions`](https://shopify.dev/docs/api/storefront/current/objects/CartLine#field-CartLine.fields.instructions) field indicates whether the line can be removed or have its quantity updated.
+ *
+ */
 export type CartLineAttributeArgs = {
   key: Scalars['String']['input'];
 };
 
-/** The cost of the merchandise line that the buyer will pay at checkout. */
+/**
+ * Cost breakdown for a single line item in a [cart](https://shopify.dev/docs/api/storefront/current/objects/Cart). Includes the per-unit price, the subtotal before line-level discounts, and the final total amount the buyer pays.
+ *
+ * The [`compareAtAmountPerQuantity`](https://shopify.dev/docs/api/storefront/current/objects/CartLineCost#field-CartLineCost.fields.compareAtAmountPerQuantity) field shows the original price when the item is on sale, enabling the display of savings to customers.
+ *
+ */
 export type CartLineCost = {
   __typename?: 'CartLineCost';
   /** The amount of the merchandise line. */
@@ -1544,7 +1673,12 @@ export type CartLineEstimatedCost = {
   totalAmount: MoneyV2;
 };
 
-/** The input fields to create a merchandise line on a cart. */
+/**
+ * The input fields for adding a merchandise line to a cart. Each line represents a [`ProductVariant`](https://shopify.dev/docs/api/storefront/current/objects/ProductVariant) the buyer intends to purchase, along with the quantity and optional [`SellingPlan`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlan) for subscriptions.
+ *
+ * Used by the [`cartCreate`](https://shopify.dev/docs/api/storefront/current/mutations/cartCreate) mutation when creating a cart with initial items, and the [`cartLinesAdd`](https://shopify.dev/docs/api/storefront/current/mutations/cartLinesAdd) mutation when adding items to an existing cart.
+ *
+ */
 export type CartLineInput = {
   /**
    * An array of key-value pairs that contains additional information about the merchandise line.
@@ -1560,7 +1694,12 @@ export type CartLineInput = {
   sellingPlanId?: InputMaybe<Scalars['ID']['input']>;
 };
 
-/** The input fields to update a line item on a cart. */
+/**
+ * The input fields for updating a merchandise line in a cart. Used by the [`cartLinesUpdate`](https://shopify.dev/docs/api/storefront/current/mutations/cartLinesUpdate) mutation.
+ *
+ * Specify the line item's [`id`](https://shopify.dev/docs/api/storefront/current/input-objects/CartLineUpdateInput#fields-id) along with any fields to modify. You can change the quantity, swap the merchandise, update custom attributes, or associate a different selling plan.
+ *
+ */
 export type CartLineUpdateInput = {
   /**
    * An array of key-value pairs that contains additional information about the merchandise line.
@@ -1780,7 +1919,12 @@ export type CartSelectableAddress = {
   selected: Scalars['Boolean']['output'];
 };
 
-/** The input fields for a selectable delivery address in a cart. */
+/**
+ * The input fields for a selectable delivery address to present to the buyer. Used by [`CartDeliveryInput`](https://shopify.dev/docs/api/storefront/current/input-objects/CartDeliveryInput) when creating a cart with the [`cartCreate`](https://shopify.dev/docs/api/storefront/current/mutations/cartCreate) mutation.
+ *
+ * You can pre-select an address for the buyer, mark it as one-time use so it isn't saved after checkout, and specify how strictly the address should be validated.
+ *
+ */
 export type CartSelectableAddressInput = {
   /** Exactly one kind of delivery address. */
   address: CartAddressInput;
@@ -1891,7 +2035,12 @@ export type CartWalletPaymentMethodInput = {
   shopPayWalletContent?: InputMaybe<ShopPayWalletContentInput>;
 };
 
-/** A warning that occurred during a cart mutation. */
+/**
+ * A non-blocking issue that occurred during a cart mutation. Unlike errors, warnings don't prevent the mutation from completing but indicate potential problems that may affect the buyer's experience.
+ *
+ * Each warning includes a code identifying the issue type, a human-readable message, and a target ID pointing to the affected resource.
+ *
+ */
 export type CartWarning = {
   __typename?: 'CartWarning';
   /** The code of the warning. */
@@ -2107,7 +2256,12 @@ export type CommentEdge = {
   node: Comment;
 };
 
-/** Represents information about a company which is also a customer of the shop. */
+/**
+ * A B2B organization that purchases from the shop. In the Storefront API, company information is accessed through the [`PurchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/PurchasingCompany) object on [`CartBuyerIdentity`](https://shopify.dev/docs/api/storefront/current/objects/CartBuyerIdentity), which provides the associated location and contact for the current purchasing context.
+ *
+ * You can store custom data using [metafields](https://shopify.dev/docs/apps/build/metafields).
+ *
+ */
 export type Company = HasMetafields & Node & {
   __typename?: 'Company';
   /** The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company was created in Shopify. */
@@ -2127,14 +2281,24 @@ export type Company = HasMetafields & Node & {
 };
 
 
-/** Represents information about a company which is also a customer of the shop. */
+/**
+ * A B2B organization that purchases from the shop. In the Storefront API, company information is accessed through the [`PurchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/PurchasingCompany) object on [`CartBuyerIdentity`](https://shopify.dev/docs/api/storefront/current/objects/CartBuyerIdentity), which provides the associated location and contact for the current purchasing context.
+ *
+ * You can store custom data using [metafields](https://shopify.dev/docs/apps/build/metafields).
+ *
+ */
 export type CompanyMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** Represents information about a company which is also a customer of the shop. */
+/**
+ * A B2B organization that purchases from the shop. In the Storefront API, company information is accessed through the [`PurchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/PurchasingCompany) object on [`CartBuyerIdentity`](https://shopify.dev/docs/api/storefront/current/objects/CartBuyerIdentity), which provides the associated location and contact for the current purchasing context.
+ *
+ * You can store custom data using [metafields](https://shopify.dev/docs/apps/build/metafields).
+ *
+ */
 export type CompanyMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
@@ -2154,7 +2318,12 @@ export type CompanyContact = Node & {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-/** A company's location. */
+/**
+ * A branch or office of a [`Company`](https://shopify.dev/docs/api/storefront/current/objects/Company) where B2B customers can place orders. When a B2B customer selects a location after logging in, the Storefront API contextualizes product queries to return location-specific pricing and quantity rules.
+ *
+ * Access through the [`PurchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/PurchasingCompany) object, which associates the location with the buyer's [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart).
+ *
+ */
 export type CompanyLocation = HasMetafields & Node & {
   __typename?: 'CompanyLocation';
   /** The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company location was created in Shopify. */
@@ -2176,14 +2345,24 @@ export type CompanyLocation = HasMetafields & Node & {
 };
 
 
-/** A company's location. */
+/**
+ * A branch or office of a [`Company`](https://shopify.dev/docs/api/storefront/current/objects/Company) where B2B customers can place orders. When a B2B customer selects a location after logging in, the Storefront API contextualizes product queries to return location-specific pricing and quantity rules.
+ *
+ * Access through the [`PurchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/PurchasingCompany) object, which associates the location with the buyer's [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart).
+ *
+ */
 export type CompanyLocationMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** A company's location. */
+/**
+ * A branch or office of a [`Company`](https://shopify.dev/docs/api/storefront/current/objects/Company) where B2B customers can place orders. When a B2B customer selects a location after logging in, the Storefront API contextualizes product queries to return location-specific pricing and quantity rules.
+ *
+ * Access through the [`PurchasingCompany`](https://shopify.dev/docs/api/storefront/current/objects/PurchasingCompany) object, which associates the location with the buyer's [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart).
+ *
+ */
 export type CompanyLocationMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
@@ -3628,7 +3807,9 @@ export enum DigitalWallet {
 }
 
 /**
- * An amount discounting the line that has been allocated by a discount.
+ * The calculated discount amount applied to a line item or shipping line. While a [`DiscountApplication`](https://shopify.dev/docs/api/storefront/current/interfaces/DiscountApplication) captures the discount's rules and intentions, the allocation shows how much was actually deducted.
+ *
+ * Each allocation includes the discounted amount and a reference to the originating discount application.
  *
  */
 export type DiscountAllocation = {
@@ -3640,8 +3821,9 @@ export type DiscountAllocation = {
 };
 
 /**
- * Discount applications capture the intentions of a discount source at
- * the time of application.
+ * Captures the intent of a discount at the time it was applied. Each implementation represents a different discount source, such as [automatic discounts](https://help.shopify.com/manual/discounts/discount-methods/automatic-discounts), [discount codes](https://help.shopify.com/manual/discounts/discount-methods/discount-codes), and manual discounts.
+ *
+ * The actual discounted amount on a line item or shipping line is represented by the [`DiscountAllocation`](https://shopify.dev/docs/api/storefront/current/objects/DiscountAllocation) object, which references the discount application it originated from.
  *
  */
 export type DiscountApplication = {
@@ -3655,7 +3837,12 @@ export type DiscountApplication = {
   value: PricingValue;
 };
 
-/** The method by which the discount's value is allocated onto its entitled lines. */
+/**
+ * Controls how a discount's value is distributed across entitled lines. A discount can either spread its value across all entitled lines or apply the full value to each line individually.
+ *
+ * Used by the [`DiscountApplication`](https://shopify.dev/docs/api/storefront/current/interfaces/DiscountApplication) interface and its implementations to capture the intentions of a discount source at the time of application.
+ *
+ */
 export enum DiscountApplicationAllocationMethod {
   /** The value is spread across all entitled lines. */
   Across = 'ACROSS',
@@ -3722,8 +3909,10 @@ export enum DiscountApplicationTargetType {
 }
 
 /**
- * Discount code applications capture the intentions of a discount code at
- * the time that it is applied.
+ * Records the configuration and intent of a [discount code](https://help.shopify.com/manual/discounts/discount-methods/discount-codes) when a customer applies it. This includes the code string, allocation method, target type, and discount value at the time of application. The [`applicable`](https://shopify.dev/docs/api/storefront/latest/objects/DiscountCodeApplication#field-DiscountCodeApplication.fields.applicable) field indicates whether the code was successfully applied.
+ *
+ * > Note:
+ * > To see the actual amounts discounted on specific line items or shipping lines, use the [`DiscountAllocation`](https://shopify.dev/docs/api/storefront/current/objects/DiscountAllocation) object instead.
  *
  */
 export type DiscountCodeApplication = DiscountApplication & {
@@ -3934,7 +4123,14 @@ export type FulfillmentTrackingInfo = {
   url?: Maybe<Scalars['URL']['output']>;
 };
 
-/** The generic file resource lets you manage files in a merchant’s store. Generic files include any file that doesn’t fit into a designated type such as image or video. Example: PDF, JSON. */
+/**
+ * Any file that doesn't fit into a designated type like image or video. For example, a PDF or JSON document. Use this object to manage files in a merchant's store.
+ *
+ * Generic files are commonly referenced through [file reference metafields](https://shopify.dev/docs/apps/build/metafields/list-of-data-types) and returned as part of the [`MetafieldReference`](https://shopify.dev/docs/api/storefront/current/unions/MetafieldReference) union.
+ *
+ * Includes the file's URL, MIME type, size in bytes, and an optional preview image.
+ *
+ */
 export type GenericFile = Node & {
   __typename?: 'GenericFile';
   /** A word or phrase to indicate the contents of a file. */
@@ -3959,7 +4155,12 @@ export type GeoCoordinateInput = {
   longitude: Scalars['Float']['input'];
 };
 
-/** Represents information about the metafields associated to the specified resource. */
+/**
+ * Implemented by resources that support custom metadata through [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) objects. Types like [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product), [`Collection`](https://shopify.dev/docs/api/storefront/current/objects/Collection), and [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer) implement this interface to provide consistent access to metafields.
+ *
+ * You can retrieve a [single metafield](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafield) by namespace and key, or fetch [multiple metafields](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafields) in a single request. If you omit the namespace, then the [app-reserved namespace](https://shopify.dev/docs/apps/build/metafields#app-owned-metafields) is used by default.
+ *
+ */
 export type HasMetafields = {
   /** A [custom field](https://shopify.dev/docs/apps/build/custom-data), including its `namespace` and `key`, that's associated with a Shopify resource for the purposes of adding and storing additional information. */
   metafield?: Maybe<Metafield>;
@@ -3968,19 +4169,34 @@ export type HasMetafields = {
 };
 
 
-/** Represents information about the metafields associated to the specified resource. */
+/**
+ * Implemented by resources that support custom metadata through [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) objects. Types like [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product), [`Collection`](https://shopify.dev/docs/api/storefront/current/objects/Collection), and [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer) implement this interface to provide consistent access to metafields.
+ *
+ * You can retrieve a [single metafield](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafield) by namespace and key, or fetch [multiple metafields](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafields) in a single request. If you omit the namespace, then the [app-reserved namespace](https://shopify.dev/docs/apps/build/metafields#app-owned-metafields) is used by default.
+ *
+ */
 export type HasMetafieldsMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** Represents information about the metafields associated to the specified resource. */
+/**
+ * Implemented by resources that support custom metadata through [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) objects. Types like [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product), [`Collection`](https://shopify.dev/docs/api/storefront/current/objects/Collection), and [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer) implement this interface to provide consistent access to metafields.
+ *
+ * You can retrieve a [single metafield](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafield) by namespace and key, or fetch [multiple metafields](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafields) in a single request. If you omit the namespace, then the [app-reserved namespace](https://shopify.dev/docs/apps/build/metafields#app-owned-metafields) is used by default.
+ *
+ */
 export type HasMetafieldsMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
 
-/** The input fields to identify a metafield on an owner resource by namespace and key. */
+/**
+ * The input fields to identify a [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) on an owner resource by namespace and key. Used as an argument to the [`metafields`](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields#fields-metafields) field of the `HasMetafields` interface to retrieve multiple metafields in a single request.
+ *
+ * If you omit the namespace, then the [app-reserved namespace](https://shopify.dev/docs/apps/build/metafields#app-owned-metafields) is used by default.
+ *
+ */
 export type HasMetafieldsIdentifier = {
   /** The identifier for the metafield. */
   key: Scalars['String']['input'];
@@ -3988,7 +4204,12 @@ export type HasMetafieldsIdentifier = {
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
-/** Represents an image resource. */
+/**
+ * An image resource with URL, dimensions, and transformation options. Used for product images, collection images, media previews, and other visual content throughout the storefront.
+ *
+ * The [`url`](https://shopify.dev/docs/api/storefront/current/objects/Image#field-Image.fields.url) field accepts an [`ImageTransformInput`](https://shopify.dev/docs/api/storefront/current/input-objects/ImageTransformInput) argument for resizing, cropping, scaling for retina displays, and converting between image formats. Use the [`thumbhash`](https://shopify.dev/docs/api/storefront/current/objects/Image#field-Image.fields.thumbhash) field to display lightweight placeholders while images load.
+ *
+ */
 export type Image = {
   __typename?: 'Image';
   /** A word or phrase to share the nature or contents of an image. */
@@ -4035,7 +4256,12 @@ export type Image = {
 };
 
 
-/** Represents an image resource. */
+/**
+ * An image resource with URL, dimensions, and transformation options. Used for product images, collection images, media previews, and other visual content throughout the storefront.
+ *
+ * The [`url`](https://shopify.dev/docs/api/storefront/current/objects/Image#field-Image.fields.url) field accepts an [`ImageTransformInput`](https://shopify.dev/docs/api/storefront/current/input-objects/ImageTransformInput) argument for resizing, cropping, scaling for retina displays, and converting between image formats. Use the [`thumbhash`](https://shopify.dev/docs/api/storefront/current/objects/Image#field-Image.fields.thumbhash) field to display lightweight placeholders while images load.
+ *
+ */
 export type ImageTransformedSrcArgs = {
   crop?: InputMaybe<CropRegion>;
   maxHeight?: InputMaybe<Scalars['Int']['input']>;
@@ -4045,7 +4271,12 @@ export type ImageTransformedSrcArgs = {
 };
 
 
-/** Represents an image resource. */
+/**
+ * An image resource with URL, dimensions, and transformation options. Used for product images, collection images, media previews, and other visual content throughout the storefront.
+ *
+ * The [`url`](https://shopify.dev/docs/api/storefront/current/objects/Image#field-Image.fields.url) field accepts an [`ImageTransformInput`](https://shopify.dev/docs/api/storefront/current/input-objects/ImageTransformInput) argument for resizing, cropping, scaling for retina displays, and converting between image formats. Use the [`thumbhash`](https://shopify.dev/docs/api/storefront/current/objects/Image#field-Image.fields.thumbhash) field to display lightweight placeholders while images load.
+ *
+ */
 export type ImageUrlArgs = {
   transform?: InputMaybe<ImageTransformInput>;
 };
@@ -4564,7 +4795,12 @@ export enum LocationSortKeys {
   Name = 'NAME'
 }
 
-/** Represents a mailing address for customers and shipping. */
+/**
+ * A physical mailing address associated with a [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer) or [`Order`](https://shopify.dev/docs/api/storefront/current/objects/Order). Stores standard address components including street address, city, province, country, and postal code, along with customer name and company information.
+ *
+ * The address includes geographic coordinates and provides pre-formatted output through the [`formatted`](https://shopify.dev/docs/api/storefront/current/objects/MailingAddress#field-MailingAddress.fields.formatted) field, which can optionally include or exclude name and company details.
+ *
+ */
 export type MailingAddress = Node & {
   __typename?: 'MailingAddress';
   /** The first line of the address. Typically the street address or PO Box number. */
@@ -4632,7 +4868,12 @@ export type MailingAddress = Node & {
 };
 
 
-/** Represents a mailing address for customers and shipping. */
+/**
+ * A physical mailing address associated with a [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer) or [`Order`](https://shopify.dev/docs/api/storefront/current/objects/Order). Stores standard address components including street address, city, province, country, and postal code, along with customer name and company information.
+ *
+ * The address includes geographic coordinates and provides pre-formatted output through the [`formatted`](https://shopify.dev/docs/api/storefront/current/objects/MailingAddress#field-MailingAddress.fields.formatted) field, which can optionally include or exclude name and company details.
+ *
+ */
 export type MailingAddressFormattedArgs = {
   withCompany?: InputMaybe<Scalars['Boolean']['input']>;
   withName?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4664,7 +4905,12 @@ export type MailingAddressEdge = {
   node: MailingAddress;
 };
 
-/** The input fields to create or update a mailing address. */
+/**
+ * The input fields for creating or updating a [`MailingAddress`](https://shopify.dev/docs/api/storefront/current/objects/MailingAddress). Accepts standard address components including street address, city, province, country, and postal code, along with customer name and contact information.
+ *
+ * Used by the [`customerAddressCreate`](https://shopify.dev/docs/api/storefront/current/mutations/customerAddressCreate) and [`customerAddressUpdate`](https://shopify.dev/docs/api/storefront/current/mutations/customerAddressUpdate) mutations, and as part of [`DeliveryAddressInput`](https://shopify.dev/docs/api/storefront/current/input-objects/DeliveryAddressInput) for cart delivery preferences.
+ *
+ */
 export type MailingAddressInput = {
   /**
    * The first line of the address. Typically the street address or PO Box number.
@@ -4754,7 +5000,12 @@ export type MarketMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
 
-/** Represents a media interface. */
+/**
+ * A common set of fields for media content associated with [products](https://shopify.dev/docs/api/storefront/current/objects/Product). Implementations include [`MediaImage`](https://shopify.dev/docs/api/storefront/current/objects/MediaImage) for Shopify-hosted images, [`Video`](https://shopify.dev/docs/api/storefront/current/objects/Video) for Shopify-hosted videos, [`ExternalVideo`](https://shopify.dev/docs/api/storefront/current/objects/ExternalVideo) for videos hosted on platforms like YouTube or Vimeo, and [`Model3d`](https://shopify.dev/docs/api/storefront/current/objects/Model3d) for 3D models.
+ *
+ * Each implementation shares fields for alt text, content type, and preview images, while adding type-specific fields like embed URLs for external videos or source files for 3D models.
+ *
+ */
 export type Media = {
   /** A word or phrase to share the nature or contents of a media. */
   alt?: Maybe<Scalars['String']['output']>;
@@ -4814,7 +5065,12 @@ export enum MediaHost {
   Youtube = 'YOUTUBE'
 }
 
-/** Represents a Shopify hosted image. */
+/**
+ * An image hosted on Shopify's content delivery network (CDN). Used for product images, brand logos, and other visual content across the storefront.
+ *
+ * The [`image`](https://shopify.dev/docs/api/storefront/current/objects/MediaImage#field-MediaImage.fields.image) field provides the actual image data with transformation options. Implements the [`Media`](https://shopify.dev/docs/api/storefront/current/interfaces/Media) interface alongside other media types like [`Video`](https://shopify.dev/docs/api/storefront/current/objects/Video) and [`Model3d`](https://shopify.dev/docs/api/storefront/current/objects/Model3d).
+ *
+ */
 export type MediaImage = Media & Node & {
   __typename?: 'MediaImage';
   /** A word or phrase to share the nature or contents of a media. */
@@ -4858,8 +5114,9 @@ export enum MediaPresentationFormat {
 }
 
 /**
- * A [navigation menu](https://help.shopify.com/manual/online-store/menus-and-links) representing a hierarchy
- * of hyperlinks (items).
+ * A navigation structure for building store [menus](https://help.shopify.com/manual/online-store/menus-and-links). Each menu contains [`MenuItem`](https://shopify.dev/docs/api/storefront/current/objects/MenuItem) objects that can be nested to create multi-level navigation hierarchies.
+ *
+ * Menu items can link to [collections](https://shopify.dev/docs/api/storefront/current/objects/Collection), [products](https://shopify.dev/docs/api/storefront/current/objects/Product), [pages](https://shopify.dev/docs/api/storefront/current/objects/Page), [blogs](https://shopify.dev/docs/api/storefront/current/objects/Blog), or external URLs. Use the [`menu`](https://shopify.dev/docs/api/storefront/current/queries/menu) query to retrieve a menu by its handle.
  *
  */
 export type Menu = Node & {
@@ -4876,7 +5133,12 @@ export type Menu = Node & {
   title: Scalars['String']['output'];
 };
 
-/** A menu item within a parent menu. */
+/**
+ * A navigation link within a [`Menu`](https://shopify.dev/docs/api/storefront/current/objects/Menu). Each item has a title, URL, and can link to store resources like [products](https://shopify.dev/docs/api/storefront/current/objects/Product), [collections](https://shopify.dev/docs/api/storefront/current/objects/Collection), [pages](https://shopify.dev/docs/api/storefront/current/objects/Page), [blogs](https://shopify.dev/docs/api/storefront/current/objects/Blog), or external URLs.
+ *
+ * Menu items support nested hierarchies through the [`items`](https://shopify.dev/docs/api/storefront/current/objects/MenuItem#field-MenuItem.fields.items) field, enabling dropdown or multi-level navigation structures. The [`tags`](https://shopify.dev/docs/api/storefront/current/objects/MenuItem#field-MenuItem.fields.tags) field filters results when the item links to a collection specifically.
+ *
+ */
 export type MenuItem = Node & {
   __typename?: 'MenuItem';
   /** A globally-unique ID. */
@@ -4937,8 +5199,9 @@ export enum MenuItemType {
 export type Merchandise = ProductVariant;
 
 /**
- * Metafields represent custom metadata attached to a resource. Metafields can be sorted into namespaces and are
- * comprised of keys, values, and value types.
+ * [Custom metadata](https://shopify.dev/docs/apps/build/metafields) attached to a Shopify resource such as a [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product), [`Collection`](https://shopify.dev/docs/api/storefront/current/objects/Collection), or [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer). Each metafield is identified by a namespace and key, and stores a value with an associated type.
+ *
+ * Values are always stored as strings, but the [`type`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.type) field indicates how to interpret the data. When a metafield's type is a resource reference, use the [`reference`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.reference) or [`references`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.references) fields to retrieve the linked objects. Access metafields on any resource that implements the [`HasMetafields`](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields) interface.
  *
  */
 export type Metafield = Node & {
@@ -4973,8 +5236,9 @@ export type Metafield = Node & {
 
 
 /**
- * Metafields represent custom metadata attached to a resource. Metafields can be sorted into namespaces and are
- * comprised of keys, values, and value types.
+ * [Custom metadata](https://shopify.dev/docs/apps/build/metafields) attached to a Shopify resource such as a [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product), [`Collection`](https://shopify.dev/docs/api/storefront/current/objects/Collection), or [`Customer`](https://shopify.dev/docs/api/storefront/current/objects/Customer). Each metafield is identified by a namespace and key, and stores a value with an associated type.
+ *
+ * Values are always stored as strings, but the [`type`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.type) field indicates how to interpret the data. When a metafield's type is a resource reference, use the [`reference`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.reference) or [`references`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.references) fields to retrieve the linked objects. Access metafields on any resource that implements the [`HasMetafields`](https://shopify.dev/docs/api/storefront/current/interfaces/HasMetafields) interface.
  *
  */
 export type MetafieldReferencesArgs = {
@@ -5006,13 +5270,9 @@ export type MetafieldDeleteUserError = DisplayableError & {
 };
 
 /**
- * A filter used to view a subset of products in a collection matching a specific metafield value.
+ * Filters products in a collection by matching a specific metafield value. Used by the [`ProductFilter`](https://shopify.dev/docs/api/storefront/current/input-objects/ProductFilter) input's `productMetafield` and `variantMetafield` fields.
  *
- * Only the following metafield types are currently supported:
- * - `number_integer`
- * - `number_decimal`
- * - `single_line_text_field`
- * - `boolean` as of 2022-04.
+ * Supports the following metafield types: `number_integer`, `number_decimal`, `single_line_text_field`, and `boolean`.
  *
  */
 export type MetafieldFilter = {
@@ -5024,11 +5284,16 @@ export type MetafieldFilter = {
   value: Scalars['String']['input'];
 };
 
-/** A resource that the metafield belongs to. */
+/**
+ * The Shopify resource that owns a metafield. Returned by the `Metafield` object's [`parentResource`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.parentResource) field, enabling traversal from a metafield back to the resource it's attached to.
+ *
+ */
 export type MetafieldParentResource = Article | Blog | Cart | Collection | Company | CompanyLocation | Customer | Location | Market | Order | Page | Product | ProductVariant | SellingPlan | Shop;
 
 /**
- * Returns the resource which is being referred to by a metafield.
+ * The resource that a metafield points to when its type is a resource reference. Metafields can store references to other Shopify resources, and this union provides access to the actual referenced object.
+ *
+ * Returned by the `Metafield` object's [`reference`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.reference) field for single references or the [`references`](https://shopify.dev/docs/api/storefront/current/objects/Metafield#field-Metafield.fields.references) field for lists.
  *
  */
 export type MetafieldReference = Collection | GenericFile | MediaImage | Metaobject | Model3d | Page | Product | ProductVariant | Video;
@@ -5096,7 +5361,12 @@ export enum MetafieldsSetUserErrorCode {
   TooShort = 'TOO_SHORT'
 }
 
-/** An instance of a user-defined model based on a MetaobjectDefinition. */
+/**
+ * An instance of [custom structured data](https://shopify.dev/docs/apps/build/metaobjects) defined by a metaobject definition. Metaobjects store reusable content that extends beyond standard Shopify resources, such as size charts, author profiles, or custom content sections.
+ *
+ * Each metaobject contains fields that match the types and validation rules specified in its definition. [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) references can point to metaobjects, connecting custom data with products, collections, and other resources. If the definition has the `renderable` capability, then the [`seo`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject#field-Metaobject.fields.seo) field provides SEO metadata. If it has the `online_store` capability, then the [`onlineStoreUrl`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject#field-Metaobject.fields.onlineStoreUrl) field returns the public URL.
+ *
+ */
 export type Metaobject = Node & OnlineStorePublishable & {
   __typename?: 'Metaobject';
   /** Accesses a field of the object by key. */
@@ -5126,7 +5396,12 @@ export type Metaobject = Node & OnlineStorePublishable & {
 };
 
 
-/** An instance of a user-defined model based on a MetaobjectDefinition. */
+/**
+ * An instance of [custom structured data](https://shopify.dev/docs/apps/build/metaobjects) defined by a metaobject definition. Metaobjects store reusable content that extends beyond standard Shopify resources, such as size charts, author profiles, or custom content sections.
+ *
+ * Each metaobject contains fields that match the types and validation rules specified in its definition. [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) references can point to metaobjects, connecting custom data with products, collections, and other resources. If the definition has the `renderable` capability, then the [`seo`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject#field-Metaobject.fields.seo) field provides SEO metadata. If it has the `online_store` capability, then the [`onlineStoreUrl`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject#field-Metaobject.fields.onlineStoreUrl) field returns the public URL.
+ *
+ */
 export type MetaobjectFieldArgs = {
   key: Scalars['String']['input'];
 };
@@ -5157,7 +5432,10 @@ export type MetaobjectEdge = {
   node: Metaobject;
 };
 
-/** Provides the value of a Metaobject field. */
+/**
+ * The value of a field within a [`Metaobject`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject). For fields that reference other resources, use the [`reference`](https://shopify.dev/docs/api/storefront/current/objects/MetaobjectField#field-MetaobjectField.fields.reference) field for single references or [`references`](https://shopify.dev/docs/api/storefront/current/objects/MetaobjectField#field-MetaobjectField.fields.references) for lists.
+ *
+ */
 export type MetaobjectField = {
   __typename?: 'MetaobjectField';
   /** The field key. */
@@ -5177,7 +5455,10 @@ export type MetaobjectField = {
 };
 
 
-/** Provides the value of a Metaobject field. */
+/**
+ * The value of a field within a [`Metaobject`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject). For fields that reference other resources, use the [`reference`](https://shopify.dev/docs/api/storefront/current/objects/MetaobjectField#field-MetaobjectField.fields.reference) field for single references or [`references`](https://shopify.dev/docs/api/storefront/current/objects/MetaobjectField#field-MetaobjectField.fields.references) for lists.
+ *
+ */
 export type MetaobjectFieldReferencesArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -5255,54 +5536,111 @@ export type MoneyV2 = {
 /** The schema’s entry-point for mutations. This acts as the public, top-level API from which all mutation queries must start. */
 export type Mutation = {
   __typename?: 'Mutation';
-  /** Updates the attributes on a cart. */
+  /**
+   * Updates the attributes on a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). Attributes are custom key-value pairs that store additional information, such as gift messages, special instructions, or order notes.
+   *
+   */
   cartAttributesUpdate?: Maybe<CartAttributesUpdatePayload>;
   /** Updates the billing address on the cart. */
   cartBillingAddressUpdate?: Maybe<CartBillingAddressUpdatePayload>;
   /**
-   * Updates customer information associated with a cart.
-   * Buyer identity is used to determine
-   * [international pricing](https://shopify.dev/custom-storefronts/internationalization/international-pricing)
-   * and should match the customer's shipping address.
+   * Updates the buyer identity on a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart), including contact information, location, and checkout preferences. The buyer's country determines [international pricing](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/markets/international-pricing) and should match their shipping address.
+   *
+   * Use this mutation to associate a logged-in customer via access token, set a B2B company location, or configure checkout preferences like delivery method. Preferences prefill checkout fields but don't sync back to the cart if overwritten at checkout.
    *
    */
   cartBuyerIdentityUpdate?: Maybe<CartBuyerIdentityUpdatePayload>;
-  /** Creates a new cart. */
+  /**
+   * Creates a new [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) for a buyer session. You can optionally initialize the cart with merchandise lines, discount codes, gift card codes, buyer identity for international pricing, and custom attributes.
+   *
+   * The returned cart includes a `checkoutUrl` that directs the buyer to complete their purchase.
+   *
+   */
   cartCreate?: Maybe<CartCreatePayload>;
-  /** Adds delivery addresses to the cart. */
+  /**
+   * Adds delivery addresses to a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). A cart can have up to 20 delivery addresses. One address can be marked as selected for checkout, and addresses can optionally be marked as one-time use so they aren't saved to the customer's account.
+   *
+   */
   cartDeliveryAddressesAdd?: Maybe<CartDeliveryAddressesAddPayload>;
-  /** Removes delivery addresses from the cart. */
+  /**
+   * Removes delivery addresses from a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) by their IDs, allowing batch removal in a single request.
+   *
+   */
   cartDeliveryAddressesRemove?: Maybe<CartDeliveryAddressesRemovePayload>;
-  /** Updates one or more delivery addresses on a cart. */
+  /**
+   * Updates one or more delivery addresses on a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). Each address can be modified to change its details, set it as the pre-selected address for checkout, or mark it for one-time use so it isn't saved to the customer's account.
+   *
+   */
   cartDeliveryAddressesUpdate?: Maybe<CartDeliveryAddressesUpdatePayload>;
-  /** Updates the discount codes applied to the cart. */
+  /**
+   * Updates the discount codes applied to a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). This mutation replaces all existing discount codes with the provided list, so pass an empty array to remove all codes. Discount codes are case-insensitive.
+   *
+   * After updating, check each [`CartDiscountCode`](https://shopify.dev/docs/api/storefront/current/objects/CartDiscountCode) in the cart's [`discountCodes`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-Cart.fields.discountCodes) field to see whether the code is applicable to the cart's current contents.
+   *
+   */
   cartDiscountCodesUpdate?: Maybe<CartDiscountCodesUpdatePayload>;
-  /** Removes the gift card codes applied to the cart. */
+  /**
+   * Removes gift cards from a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) using their IDs. You can retrieve the IDs of applied gift cards from the cart's [`appliedGiftCards`](https://shopify.dev/docs/api/storefront/current/objects/Cart#field-Cart.fields.appliedGiftCards) field.
+   *
+   */
   cartGiftCardCodesRemove?: Maybe<CartGiftCardCodesRemovePayload>;
-  /** Updates the gift card codes applied to the cart. */
+  /**
+   * Updates the gift card codes applied to the cart. Unlike [`cartGiftCardCodesAdd`](https://shopify.dev/docs/api/storefront/current/mutations/cartGiftCardCodesAdd), which adds codes without replacing existing ones, this mutation sets the gift card codes for the cart. Gift card codes are case-insensitive.
+   *
+   */
   cartGiftCardCodesUpdate?: Maybe<CartGiftCardCodesUpdatePayload>;
-  /** Adds a merchandise line to the cart. */
+  /**
+   * Adds one or more merchandise lines to an existing [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). Each line specifies the [product variant](https://shopify.dev/docs/api/storefront/current/objects/ProductVariant) to purchase. Quantity defaults to `1` if not provided.
+   *
+   * You can add up to 250 lines in a single request. Use [`CartLineInput`](https://shopify.dev/docs/api/storefront/current/input-objects/CartLineInput) to configure each line's merchandise, quantity, selling plan, custom attributes, and any parent relationships for nested line items such as warranties or add-ons.
+   *
+   */
   cartLinesAdd?: Maybe<CartLinesAddPayload>;
-  /** Removes one or more merchandise lines from the cart. */
+  /**
+   * Removes one or more merchandise lines from a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). Accepts up to 250 line IDs per request. Returns the updated cart along with any errors or warnings.
+   *
+   */
   cartLinesRemove?: Maybe<CartLinesRemovePayload>;
-  /** Updates one or more merchandise lines on a cart. */
+  /**
+   * Updates one or more merchandise lines on a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). You can modify the quantity, swap the merchandise, change custom attributes, or update the selling plan for each line. You can update a maximum of 250 lines per request.
+   *
+   * Omitting the [`attributes`](https://shopify.dev/docs/api/storefront/current/mutations/cartLinesUpdate#arguments-lines.fields.attributes) field or setting it to null preserves existing line attributes. Pass an empty array to clear all attributes from a line.
+   *
+   */
   cartLinesUpdate?: Maybe<CartLinesUpdatePayload>;
-  /** Deletes a cart metafield. */
+  /**
+   * Deletes a cart metafield.
+   *
+   * > Note:
+   * > This mutation won't trigger [Shopify Functions](https://shopify.dev/docs/api/functions). The changes won't be available to Shopify Functions until the buyer goes to checkout or performs another cart interaction that triggers the functions.
+   *
+   */
   cartMetafieldDelete?: Maybe<CartMetafieldDeletePayload>;
   /**
-   * Sets cart metafield values. Cart metafield values will be set regardless if they were previously created or not.
+   * Sets [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) values on a cart, creating new metafields or updating existing ones. Accepts up to 25 metafields per request.
    *
-   * Allows a maximum of 25 cart metafields to be set at a time.
+   * Cart metafields can automatically copy to order metafields when an order is created, if there's a matching order metafield definition with the [cart to order copyable](https://shopify.dev/docs/apps/build/metafields/use-metafield-capabilities#cart-to-order-copyable) capability enabled.
+   *
+   * > Note:
+   * > This mutation doesn't trigger [Shopify Functions](https://shopify.dev/docs/api/functions). Changes aren't available to Shopify Functions until the buyer goes to checkout or performs another cart interaction that triggers the functions.
    *
    */
   cartMetafieldsSet?: Maybe<CartMetafieldsSetPayload>;
-  /** Updates the note on the cart. */
+  /**
+   * Updates the note on a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart). The note is a text field that stores additional information, such as a personalized message from the buyer or special instructions for the order.
+   *
+   */
   cartNoteUpdate?: Maybe<CartNoteUpdatePayload>;
   /** Update the customer's payment method that will be used to checkout. */
   cartPaymentUpdate?: Maybe<CartPaymentUpdatePayload>;
   /** Prepare the cart for cart checkout completion. */
   cartPrepareForCompletion?: Maybe<CartPrepareForCompletionPayload>;
-  /** Update the selected delivery options for a delivery group. */
+  /**
+   * Updates the selected delivery option for one or more [`CartDeliveryGroup`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryGroup) objects in a cart. Each delivery group represents items shipping to a specific address and offers multiple delivery options with different costs and methods.
+   *
+   * Use this mutation when a customer chooses their preferred shipping method during checkout. The [`deliveryOptionHandle`](https://shopify.dev/docs/api/storefront/current/input-objects/CartSelectedDeliveryOptionInput#field-CartSelectedDeliveryOptionInput.fields.deliveryOptionHandle) identifies which [`CartDeliveryOption`](https://shopify.dev/docs/api/storefront/current/objects/CartDeliveryOption) to select for each delivery group.
+   *
+   */
   cartSelectedDeliveryOptionsUpdate?: Maybe<CartSelectedDeliveryOptionsUpdatePayload>;
   /** Submit the cart for checkout completion. */
   cartSubmitForCompletion?: Maybe<CartSubmitForCompletionPayload>;
@@ -5948,7 +6286,12 @@ export enum OrderSortKeys {
   TotalPrice = 'TOTAL_PRICE'
 }
 
-/** Shopify merchants can create pages to hold static HTML content. Each Page object represents a custom page on the online store. */
+/**
+ * A [custom content page](https://help.shopify.com/manual/online-store/add-edit-pages) on a merchant's store. Pages display HTML-formatted content, such as "About Us", contact details, or store policies.
+ *
+ * Each page has a unique [`handle`](https://shopify.dev/docs/api/storefront/current/objects/Page#field-Page.fields.handle) for URL routing and includes [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information for search engine optimization. Pages support [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) attachments for storing additional custom data.
+ *
+ */
 export type Page = HasMetafields & Node & OnlineStorePublishable & Trackable & {
   __typename?: 'Page';
   /** The description of the page, complete with HTML formatting. */
@@ -5978,14 +6321,24 @@ export type Page = HasMetafields & Node & OnlineStorePublishable & Trackable & {
 };
 
 
-/** Shopify merchants can create pages to hold static HTML content. Each Page object represents a custom page on the online store. */
+/**
+ * A [custom content page](https://help.shopify.com/manual/online-store/add-edit-pages) on a merchant's store. Pages display HTML-formatted content, such as "About Us", contact details, or store policies.
+ *
+ * Each page has a unique [`handle`](https://shopify.dev/docs/api/storefront/current/objects/Page#field-Page.fields.handle) for URL routing and includes [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information for search engine optimization. Pages support [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) attachments for storing additional custom data.
+ *
+ */
 export type PageMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** Shopify merchants can create pages to hold static HTML content. Each Page object represents a custom page on the online store. */
+/**
+ * A [custom content page](https://help.shopify.com/manual/online-store/add-edit-pages) on a merchant's store. Pages display HTML-formatted content, such as "About Us", contact details, or store policies.
+ *
+ * Each page has a unique [`handle`](https://shopify.dev/docs/api/storefront/current/objects/Page#field-Page.fields.handle) for URL routing and includes [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information for search engine optimization. Pages support [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) attachments for storing additional custom data.
+ *
+ */
 export type PageMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
@@ -6789,7 +7142,10 @@ export type ProductOptionValueSwatch = {
   image?: Maybe<Media>;
 };
 
-/** The price range of the product. */
+/**
+ * The minimum and maximum prices across all variants of a [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product).
+ *
+ */
 export type ProductPriceRange = {
   __typename?: 'ProductPriceRange';
   /** The highest variant's price. */
@@ -7172,22 +7528,38 @@ export type QuantityRule = {
 /** The schema’s entry-point for queries. This acts as the public, top-level API from which all queries must start. */
 export type QueryRoot = {
   __typename?: 'QueryRoot';
-  /** Fetch a specific Article by its ID. */
+  /**
+   * Returns an [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) by its ID. Each article belongs to a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog) and includes content in both plain text and HTML formats, [`ArticleAuthor`](https://shopify.dev/docs/api/storefront/current/objects/ArticleAuthor) information, [`Comment`](https://shopify.dev/docs/api/storefront/current/objects/Comment) objects, tags, and [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) data.
+   *
+   */
   article?: Maybe<Article>;
-  /** List of the shop's articles. */
+  /**
+   * Returns a paginated list of [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects from the shop's [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog) objects. Each article is a blog post containing content, author information, tags, and optional images.
+   *
+   * Use the `query` argument to filter results by author, blog title, tags, or date fields. Sort results using the `sortKey` argument and reverse them with the `reverse` argument.
+   *
+   */
   articles: ArticleConnection;
-  /** Fetch a specific `Blog` by one of its unique attributes. */
+  /**
+   * Retrieves a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog) by its handle or ID. A blog organizes [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects for the online store and includes author information, [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) settings, and custom [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) objects.
+   *
+   */
   blog?: Maybe<Blog>;
   /**
-   * Find a blog by its handle.
+   * Retrieves a [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog) by its handle. A blog organizes [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects for the online store and includes author information, [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) settings, and custom [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) objects.
+   *
    * @deprecated Use `blog` instead.
    */
   blogByHandle?: Maybe<Blog>;
-  /** List of the shop's blogs. */
+  /**
+   * Returns a paginated list of the shop's [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog) objects. Each blog serves as a container for [`Article`](https://shopify.dev/docs/api/storefront/current/objects/Article) objects.
+   *
+   */
   blogs: BlogConnection;
   /**
-   * Retrieve a cart by its ID. For more information, refer to
-   * [Manage a cart with the Storefront API](https://shopify.dev/custom-storefronts/cart/manage).
+   * Returns a [`Cart`](https://shopify.dev/docs/api/storefront/current/objects/Cart) by its ID. The cart contains the merchandise lines a buyer intends to purchase, along with estimated costs, applied discounts, gift cards, and delivery options.
+   *
+   * Use the [`checkoutUrl`](https://shopify.dev/docs/api/storefront/latest/queries/cart#returns-Cart.fields.checkoutUrl) field to redirect buyers to Shopify's web checkout when they're ready to complete their purchase. For more information, refer to [Manage a cart with the Storefront API](https://shopify.dev/docs/storefronts/headless/building-with-the-storefront-api/cart/manage).
    *
    */
   cart?: Maybe<Cart>;
@@ -7221,24 +7593,49 @@ export type QueryRoot = {
    *
    */
   locations: LocationConnection;
-  /** Retrieve a [navigation menu](https://help.shopify.com/manual/online-store/menus-and-links) by its handle. */
+  /**
+   * Retrieves a [`Menu`](https://shopify.dev/docs/api/storefront/current/objects/Menu) by its handle. Menus are [hierarchical navigation structures](https://help.shopify.com/manual/online-store/menus-and-links) that merchants configure for their storefront, such as header and footer navigation.
+   *
+   * Each menu contains [`MenuItem`](https://shopify.dev/docs/api/storefront/current/objects/MenuItem) objects that can nest up to three levels deep, with each item linking to [collections](https://shopify.dev/docs/api/storefront/current/objects/Collection), [products](https://shopify.dev/docs/api/storefront/current/objects/Product), [pages](https://shopify.dev/docs/api/storefront/current/objects/Page), [blogs](https://shopify.dev/docs/api/storefront/current/objects/Blog), or external URLs.
+   *
+   */
   menu?: Maybe<Menu>;
-  /** Fetch a specific Metaobject by one of its unique identifiers. */
+  /**
+   * Retrieves a single [`Metaobject`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject) by either its [`global ID`](https://shopify.dev/docs/api/storefront/current/queries/metaobject#arguments-id) or its [`handle`](https://shopify.dev/docs/api/storefront/current/queries/metaobject#arguments-handle).
+   *
+   * > Note:
+   * > When using the handle, you must also provide the metaobject type because handles are only unique within a type.
+   *
+   */
   metaobject?: Maybe<Metaobject>;
-  /** All active metaobjects for the shop. */
+  /**
+   * Returns a paginated list of [`Metaobject`](https://shopify.dev/docs/api/storefront/current/objects/Metaobject) entries for a specific type. Metaobjects are [custom data structures](https://shopify.dev/docs/apps/build/metaobjects) that extend Shopify's data model with merchant-defined or app-defined content like size charts, product highlights, or custom sections.
+   *
+   * The required `type` argument specifies which metaobject type to retrieve. You can sort results by `id` or `updated_at` using the `sortKey` argument.
+   *
+   */
   metaobjects: MetaobjectConnection;
   /** Returns a specific node by ID. */
   node?: Maybe<Node>;
   /** Returns the list of nodes with the given IDs. */
   nodes: Array<Maybe<Node>>;
-  /** Fetch a specific `Page` by one of its unique attributes. */
+  /**
+   * Retrieves a [`Page`](https://shopify.dev/docs/api/storefront/current/objects/Page) by its [`handle`](https://shopify.dev/docs/api/storefront/current/queries/page#arguments-handle) or [`id`](https://shopify.dev/docs/api/storefront/current/queries/page#arguments-id). Pages are static content pages that merchants display outside their product catalog, such as "About Us," "Contact," or policy pages.
+   *
+   * The returned page includes information such as the [HTML body content](https://shopify.dev/docs/api/storefront/current/queries/page#returns-Page.fields.body), [`SEO`](https://shopify.dev/docs/api/storefront/current/objects/SEO) information, and any associated [`Metafield`](https://shopify.dev/docs/api/storefront/current/objects/Metafield) objects.
+   *
+   */
   page?: Maybe<Page>;
   /**
-   * Find a page by its handle.
+   * Retrieves a [`Page`](https://shopify.dev/docs/api/storefront/current/objects/Page) by its handle.
+   *
    * @deprecated Use `page` instead.
    */
   pageByHandle?: Maybe<Page>;
-  /** List of the shop's pages. */
+  /**
+   * Returns a paginated list of the shop's content [pages](https://shopify.dev/docs/api/storefront/current/objects/Page). Pages are custom HTML content like "About Us", "Contact", or policy information that merchants display outside their product catalog.
+   *
+   */
   pages: PageConnection;
   /** Settings related to payments. */
   paymentSettings: PaymentSettings;
@@ -7274,9 +7671,17 @@ export type QueryRoot = {
   search: SearchResultItemConnection;
   /** The shop associated with the storefront access token. */
   shop: Shop;
-  /** Contains all fields required to generate sitemaps. */
+  /**
+   * Returns sitemap data for a specific resource type, enabling headless storefronts to generate XML sitemaps for search engine optimization. The query provides a page count and paginated access to resources like [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product), [`Collection`](https://shopify.dev/docs/api/storefront/current/objects/Collection), [`Page`](https://shopify.dev/docs/api/storefront/current/objects/Page), and [`Blog`](https://shopify.dev/docs/api/storefront/current/objects/Blog) objects.
+   *
+   * When paginating through resources, the number of items per page varies from 0 to 250, and empty pages can occur without indicating the end of results. Always check [`hasNextPage`](https://shopify.dev/docs/api/storefront/current/objects/PaginatedSitemapResources#field-PaginatedSitemapResources.fields.hasNextPage) to determine if more pages are available.
+   *
+   */
   sitemap: Sitemap;
-  /** A list of redirects for a shop. */
+  /**
+   * Returns a paginated list of [`UrlRedirect`](https://shopify.dev/docs/api/storefront/current/objects/UrlRedirect) objects configured for the shop. Each redirect maps an old path to a target location.
+   *
+   */
   urlRedirects: UrlRedirectConnection;
 };
 
@@ -7683,7 +8088,10 @@ export type SelectedOptionInput = {
   value: Scalars['String']['input'];
 };
 
-/** Represents how products and variants can be sold and purchased. */
+/**
+ * Represents deferred or recurring purchase options for [products](https://shopify.dev/docs/api/storefront/current/objects/Product) and [product variants](https://shopify.dev/docs/api/storefront/current/objects/ProductVariant), such as subscriptions, pre-orders, or try-before-you-buy. Each selling plan belongs to a [`SellingPlanGroup`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlanGroup) and defines billing, pricing, inventory, and delivery policies.
+ *
+ */
 export type SellingPlan = HasMetafields & {
   __typename?: 'SellingPlan';
   /** The billing policy for the selling plan. */
@@ -7711,19 +8119,30 @@ export type SellingPlan = HasMetafields & {
 };
 
 
-/** Represents how products and variants can be sold and purchased. */
+/**
+ * Represents deferred or recurring purchase options for [products](https://shopify.dev/docs/api/storefront/current/objects/Product) and [product variants](https://shopify.dev/docs/api/storefront/current/objects/ProductVariant), such as subscriptions, pre-orders, or try-before-you-buy. Each selling plan belongs to a [`SellingPlanGroup`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlanGroup) and defines billing, pricing, inventory, and delivery policies.
+ *
+ */
 export type SellingPlanMetafieldArgs = {
   key: Scalars['String']['input'];
   namespace?: InputMaybe<Scalars['String']['input']>;
 };
 
 
-/** Represents how products and variants can be sold and purchased. */
+/**
+ * Represents deferred or recurring purchase options for [products](https://shopify.dev/docs/api/storefront/current/objects/Product) and [product variants](https://shopify.dev/docs/api/storefront/current/objects/ProductVariant), such as subscriptions, pre-orders, or try-before-you-buy. Each selling plan belongs to a [`SellingPlanGroup`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlanGroup) and defines billing, pricing, inventory, and delivery policies.
+ *
+ */
 export type SellingPlanMetafieldsArgs = {
   identifiers: Array<HasMetafieldsIdentifier>;
 };
 
-/** Represents an association between a variant and a selling plan. Selling plan allocations describe the options offered for each variant, and the price of the variant when purchased with a selling plan. */
+/**
+ * Links a [`ProductVariant`](https://shopify.dev/docs/api/storefront/current/objects/ProductVariant) to a [`SellingPlan`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlan), providing the pricing details for that specific combination. Each allocation includes the checkout charge amount, any remaining balance due for the purchase, and up to two price adjustments that show how the selling plan affects the variant's price.
+ *
+ * Selling plan allocations are available on product variants and [cart lines](https://shopify.dev/docs/api/storefront/current/objects/CartLine), enabling storefronts to display information such as subscription or purchase option pricing before and during checkout.
+ *
+ */
 export type SellingPlanAllocation = {
   __typename?: 'SellingPlanAllocation';
   /** The checkout charge amount due for the purchase. */
@@ -7848,7 +8267,12 @@ export type SellingPlanFixedPriceAdjustment = {
   price: MoneyV2;
 };
 
-/** Represents a selling method. For example, 'Subscribe and save' is a selling method where customers pay for goods or services per delivery. A selling plan group contains individual selling plans. */
+/**
+ * A selling method that defines how products can be sold through purchase options like subscriptions, pre-orders, or try-before-you-buy. Groups one or more [`SellingPlan`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlan) objects that share the same selling method and options.
+ *
+ * The `SellingPlanGroup` acts as a container for one or more individual `SellingPlan` objects, enabling merchants to offer multiple options (like weekly or monthly deliveries) under one, unified category on a product page.
+ *
+ */
 export type SellingPlanGroup = {
   __typename?: 'SellingPlanGroup';
   /** A display friendly name for the app that created the selling plan group. */
@@ -7862,7 +8286,12 @@ export type SellingPlanGroup = {
 };
 
 
-/** Represents a selling method. For example, 'Subscribe and save' is a selling method where customers pay for goods or services per delivery. A selling plan group contains individual selling plans. */
+/**
+ * A selling method that defines how products can be sold through purchase options like subscriptions, pre-orders, or try-before-you-buy. Groups one or more [`SellingPlan`](https://shopify.dev/docs/api/storefront/current/objects/SellingPlan) objects that share the same selling method and options.
+ *
+ * The `SellingPlanGroup` acts as a container for one or more individual `SellingPlan` objects, enabling merchants to offer multiple options (like weekly or monthly deliveries) under one, unified category on a product page.
+ *
+ */
 export type SellingPlanGroupSellingPlansArgs = {
   after?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['String']['input']>;
@@ -8793,7 +9222,11 @@ export type Swatch = {
 };
 
 /**
- * The taxonomy category for the product.
+ * A category from Shopify's [Standard Product Taxonomy](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17) assigned to a [`Product`](https://shopify.dev/docs/api/storefront/current/objects/Product). Categories provide hierarchical classification through the `ancestors` field.
+ *
+ * The [`ancestors`](https://shopify.dev/docs/api/storefront/current/objects/TaxonomyCategory#field-TaxonomyCategory.fields.ancestors) field returns the parent chain from the immediate parent up to the root. Each ancestor category also includes its own `ancestors`.
+ *
+ * The [`name`](https://shopify.dev/docs/api/storefront/latest/objects/TaxonomyCategory#field-TaxonomyCategory.fields.name) field returns the localized category name based on the storefront's request language with shop locale fallbacks. If a translation isn't available for the resolved locale, the English taxonomy name is returned.
  *
  */
 export type TaxonomyCategory = Node & {
@@ -8964,7 +9397,12 @@ export type VariantOptionFilter = {
   value: Scalars['String']['input'];
 };
 
-/** Represents a Shopify hosted video. */
+/**
+ * A video hosted on Shopify's servers. Implements the [`Media`](https://shopify.dev/docs/api/storefront/current/interfaces/Media) interface and provides multiple video sources through the [`sources`](https://shopify.dev/docs/api/storefront/current/objects/Video#field-Video.fields.sources) field, each with [format](https://shopify.dev/docs/api/storefront/current/objects/Video#field-Video.fields.sources.format), dimensions, and [URL information](https://shopify.dev/docs/api/storefront/current/objects/Video#field-Video.fields.sources.url) for adaptive playback.
+ *
+ * For videos hosted on external platforms like YouTube or Vimeo, use [`ExternalVideo`](https://shopify.dev/docs/api/storefront/current/objects/ExternalVideo) instead.
+ *
+ */
 export type Video = Media & Node & {
   __typename?: 'Video';
   /** A word or phrase to share the nature or contents of a media. */
