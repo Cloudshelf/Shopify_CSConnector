@@ -1,5 +1,8 @@
 import {
     CloudshelfInput,
+    OrganisationRequiresStockSyncDocument,
+    OrganisationRequiresStockSyncQuery,
+    OrganisationRequiresStockSyncQueryVariables,
     UpsertCloudshelfDocument,
     UpsertCloudshelfMutation,
     UpsertCloudshelfMutationVariables,
@@ -17,6 +20,21 @@ export class CloudshelfApiCloudshelfUtils {
             displayName: 'First Cloudshelf',
             homeFrameCallToAction: 'Touch to discover and buy',
         };
+    }
+
+    static async organisationRequiresStockSync(
+        apiUrl: string,
+        domain: string,
+        logs?: LogsInterface,
+    ): Promise<boolean> {
+        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, domain, logs);
+        const result = await authedClient.query<
+            OrganisationRequiresStockSyncQuery,
+            OrganisationRequiresStockSyncQueryVariables
+        >({
+            query: OrganisationRequiresStockSyncDocument,
+        });
+        return result.data.organisationRequiresStockSync;
     }
 
     static async createFirstCloudshelfIfRequired(
