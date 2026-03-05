@@ -55,7 +55,7 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.6",
     "@nestjs/graphql": "^13.1.0",
-    "@nestjs/platform-express": "^11.1.6",
+    "@nestjs/platform-express": "^11.1.16",
     "@nestjs/schedule": "^6.0.0",
     "@nestjs/terminus": "^11.0.0",
     "@opentelemetry/api": "^1.9.0",
