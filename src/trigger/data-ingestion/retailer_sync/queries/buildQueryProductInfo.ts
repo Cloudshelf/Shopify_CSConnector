@@ -80,6 +80,19 @@ export async function buildQueryProductInfo(retailer: RetailerEntity, changesSin
                         id
                         tracked
                       }
+                      metafields {
+                        edges {
+                          node {
+                            id
+                            namespace
+                            key
+                            value
+                            description
+                            createdAt
+                            updatedAt
+                          }
+                        }
+                      }
                     }
                   }
                 }

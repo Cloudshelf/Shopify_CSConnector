@@ -85,8 +85,9 @@ export const RetailerSyncJob = task({
             await logger.trace(`Sync Locations`, async () => {
                 await handleSyncLocations(env, AppDataSource, retailer, ctx.run.id);
             });
+            let hadProductChanges = false;
             await logger.trace(`Sync Products`, async () => {
-                await handleSyncProducts(
+                hadProductChanges = await handleSyncProducts(
                     env,
                     AppDataSource,
                     retailer,
@@ -97,18 +98,23 @@ export const RetailerSyncJob = task({
                     ctx.run.id,
                 );
             });
-            await logger.trace(`Sync Stock Levels`, async () => {
-                await handleSyncInventoryItems(
-                    env,
-                    AppDataSource,
-                    retailer,
-                    {
-                        style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
-                        changesSince,
-                    },
-                    ctx.run.id,
-                );
-            });
+
+            if (!payload.fullSync && !hadProductChanges) {
+                logger.info('Partial sync found no product changes — skipping inventory sync');
+            } else {
+                await logger.trace(`Sync Stock Levels`, async () => {
+                    await handleSyncInventoryItems(
+                        env,
+                        AppDataSource,
+                        retailer,
+                        {
+                            style: payload.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL,
+                            changesSince,
+                        },
+                        ctx.run.id,
+                    );
+                });
+            }
 
             await logger.trace(`Sync Product groups`, async () => {
                 await handleSyncProductGroups(

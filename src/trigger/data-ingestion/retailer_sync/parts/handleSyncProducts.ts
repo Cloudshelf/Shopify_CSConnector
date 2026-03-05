@@ -38,7 +38,7 @@ export async function handleSyncProducts(
     retailer: RetailerEntity,
     syncOptions: SyncOptions,
     runId: string,
-) {
+): Promise<boolean> {
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
@@ -90,7 +90,7 @@ export async function handleSyncProducts(
     if (!requestedBulkOperation.dataUrl) {
         //no need to sync anything
         logger.info('No dataURL exists after bulk operation finished');
-        return;
+        return false;
     }
 
     // Download the bulk operation data to a temp file
@@ -289,4 +289,6 @@ export async function handleSyncProducts(
             await deleteTempFile(tempFilePath);
         }
     }
+
+    return true;
 }

@@ -30,13 +30,21 @@ export async function handleSyncInventoryItems(
     syncOptions: SyncOptions,
     runId: string,
 ) {
-    const requiresStockSync = await CloudshelfApiCloudshelfUtils.organisationRequiresStockSync(
-        env.CLOUDSHELF_API_URL,
-        retailer.domain,
-        getLoggerHelper(),
-    );
+    const requiresStockSync = await logger.trace('Checking if organisation requires stock sync', async () => {
+        const requiresStockSync = await CloudshelfApiCloudshelfUtils.organisationRequiresStockSync(
+            env.CLOUDSHELF_API_URL,
+            retailer.domain,
+            getLoggerHelper(),
+        );
+        if (!requiresStockSync) {
+            logger.info('No Cloudshelf uses device or named location stock — skipping inventory sync');
+        } else {
+            logger.info('Cloudshelf uses device or named location stock — continuing with inventory sync');
+        }
+        return requiresStockSync;
+    });
+
     if (!requiresStockSync) {
-        logger.info('No CloudShelf uses device or named location stock — skipping inventory sync');
         return;
     }
 
