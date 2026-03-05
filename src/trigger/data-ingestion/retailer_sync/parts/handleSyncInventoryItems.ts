@@ -3,6 +3,7 @@ import { BulkOperationStatus } from 'src/graphql/shopifyAdmin/generated/shopifyA
 import { EntityManager } from '@mikro-orm/postgresql';
 import _ from 'lodash';
 import { AbortTaskRunError, logger } from '@trigger.dev/sdk';
+import { CloudshelfApiCloudshelfUtils } from 'src/modules/cloudshelf/cloudshelf.api.cloudshelf.util';
 import { CloudshelfApiOrganisationUtils } from 'src/modules/cloudshelf/cloudshelf.api.organisation.util';
 import { CloudshelfApiStockLevelsUtils } from 'src/modules/cloudshelf/cloudshelf.api.stocklevels.util';
 import { BulkOperation } from 'src/modules/data-ingestion/bulk.operation.entity';
@@ -29,6 +30,16 @@ export async function handleSyncInventoryItems(
     syncOptions: SyncOptions,
     runId: string,
 ) {
+    const requiresStockSync = await CloudshelfApiCloudshelfUtils.organisationRequiresStockSync(
+        env.CLOUDSHELF_API_URL,
+        retailer.domain,
+        getLoggerHelper(),
+    );
+    if (!requiresStockSync) {
+        logger.info('No CloudShelf uses device or named location stock — skipping inventory sync');
+        return;
+    }
+
     await CloudshelfApiOrganisationUtils.setOrganisationSyncStatus({
         apiUrl: env.CLOUDSHELF_API_URL,
         retailer,
@@ -41,7 +52,7 @@ export async function handleSyncInventoryItems(
         syncStage: SyncStage.RequestStockLevels,
     });
 
-    const queryPayload = await buildQueryInventoryItems(retailer, syncOptions.changesSince);
+    const queryPayload = await buildQueryInventoryItems();
     let requestedBulkOperation: BulkOperation | undefined = undefined;
     try {
         requestedBulkOperation = await requestAndWaitForBulkOperation({

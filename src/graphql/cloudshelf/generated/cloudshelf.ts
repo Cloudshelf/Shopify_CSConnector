@@ -144,6 +144,7 @@ export type AiWorkflowStepSetActiveInput = {
 
 export type AiWorkflowStepTestInput = {
   buyersGuideId: Scalars['GlobalId']['input'];
+  questionId?: InputMaybe<Scalars['GlobalId']['input']>;
   stepKey: Scalars['String']['input'];
   versionId?: InputMaybe<Scalars['GlobalId']['input']>;
   workflowKey: Scalars['String']['input'];
@@ -249,6 +250,8 @@ export type Banner = {
   linkType: BannerLinkType;
   linkURL?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  originalBackgroundImageHorizontal?: Maybe<Scalars['String']['output']>;
+  originalBackgroundImageVertical?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
   scripts: Array<BannerScript>;
   /** The date and time this entity was last updated. */
@@ -278,6 +281,8 @@ export type BannerInput = {
   linkType?: InputMaybe<BannerLinkType>;
   linkURL?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  originalBackgroundImageHorizontal?: InputMaybe<Scalars['String']['input']>;
+  originalBackgroundImageVertical?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
   scripts?: InputMaybe<Array<BannerScriptInput>>;
 };
@@ -380,6 +385,8 @@ export type BuyersGuideAnswer = {
   goToQuestionLocked: Scalars['Boolean']['output'];
   id: Scalars['GlobalId']['output'];
   image?: Maybe<Scalars['String']['output']>;
+  imageSearchPhrase?: Maybe<Scalars['String']['output']>;
+  originalImage?: Maybe<Scalars['String']['output']>;
   position: Scalars['Int']['output'];
   tags: Array<Scalars['String']['output']>;
   tagsAiGenerated: Scalars['Boolean']['output'];
@@ -398,6 +405,8 @@ export type BuyersGuideAnswerInput = {
   goToQuestionLocked?: InputMaybe<Scalars['Boolean']['input']>;
   id: Scalars['GlobalId']['input'];
   image?: InputMaybe<Scalars['String']['input']>;
+  imageSearchPhrase?: InputMaybe<Scalars['String']['input']>;
+  originalImage?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
   tags: Array<Scalars['String']['input']>;
   tagsAiGenerated?: InputMaybe<Scalars['Boolean']['input']>;
@@ -832,6 +841,7 @@ export type CloudshelfContent = {
   powerTileBackgroundType?: Maybe<PowerTileBackgroundType>;
   powerTileCallToAction?: Maybe<Scalars['String']['output']>;
   powerTileIcon?: Maybe<Scalars['String']['output']>;
+  powerTileOriginalBackgroundImage?: Maybe<Scalars['String']['output']>;
   powerTileQRText?: Maybe<Scalars['String']['output']>;
   powerTileQRURL?: Maybe<Scalars['String']['output']>;
   powerTileUseIcon?: Maybe<Scalars['Boolean']['output']>;
@@ -843,6 +853,9 @@ export type CloudshelfContent = {
   productGroupCallToAction?: Maybe<Scalars['String']['output']>;
   productGroupCallToActionDisplayCTA?: Maybe<Scalars['Boolean']['output']>;
   productGroupIsUpsellContent?: Maybe<Scalars['Boolean']['output']>;
+  productGroupOriginalAlternativeImage?: Maybe<Scalars['String']['output']>;
+  productGroupOriginalBackgroundImageHorizontal?: Maybe<Scalars['String']['output']>;
+  productGroupOriginalBackgroundImageVertical?: Maybe<Scalars['String']['output']>;
   productGroupUseAlternativeImage?: Maybe<Scalars['Boolean']['output']>;
   productGroupVisibleInAttractLoop?: Maybe<Scalars['Boolean']['output']>;
   /** The date and time this entity was last updated. */
@@ -861,6 +874,7 @@ export type CloudshelfContentInput = {
   powerTileBackgroundType?: InputMaybe<PowerTileBackgroundType>;
   powerTileCallToAction?: InputMaybe<Scalars['String']['input']>;
   powerTileIcon?: InputMaybe<Scalars['String']['input']>;
+  powerTileOriginalBackgroundImage?: InputMaybe<Scalars['String']['input']>;
   powerTileQRText?: InputMaybe<Scalars['String']['input']>;
   powerTileQRURL?: InputMaybe<Scalars['String']['input']>;
   powerTileUseIcon?: InputMaybe<Scalars['Boolean']['input']>;
@@ -872,6 +886,9 @@ export type CloudshelfContentInput = {
   productGroupCallToActionDisplayCTA?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupId?: InputMaybe<Scalars['GlobalId']['input']>;
   productGroupIsUpsellContent?: InputMaybe<Scalars['Boolean']['input']>;
+  productGroupOriginalAlternativeImage?: InputMaybe<Scalars['String']['input']>;
+  productGroupOriginalBackgroundImageHorizontal?: InputMaybe<Scalars['String']['input']>;
+  productGroupOriginalBackgroundImageVertical?: InputMaybe<Scalars['String']['input']>;
   productGroupUseAlternativeImage?: InputMaybe<Scalars['Boolean']['input']>;
   productGroupVisibleInAttractLoop?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -1918,6 +1935,14 @@ export type CustomCssInput = {
   id: Scalars['GlobalId']['input'];
 };
 
+export type DashboardSalesSummaryPayload = {
+  __typename?: 'DashboardSalesSummaryPayload';
+  hasSales: Scalars['Boolean']['output'];
+  rangeDays: Scalars['Int']['output'];
+  salesValueUsd: Scalars['Float']['output'];
+  transactionCount: Scalars['Int']['output'];
+};
+
 export type DeliveryAddressInput = {
   address1: Scalars['String']['input'];
   address2?: InputMaybe<Scalars['String']['input']>;
@@ -2864,6 +2889,7 @@ export type Mutation = {
   newSession: Session;
   notice: Scalars['Boolean']['output'];
   publishAiWorkflowStepDraft: AiWorkflowStepVersion;
+  refreshAllBuyersGuideImageSearchPhrases: Scalars['Boolean']['output'];
   /** Register a webhook for a given subject. The supplied URL will be called with a POST request when the subject is triggered. */
   registerWebhook: WebhookRegisterPayload;
   /** Removes the given products from the product group, if they are currently part of it */
@@ -4065,16 +4091,44 @@ export type OrganisationUpsertPayload = {
   userErrors: Array<UserError>;
 };
 
+export type PdpBlockAvailability = {
+  __typename?: 'PDPBlockAvailability';
+  blockType: PdpBlockType;
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Float']['output'];
+  style: PdpBlockStyle;
+};
+
 export type PdpBlockInput = {
   blockType: PdpBlockType;
   displayName: Scalars['String']['input'];
   id: Scalars['GlobalId']['input'];
   matchColourTypesToImages?: InputMaybe<Scalars['Boolean']['input']>;
   metadataDisplayType?: InputMaybe<PdpMetadataDisplayType>;
+  metadataJavascriptMapper?: InputMaybe<Scalars['String']['input']>;
   metadataKey?: InputMaybe<Scalars['String']['input']>;
   position: Scalars['Int']['input'];
   productDataType?: InputMaybe<PdpProductDataType>;
   removeThemeShortcodes?: InputMaybe<Scalars['Boolean']['input']>;
+  style: PdpBlockStyle;
+};
+
+export type PdpBlockName = {
+  __typename?: 'PDPBlockName';
+  blockType: PdpBlockType;
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Float']['output'];
+  style: PdpBlockStyle;
+};
+
+export type PdpBlockPrice = {
+  __typename?: 'PDPBlockPrice';
+  blockType: PdpBlockType;
+  displayName: Scalars['String']['output'];
+  id: Scalars['GlobalId']['output'];
+  position: Scalars['Float']['output'];
   style: PdpBlockStyle;
 };
 
@@ -4085,15 +4139,18 @@ export enum PdpBlockStyle {
 }
 
 export enum PdpBlockType {
+  Availability = 'AVAILABILITY',
   Description = 'DESCRIPTION',
   Labels = 'LABELS',
   Metadata = 'METADATA',
+  Name = 'NAME',
+  Price = 'PRICE',
   ProductData = 'PRODUCT_DATA',
   Spacer = 'SPACER',
   Variants = 'VARIANTS'
 }
 
-export type PdpBlockUnion = PdpDescriptionBlock | PdpLabelsBlock | PdpMetadataBlock | PdpProductDataBlock | PdpSpacerBlock | PdpVariantsBlock;
+export type PdpBlockUnion = PdpBlockAvailability | PdpBlockName | PdpBlockPrice | PdpDescriptionBlock | PdpLabelsBlock | PdpMetadataBlock | PdpProductDataBlock | PdpSpacerBlock | PdpVariantsBlock;
 
 export type PdpDescriptionBlock = {
   __typename?: 'PDPDescriptionBlock';
@@ -4120,6 +4177,7 @@ export type PdpMetadataBlock = {
   displayName: Scalars['String']['output'];
   displayType?: Maybe<PdpMetadataDisplayType>;
   id: Scalars['GlobalId']['output'];
+  javascriptMapper?: Maybe<Scalars['String']['output']>;
   key?: Maybe<Scalars['String']['output']>;
   position: Scalars['Float']['output'];
   style: PdpBlockStyle;
@@ -4127,6 +4185,7 @@ export type PdpMetadataBlock = {
 
 export enum PdpMetadataDisplayType {
   Image = 'IMAGE',
+  JavascriptMapper = 'JAVASCRIPT_MAPPER',
   Text = 'TEXT',
   YoutubeVideo = 'YOUTUBE_VIDEO'
 }
@@ -4264,6 +4323,12 @@ export type PrecutPrinterBlock = {
   id: Scalars['GlobalId']['output'];
   position: Scalars['Int']['output'];
   printerBlockDiscriminator: Scalars['String']['output'];
+};
+
+export type PresignedUploadUrl = {
+  __typename?: 'PresignedUploadUrl';
+  imageId: Scalars['String']['output'];
+  uploadURL: Scalars['String']['output'];
 };
 
 export type PreviousOrganisationDataPayload = {
@@ -4428,6 +4493,14 @@ export type ProductGroupPaginatedPayload = {
   pageInfo?: Maybe<ProductGroupPageInfo>;
   /** The total number of items available */
   totalCount: Scalars['Int']['output'];
+};
+
+export type ProductGroupSearchQueryInput = {
+  includeProductGroupsWithoutProducts?: InputMaybe<Scalars['Boolean']['input']>;
+  productGroupIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  productGroupIdsToExclude?: InputMaybe<Array<Scalars['String']['input']>>;
+  searchThroughProducts?: InputMaybe<Scalars['Boolean']['input']>;
+  textSearch?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ProductGroupUpdateBatch = {
@@ -4714,6 +4787,7 @@ export type Query = {
   createPaymentAttempt: PaymentGenericPayload;
   /** An internal function for getting a Cloudshelf Authentication Token. */
   customToken?: Maybe<Scalars['String']['output']>;
+  dashboardSalesSummary: DashboardSalesSummaryPayload;
   /** Returns a Device entity */
   device?: Maybe<Device>;
   /** Returns device location constraints and availability. Pass deviceId to show availability for moving a specific device. */
@@ -4735,6 +4809,7 @@ export type Query = {
   getPaymentRequest: PaymentGenericPayload;
   getPaymentToken: PaymentTokenPayload;
   getPresignedCustomisationUrl: Scalars['String']['output'];
+  getPresignedImageUploadUrls: Array<PresignedUploadUrl>;
   getVersionByType: KnownVersion;
   /** Returns all filters that can possibly be included in the Cloudshelf */
   includeableFilters: Array<CloudshelfIncludableFilter>;
@@ -4748,6 +4823,8 @@ export type Query = {
   /** Returns the currently authenticated user. */
   me: User;
   metadataKeys: Array<Scalars['String']['output']>;
+  /** Recent metadata values for a metadata key, for mapper previews in manager. */
+  metadataPreviewSamples: Array<Scalars['String']['output']>;
   onlineFilterSearchBlockFast: EngineProductBlockPayload;
   /** Returns an Order entity. */
   order?: Maybe<Order>;
@@ -4760,6 +4837,8 @@ export type Query = {
   organisationInstallComplete?: Maybe<Scalars['Boolean']['output']>;
   /** Returns a paginated list of organisations */
   organisationList: OrganisationPaginatedPayload;
+  /** Returns true if any CloudShelf uses device or named location stock relevance */
+  organisationRequiresStockSync: Scalars['Boolean']['output'];
   organisationSyncStatusByDomain: OrganisationSyncStatusPayload;
   organisationSyncStatusById: OrganisationSyncStatusPayload;
   /** Returns a paginated array of user access rights for the current organisation */
@@ -4944,6 +5023,11 @@ export type QueryCustomTokenArgs = {
 };
 
 
+export type QueryDashboardSalesSummaryArgs = {
+  rangeDays?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryDeviceArgs = {
   id: Scalars['GlobalId']['input'];
 };
@@ -5040,6 +5124,12 @@ export type QueryGetPresignedCustomisationUrlArgs = {
 };
 
 
+export type QueryGetPresignedImageUploadUrlsArgs = {
+  area?: InputMaybe<Scalars['String']['input']>;
+  count: Scalars['Int']['input'];
+};
+
+
 export type QueryGetVersionByTypeArgs = {
   type: VersionType;
 };
@@ -5073,6 +5163,12 @@ export type QueryLocationsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   sortBy?: InputMaybe<SortOptionsInput>;
   textSearch?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryMetadataPreviewSamplesArgs = {
+  key: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -5188,6 +5284,7 @@ export type QueryProductGroupsArgs = {
   before?: InputMaybe<Scalars['String']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+  searchQuery?: InputMaybe<ProductGroupSearchQueryInput>;
   sortBy?: InputMaybe<SortOptionsInput>;
 };
 
@@ -5970,6 +6067,7 @@ export type Theme = {
   logoUrl?: Maybe<Scalars['String']['output']>;
   /** The colour of the main text. */
   mainTextColor: Scalars['String']['output'];
+  originalLogoUrl?: Maybe<Scalars['String']['output']>;
   /** The organisation that owns this theme. */
   owningOrganisation: Organisation;
   pdpImageBackgroundColor: Scalars['String']['output'];
@@ -6078,6 +6176,7 @@ export type ThemeInput = {
   logoSize?: InputMaybe<Size>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
   mainTextColor?: InputMaybe<Scalars['String']['input']>;
+  originalLogoUrl?: InputMaybe<Scalars['String']['input']>;
   pdpImageBackgroundColor?: InputMaybe<Scalars['String']['input']>;
   pdpImageBackgroundStyle?: InputMaybe<ImageBackgroundStyle>;
   pdpImageModifierLandscape?: InputMaybe<Scalars['Float']['input']>;
@@ -6762,6 +6861,11 @@ export const KeepKnownVariantsViaFileDocument = gql`
   }
 }
     `;
+export const OrganisationRequiresStockSyncDocument = gql`
+    query OrganisationRequiresStockSync {
+  organisationRequiresStockSync
+}
+    `;
 export const ExchangeTokenDocument = gql`
     query ExchangeToken($domain: String!) {
   customToken(domain: $domain)
@@ -6930,6 +7034,11 @@ export type KeepKnownVariantsViaFileMutationVariables = Exact<{
 
 
 export type KeepKnownVariantsViaFileMutation = { __typename?: 'Mutation', keepKnownVariantsViaFile: { __typename?: 'ProductVariantDeletionPayload', count: number, userErrors: Array<{ __typename?: 'UserError', code: UserErrorCode, message: string }> } };
+
+export type OrganisationRequiresStockSyncQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OrganisationRequiresStockSyncQuery = { __typename?: 'Query', organisationRequiresStockSync: boolean };
 
 export type ExchangeTokenQueryVariables = Exact<{
   domain: Scalars['String']['input'];
