@@ -131,7 +131,8 @@ export async function handleSyncProducts(
                 (product.Metafield ?? []).map((metafield: any) => {
                     const metafieldInput: MetadataInput = {
                         id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
-                        key: `${metafield.namespace}-${metafield.key}`,
+                        key: metafield.namespace ? `${metafield.namespace}-${metafield.key}` : metafield.key,
+                        namespace: (metafield.namespace ?? '').trim().toLowerCase() || 'global',
                         data: metafield.value,
                     };
                     metadata.push(metafieldInput);
