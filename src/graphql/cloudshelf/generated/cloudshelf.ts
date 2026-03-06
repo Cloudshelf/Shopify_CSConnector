@@ -2718,10 +2718,12 @@ export type Metadata = {
   data: Scalars['String']['output'];
   /** A unique internal GlobalId for this entity. */
   id: Scalars['GlobalId']['output'];
-  /** The key for the value */
+  /** The key for the value within its namespace. */
   key: Scalars['String']['output'];
   /** The location which this metadata is linked too. */
   location?: Maybe<Location>;
+  /** The lowercase namespace for this metadata. */
+  namespace: Scalars['String']['output'];
   /** The organisation which owns this entity. */
   owningOrganisation: Organisation;
   /** An externally provided GlobalId */
@@ -2743,7 +2745,10 @@ export type MetadataInput = {
   data: Scalars['String']['input'];
   /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
   id?: InputMaybe<Scalars['GlobalId']['input']>;
+  /** The key for the value within its namespace. */
   key: Scalars['String']['input'];
+  /** The lowercase namespace for this metadata. Empty values are stored as "global". */
+  namespace: Scalars['String']['input'];
 };
 
 /** This object represents an image with additional metadata */
