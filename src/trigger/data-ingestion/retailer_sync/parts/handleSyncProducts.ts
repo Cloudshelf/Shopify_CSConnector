@@ -129,10 +129,14 @@ export async function handleSyncProducts(
                 //Map over shopify product metafields, and create cloudshelf metadata
                 const metadata: MetadataInput[] = [];
                 (product.Metafield ?? []).map((metafield: any) => {
+                    const normalizedNamespace = (metafield.namespace ?? '').trim().toLowerCase() || 'global';
                     const metafieldInput: MetadataInput = {
                         id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
-                        key: metafield.namespace ? `${metafield.namespace}-${metafield.key}` : metafield.key,
-                        namespace: (metafield.namespace ?? '').trim().toLowerCase() || 'global',
+                        key:
+                            normalizedNamespace !== 'global'
+                                ? `${normalizedNamespace}-${metafield.key}`
+                                : metafield.key,
+                        namespace: normalizedNamespace,
                         data: metafield.value,
                     };
                     metadata.push(metafieldInput);
