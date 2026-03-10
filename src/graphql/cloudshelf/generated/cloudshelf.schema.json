@@ -20274,7 +20274,7 @@
           },
           {
             "name": "key",
-            "description": "The key for the value",
+            "description": "The key for the value within its namespace.",
             "args": [],
             "type": {
               "kind": "NON_NULL",
@@ -20296,6 +20296,22 @@
               "kind": "OBJECT",
               "name": "Location",
               "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "namespace",
+            "description": "The lowercase namespace for this metadata.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -20435,7 +20451,23 @@
           },
           {
             "name": "key",
-            "description": null,
+            "description": "The key for the value within its namespace.",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "namespace",
+            "description": "The lowercase namespace for this metadata. Empty values are stored as \"global\".",
             "type": {
               "kind": "NON_NULL",
               "name": null,
@@ -36081,7 +36113,7 @@
               },
               {
                 "name": "includeMetafieldPartialKeys",
-                "description": null,
+                "description": "Metadata namespaces to include alongside exact metadata keys.",
                 "type": {
                   "kind": "LIST",
                   "name": null,
@@ -37148,7 +37180,7 @@
               },
               {
                 "name": "includeMetafieldPartialKeys",
-                "description": null,
+                "description": "Metadata namespaces to include alongside exact metadata keys.",
                 "type": {
                   "kind": "LIST",
                   "name": null,
