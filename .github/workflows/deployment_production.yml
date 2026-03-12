@@ -8,7 +8,7 @@ on:
 jobs:
     version:
         environment: ${{ github.head_ref || github.ref_name }}
-        runs-on: blacksmith-8vcpu-ubuntu-2204
+        runs-on: blacksmith-2vcpu-ubuntu-2404
 
         steps:
             # Checkout branch
@@ -37,7 +37,7 @@ jobs:
     build-and-deploy:
         needs: version
         environment: ${{ github.head_ref || github.ref_name }}
-        runs-on: blacksmith-8vcpu-ubuntu-2204
+        runs-on: blacksmith-2vcpu-ubuntu-2404
         permissions:
             id-token: write
             contents: read
@@ -497,3 +497,4 @@ jobs:
                   title: ${{ needs.version.outputs.version }}
                   description: 'Commit ${{ github.event.head_commit.message }}'
                   url: 'https://github.com/${{ github.repository }}/commit/${{ github.sha }}'
+
