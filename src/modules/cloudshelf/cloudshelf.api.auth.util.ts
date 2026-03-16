@@ -55,9 +55,12 @@ export class CloudshelfApiAuthUtils {
             const variables = JSON.stringify(vs);
             const hmac = domain ? CryptographyUtils.createHmac(domain + variables, timestamp) : '';
 
+            const version = process.env.PACKAGE_VERSION || 'UnknownVersion';
+
             operation.setContext(({ headers = {} }) => ({
                 headers: {
                     ...headers,
+                    'User-Agent': `Cloudshelf-Shopify-Connector/${version}`,
                     ...(domain ? { 'x-store-domain': domain, 'x-hmac': hmac, 'x-nonce': timestamp } : {}),
                 },
             }));
@@ -104,7 +107,7 @@ export class CloudshelfApiAuthUtils {
 
         const client = new ApolloClient({
             cache: new InMemoryCache(),
-            link: from([authLink, errorLink, retryLink, responseLoggingLink, httpLink]),
+            link: from([retryLink, authLink, errorLink, responseLoggingLink, httpLink]),
             defaultOptions: graphqlDefaultOptions,
         });
 
