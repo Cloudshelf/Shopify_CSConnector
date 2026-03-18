@@ -51,7 +51,7 @@
     "@nestjs-shopify/express": "^2.0.1",
     "@nestjs-shopify/webhooks": "^5.0.1",
     "@nestjs/apollo": "^13.1.0",
-    "@nestjs/common": "^11.1.6",
+    "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.6",
     "@nestjs/graphql": "^13.1.0",
