@@ -34,7 +34,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly cloudshelfApiService: CloudshelfApiService,
         @InjectShopify() private readonly shopifyApiService: Shopify,
         private readonly slackConfigService: ConfigService<typeof slackSchema>,
-    ) {}
+    ) { }
 
     @Telemetry('service.after-auth.afterAuth')
     async afterAuth(req: Request, res: Response, session: ShopifySessionEntity): Promise<void> {
@@ -69,6 +69,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         }
 
         if (!session.scope) {
+            this.logger.debug(session);
             this.logger.error('No scope found in session');
             //Send a bad request response (temp)
             res.status(400).end();
