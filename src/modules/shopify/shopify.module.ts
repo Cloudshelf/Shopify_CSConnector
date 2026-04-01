@@ -88,6 +88,8 @@ export class ShopifyModule {
                         'write_orders',
                         'write_customers',
                         'write_resource_feedbacks',
+                        // Another scope pls
+
                     ],
                 };
             },

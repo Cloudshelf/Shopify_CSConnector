@@ -10,7 +10,7 @@ import { RetailerEntity } from 'src/modules/retailer/retailer.entity';
 import { RetailerSyncEnvironmentConfig } from 'src/trigger/reuseables/env_validation';
 import { getLoggerHelper } from 'src/trigger/reuseables/loggerObject';
 import { setDifference } from 'src/trigger/reuseables/noble_pollfills';
-import { SyncOptions } from 'src/trigger/syncOptions.type';
+import { SyncOptions, SyncStyle } from 'src/trigger/syncOptions.type';
 import { GlobalIDUtils } from 'src/utils/GlobalIDUtils';
 import { JsonLUtils } from 'src/utils/JsonLUtils';
 import { S3Utils } from 'src/utils/S3Utils';
@@ -395,4 +395,23 @@ export async function handleSyncCleanup(
         retailer,
         syncStage: SyncStage.Done,
     });
+
+    if (syncOptions.style === SyncStyle.FULL) {
+        logger.info('Queueing catalog attribute coverage backfill after full sync completion', {
+            domain: retailer.domain,
+            runId,
+        });
+
+        const queued = await CloudshelfApiOrganisationUtils.queueCatalogAttributeCoverageBackfill({
+            apiUrl: env.CLOUDSHELF_API_URL,
+            retailer,
+            logs: getLoggerHelper(),
+        });
+
+        logger.info('Catalog attribute coverage backfill queue request completed', {
+            domain: retailer.domain,
+            queued,
+            runId,
+        });
+    }
 }

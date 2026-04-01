@@ -1,3 +1,4 @@
+import { gql } from '@apollo/client/core';
 import {
     OrganisationSyncStatusByDomainDocument,
     OrganisationSyncStatusByDomainQuery,
@@ -13,6 +14,12 @@ import { CloudshelfApiAuthUtils } from './cloudshelf.api.auth.util';
 import { LogsInterface } from './logs.interface';
 
 export class CloudshelfApiOrganisationUtils {
+    private static readonly queueCatalogAttributeCoverageBackfillDocument = gql`
+        mutation QueueCatalogAttributeCoverageBackfill($domainName: String!) {
+            queueCatalogAttributeCoverageBackfill(domainName: $domainName)
+        }
+    `;
+
     static async setOrganisationSyncStatus({
         apiUrl,
         retailer,
@@ -46,6 +53,36 @@ export class CloudshelfApiOrganisationUtils {
             logs?.error?.(`Failed to set organisation sync status ${retailer.domain}`);
             return;
         }
+    }
+
+    static async queueCatalogAttributeCoverageBackfill({
+        apiUrl,
+        retailer,
+        logs,
+    }: {
+        apiUrl: string;
+        retailer: RetailerEntity;
+        logs?: LogsInterface;
+    }): Promise<boolean> {
+        const authedClient = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, retailer.domain, logs);
+
+        const mutationResult = await authedClient.mutate<{
+            queueCatalogAttributeCoverageBackfill: boolean;
+        }>({
+            mutation: this.queueCatalogAttributeCoverageBackfillDocument,
+            variables: {
+                domainName: retailer.domain,
+            },
+        });
+
+        if (mutationResult.errors) {
+            logs?.error?.(`Failed to queue catalog attribute coverage backfill ${retailer.domain}`, {
+                errors: mutationResult.errors,
+            });
+            return false;
+        }
+
+        return mutationResult.data?.queueCatalogAttributeCoverageBackfill === true;
     }
     static async getOrganisationStatusByDomain({
         apiUrl,
