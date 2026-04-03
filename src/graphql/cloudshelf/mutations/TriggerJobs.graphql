@@ -1,0 +1,11 @@
+mutation reportTriggerJobStarted($taskId: String!, $runId: String!) {
+    reportTriggerJobStarted(taskId: $taskId, runId: $runId)
+}
+
+mutation reportTriggerJobCompleted($taskId: String!, $durationMs: Float!) {
+    reportTriggerJobCompleted(taskId: $taskId, durationMs: $durationMs)
+}
+
+mutation reportTriggerJobFailed($taskId: String!) {
+    reportTriggerJobFailed(taskId: $taskId)
+}
