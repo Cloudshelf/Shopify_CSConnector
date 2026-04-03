@@ -12,6 +12,7 @@ import { SyncStyle } from 'src/trigger/syncOptions.type';
 import { RetailerEntity } from '../../../modules/retailer/retailer.entity';
 import { getDbForTrigger, getEnvConfig } from '../../reuseables/initialization';
 import { getLoggerHelper } from '../../reuseables/loggerObject';
+import { TASK_DEFAULTS } from '../../task-defaults';
 import { handleSyncCleanup } from './parts/handleSyncCleanup';
 import { handleSyncInventoryItems } from './parts/handleSyncInventoryItems';
 import { handleSyncLocations } from './parts/handleSyncLocations';
@@ -21,7 +22,8 @@ import { handleSyncProducts } from './parts/handleSyncProducts';
 export const RetailerSyncJob = task({
     id: 'retailer-sync-job',
     queue: IngestionQueue,
-    machine: { preset: `small-2x` },
+    machine: { preset: TASK_DEFAULTS['retailer-sync-job'].machineSize as any },
+    maxDuration: TASK_DEFAULTS['retailer-sync-job'].maxDuration,
     run: async (payload: { organisationId: string; fullSync: boolean }, { ctx }) => {
         logger.info(
             `Starting Retailer Sync for OrgId: ${payload.organisationId} Sync Style: ${

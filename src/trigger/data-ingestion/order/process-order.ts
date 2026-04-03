@@ -29,6 +29,7 @@ import {
     OrderUpdateWebhookPayload,
 } from '../../../modules/shopify/webhooks/attrs.cosnts';
 import { getDbForTrigger } from '../../reuseables/initialization';
+import { TASK_DEFAULTS } from '../../task-defaults';
 
 const createOrderUpdateWebhookPayload = (payload: OrderUpdateWebhookPayload): OrderUpdateWebhookPayload => {
     return {
@@ -58,7 +59,8 @@ const createOrderUpdateWebhookPayload = (payload: OrderUpdateWebhookPayload): Or
 export const ProcessOrderTask = task({
     id: 'process-order',
     queue: OrderProcessingQueue,
-    machine: 'small-1x',
+    machine: TASK_DEFAULTS['process-order'].machineSize as any,
+    maxDuration: TASK_DEFAULTS['process-order'].maxDuration,
     run: async (payload: { organisationId: string; data: OrderUpdateWebhookPayload }, { ctx }) => {
         const AppDataSource = getDbForTrigger();
         if (!AppDataSource) {

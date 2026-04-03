@@ -6983,6 +6983,29 @@ export type OrganisationSyncStatusByDomainQuery = {
 
 // --- Trigger Job Tracking (manually added, will be overwritten by codegen) ---
 
+export const ReportTriggerJobPendingDocument = gql`
+    mutation reportTriggerJobPending(
+        $taskId: String!
+        $runId: String!
+        $debounceDelayMs: Int
+        $debounceMaxDelayMs: Int
+    ) {
+        reportTriggerJobPending(
+            taskId: $taskId
+            runId: $runId
+            debounceDelayMs: $debounceDelayMs
+            debounceMaxDelayMs: $debounceMaxDelayMs
+        )
+    }
+`;
+export type ReportTriggerJobPendingMutation = { __typename?: 'Mutation'; reportTriggerJobPending: boolean };
+export type ReportTriggerJobPendingMutationVariables = Exact<{
+    taskId: Scalars['String']['input'];
+    runId: Scalars['String']['input'];
+    debounceDelayMs?: InputMaybe<Scalars['Int']['input']>;
+    debounceMaxDelayMs?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
 export const ReportTriggerJobStartedDocument = gql`
     mutation reportTriggerJobStarted($taskId: String!, $runId: String!) {
         reportTriggerJobStarted(taskId: $taskId, runId: $runId)
@@ -6995,20 +7018,24 @@ export type ReportTriggerJobStartedMutationVariables = Exact<{
 }>;
 
 export const ReportTriggerJobCompletedDocument = gql`
-    mutation reportTriggerJobCompleted($taskId: String!, $durationMs: Float!) {
-        reportTriggerJobCompleted(taskId: $taskId, durationMs: $durationMs)
+    mutation reportTriggerJobCompleted($taskId: String!, $runId: String!, $durationMs: Float!) {
+        reportTriggerJobCompleted(taskId: $taskId, runId: $runId, durationMs: $durationMs)
     }
 `;
 export type ReportTriggerJobCompletedMutation = { __typename?: 'Mutation'; reportTriggerJobCompleted: boolean };
 export type ReportTriggerJobCompletedMutationVariables = Exact<{
     taskId: Scalars['String']['input'];
+    runId: Scalars['String']['input'];
     durationMs: Scalars['Float']['input'];
 }>;
 
 export const ReportTriggerJobFailedDocument = gql`
-    mutation reportTriggerJobFailed($taskId: String!) {
-        reportTriggerJobFailed(taskId: $taskId)
+    mutation reportTriggerJobFailed($taskId: String!, $runId: String!) {
+        reportTriggerJobFailed(taskId: $taskId, runId: $runId)
     }
 `;
 export type ReportTriggerJobFailedMutation = { __typename?: 'Mutation'; reportTriggerJobFailed: boolean };
-export type ReportTriggerJobFailedMutationVariables = Exact<{ taskId: Scalars['String']['input'] }>;
+export type ReportTriggerJobFailedMutationVariables = Exact<{
+    taskId: Scalars['String']['input'];
+    runId: Scalars['String']['input'];
+}>;

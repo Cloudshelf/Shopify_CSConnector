@@ -73,7 +73,7 @@ tasks.onSuccess(async ({ ctx, output, payload }) => {
             const client = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(env.CLOUDSHELF_API_URL, domain);
             await client.mutate<ReportTriggerJobCompletedMutation, ReportTriggerJobCompletedMutationVariables>({
                 mutation: ReportTriggerJobCompletedDocument,
-                variables: { taskId: ctx.task.id, durationMs },
+                variables: { taskId: ctx.task.id, runId: ctx.run.id, durationMs },
             });
         } catch (error) {
             logger.warn('[JobTracking] Failed to report job completed', {
@@ -103,7 +103,7 @@ tasks.onFailure(async ({ ctx, error, payload }) => {
             const client = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(env.CLOUDSHELF_API_URL, domain);
             await client.mutate<ReportTriggerJobFailedMutation, ReportTriggerJobFailedMutationVariables>({
                 mutation: ReportTriggerJobFailedDocument,
-                variables: { taskId: ctx.task.id },
+                variables: { taskId: ctx.task.id, runId: ctx.run.id },
             });
         } catch (error) {
             logger.warn('[JobTracking] Failed to report job failed', {

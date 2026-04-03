@@ -1,13 +1,14 @@
 import { ConfigService } from '@nestjs/config';
+import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
+import { Telemetry } from 'src/decorators/telemetry';
 import { RetailerService } from '../../../modules/retailer/retailer.service';
 import { RetailerStatus } from '../../../modules/retailer/retailer.status.enum';
 import { ProcessOrderTask } from '../../../trigger/data-ingestion/order/process-order';
+import { reportPendingToApi } from '../../../trigger/trigger-helpers';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { TriggerTagsUtils } from '../../../utils/TriggerTagsUtils';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { OrderUpdateWebhookPayload } from './attrs.cosnts';
-import { ShopifyWebhookHandler, WebhookHandler } from '@nestjs-shopify/webhooks';
-import { Telemetry } from 'src/decorators/telemetry';
 
 @WebhookHandler('ORDERS_UPDATED')
 export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> {
@@ -63,7 +64,7 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
             retailerId: retailer.id,
         });
 
-        await ProcessOrderTask.trigger(
+        const handle = await ProcessOrderTask.trigger(
             { data, organisationId: retailer.id },
             {
                 queue: `order-processing`,
@@ -71,5 +72,6 @@ export class OrdersUpdatedWebhookHandler extends ShopifyWebhookHandler<unknown> 
                 tags,
             },
         );
+        await reportPendingToApi(retailer.domain, ProcessOrderTask.id, handle.id);
     }
 }
