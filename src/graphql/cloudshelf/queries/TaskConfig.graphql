@@ -1,0 +1,7 @@
+query GetEffectiveTaskConfig($taskId: String!) {
+    effectiveTaskConfig(taskId: $taskId) {
+        taskId
+        machineSize
+        maxDuration
+    }
+}

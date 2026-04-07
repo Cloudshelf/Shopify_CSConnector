@@ -7039,3 +7039,29 @@ export type ReportTriggerJobFailedMutationVariables = Exact<{
     taskId: Scalars['String']['input'];
     runId: Scalars['String']['input'];
 }>;
+
+// --- Effective Task Config Query ---
+
+export type EffectiveTaskConfig = {
+    __typename?: 'EffectiveTaskConfig';
+    taskId: Scalars['String']['output'];
+    machineSize?: Maybe<Scalars['String']['output']>;
+    maxDuration?: Maybe<Scalars['Float']['output']>;
+};
+
+export const GetEffectiveTaskConfigDocument = gql`
+    query GetEffectiveTaskConfig($taskId: String!) {
+        effectiveTaskConfig(taskId: $taskId) {
+            taskId
+            machineSize
+            maxDuration
+        }
+    }
+`;
+export type GetEffectiveTaskConfigQuery = {
+    __typename?: 'Query';
+    effectiveTaskConfig?: EffectiveTaskConfig | null;
+};
+export type GetEffectiveTaskConfigQueryVariables = Exact<{
+    taskId: Scalars['String']['input'];
+}>;

@@ -1,5 +1,4 @@
 import { Entity, Index, Property, types } from '@mikro-orm/core';
-import { MachineSize } from '../../trigger/reuseables/machines_size';
 import { BaseEntity } from '../database/abstract-entities/entity.base';
 import { RetailerStatus } from './retailer.status.enum';
 
@@ -56,18 +55,6 @@ export class RetailerEntity extends BaseEntity {
 
     @Property({ type: 'text', nullable: true })
     syncErrorCode: string | null;
-
-    @Property({ type: 'text', nullable: true })
-    triggerMachineSizeProducts: MachineSize | null;
-
-    @Property({ type: 'text', nullable: true })
-    triggerMachineSizeProductGroups: MachineSize | null;
-
-    @Property({ type: types.integer, nullable: true })
-    triggerMaxDurationProducts: number | null;
-
-    @Property({ type: types.integer, nullable: true })
-    triggerMaxDurationProductGroups: number | null;
 
     @Property({ type: 'text', default: 'active' })
     status: RetailerStatus;
