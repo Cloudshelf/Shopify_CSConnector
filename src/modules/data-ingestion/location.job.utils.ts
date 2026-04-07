@@ -1,8 +1,10 @@
+import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { SyncLocationsTask } from '../../trigger/data-ingestion/location/sync-locations';
+import { fetchEffectiveTaskConfig } from '../../trigger/fetch-task-config';
+import { reportPendingToApi } from '../../trigger/trigger-helpers';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 import { RetailerStatus } from '../retailer/retailer.status.enum';
-import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 
 export class LocationJobUtils {
     static async schedule(retailer: RetailerEntity, reason?: string, logs?: LogsInterface) {
@@ -17,9 +19,12 @@ export class LocationJobUtils {
             return;
         }
 
-        await SyncLocationsTask.trigger(
+        const taskConfig = await fetchEffectiveTaskConfig(retailer.domain, SyncLocationsTask.id);
+
+        const handle = await SyncLocationsTask.trigger(
             { organisationId: retailer.id },
-            { queue: `ingestion`, concurrencyKey: retailer.id, tags },
+            { queue: `ingestion`, concurrencyKey: retailer.id, tags, ...taskConfig },
         );
+        await reportPendingToApi(retailer.domain, SyncLocationsTask.id, handle.id);
     }
 }

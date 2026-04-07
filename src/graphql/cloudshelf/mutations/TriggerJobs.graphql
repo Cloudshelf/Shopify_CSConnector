@@ -1,0 +1,20 @@
+mutation reportTriggerJobPending($taskId: String!, $runId: String!, $debounceDelayMs: Int, $debounceMaxDelayMs: Int) {
+    reportTriggerJobPending(
+        taskId: $taskId
+        runId: $runId
+        debounceDelayMs: $debounceDelayMs
+        debounceMaxDelayMs: $debounceMaxDelayMs
+    )
+}
+
+mutation reportTriggerJobStarted($taskId: String!, $runId: String!) {
+    reportTriggerJobStarted(taskId: $taskId, runId: $runId)
+}
+
+mutation reportTriggerJobCompleted($taskId: String!, $runId: String!, $durationMs: Float!) {
+    reportTriggerJobCompleted(taskId: $taskId, runId: $runId, durationMs: $durationMs)
+}
+
+mutation reportTriggerJobFailed($taskId: String!, $runId: String!) {
+    reportTriggerJobFailed(taskId: $taskId, runId: $runId)
+}

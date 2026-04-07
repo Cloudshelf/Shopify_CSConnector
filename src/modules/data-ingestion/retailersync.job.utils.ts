@@ -1,8 +1,10 @@
 import { ListRunsQueryParams } from '@trigger.dev/core/v3';
 import { runs } from '@trigger.dev/sdk/v3';
 import { RetailerSyncJob } from 'src/trigger/data-ingestion/retailer_sync/retailer-sync-job';
+import { fetchEffectiveTaskConfig } from 'src/trigger/fetch-task-config';
 import { TRIGGER_RUNS_STATUSES } from 'src/trigger/reuseables/runStatus';
 import { SyncStyle } from 'src/trigger/syncOptions.type';
+import { reportPendingToApi } from 'src/trigger/trigger-helpers';
 import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
@@ -80,7 +82,9 @@ export class RetailerSyncJobUtils {
             }
         }
 
-        await RetailerSyncJob.trigger(
+        const taskConfig = await fetchEffectiveTaskConfig(retailer.domain, RetailerSyncJob.id);
+
+        const handle = await RetailerSyncJob.trigger(
             {
                 organisationId: retailer.id,
                 fullSync: syncStyle === SyncStyle.FULL,
@@ -90,9 +94,9 @@ export class RetailerSyncJobUtils {
                 queue: `ingestion`,
                 tags: tags,
                 concurrencyKey: retailer.id,
-                machine: retailer.triggerMachineSizeProducts ?? undefined,
-                maxDuration: retailer.triggerMaxDurationProducts ?? undefined,
+                ...taskConfig,
             },
         );
+        await reportPendingToApi(retailer.domain, RetailerSyncJob.id, handle.id);
     }
 }
