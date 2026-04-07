@@ -38,6 +38,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.1",
     "@apollo/server": "^5.5.0",
+    "@as-integrations/express5": "^1.1.2",
     "@aws-sdk/client-s3": "^3.637.0",
     "@mikro-orm/cli": "^6.6.10",
     "@mikro-orm/core": "^6.6.10",
@@ -83,7 +84,7 @@
     "apollo-server-core": "^3.13.0",
     "async": "^3.2.5",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.1",
+    "class-validator": "*",
     "date-fns": "^3.3.1",
     "dotenv-flow": "^4.1.0",
     "graphql": "^16.8.1",
