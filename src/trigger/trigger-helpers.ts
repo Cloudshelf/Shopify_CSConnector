@@ -5,7 +5,7 @@ import {
 } from '../graphql/cloudshelf/generated/cloudshelf';
 import { logger } from '@trigger.dev/sdk';
 import { CloudshelfApiAuthUtils } from '../modules/cloudshelf/cloudshelf.api.auth.util';
-import { getEnvConfig } from './reuseables/initialization';
+import { resolveApiUrl } from './resolve-api-url';
 
 /**
  * Reports a pending job to the cloudshelf API via GraphQL.
@@ -19,8 +19,9 @@ export async function reportPendingToApi(
     debounceMaxDelayMs?: number,
 ): Promise<void> {
     try {
-        const env = getEnvConfig();
-        const client = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(env.CLOUDSHELF_API_URL, domain);
+        const apiUrl = resolveApiUrl();
+        if (!apiUrl) return;
+        const client = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(apiUrl, domain);
         await client.mutate<ReportTriggerJobPendingMutation, ReportTriggerJobPendingMutationVariables>({
             mutation: ReportTriggerJobPendingDocument,
             variables: {
