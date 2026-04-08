@@ -307,6 +307,84 @@ jobs:
                         "username": "Release - Cloudshelf Notifier",
                         "attachments": [
                           {
+                            "color": "#d9cc14",
+                            "blocks": [
+                              {
+                                "type": "section",
+                                "fields": [
+                                  {
+                                    "type": "mrkdwn",
+                                    "text": "*Component:*\n${{ vars.COMPONENT_DISPLAY_NAME }}"
+                                  },
+                                  {
+                                    "type": "mrkdwn",
+                                    "text": "*Version:*\n${{ needs.version.outputs.version }}"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "section",
+                                "fields": [
+                                  {
+                                    "type": "mrkdwn",
+                                    "text": "*Status:*\nIn Progress..."
+                                  },
+                                  {
+                                    "type": "mrkdwn",
+                                    "text": "*Step:*\nDeploying Trigger Tasks"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "section",
+                                "fields": [
+                                  {
+                                    "type": "mrkdwn",
+                                    "text": "*Workflow:*\n<https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}|View>"
+                                  },
+                                  {
+                                    "type": "mrkdwn",
+                                    "text": "*Change Log:*\n<https://github.com/${{github.repository}}/releases/tag/${{ needs.version.outputs.version }}|View>"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "context",
+                                "elements": [
+                                  {
+                                    "type": "plain_text",
+                                    "text": "Deployment started by ${{ github.actor }}",
+                                    "emoji": true
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+              env:
+                  SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
+
+            - name: Install dependencies
+              if: success()
+              run: npm install
+
+            - name: Deploy to Trigger.dev (production)
+              if: success()
+              run: npm run trigger:deploy:production
+              env:
+                  TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
+
+            - uses: slackapi/slack-github-action@v1.24.0
+              if: success()
+              with:
+                  channel-id: ${{ vars.SLACK_NOTIFY_CHANNEL_ID }}
+                  update-ts: ${{ steps.slack.outputs.ts }}
+                  payload: |
+                      {
+                        "username": "Release - Cloudshelf Notifier",
+                        "attachments": [
+                          {
                             "color": "#1A9C27",
                             "blocks": [
                               {
@@ -356,7 +434,7 @@ jobs:
                               }
                             ]
                           }
-                        ] 
+                        ]
                       }
               env:
                   SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN}}
