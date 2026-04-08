@@ -9,13 +9,6 @@ import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 
-function parseDelayToMs(delay: string): number {
-    const match = delay.match(/^(\d+)(s|m)$/);
-    if (!match) return 0;
-    const value = parseInt(match[1], 10);
-    return match[2] === 'm' ? value * 60 * 1000 : value * 1000;
-}
-
 export class RetailerSyncJobUtils {
     static async scheduleTriggerJob(
         retailer: RetailerEntity,
