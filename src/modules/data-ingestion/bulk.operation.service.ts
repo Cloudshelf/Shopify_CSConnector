@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BulkOperationStatus } from '../../graphql/shopifyAdmin/generated/shopifyAdmin';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { Telemetry } from 'src/decorators/telemetry';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
