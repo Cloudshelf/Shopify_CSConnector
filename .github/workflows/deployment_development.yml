@@ -367,7 +367,7 @@ jobs:
 
             - name: Install dependencies
               if: success()
-              run: npm install
+              run: npm ci
 
             - name: Deploy to Trigger.dev (staging)
               if: success()
