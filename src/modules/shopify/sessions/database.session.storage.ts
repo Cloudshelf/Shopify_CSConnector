@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { ExtendedLogger } from '../../../utils/ExtendedLogger';
 import { ShopifySessionEntity } from './shopify.session.entity';
 import { SessionStorage } from '@nestjs-shopify/core';

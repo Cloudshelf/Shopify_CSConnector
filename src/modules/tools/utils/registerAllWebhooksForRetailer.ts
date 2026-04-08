@@ -1,5 +1,5 @@
 import { WebhookSubscriptionTopic } from '../../../graphql/shopifyAdmin/generated/shopifyAdmin';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { LogsInterface } from '../../cloudshelf/logs.interface';
 import { RetailerEntity } from '../../retailer/retailer.entity';
 import { getWebhooks } from './getWebhooks';

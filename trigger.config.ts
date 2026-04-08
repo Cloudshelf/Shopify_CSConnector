@@ -56,6 +56,12 @@ export default defineConfig({
     maxDuration: 1800, // 30 mins
     build: {
         external: [
+            '@mikro-orm/cli',
+            '@mikro-orm/core',
+            '@mikro-orm/migrations',
+            '@mikro-orm/nestjs',
+            '@mikro-orm/postgresql',
+            '@mikro-orm/sql-highlighter',
             '@as-integrations/fastify',
             '@apollo/gateway',
             '@nestjs/mongoose',

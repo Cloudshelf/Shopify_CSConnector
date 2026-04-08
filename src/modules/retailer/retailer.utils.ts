@@ -9,7 +9,8 @@ import {
     GetThemeInformationQueryVariables,
 } from '../../graphql/shopifyStorefront/generated/shopifyStorefront';
 import { ShopifyGraphqlUtil } from '../shopify/shopify.graphql.util';
-import { EntityManager, MikroORM } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
+import { MikroORM } from '@mikro-orm/core';
 import { Shopify, ShopifyRestResources } from '@shopify/shopify-api';
 import { Telemetry } from 'src/decorators/telemetry';
 import { app } from '../../main';
@@ -75,7 +76,7 @@ export class RetailerUtils {
     static async getSharedSecret(em: EntityManager, domain: string): Promise<string | undefined> {
         if (em === undefined) {
             const orm = app!.get(MikroORM);
-            em = orm.em.fork();
+            em = orm.em.fork() as EntityManager;
         }
 
         const shop = await em.findOne(RetailerEntity, { domain });
