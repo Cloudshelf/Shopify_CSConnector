@@ -18,7 +18,7 @@ jobs:
             # Enforce node version
             - uses: actions/setup-node@v4
               with:
-                  node-version: 24
+                  node-version: 24.14.1
 
             # Versioning
             - name: Perform Versioning
@@ -48,7 +48,7 @@ jobs:
             # Enforce node version
             - uses: actions/setup-node@v4
               with:
-                  node-version: 24
+                  node-version: 24.14.1
 
             # Create the first message on slack
             - name: Update status on slack
@@ -126,11 +126,8 @@ jobs:
                   echo "VERSION=${{ needs.version.outputs.version }}" >> .env
                   echo "PACKAGE_VERSION=${{ needs.version.outputs.version }}" >> .env
 
-            - name: Set up QEMU
-              uses: docker/setup-qemu-action@v2
-
             - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v2
+              uses: useblacksmith/setup-docker-builder@v1
 
             - uses: slackapi/slack-github-action@v1.24.0
               with:
@@ -281,12 +278,11 @@ jobs:
 
             # Build docker image, and push to azure registry
             - name: Build, tag, and push docker image to Azure Registry
-              env:
-                  REGISTRY: cloudshelf.azurecr.io
-                  REPOSITORY: ${{ vars.AZURE_CONTAINER_REPO }}
-                  IMAGE_TAG: ${{ needs.version.outputs.normalisedVersion }}
-              run: |
-                  docker buildx build --platform linux/amd64 -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --push
+              uses: useblacksmith/build-push-action@v2
+              with:
+                  context: .
+                  push: true
+                  tags: cloudshelf.azurecr.io/${{ vars.AZURE_CONTAINER_REPO }}:${{ needs.version.outputs.normalisedVersion }}
 
             # Ask azure to deploy the image to the connector web app
             - name: 'Deploy to Shopify Connector Web Apps'
@@ -367,7 +363,7 @@ jobs:
 
             - name: Install dependencies
               if: success()
-              run: npm ci
+              run: npm ci --ignore-scripts
 
             - name: Deploy to Trigger.dev (staging)
               if: success()
