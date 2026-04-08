@@ -1,4 +1,4 @@
-FROM node:20-alpine as builder
+FROM node:24-alpine as builder
 
 WORKDIR /usr/src/app
 COPY package.json tsconfig.json package-lock.json .npmrc nest-cli.json tsconfig.build.json ./
