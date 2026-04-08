@@ -184,9 +184,9 @@ export const RetailerSyncJob = task({
             retailer,
             SyncStyle.PARTIAL,
             undefined,
-            undefined,
             getLoggerHelper(),
             ctx.run.id,
+            { min: 3600, max: 3600 },
         );
     },
 });

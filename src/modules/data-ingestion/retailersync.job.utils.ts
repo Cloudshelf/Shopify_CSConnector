@@ -9,14 +9,21 @@ import { TriggerTagsUtils } from 'src/utils/TriggerTagsUtils';
 import { LogsInterface } from '../cloudshelf/logs.interface';
 import { RetailerEntity } from '../retailer/retailer.entity';
 
+function parseDelayToMs(delay: string): number {
+    const match = delay.match(/^(\d+)(s|m)$/);
+    if (!match) return 0;
+    const value = parseInt(match[1], 10);
+    return match[2] === 'm' ? value * 60 * 1000 : value * 1000;
+}
+
 export class RetailerSyncJobUtils {
     static async scheduleTriggerJob(
         retailer: RetailerEntity,
         syncStyle: SyncStyle,
-        delayOverride?: number,
         reason?: string,
         logs?: LogsInterface,
         currentJobId?: string,
+        delays?: { min?: number; max?: number },
     ) {
         const tags = TriggerTagsUtils.createTags({
             domain: retailer.domain,
@@ -24,15 +31,12 @@ export class RetailerSyncJobUtils {
             syncType: syncStyle === SyncStyle.FULL ? 'type_full' : 'type_partial',
             reason,
         });
-        let delay = '60m';
 
-        if (syncStyle === SyncStyle.FULL) {
-            delay = '10s';
-        }
-
-        if (delayOverride) {
-            delay = `${delayOverride}s`;
-        }
+        const delaySeconds = delays?.min ?? 10;
+        const delay = `${delaySeconds}s`;
+        const debounceDelayMs = delaySeconds * 1000;
+        const debounceMaxDelayMs = delays?.max ? delays.max * 1000 : debounceDelayMs * 3;
+        const maxDelay = `${debounceMaxDelayMs}ms`;
 
         // if its full sync, then cancel everything else
         // if its partial sync, and there is a full sync scheduled, cancel any partial syncs and then do nothing.
@@ -90,13 +94,18 @@ export class RetailerSyncJobUtils {
                 fullSync: syncStyle === SyncStyle.FULL,
             },
             {
-                delay: delay,
+                debounce: {
+                    key: retailer.id,
+                    delay: delay,
+                    maxDelay: maxDelay,
+                    mode: 'trailing',
+                },
                 queue: `ingestion`,
                 tags: tags,
                 concurrencyKey: retailer.id,
                 ...taskConfig,
             },
         );
-        await reportPendingToApi(retailer.domain, RetailerSyncJob.id, handle.id);
+        await reportPendingToApi(retailer.domain, RetailerSyncJob.id, handle.id, debounceDelayMs, debounceMaxDelayMs);
     }
 }
