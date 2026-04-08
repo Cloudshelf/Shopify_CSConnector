@@ -95,13 +95,20 @@ export class ToolsResolver {
         }
 
         if (partial) {
-            await RetailerSyncJobUtils.scheduleTriggerJob(retailer, SyncStyle.PARTIAL, 10, 'forceViaGql', {
-                info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-                warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-                error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-            });
+            await RetailerSyncJobUtils.scheduleTriggerJob(
+                retailer,
+                SyncStyle.PARTIAL,
+                'forceViaGql',
+                {
+                    info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                    warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                    error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+                },
+                undefined,
+                { min: 10 },
+            );
         } else {
-            await RetailerSyncJobUtils.scheduleTriggerJob(retailer, SyncStyle.FULL, undefined, 'forceViaGql', {
+            await RetailerSyncJobUtils.scheduleTriggerJob(retailer, SyncStyle.FULL, 'forceViaGql', {
                 info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
                 warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
                 error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),

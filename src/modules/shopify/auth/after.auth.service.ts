@@ -34,7 +34,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         private readonly cloudshelfApiService: CloudshelfApiService,
         @InjectShopify() private readonly shopifyApiService: Shopify,
         private readonly slackConfigService: ConfigService<typeof slackSchema>,
-    ) { }
+    ) {}
 
     @Telemetry('service.after-auth.afterAuth')
     async afterAuth(req: Request, res: Response, session: ShopifySessionEntity): Promise<void> {
@@ -131,7 +131,7 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
 
         //queue a sync job
 
-        await RetailerSyncJobUtils.scheduleTriggerJob(entity, SyncStyle.FULL, undefined, 'install');
+        await RetailerSyncJobUtils.scheduleTriggerJob(entity, SyncStyle.FULL, 'install');
         //queue a location job
         await LocationJobUtils.schedule(entity, 'install');
 

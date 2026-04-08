@@ -29,11 +29,18 @@ export class CloudshelfResolver {
         }
 
         const syncStyle = input.fullSync ? SyncStyle.FULL : SyncStyle.PARTIAL;
-        await RetailerSyncJobUtils.scheduleTriggerJob(retailer, syncStyle, 1, input.reason, {
-            info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
-            warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
-            error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
-        });
+        await RetailerSyncJobUtils.scheduleTriggerJob(
+            retailer,
+            syncStyle,
+            input.reason,
+            {
+                info: (logMessage: string, ...args: any[]) => this.logger.log(logMessage, ...args),
+                warn: (logMessage: string, ...args: any[]) => this.logger.warn(logMessage, ...args),
+                error: (logMessage: string, ...args: any[]) => this.logger.error(logMessage, ...args),
+            },
+            undefined,
+            { min: 1 },
+        );
 
         return true;
     }
