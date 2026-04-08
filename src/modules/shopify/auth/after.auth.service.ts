@@ -15,7 +15,7 @@ import { SlackUtils } from '../../../utils/SlackUtils';
 import { CloudshelfApiService } from '../../cloudshelf/cloudshelf.api.service';
 import { shopifySchema } from '../../configuration/schemas/shopify.schema';
 import { slackSchema } from '../../configuration/schemas/slack.schema';
-import { LocationJobUtils } from '../../data-ingestion/location.job.utils';
+
 import { RetailerService } from '../../retailer/retailer.service';
 import { CustomTokenService } from '../sessions/custom.token.service';
 import { ShopifySessionEntity } from '../sessions/shopify.session.entity';
@@ -132,8 +132,6 @@ export class AfterAuthHandlerService implements ShopifyAuthAfterHandler {
         //queue a sync job
 
         await RetailerSyncJobUtils.scheduleTriggerJob(entity, SyncStyle.FULL, 'install');
-        //queue a location job
-        await LocationJobUtils.schedule(entity, 'install');
 
         //at the end of the install, we have to redirect to "online auth", which lets us exchange an online session token for a Cloudshelf Auth Token
         return res.redirect(`/shopify/online/auth?shop=${session.shop}`);
