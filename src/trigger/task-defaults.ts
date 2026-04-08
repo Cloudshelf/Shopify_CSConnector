@@ -5,6 +5,5 @@ export interface TaskDefaults {
 
 export const TASK_DEFAULTS: Record<string, TaskDefaults> = {
     'retailer-sync-job': { machineSize: 'small-2x', maxDuration: 1800 },
-    'sync-locations': { machineSize: 'small-1x', maxDuration: 900 },
     'process-order': { machineSize: 'small-1x', maxDuration: 900 },
 };
