@@ -71,7 +71,7 @@ export class RetailerEntityResolver {
                 try {
                     await deleteAllWebhooksForRetailer(retailer);
                 } catch (e) {
-                    this.logger.error(`Error unregistering webhooks: ${e}`);
+                    this.logger.error(`Error unregistering webhooks for ${domain}: ${e}`);
                     throw e;
                 }
             }
