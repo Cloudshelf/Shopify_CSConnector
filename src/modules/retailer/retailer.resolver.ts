@@ -68,7 +68,12 @@ export class RetailerEntityResolver {
                     this.logger.warn(`Retailer not found for domain: ${domain}`);
                     continue;
                 }
-                await deleteAllWebhooksForRetailer(retailer);
+                try {
+                    await deleteAllWebhooksForRetailer(retailer);
+                } catch (e) {
+                    this.logger.error(`Error unregistering webhooks: ${e}`);
+                    throw e;
+                }
             }
             return true;
         } catch (err) {

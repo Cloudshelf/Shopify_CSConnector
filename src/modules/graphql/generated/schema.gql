@@ -21,6 +21,10 @@ enum CloudshelfSyncOrganisationReason {
   REACTIVATE
 }
 
+input CloudshelfUnregisterWebhooksInput {
+  domainNames: [String!]!
+}
+
 type Mutation {
   cancelOrganisationsSync(input: CloudshelfCancelOrganisationsSyncInput!): Boolean!
   deleteAllWebhooks(from: Int!, limit: Int!, token: String!): String!
@@ -29,6 +33,7 @@ type Mutation {
   registerAllWebhooks(from: Int!, limit: Int!, token: String!): String!
   sendAllRetailerToCloudshelf(token: String!): Boolean!
   syncOrganisation(input: CloudshelfSyncOrganisationInput!): Boolean!
+  unregisterWebhooksForOrganisations(input: CloudshelfUnregisterWebhooksInput!): Boolean!
 }
 
 type Query {
