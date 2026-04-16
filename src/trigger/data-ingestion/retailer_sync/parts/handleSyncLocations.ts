@@ -84,7 +84,22 @@ export async function handleSyncLocations(
         locationInputs.push(csLocation);
     }
 
-    logger.info('Creating location in Cloudshelf with data:', { locationInputs });
+    // Log a sanitized summary rather than the raw inputs — zip/phone/street
+    // are PII we shouldn't persist in our log pipeline.
+    logger.info('Creating locations in Cloudshelf', {
+        count: locationInputs.length,
+        locations: locationInputs.map(loc => ({
+            id: loc.id,
+            displayName: loc.displayName,
+            countryCode: loc.countryCode,
+            provinceCode: loc.provinceCode,
+            city: loc.city,
+            fulfillsOnlineOrders: loc.fulfillsOnlineOrders,
+            hasAddress1: !!loc.address1 && loc.address1 !== 'unknown',
+            hasZip: !!loc.zip,
+            hasPhone: !!loc.phone,
+        })),
+    });
 
     await CloudshelfApiLocationUtils.upsertLocations(env.CLOUDSHELF_API_URL, retailer, locationInputs, {
         info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),
