@@ -65026,6 +65026,12 @@ export const LocationAddressDetails = gql`
   formatted
   phone
   countryCode
+  address1
+  address2
+  city
+  province
+  provinceCode
+  zip
 }
     `;
 export const LocationDetails = gql`
@@ -65391,16 +65397,16 @@ export type GetDraftOrdersQueryVariables = Exact<{
 
 export type GetDraftOrdersQuery = { __typename?: 'QueryRoot', draftOrders: { __typename?: 'DraftOrderConnection', edges: Array<{ __typename?: 'DraftOrderEdge', cursor: string, node: { __typename?: 'DraftOrder', id: string, tags: Array<string>, email?: string | null, name: string, status: DraftOrderStatus, customAttributes: Array<{ __typename?: 'Attribute', key: string, value?: string | null }>, lineItems: { __typename?: 'DraftOrderLineItemConnection', nodes: Array<{ __typename?: 'DraftOrderLineItem', id: string, quantity: number, variant?: { __typename?: 'ProductVariant', id: string } | null }> } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
 
-export type LocationAddressDetailsFragment = { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null };
+export type LocationAddressDetailsFragment = { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null, address1?: string | null, address2?: string | null, city?: string | null, province?: string | null, provinceCode?: string | null, zip?: string | null };
 
-export type LocationDetailsFragment = { __typename?: 'Location', id: string, name: string, isActive: boolean, fulfillsOnlineOrders: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } };
+export type LocationDetailsFragment = { __typename?: 'Location', id: string, name: string, isActive: boolean, fulfillsOnlineOrders: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null, address1?: string | null, address2?: string | null, city?: string | null, province?: string | null, provinceCode?: string | null, zip?: string | null } };
 
 export type GetLocationsQueryVariables = Exact<{
   after?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type GetLocationsQuery = { __typename?: 'QueryRoot', locations: { __typename?: 'LocationConnection', edges: Array<{ __typename?: 'LocationEdge', cursor: string, node: { __typename?: 'Location', id: string, name: string, isActive: boolean, fulfillsOnlineOrders: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
+export type GetLocationsQuery = { __typename?: 'QueryRoot', locations: { __typename?: 'LocationConnection', edges: Array<{ __typename?: 'LocationEdge', cursor: string, node: { __typename?: 'Location', id: string, name: string, isActive: boolean, fulfillsOnlineOrders: boolean, address: { __typename?: 'LocationAddress', formatted: Array<string>, phone?: string | null, countryCode?: string | null, address1?: string | null, address2?: string | null, city?: string | null, province?: string | null, provinceCode?: string | null, zip?: string | null } } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, endCursor?: string | null } } };
 
 export type GetShopInformationQueryVariables = Exact<{ [key: string]: never; }>;
 

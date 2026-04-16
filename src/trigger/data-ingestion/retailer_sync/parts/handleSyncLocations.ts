@@ -66,11 +66,17 @@ export async function handleSyncLocations(
     const locationInputs: LocationInput[] = [];
 
     for (const shopifyLocation of shopifyLocationData) {
-        const formattedAddress = (shopifyLocation.address?.formatted ?? []).join(', ');
+        // address1 is required by the Cloudshelf API on create; fall back to 'unknown' so locations
+        // without a street address in Shopify (rare, but possible) still sync instead of erroring.
         const csLocation: LocationInput = {
             id: GlobalIDUtils.gidConverter(shopifyLocation.id, 'ShopifyLocation'),
             displayName: shopifyLocation.name,
-            address: formattedAddress,
+            address1: shopifyLocation.address?.address1 || 'unknown',
+            address2: shopifyLocation.address?.address2 ?? null,
+            city: shopifyLocation.address?.city ?? null,
+            provinceCode: shopifyLocation.address?.provinceCode ?? null,
+            zip: shopifyLocation.address?.zip ?? null,
+            phone: shopifyLocation.address?.phone ?? null,
             countryCode: MiscellaneousUtils.convertCountryCode(shopifyLocation.address?.countryCode),
             fulfillsOnlineOrders: shopifyLocation.fulfillsOnlineOrders,
         };

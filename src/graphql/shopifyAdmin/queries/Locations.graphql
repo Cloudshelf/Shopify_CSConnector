@@ -2,6 +2,12 @@ fragment LocationAddressDetails on LocationAddress {
     formatted
     phone
     countryCode
+    address1
+    address2
+    city
+    province
+    provinceCode
+    zip
 }
 
 fragment LocationDetails on Location {
