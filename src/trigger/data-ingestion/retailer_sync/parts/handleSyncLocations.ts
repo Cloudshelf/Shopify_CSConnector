@@ -66,11 +66,17 @@ export async function handleSyncLocations(
     const locationInputs: LocationInput[] = [];
 
     for (const shopifyLocation of shopifyLocationData) {
-        const formattedAddress = (shopifyLocation.address?.formatted ?? []).join(', ');
+        // address1 is required by the Cloudshelf API on create; fall back to 'unknown' so locations
+        // without a street address in Shopify (rare, but possible) still sync instead of erroring.
         const csLocation: LocationInput = {
             id: GlobalIDUtils.gidConverter(shopifyLocation.id, 'ShopifyLocation'),
             displayName: shopifyLocation.name,
-            address: formattedAddress,
+            address1: shopifyLocation.address?.address1 || 'unknown',
+            address2: shopifyLocation.address?.address2 ?? null,
+            city: shopifyLocation.address?.city ?? null,
+            provinceCode: shopifyLocation.address?.provinceCode ?? null,
+            zip: shopifyLocation.address?.zip ?? null,
+            phone: shopifyLocation.address?.phone ?? null,
             countryCode: MiscellaneousUtils.convertCountryCode(shopifyLocation.address?.countryCode),
             fulfillsOnlineOrders: shopifyLocation.fulfillsOnlineOrders,
         };
@@ -78,7 +84,22 @@ export async function handleSyncLocations(
         locationInputs.push(csLocation);
     }
 
-    logger.info('Creating location in Cloudshelf with data:', { locationInputs });
+    // Log a sanitized summary rather than the raw inputs — zip/phone/street
+    // are PII we shouldn't persist in our log pipeline.
+    logger.info('Creating locations in Cloudshelf', {
+        count: locationInputs.length,
+        locations: locationInputs.map(loc => ({
+            id: loc.id,
+            displayName: loc.displayName,
+            countryCode: loc.countryCode,
+            provinceCode: loc.provinceCode,
+            city: loc.city,
+            fulfillsOnlineOrders: loc.fulfillsOnlineOrders,
+            hasAddress1: !!loc.address1 && loc.address1 !== 'unknown',
+            hasZip: !!loc.zip,
+            hasPhone: !!loc.phone,
+        })),
+    });
 
     await CloudshelfApiLocationUtils.upsertLocations(env.CLOUDSHELF_API_URL, retailer, locationInputs, {
         info: (logMessage: string, ...args: any[]) => logger.info(logMessage, ...args),

@@ -2642,18 +2642,30 @@ export type LocationFilterInput = {
 
 /** This object represents a physical location, usually a store or a warehouse. */
 export type LocationInput = {
-    /** The full address of the location */
-    address?: InputMaybe<Scalars['String']['input']>;
+    /** Street address line 1. */
+    address1?: InputMaybe<Scalars['String']['input']>;
+    /** Street address line 2. */
+    address2?: InputMaybe<Scalars['String']['input']>;
+    /** City. */
+    city?: InputMaybe<Scalars['String']['input']>;
     /** The country code of the location is based */
     countryCode?: InputMaybe<CountryCode>;
     /** The display name of the location */
     displayName?: InputMaybe<Scalars['String']['input']>;
+    /** The email address of the location */
+    email?: InputMaybe<Scalars['String']['input']>;
     /** Whether the location fulfills online orders */
     fulfillsOnlineOrders?: InputMaybe<Scalars['Boolean']['input']>;
     /** Use this field to provide either a Cloudshelf gid, or your own external gid. If the external gid already exists, the existing record will be updated. If the external gid does not exist, a new record will be created. */
     id?: InputMaybe<Scalars['GlobalId']['input']>;
     /** An array of metadata to attach to the location */
     metadata?: InputMaybe<Array<MetadataInput>>;
+    /** Phone number for the location. */
+    phone?: InputMaybe<Scalars['String']['input']>;
+    /** ISO-3166-2 subdivision code (state / province / county). */
+    provinceCode?: InputMaybe<Scalars['String']['input']>;
+    /** Postal / ZIP code. */
+    zip?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LocationPageInfo = {
