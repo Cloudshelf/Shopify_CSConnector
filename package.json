@@ -240,7 +240,8 @@
   "overrides": {
     "minimatch": ">=10.2.1",
     "lodash": "^4.18.1",
-    "systeminformation": "^5.31.0"
+    "systeminformation": "^5.31.0",
+    "knex": "^3.2.9"
   },
   "jest": {
     "roots": [
