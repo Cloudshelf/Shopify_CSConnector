@@ -204,6 +204,21 @@ export async function handleSyncProducts(
                         }
                     }
 
+                    //Map over shopify variant metafields, and create cloudshelf metadata
+                    const variantMetadata: MetadataInput[] = [];
+                    (variant.Metafield ?? []).map((metafield: any) => {
+                        const normalizedNamespace = (metafield.namespace ?? '').trim().toLowerCase() || 'global';
+                        variantMetadata.push({
+                            id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
+                            key:
+                                normalizedNamespace !== 'global'
+                                    ? `${normalizedNamespace}-${metafield.key}`
+                                    : metafield.key,
+                            namespace: normalizedNamespace,
+                            data: metafield.value,
+                        });
+                    });
+
                     const ProductVariantInput: ProductVariantInput = {
                         id: GlobalIDUtils.gidConverter(variant.id, 'ShopifyProductVariant'),
                         position: variantIndex,
@@ -220,8 +235,7 @@ export async function handleSyncProducts(
                         inventoryPolicy: variant.inventoryItem?.tracked
                             ? variant.inventoryPolicy
                             : ProductVariantInventoryPolicy.Continue,
-                        //We don't yet support variant metadata
-                        metadata: [],
+                        metadata: variantMetadata,
                     };
 
                     imageCount += metaimages.length;
