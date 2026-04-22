@@ -112,3 +112,23 @@ tasks.onFailure(async ({ ctx, error, payload }) => {
         }
     }
 });
+
+tasks.onCancel(async ({ ctx, payload }) => {
+    logger.info(`[JobTracking] onCancel: task=${ctx.task.id} run=${ctx.run.id}`);
+
+    const domain = await getRetailerDomain(payload);
+    if (domain) {
+        try {
+            const env = getEnvConfig();
+            const client = await CloudshelfApiAuthUtils.getCloudshelfAPIApolloClient(env.CLOUDSHELF_API_URL, domain);
+            await client.mutate<ReportTriggerJobFailedMutation, ReportTriggerJobFailedMutationVariables>({
+                mutation: ReportTriggerJobFailedDocument,
+                variables: { taskId: ctx.task.id, runId: ctx.run.id },
+            });
+        } catch (error) {
+            logger.warn('[JobTracking] Failed to report job cancelled', {
+                error: error instanceof Error ? error.message : String(error),
+            });
+        }
+    }
+});
