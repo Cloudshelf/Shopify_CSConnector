@@ -132,10 +132,7 @@ export async function handleSyncProducts(
                     const normalizedNamespace = (metafield.namespace ?? '').trim().toLowerCase() || 'global';
                     const metafieldInput: MetadataInput = {
                         id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
-                        key:
-                            normalizedNamespace !== 'global'
-                                ? `${normalizedNamespace}-${metafield.key}`
-                                : metafield.key,
+                        key: metafield.key,
                         namespace: normalizedNamespace,
                         data: metafield.value,
                     };
@@ -210,10 +207,7 @@ export async function handleSyncProducts(
                         const normalizedNamespace = (metafield.namespace ?? '').trim().toLowerCase() || 'global';
                         variantMetadata.push({
                             id: GlobalIDUtils.gidConverter(metafield.id, 'ShopifyMetafield'),
-                            key:
-                                normalizedNamespace !== 'global'
-                                    ? `${normalizedNamespace}-${metafield.key}`
-                                    : metafield.key,
+                            key: metafield.key,
                             namespace: normalizedNamespace,
                             data: metafield.value,
                         });
