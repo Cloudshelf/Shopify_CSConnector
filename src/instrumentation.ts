@@ -3,7 +3,6 @@ import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentation
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { CompositePropagator, W3CBaggagePropagator, W3CTraceContextPropagator } from '@opentelemetry/core';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
-import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
@@ -50,22 +49,6 @@ function isProxyRequest(url: string | undefined): boolean {
     return !EXCLUDED_PROXY_PATHS.some(pattern => pattern.test(path));
 }
 
-// Custom HTTP instrumentation to handle proxy 404s
-const customHttpInstrumentation = new HttpInstrumentation({
-    applyCustomAttributesOnSpan: (span, request, response) => {
-        // Only process server spans (incoming requests)
-        if (response && 'statusCode' in response) {
-            const url = (request as any).url || (request as any).path;
-            const statusCode = (response as any).statusCode;
-
-            // If this is a proxy request returning 404, don't mark as error
-            if (isProxyRequest(url) && statusCode === 404) {
-                span.setStatus({ code: SpanStatusCode.UNSET });
-            }
-        }
-    },
-});
-
 const otelSDK = new NodeSDK({
     metricReader: undefined, //not yet supported by axiom, we could use something like prometheus
     spanProcessors: [new BatchSpanProcessor(traceExporter)],
@@ -82,12 +65,22 @@ const otelSDK = new NodeSDK({
     }),
     instrumentations: [
         getNodeAutoInstrumentations({
-            // Disable default HTTP instrumentation as we're using custom one
             '@opentelemetry/instrumentation-http': {
+                applyCustomAttributesOnSpan: (span, request, response) => {
+                    if (response && 'statusCode' in response) {
+                        const url = (request as any).url || (request as any).path;
+                        const statusCode = (response as any).statusCode;
+
+                        if (isProxyRequest(url) && statusCode === 404) {
+                            span.setStatus({ code: SpanStatusCode.UNSET });
+                        }
+                    }
+                },
+            },
+            '@opentelemetry/instrumentation-router': {
                 enabled: false,
             },
         }),
-        customHttpInstrumentation,
     ],
     resource,
     sampler: new CrawlerErrorSampler(new TraceIdRatioBasedSampler(1.0)),
