@@ -11,4 +11,4 @@ COPY .env .env
 RUN npm run build
 
 EXPOSE 3123
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
