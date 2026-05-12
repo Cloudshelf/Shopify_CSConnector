@@ -2,6 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoadStrategy } from '@mikro-orm/core';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { databaseSchema } from '../configuration/schemas/database.schema';
 import { buildDatabaseConfig } from './mikro-orm.config';
 
@@ -12,6 +13,7 @@ export class DatabaseModule {
             module: DatabaseModule,
             imports: [
                 MikroOrmModule.forRootAsync({
+                    driver: PostgreSqlDriver,
                     imports: [ConfigModule],
                     inject: [ConfigService<typeof databaseSchema>],
                     useFactory: (configService: ConfigService<typeof databaseSchema>) => {
